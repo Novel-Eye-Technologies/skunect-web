@@ -1,0 +1,308 @@
+'use client';
+
+import { useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import { type ColumnDef, type PaginationState } from '@tanstack/react-table';
+import { MoreHorizontal, Trash2, Eye, Pencil, Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { PageHeader } from '@/components/shared/page-header';
+import { DataTable } from '@/components/shared/data-table';
+import { StatusBadge } from '@/components/shared/status-badge';
+import { ConfirmDialog } from '@/components/shared/confirm-dialog';
+import { HomeworkFormDialog } from '@/components/features/homework/homework-form-dialog';
+import { useHomeworkList, useDeleteHomework } from '@/lib/hooks/use-homework';
+import { useAuthStore } from '@/lib/stores/auth-store';
+import { useQuery } from '@tanstack/react-query';
+import { getClasses, getSubjects } from '@/lib/api/school-settings';
+import { formatDate } from '@/lib/utils/format-date';
+import type { HomeworkListItem } from '@/lib/types/homework';
+
+export default function HomeworkPage() {
+  const router = useRouter();
+  const schoolId = useAuthStore((s) => s.currentSchoolId);
+
+  // ---------------------------------------------------------------------------
+  // Pagination and filter state
+  // ---------------------------------------------------------------------------
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+  const [classFilter, setClassFilter] = useState<string>('');
+  const [subjectFilter, setSubjectFilter] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState<HomeworkListItem | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<HomeworkListItem | null>(
+    null,
+  );
+
+  // ---------------------------------------------------------------------------
+  // Data fetching
+  // ---------------------------------------------------------------------------
+  const { data: response, isLoading } = useHomeworkList({
+    page: pagination.pageIndex,
+    size: pagination.pageSize,
+    classId: classFilter || undefined,
+    subjectId: subjectFilter || undefined,
+    status: statusFilter || undefined,
+  });
+  const deleteHomework = useDeleteHomework();
+
+  const { data: classesResponse } = useQuery({
+    queryKey: ['classes', schoolId],
+    queryFn: () => getClasses(schoolId!),
+    enabled: !!schoolId,
+    select: (res) => res.data,
+  });
+
+  const { data: subjectsResponse } = useQuery({
+    queryKey: ['subjects', schoolId],
+    queryFn: () => getSubjects(schoolId!),
+    enabled: !!schoolId,
+    select: (res) => res.data,
+  });
+
+  const homeworkList = response?.data ?? [];
+  const pageCount = response?.meta?.totalPages ?? 0;
+  const classes = classesResponse ?? [];
+  const subjects = subjectsResponse ?? [];
+
+  // ---------------------------------------------------------------------------
+  // Handlers
+  // ---------------------------------------------------------------------------
+  const handlePaginationChange = useCallback(
+    (newPagination: PaginationState) => {
+      setPagination(newPagination);
+    },
+    [],
+  );
+
+  function confirmDeleteHomework() {
+    if (!deleteTarget) return;
+    deleteHomework.mutate(deleteTarget.id, {
+      onSuccess: () => setDeleteTarget(null),
+    });
+  }
+
+  // ---------------------------------------------------------------------------
+  // Columns
+  // ---------------------------------------------------------------------------
+  const columns: ColumnDef<HomeworkListItem>[] = [
+    {
+      accessorKey: 'title',
+      header: 'Title',
+      cell: ({ row }) => (
+        <button
+          className="font-medium text-primary hover:underline text-left"
+          onClick={() => router.push(`/homework/${row.original.id}`)}
+        >
+          {row.original.title}
+        </button>
+      ),
+    },
+    {
+      accessorKey: 'className',
+      header: 'Class',
+    },
+    {
+      accessorKey: 'subjectName',
+      header: 'Subject',
+    },
+    {
+      accessorKey: 'assignedDate',
+      header: 'Assigned Date',
+      cell: ({ row }) => formatDate(row.original.assignedDate),
+    },
+    {
+      accessorKey: 'dueDate',
+      header: 'Due Date',
+      cell: ({ row }) => formatDate(row.original.dueDate),
+    },
+    {
+      id: 'submissions',
+      header: 'Submissions',
+      cell: ({ row }) => (
+        <span>
+          {row.original.totalSubmissions}/{row.original.totalStudents}
+        </span>
+      ),
+    },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }) => <StatusBadge status={row.original.status} />,
+    },
+    {
+      id: 'actions',
+      cell: ({ row }) => {
+        const homework = row.original;
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                onClick={() => router.push(`/homework/${homework.id}`)}
+              >
+                <Eye className="mr-2 h-4 w-4" />
+                View
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setEditTarget(homework)}>
+                <Pencil className="mr-2 h-4 w-4" />
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => setDeleteTarget(homework)}
+                className="text-destructive focus:text-destructive"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
+  ];
+
+  // ---------------------------------------------------------------------------
+  // Render
+  // ---------------------------------------------------------------------------
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        title="Homework"
+        description="Manage homework assignments and submissions."
+        actions={
+          <Button onClick={() => setCreateDialogOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Create Assignment
+          </Button>
+        }
+      />
+
+      <DataTable
+        columns={columns}
+        data={homeworkList}
+        isLoading={isLoading}
+        pageCount={pageCount}
+        pageIndex={pagination.pageIndex}
+        pageSize={pagination.pageSize}
+        onPaginationChange={handlePaginationChange}
+        toolbarActions={
+          <div className="flex items-center gap-2">
+            <Select
+              value={classFilter}
+              onValueChange={(value) => {
+                setClassFilter(value === 'ALL' ? '' : value);
+                setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+              }}
+            >
+              <SelectTrigger className="h-8 w-[140px]">
+                <SelectValue placeholder="All Classes" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">All Classes</SelectItem>
+                {classes.map((cls) => (
+                  <SelectItem key={cls.id} value={cls.id}>
+                    {cls.name}
+                    {cls.section ? ` (${cls.section})` : ''}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select
+              value={subjectFilter}
+              onValueChange={(value) => {
+                setSubjectFilter(value === 'ALL' ? '' : value);
+                setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+              }}
+            >
+              <SelectTrigger className="h-8 w-[140px]">
+                <SelectValue placeholder="All Subjects" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">All Subjects</SelectItem>
+                {subjects.map((sub) => (
+                  <SelectItem key={sub.id} value={sub.id}>
+                    {sub.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select
+              value={statusFilter}
+              onValueChange={(value) => {
+                setStatusFilter(value === 'ALL' ? '' : value);
+                setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+              }}
+            >
+              <SelectTrigger className="h-8 w-[130px]">
+                <SelectValue placeholder="All Statuses" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">All Statuses</SelectItem>
+                <SelectItem value="ACTIVE">Active</SelectItem>
+                <SelectItem value="CLOSED">Closed</SelectItem>
+                <SelectItem value="DRAFT">Draft</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        }
+      />
+
+      {/* Create Homework Dialog */}
+      <HomeworkFormDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+      />
+
+      {/* Edit Homework Dialog */}
+      <HomeworkFormDialog
+        open={!!editTarget}
+        onOpenChange={(open) => {
+          if (!open) setEditTarget(null);
+        }}
+        homework={editTarget ?? undefined}
+      />
+
+      {/* Delete Homework Confirmation */}
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
+        title="Delete Homework"
+        description={
+          deleteTarget
+            ? `Are you sure you want to delete "${deleteTarget.title}"? This action cannot be undone.`
+            : ''
+        }
+        confirmLabel="Delete"
+        onConfirm={confirmDeleteHomework}
+        isLoading={deleteHomework.isPending}
+        variant="destructive"
+      />
+    </div>
+  );
+}
