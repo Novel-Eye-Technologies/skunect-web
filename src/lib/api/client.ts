@@ -61,7 +61,7 @@ apiClient.interceptors.response.use(
     }
 
     // Don't try to refresh if the failing request IS the refresh request
-    if (originalRequest.url?.includes('/auth/refresh')) {
+    if (originalRequest.url?.includes('/auth/refresh-token')) {
       handleAuthFailure();
       return Promise.reject(error);
     }
@@ -93,7 +93,7 @@ apiClient.interceptors.response.use(
 
     try {
       const { data } = await axios.post<ApiResponse<AuthResponse>>(
-        `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`,
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh-token`,
         { refreshToken: refreshTokenValue },
         { headers: { 'Content-Type': 'application/json' } }
       );

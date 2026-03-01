@@ -57,7 +57,7 @@ export async function googleOAuth(
   data: GoogleOAuthRequest
 ): Promise<ApiResponse<AuthResponse>> {
   const response = await apiClient.post<ApiResponse<AuthResponse>>(
-    '/auth/google',
+    '/auth/oauth/google',
     data
   );
   return response.data;
@@ -67,15 +67,24 @@ export async function refreshToken(
   data: RefreshTokenRequest
 ): Promise<ApiResponse<AuthResponse>> {
   const response = await apiClient.post<ApiResponse<AuthResponse>>(
-    '/auth/refresh',
+    '/auth/refresh-token',
     data
   );
   return response.data;
 }
 
 export async function getCurrentUser(): Promise<ApiResponse<UserInfo>> {
-  const response = await apiClient.get<ApiResponse<UserInfo>>('/auth/me');
-  return response.data;
+  // The /auth/me endpoint returns ApiResponse<AuthResponse> (which includes tokens + user).
+  // We extract just the UserInfo so callers don't need to unwrap it.
+  const response = await apiClient.get<ApiResponse<AuthResponse>>('/auth/me');
+  const apiResponse = response.data;
+  return {
+    status: apiResponse.status,
+    message: apiResponse.message,
+    data: apiResponse.data?.user,
+    errors: apiResponse.errors,
+    meta: apiResponse.meta,
+  } as ApiResponse<UserInfo>;
 }
 
 export async function logout(): Promise<void> {
