@@ -38,7 +38,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ConfirmDialog } from '@/components/shared/confirm-dialog';
 import { EmptyState } from '@/components/shared/empty-state';

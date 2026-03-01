@@ -261,7 +261,6 @@ export function useDeleteTerm() {
   return useMutation({
     mutationFn: ({
       termId,
-      sessionId,
     }: {
       termId: string;
       sessionId: string;

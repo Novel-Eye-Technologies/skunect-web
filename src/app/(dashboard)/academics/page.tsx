@@ -5,7 +5,6 @@ import { type ColumnDef, type PaginationState } from '@tanstack/react-table';
 import {
   MoreHorizontal,
   Trash2,
-  Eye,
   Pencil,
   Send,
 } from 'lucide-react';

@@ -43,7 +43,6 @@ import { useAuthStore } from '@/lib/stores/auth-store';
 import { useQuery } from '@tanstack/react-query';
 import { getClasses } from '@/lib/api/school-settings';
 import { formatCurrency } from '@/lib/utils/format-currency';
-import { formatDate } from '@/lib/utils/format-date';
 import type { FeeStructure } from '@/lib/types/fees';
 import type { Invoice } from '@/lib/types/fees';
 

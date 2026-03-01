@@ -22,7 +22,6 @@ import {
 } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { EmptyState } from '@/components/shared/empty-state';
-import { useAuthStore } from '@/lib/stores/auth-store';
 import {
   useAssessments,
   useAssessmentScores,
@@ -38,7 +37,6 @@ interface ScoreRow {
 }
 
 export function GradeEntryGrid() {
-  const schoolId = useAuthStore((s) => s.currentSchoolId);
   const [selectedAssessmentId, setSelectedAssessmentId] = useState('');
   const [rows, setRows] = useState<ScoreRow[]>([]);
 

@@ -83,6 +83,13 @@ export default function MessagesPage() {
   }
 
   // ---------------------------------------------------------------------------
+  // Auto-scroll to bottom on new messages
+  // ---------------------------------------------------------------------------
+  const scrollToBottom = useCallback(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, []);
+
+  // ---------------------------------------------------------------------------
   // WebSocket connection
   // ---------------------------------------------------------------------------
   useEffect(() => {
@@ -103,14 +110,7 @@ export default function MessagesPage() {
       unsubscribe();
       disconnectStomp();
     };
-  }, [accessToken, activeConversationId, queryClient]);
-
-  // ---------------------------------------------------------------------------
-  // Auto-scroll to bottom on new messages
-  // ---------------------------------------------------------------------------
-  const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, []);
+  }, [accessToken, activeConversationId, queryClient, scrollToBottom]);
 
   useEffect(() => {
     if (messages.length > 0) {

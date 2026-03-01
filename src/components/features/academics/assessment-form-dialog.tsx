@@ -30,7 +30,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useAuthStore } from '@/lib/stores/auth-store';
-import { getClasses, getSubjects, getSessions, getTerms } from '@/lib/api/school-settings';
+import { getClasses, getSubjects, getTerms } from '@/lib/api/school-settings';
 import {
   useCreateAssessment,
   useUpdateAssessment,
