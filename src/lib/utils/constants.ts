@@ -2,6 +2,7 @@ export const ROLES = {
   ADMIN: 'ADMIN',
   TEACHER: 'TEACHER',
   PARENT: 'PARENT',
+  SUPER_ADMIN: 'SUPER_ADMIN',
 } as const;
 
 export const ATTENDANCE_STATUS = {
@@ -40,4 +41,11 @@ export const ADMIN_ONLY_ROUTES: string[] = [
   '/fees',
   '/data-migration',
   '/safety/emergency-alerts',
+];
+
+/**
+ * Routes that require the SUPER_ADMIN role.
+ */
+export const SUPER_ADMIN_ONLY_ROUTES: string[] = [
+  '/system',
 ];

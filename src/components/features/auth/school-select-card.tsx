@@ -38,14 +38,14 @@ export function SchoolSelectCard({
           ? "border-teal ring-2 ring-teal/20 shadow-md"
           : "border-border hover:border-teal/40"
       )}
-      onClick={() => onSelect(school.schoolId)}
+      onClick={() => school.schoolId && onSelect(school.schoolId)}
       role="button"
       tabIndex={0}
       aria-pressed={isSelected}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          onSelect(school.schoolId);
+          if (school.schoolId) onSelect(school.schoolId);
         }
       }}
     >

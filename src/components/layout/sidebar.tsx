@@ -16,14 +16,20 @@ export function Sidebar() {
   const currentRole = useAuthStore((s) => s.currentRole);
   const user = useAuthStore((s) => s.user);
 
+  const isSuperAdmin = useAuthStore((s) => s.isSuperAdmin);
+
   // Filter nav items by the user's current role
   const filteredNav = navigationConfig.filter((item) =>
-    currentRole ? item.roles.includes(currentRole as 'ADMIN' | 'TEACHER') : false,
+    currentRole ? item.roles.includes(currentRole as 'ADMIN' | 'TEACHER' | 'PARENT' | 'SUPER_ADMIN') : false,
   );
 
   // Get current school name
   const currentSchoolId = useAuthStore((s) => s.currentSchoolId);
   const currentSchool = user?.roles.find((r) => r.schoolId === currentSchoolId);
+
+  // Display name for sidebar header
+  const headerName = isSuperAdmin() ? 'Skunect Platform' : (currentSchool?.schoolName ?? 'Skunect');
+  const headerSubtitle = isSuperAdmin() ? 'System Administration' : 'School Management';
 
   return (
     <TooltipProvider delayDuration={100}>
@@ -48,9 +54,9 @@ export function Sidebar() {
           {!collapsed && (
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-semibold text-white">
-                {currentSchool?.schoolName ?? 'Skunect'}
+                {headerName}
               </p>
-              <p className="truncate text-xs text-white/50">School Management</p>
+              <p className="truncate text-xs text-white/50">{headerSubtitle}</p>
             </div>
           )}
         </div>

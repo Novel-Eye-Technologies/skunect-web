@@ -19,6 +19,7 @@ interface AuthActions {
   logout: () => void;
   isAuthenticated: () => boolean;
   getCurrentSchoolRole: () => Role | null;
+  isSuperAdmin: () => boolean;
 }
 
 type AuthStore = AuthState & AuthActions;
@@ -42,6 +43,18 @@ export const useAuthStore = create<AuthStore>()(
 
       setUser: (user: UserInfo) => {
         const state = get();
+
+        // Check for SUPER_ADMIN (no school)
+        const superAdminRole = user.roles.find((r) => r.role === 'SUPER_ADMIN');
+        if (superAdminRole) {
+          set({
+            user,
+            currentSchoolId: null,
+            currentRole: 'SUPER_ADMIN',
+          });
+          return;
+        }
+
         const hasExistingSchool =
           state.currentSchoolId &&
           user.roles.some((r) => r.schoolId === state.currentSchoolId);
@@ -69,6 +82,9 @@ export const useAuthStore = create<AuthStore>()(
         const { user } = get();
         if (!user) return;
 
+        // SUPER_ADMIN doesn't switch schools
+        if (get().currentRole === 'SUPER_ADMIN') return;
+
         const schoolRole = user.roles.find((r) => r.schoolId === schoolId);
         if (schoolRole) {
           set({
@@ -88,6 +104,10 @@ export const useAuthStore = create<AuthStore>()(
 
       getCurrentSchoolRole: () => {
         return get().currentRole;
+      },
+
+      isSuperAdmin: () => {
+        return get().currentRole === 'SUPER_ADMIN';
       },
     }),
     {

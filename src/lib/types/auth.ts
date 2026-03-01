@@ -1,9 +1,9 @@
-export type Role = 'ADMIN' | 'TEACHER' | 'PARENT';
+export type Role = 'ADMIN' | 'TEACHER' | 'PARENT' | 'SUPER_ADMIN';
 
 export type AuthMethod = 'EMAIL_OTP' | 'PHONE_OTP' | 'GOOGLE';
 
 export interface SchoolRoleInfo {
-  schoolId: string;
+  schoolId: string | null;
   schoolName: string;
   role: Role;
 }

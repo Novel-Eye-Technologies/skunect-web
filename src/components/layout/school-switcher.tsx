@@ -17,9 +17,9 @@ export function SchoolSwitcher() {
   const currentSchoolId = useAuthStore((s) => s.currentSchoolId);
   const setCurrentSchool = useAuthStore((s) => s.setCurrentSchool);
 
-  const schools = user?.roles ?? [];
+  const schools = user?.roles.filter((r) => r.schoolId !== null) ?? [];
 
-  // Only render if user has multiple schools
+  // Only render if user has multiple schools (SUPER_ADMIN has no schools)
   if (schools.length <= 1) {
     return null;
   }
@@ -50,7 +50,7 @@ export function SchoolSwitcher() {
         {schools.map((schoolRole) => (
           <DropdownMenuItem
             key={schoolRole.schoolId}
-            onClick={() => setCurrentSchool(schoolRole.schoolId)}
+            onClick={() => schoolRole.schoolId && setCurrentSchool(schoolRole.schoolId)}
             className="cursor-pointer"
           >
             <div className="flex w-full items-center justify-between">

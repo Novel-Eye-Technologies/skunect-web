@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { getCurrentUser } from '@/lib/api/auth';
-import { ADMIN_ONLY_ROUTES } from '@/lib/utils/constants';
+import { ADMIN_ONLY_ROUTES, SUPER_ADMIN_ONLY_ROUTES } from '@/lib/utils/constants';
 
 /** Routes that should be accessible without authentication. */
 const PUBLIC_ROUTES = ['/login', '/register', '/verify-otp', '/forgot-password'];
@@ -82,6 +82,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const isAdminRoute = ADMIN_ONLY_ROUTES.some(
       (route) => pathname === route || pathname.startsWith(`${route}/`)
     );
+
+    const isSuperAdminRoute = SUPER_ADMIN_ONLY_ROUTES.some(
+      (route) => pathname === route || pathname.startsWith(`${route}/`)
+    );
+
+    // SUPER_ADMIN can access everything
+    if (currentRole === 'SUPER_ADMIN') return;
+
+    // Non-super-admins can't access super admin routes
+    if (isSuperAdminRoute) {
+      router.replace('/dashboard');
+      return;
+    }
 
     if (isAdminRoute && currentRole !== 'ADMIN') {
       router.replace('/dashboard');
