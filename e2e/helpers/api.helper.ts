@@ -125,3 +125,76 @@ export async function apiPost<T>(
 
   return res.json();
 }
+
+/**
+ * Make an authenticated API PUT request.
+ */
+export async function apiPut<T>(
+  path: string,
+  accessToken: string,
+  body?: unknown
+): Promise<ApiResponse<T>> {
+  const res = await fetch(`${API_BASE_URL}${path}`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`API PUT ${path} failed: ${res.status} ${text}`);
+  }
+
+  return res.json();
+}
+
+/**
+ * Make an authenticated API PATCH request.
+ */
+export async function apiPatch<T>(
+  path: string,
+  accessToken: string,
+  body?: unknown
+): Promise<ApiResponse<T>> {
+  const res = await fetch(`${API_BASE_URL}${path}`, {
+    method: 'PATCH',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`API PATCH ${path} failed: ${res.status} ${text}`);
+  }
+
+  return res.json();
+}
+
+/**
+ * Make an authenticated API DELETE request.
+ */
+export async function apiDelete<T>(
+  path: string,
+  accessToken: string
+): Promise<ApiResponse<T>> {
+  const res = await fetch(`${API_BASE_URL}${path}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`API DELETE ${path} failed: ${res.status} ${text}`);
+  }
+
+  return res.json();
+}

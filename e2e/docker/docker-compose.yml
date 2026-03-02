@@ -1,0 +1,45 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: skunect
+      POSTGRES_USER: skunect
+      POSTGRES_PASSWORD: skunect
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "skunect"]
+      interval: 3s
+      retries: 10
+
+  backend:
+    image: ${API_IMAGE:-904825753371.dkr.ecr.us-east-1.amazonaws.com/skunect-api-dev:latest}
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_NAME: skunect
+      DB_USERNAME: skunect
+      DB_PASSWORD: skunect
+      OTP_DEV_MODE: "true"
+      CORS_ORIGINS: http://localhost:3000
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/actuator/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 30s
+
+  nginx:
+    image: nginx:alpine
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ../../out:/usr/share/nginx/html:ro

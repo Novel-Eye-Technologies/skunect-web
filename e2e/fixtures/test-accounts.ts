@@ -178,4 +178,5 @@ export type TestAccountKey = keyof typeof TEST_ACCOUNTS;
 
 /** API base URL used for direct API calls in setup/helpers. */
 export const API_BASE_URL =
-  process.env.E2E_API_URL || 'https://dev.skunect.com/api/v1';
+  process.env.E2E_API_URL ||
+  `${process.env.E2E_BASE_URL || 'https://dev.skunect.com'}/api/v1`;
