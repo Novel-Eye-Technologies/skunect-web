@@ -10,6 +10,8 @@ interface AuthState {
   user: UserInfo | null;
   currentSchoolId: string | null;
   currentRole: Role | null;
+  /** Internal flag — true once Zustand persist has restored state from localStorage. */
+  _hydrated: boolean;
 }
 
 interface AuthActions {
@@ -30,6 +32,7 @@ const initialState: AuthState = {
   user: null,
   currentSchoolId: null,
   currentRole: null,
+  _hydrated: false,
 };
 
 export const useAuthStore = create<AuthStore>()(
@@ -95,7 +98,8 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       logout: () => {
-        set(initialState);
+        // Keep _hydrated true — the store is still hydrated, just empty
+        set({ ...initialState, _hydrated: true });
       },
 
       isAuthenticated: () => {
@@ -133,3 +137,29 @@ export const useAuthStore = create<AuthStore>()(
     }
   )
 );
+
+// After the store is created, subscribe to hydration completion.
+// This MUST be outside `create()` so `useAuthStore` is already assigned.
+// When persist finishes restoring from localStorage, we set `_hydrated: true`
+// in the same store. Because React subscribes to the whole store via
+// useSyncExternalStore, the token values and _hydrated flag are guaranteed
+// to be seen in the same render cycle.
+if (useAuthStore.persist.hasHydrated()) {
+  useAuthStore.setState({ _hydrated: true });
+} else {
+  useAuthStore.persist.onFinishHydration(() => {
+    useAuthStore.setState({ _hydrated: true });
+  });
+}
+
+/**
+ * React hook that returns `true` once the Zustand persist middleware has
+ * finished restoring state from localStorage. Because `_hydrated` lives
+ * inside the same Zustand store as the auth tokens, React guarantees that
+ * both values update in the same render cycle — avoiding the race condition
+ * where a separate useState/onFinishHydration hook could see `hydrated=true`
+ * while the token selector still returns `null`.
+ */
+export function useAuthHydrated(): boolean {
+  return useAuthStore((s) => s._hydrated);
+}

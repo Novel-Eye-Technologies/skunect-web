@@ -178,7 +178,7 @@ export function HomeworkDetailClient() {
     <div className="space-y-6">
       <PageHeader
         title={homework.title}
-        description={`${homework.className} - ${homework.subjectName}`}
+        description={`${homework.className ?? ''} - ${homework.subjectName ?? ''}`}
         actions={
           <div className="flex items-center gap-2">
             <Button
@@ -200,7 +200,7 @@ export function HomeworkDetailClient() {
         <TabsList>
           <TabsTrigger value="details">Details</TabsTrigger>
           <TabsTrigger value="submissions">
-            Submissions ({homework.totalSubmissions}/{homework.totalStudents})
+            Submissions ({homework.totalSubmissions ?? 0}/{homework.totalStudents ?? 0})
           </TabsTrigger>
         </TabsList>
 
@@ -211,13 +211,13 @@ export function HomeworkDetailClient() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle>Assignment Information</CardTitle>
-                  <StatusBadge status={homework.status} />
+                  {homework.status ? <StatusBadge status={homework.status} /> : null}
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  <InfoRow label="Class" value={homework.className} />
-                  <InfoRow label="Subject" value={homework.subjectName} />
+                  <InfoRow label="Class" value={homework.className ?? null} />
+                  <InfoRow label="Subject" value={homework.subjectName ?? null} />
                   <InfoRow
                     label="Max Score"
                     value={String(homework.maxScore)}
@@ -230,7 +230,7 @@ export function HomeworkDetailClient() {
                     label="Due Date"
                     value={formatDate(homework.dueDate)}
                   />
-                  <InfoRow label="Created By" value={homework.createdBy} />
+                  <InfoRow label="Created By" value={homework.createdBy ?? null} />
                 </div>
 
                 <Separator className="my-4" />

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { useAuthStore } from '@/lib/stores/auth-store';
+import { useAuthStore, useAuthHydrated } from '@/lib/stores/auth-store';
 import { getCurrentUser } from '@/lib/api/auth';
 import { ADMIN_ONLY_ROUTES, SUPER_ADMIN_ONLY_ROUTES } from '@/lib/utils/constants';
 
@@ -22,6 +22,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const setUser = useAuthStore((s) => s.setUser);
   const logout = useAuthStore((s) => s.logout);
 
+  const hydrated = useAuthHydrated();
   const [isValidating, setIsValidating] = useState(true);
 
   const isPublicRoute = PUBLIC_ROUTES.some(
@@ -34,6 +35,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [logout, router]);
 
   useEffect(() => {
+    // Wait for Zustand to finish restoring persisted state from localStorage.
+    // Because `_hydrated` lives in the same Zustand store as the tokens,
+    // React guarantees both values update in the same render cycle.
+    if (!hydrated) return;
+
     // Public routes don't need auth validation
     if (isPublicRoute) {
       setIsValidating(false);
@@ -73,7 +79,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return () => {
       cancelled = true;
     };
-  }, [accessToken, isPublicRoute, setUser, handleLogout]);
+  }, [hydrated, accessToken, isPublicRoute, setUser, handleLogout]);
 
   // ---------- Role-based route protection ----------
   useEffect(() => {
@@ -101,8 +107,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, [isValidating, isPublicRoute, pathname, currentRole, router]);
 
-  // Prevent flash of protected content
-  if (!isPublicRoute && (isValidating || !accessToken)) {
+  // Prevent flash of protected content (also wait for hydration)
+  if (!isPublicRoute && (!hydrated || isValidating || !accessToken)) {
     return (
       <div className="flex h-screen w-screen items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />

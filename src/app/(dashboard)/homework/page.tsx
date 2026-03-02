@@ -118,10 +118,12 @@ export default function HomeworkPage() {
     {
       accessorKey: 'className',
       header: 'Class',
+      cell: ({ row }) => row.original.className ?? '—',
     },
     {
       accessorKey: 'subjectName',
       header: 'Subject',
+      cell: ({ row }) => row.original.subjectName ?? '—',
     },
     {
       accessorKey: 'assignedDate',
@@ -136,16 +138,17 @@ export default function HomeworkPage() {
     {
       id: 'submissions',
       header: 'Submissions',
-      cell: ({ row }) => (
-        <span>
-          {row.original.totalSubmissions}/{row.original.totalStudents}
-        </span>
-      ),
+      cell: ({ row }) => {
+        const { totalSubmissions, totalStudents } = row.original;
+        if (totalSubmissions == null || totalStudents == null) return '—';
+        return <span>{totalSubmissions}/{totalStudents}</span>;
+      },
     },
     {
       accessorKey: 'status',
       header: 'Status',
-      cell: ({ row }) => <StatusBadge status={row.original.status} />,
+      cell: ({ row }) =>
+        row.original.status ? <StatusBadge status={row.original.status} /> : '—',
     },
     {
       id: 'actions',

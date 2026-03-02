@@ -46,13 +46,14 @@ export interface GradingSystem {
   id: string;
   schoolId: string;
   name: string;
-  grades: GradeDefinition[];
+  scales: GradeDefinition[];
   isDefault: boolean;
   createdAt: string;
 }
 
 export interface GradeDefinition {
-  grade: string; // e.g. "A", "B", etc.
+  id?: string;
+  gradeLabel: string; // e.g. "A", "B", etc.
   minScore: number;
   maxScore: number;
   remark: string; // e.g. "Excellent"
@@ -118,7 +119,7 @@ export interface UpdateSubjectRequest extends CreateSubjectRequest {
 
 export interface CreateGradingSystemRequest {
   name: string;
-  grades: GradeDefinition[];
+  scales: Omit<GradeDefinition, 'id'>[];
   isDefault?: boolean;
 }
 

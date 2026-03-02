@@ -10,6 +10,7 @@ import { ParentDashboard } from '@/components/features/dashboard/parent-dashboar
 export default function DashboardPage() {
   const user = useAuthStore((s) => s.user);
   const currentRole = useAuthStore((s) => s.currentRole);
+  const currentSchoolId = useAuthStore((s) => s.currentSchoolId);
 
   const greeting = user
     ? `Welcome back, ${user.firstName}`
@@ -29,10 +30,14 @@ export default function DashboardPage() {
         description={description}
       />
 
+      {/* key={currentSchoolId} forces React to remount the dashboard component
+          when the user switches schools — critical for cross-school parents where
+          currentRole stays 'PARENT' for both schools. Also ensures future API-backed
+          dashboards refetch data for the new school. */}
       {currentRole === 'SUPER_ADMIN' && <SuperAdminDashboard />}
-      {currentRole === 'ADMIN' && <AdminDashboard />}
-      {currentRole === 'TEACHER' && <TeacherDashboard />}
-      {currentRole === 'PARENT' && <ParentDashboard />}
+      {currentRole === 'ADMIN' && <AdminDashboard key={currentSchoolId} />}
+      {currentRole === 'TEACHER' && <TeacherDashboard key={currentSchoolId} />}
+      {currentRole === 'PARENT' && <ParentDashboard key={currentSchoolId} />}
     </div>
   );
 }

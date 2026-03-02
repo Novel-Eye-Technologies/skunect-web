@@ -58,13 +58,6 @@ export const navigationConfig: NavItem[] = [
     href: '/school-settings',
     icon: School,
     roles: ['ADMIN'],
-    children: [
-      { title: 'General', href: '/school-settings', icon: School, roles: ['ADMIN'] },
-      { title: 'Sessions & Terms', href: '/school-settings/sessions', icon: School, roles: ['ADMIN'] },
-      { title: 'Classes', href: '/school-settings/classes', icon: School, roles: ['ADMIN'] },
-      { title: 'Subjects', href: '/school-settings/subjects', icon: School, roles: ['ADMIN'] },
-      { title: 'Grading Systems', href: '/school-settings/grading-systems', icon: School, roles: ['ADMIN'] },
-    ],
   },
   {
     title: 'Users',
@@ -86,14 +79,9 @@ export const navigationConfig: NavItem[] = [
   },
   {
     title: 'Academics',
-    href: '/academics/assessments',
+    href: '/academics',
     icon: BookOpen,
     roles: ['ADMIN', 'TEACHER'],
-    children: [
-      { title: 'Assessments', href: '/academics/assessments', icon: BookOpen, roles: ['ADMIN', 'TEACHER'] },
-      { title: 'Grade Entry', href: '/academics/grade-entry', icon: BookOpen, roles: ['ADMIN', 'TEACHER'] },
-      { title: 'Report Cards', href: '/academics/report-cards', icon: BookOpen, roles: ['ADMIN', 'TEACHER'] },
-    ],
   },
   {
     title: 'Attendance',
@@ -120,29 +108,15 @@ export const navigationConfig: NavItem[] = [
   },
   {
     title: 'Safety',
-    href: '/safety/emergency-alerts',
+    href: '/safety',
     icon: Shield,
     roles: ['ADMIN', 'TEACHER'],
-    children: [
-      { title: 'Emergency Alerts', href: '/safety/emergency-alerts', icon: Shield, roles: ['ADMIN'] },
-      { title: 'Pickup', href: '/safety/pickup', icon: Shield, roles: ['ADMIN', 'TEACHER'] },
-    ],
   },
   {
     title: 'Fees',
-    href: '/fees/structures',
+    href: '/fees',
     icon: DollarSign,
-    roles: ['ADMIN'],
-    children: [
-      { title: 'Fee Structures', href: '/fees/structures', icon: DollarSign, roles: ['ADMIN'] },
-      { title: 'Invoices', href: '/fees/invoices', icon: DollarSign, roles: ['ADMIN'] },
-    ],
-  },
-  {
-    title: 'Fees',
-    href: '/fees/invoices',
-    icon: DollarSign,
-    roles: ['PARENT'],
+    roles: ['ADMIN', 'PARENT'],
   },
   {
     title: 'Data Migration',
@@ -155,11 +129,5 @@ export const navigationConfig: NavItem[] = [
     href: '/analytics',
     icon: BarChart3,
     roles: ['ADMIN'],
-    children: [
-      { title: 'Overview', href: '/analytics', icon: BarChart3, roles: ['ADMIN'] },
-      { title: 'Attendance', href: '/analytics/attendance', icon: BarChart3, roles: ['ADMIN', 'TEACHER'] },
-      { title: 'Academic', href: '/analytics/academic', icon: BarChart3, roles: ['ADMIN', 'TEACHER'] },
-      { title: 'Fees', href: '/analytics/fees', icon: BarChart3, roles: ['ADMIN'] },
-    ],
   },
 ];

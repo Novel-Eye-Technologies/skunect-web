@@ -55,7 +55,7 @@ import type { GradingSystem } from '@/lib/types/school';
 // ---------------------------------------------------------------------------
 
 const gradeDefinitionSchema = z.object({
-  grade: z.string().min(1, 'Grade letter is required'),
+  gradeLabel: z.string().min(1, 'Grade letter is required'),
   minScore: z.number().min(0, 'Min score must be >= 0'),
   maxScore: z.number().min(1, 'Max score must be >= 1'),
   remark: z.string().min(1, 'Remark is required'),
@@ -63,7 +63,7 @@ const gradeDefinitionSchema = z.object({
 
 const gradingSystemSchema = z.object({
   name: z.string().min(2, 'Name is required'),
-  grades: z
+  scales: z
     .array(gradeDefinitionSchema)
     .min(1, 'At least one grade definition is required'),
   isDefault: z.boolean().optional(),
@@ -91,22 +91,22 @@ export function GradingSystemsManager() {
     resolver: zodResolver(gradingSystemSchema),
     defaultValues: {
       name: '',
-      grades: [{ grade: 'A', minScore: 70, maxScore: 100, remark: 'Excellent' }],
+      scales: [{ gradeLabel: 'A', minScore: 70, maxScore: 100, remark: 'Excellent' }],
       isDefault: false,
     },
   });
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
-    name: 'grades',
+    name: 'scales',
   });
 
   function openCreate() {
     setEditingSystem(null);
     form.reset({
       name: '',
-      grades: [
-        { grade: 'A', minScore: 70, maxScore: 100, remark: 'Excellent' },
+      scales: [
+        { gradeLabel: 'A', minScore: 70, maxScore: 100, remark: 'Excellent' },
       ],
       isDefault: false,
     });
@@ -117,8 +117,8 @@ export function GradingSystemsManager() {
     setEditingSystem(system);
     form.reset({
       name: system.name,
-      grades: system.grades.map((g) => ({
-        grade: g.grade,
+      scales: (system.scales ?? []).map((g) => ({
+        gradeLabel: g.gradeLabel,
         minScore: g.minScore,
         maxScore: g.maxScore,
         remark: g.remark,
@@ -131,7 +131,7 @@ export function GradingSystemsManager() {
   function onSubmit(values: GradingSystemFormValues) {
     const payload = {
       name: values.name,
-      grades: values.grades,
+      scales: values.scales,
       isDefault: values.isDefault,
     };
 
@@ -152,7 +152,7 @@ export function GradingSystemsManager() {
       id: system.id,
       data: {
         name: system.name,
-        grades: system.grades,
+        scales: (system.scales ?? []).map(({ gradeLabel, minScore, maxScore, remark }) => ({ gradeLabel, minScore, maxScore, remark })),
         isDefault: true,
       },
     });
@@ -261,12 +261,12 @@ export function GradingSystemsManager() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-1.5">
-                    {system.grades.map((g, idx) => (
+                    {(system.scales ?? []).map((g, idx) => (
                       <div
                         key={idx}
                         className="flex items-center justify-between rounded-md border px-3 py-1.5 text-sm"
                       >
-                        <span className="font-medium">{g.grade}</span>
+                        <span className="font-medium">{g.gradeLabel}</span>
                         <span className="text-muted-foreground">
                           {g.minScore}–{g.maxScore}
                         </span>
@@ -329,7 +329,7 @@ export function GradingSystemsManager() {
                     size="sm"
                     onClick={() =>
                       append({
-                        grade: '',
+                        gradeLabel: '',
                         minScore: 0,
                         maxScore: 0,
                         remark: '',
@@ -341,9 +341,9 @@ export function GradingSystemsManager() {
                   </Button>
                 </div>
 
-                {form.formState.errors.grades?.root && (
+                {form.formState.errors.scales?.root && (
                   <p className="text-sm text-destructive">
-                    {form.formState.errors.grades.root.message}
+                    {form.formState.errors.scales.root.message}
                   </p>
                 )}
 
@@ -364,7 +364,7 @@ export function GradingSystemsManager() {
                     >
                       <FormField
                         control={form.control}
-                        name={`grades.${index}.grade`}
+                        name={`scales.${index}.gradeLabel`}
                         render={({ field }) => (
                           <FormItem>
                             <FormControl>
@@ -376,7 +376,7 @@ export function GradingSystemsManager() {
                       />
                       <FormField
                         control={form.control}
-                        name={`grades.${index}.minScore`}
+                        name={`scales.${index}.minScore`}
                         render={({ field }) => (
                           <FormItem>
                             <FormControl>
@@ -396,7 +396,7 @@ export function GradingSystemsManager() {
                       />
                       <FormField
                         control={form.control}
-                        name={`grades.${index}.maxScore`}
+                        name={`scales.${index}.maxScore`}
                         render={({ field }) => (
                           <FormItem>
                             <FormControl>
@@ -416,7 +416,7 @@ export function GradingSystemsManager() {
                       />
                       <FormField
                         control={form.control}
-                        name={`grades.${index}.remark`}
+                        name={`scales.${index}.remark`}
                         render={({ field }) => (
                           <FormItem>
                             <FormControl>

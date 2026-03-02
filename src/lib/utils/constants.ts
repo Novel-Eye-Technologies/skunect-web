@@ -40,7 +40,6 @@ export const ADMIN_ONLY_ROUTES: string[] = [
   '/users',
   '/fees',
   '/data-migration',
-  '/safety/emergency-alerts',
 ];
 
 /**

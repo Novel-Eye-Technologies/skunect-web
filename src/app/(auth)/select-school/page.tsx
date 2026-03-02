@@ -6,10 +6,11 @@ import { ArrowRight, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { SchoolSelectCard } from "@/components/features/auth/school-select-card";
-import { useAuthStore } from "@/lib/stores/auth-store";
+import { useAuthStore, useAuthHydrated } from "@/lib/stores/auth-store";
 
 export default function SelectSchoolPage() {
   const router = useRouter();
+  const hydrated = useAuthHydrated();
   const user = useAuthStore((s) => s.user);
   const setCurrentSchool = useAuthStore((s) => s.setCurrentSchool);
   const currentSchoolId = useAuthStore((s) => s.currentSchoolId);
@@ -18,8 +19,13 @@ export default function SelectSchoolPage() {
     currentSchoolId
   );
 
-  // Redirect if not authenticated or only one school
+  // Redirect if not authenticated or only one school.
+  // Wait for Zustand persist to restore state from localStorage before
+  // checking — otherwise `user` is null during the hydration render cycle
+  // and the page would incorrectly redirect to /login.
   useEffect(() => {
+    if (!hydrated) return;
+
     if (!user) {
       router.replace("/login");
       return;
@@ -28,7 +34,7 @@ export default function SelectSchoolPage() {
     if (user.roles.length <= 1) {
       router.replace("/dashboard");
     }
-  }, [user, router]);
+  }, [hydrated, user, router]);
 
   function handleContinue() {
     if (!selectedSchoolId) return;
@@ -36,7 +42,7 @@ export default function SelectSchoolPage() {
     router.push("/dashboard");
   }
 
-  if (!user || user.roles.length <= 1) {
+  if (!hydrated || !user || user.roles.length <= 1) {
     return (
       <div className="flex items-center justify-center py-16">
         <Loader2 className="h-8 w-8 animate-spin text-navy" />

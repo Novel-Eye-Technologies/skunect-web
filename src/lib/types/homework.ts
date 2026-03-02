@@ -2,15 +2,19 @@ export interface HomeworkListItem {
   id: string;
   title: string;
   classId: string;
-  className: string;
+  className?: string;
   subjectId: string;
-  subjectName: string;
-  assignedDate: string;
+  subjectName?: string;
+  assignedDate?: string;
   dueDate: string;
-  status: 'ACTIVE' | 'CLOSED' | 'DRAFT';
-  totalSubmissions: number;
-  totalStudents: number;
-  createdBy: string;
+  status?: 'ACTIVE' | 'CLOSED' | 'DRAFT';
+  totalSubmissions?: number;
+  totalStudents?: number;
+  teacherId?: string;
+  teacherName?: string;
+  description?: string;
+  attachmentUrls?: string[];
+  createdBy?: string;
   createdAt: string;
 }
 

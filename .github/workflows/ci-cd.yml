@@ -20,7 +20,10 @@ jobs:
       - run: npx tsc --noEmit
 
   build-and-deploy:
-    needs: lint-and-typecheck
+    needs: [lint-and-typecheck]
+    # Note: E2E tests run in separate workflow (e2e-tests.yml).
+    # Add 'e2e' job from that workflow as a dependency once branch
+    # protection rules are configured on GitHub.
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
