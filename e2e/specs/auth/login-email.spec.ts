@@ -25,14 +25,14 @@ test.describe('Email Login Flow', () => {
     await loginPage.loginWithEmail(TEST_ACCOUNTS.adminKings.email);
 
     // Should navigate to /verify-otp with a ref query param
-    await expect(page).toHaveURL(/\/verify-otp\?ref=/, { timeout: 20_000 });
+    await expect(page).toHaveURL(/\/verify-otp\/?\?ref=/, { timeout: 20_000 });
     await otpPage.expectVisible();
 
     // Fill the 6-digit OTP
     await otpPage.fillOtp(TEST_ACCOUNTS.adminKings.otp);
 
     // Single-school admin → redirects straight to /dashboard
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 30_000 });
+    await expect(page).toHaveURL(/\/dashboard\/?/, { timeout: 30_000 });
 
     const dashboard = new DashboardPage(page);
     await dashboard.expectVisible();
@@ -41,34 +41,34 @@ test.describe('Email Login Flow', () => {
   test('teacher can login with email and OTP', async ({ page }) => {
     await loginPage.loginWithEmail(TEST_ACCOUNTS.teacherKings.email);
 
-    await expect(page).toHaveURL(/\/verify-otp\?ref=/, { timeout: 20_000 });
+    await expect(page).toHaveURL(/\/verify-otp\/?\?ref=/, { timeout: 20_000 });
     await otpPage.expectVisible();
     await otpPage.fillOtp(TEST_ACCOUNTS.teacherKings.otp);
 
     // Single-school teacher → /dashboard
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 30_000 });
+    await expect(page).toHaveURL(/\/dashboard\/?/, { timeout: 30_000 });
   });
 
   test('parent can login with email and OTP', async ({ page }) => {
     await loginPage.loginWithEmail(TEST_ACCOUNTS.parentSingle.email);
 
-    await expect(page).toHaveURL(/\/verify-otp\?ref=/, { timeout: 20_000 });
+    await expect(page).toHaveURL(/\/verify-otp\/?\?ref=/, { timeout: 20_000 });
     await otpPage.expectVisible();
     await otpPage.fillOtp(TEST_ACCOUNTS.parentSingle.otp);
 
     // Single-school parent → /dashboard
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 30_000 });
+    await expect(page).toHaveURL(/\/dashboard\/?/, { timeout: 30_000 });
   });
 
   test('super admin can login with email and OTP', async ({ page }) => {
     await loginPage.loginWithEmail(TEST_ACCOUNTS.superAdmin.email);
 
-    await expect(page).toHaveURL(/\/verify-otp\?ref=/, { timeout: 20_000 });
+    await expect(page).toHaveURL(/\/verify-otp\/?\?ref=/, { timeout: 20_000 });
     await otpPage.expectVisible();
     await otpPage.fillOtp(TEST_ACCOUNTS.superAdmin.otp);
 
     // Super admin has no schools → /dashboard
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 30_000 });
+    await expect(page).toHaveURL(/\/dashboard\/?/, { timeout: 30_000 });
   });
 
   test('shows error for empty email submission', async () => {
@@ -80,7 +80,7 @@ test.describe('Email Login Flow', () => {
 
   test('can navigate to register page', async ({ page }) => {
     await loginPage.goToRegister();
-    await expect(page).toHaveURL(/\/register/);
+    await expect(page).toHaveURL(/\/register\/?/);
   });
 
   test('can switch between email and phone tabs', async () => {

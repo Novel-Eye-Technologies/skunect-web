@@ -15,12 +15,12 @@ test.describe('School Selection', () => {
     // Login flow
     await loginPage.goto();
     await loginPage.loginWithEmail(TEST_ACCOUNTS.parentCross.email);
-    await expect(page).toHaveURL(/\/verify-otp\?ref=/, { timeout: 25_000 });
+    await expect(page).toHaveURL(/\/verify-otp\/?\?ref=/, { timeout: 25_000 });
     await otpPage.expectVisible();
     await otpPage.fillOtp(TEST_ACCOUNTS.parentCross.otp);
 
     // Cross-school parent has roles at 2+ schools → /select-school
-    await expect(page).toHaveURL(/\/select-school/, { timeout: 30_000 });
+    await expect(page).toHaveURL(/\/select-school\/?/, { timeout: 30_000 });
     await selectSchoolPage.expectVisible();
 
     // Should show heading and subtitle
@@ -42,12 +42,12 @@ test.describe('School Selection', () => {
 
     await loginPage.goto();
     await loginPage.loginWithEmail(TEST_ACCOUNTS.teacherParent.email);
-    await expect(page).toHaveURL(/\/verify-otp\?ref=/, { timeout: 25_000 });
+    await expect(page).toHaveURL(/\/verify-otp\/?\?ref=/, { timeout: 25_000 });
     await otpPage.expectVisible();
     await otpPage.fillOtp(TEST_ACCOUNTS.teacherParent.otp);
 
     // Dual-role user has roles at 2+ schools → /select-school
-    await expect(page).toHaveURL(/\/select-school/, { timeout: 30_000 });
+    await expect(page).toHaveURL(/\/select-school\/?/, { timeout: 30_000 });
     await selectSchoolPage.expectVisible();
     await selectSchoolPage.expectMultipleSchools();
   });
@@ -63,11 +63,11 @@ test.describe('School Selection', () => {
 
     await loginPage.goto();
     await loginPage.loginWithEmail(TEST_ACCOUNTS.parentCross.email);
-    await expect(page).toHaveURL(/\/verify-otp\?ref=/, { timeout: 25_000 });
+    await expect(page).toHaveURL(/\/verify-otp\/?\?ref=/, { timeout: 25_000 });
     await otpPage.expectVisible();
     await otpPage.fillOtp(TEST_ACCOUNTS.parentCross.otp);
 
-    await expect(page).toHaveURL(/\/select-school/, { timeout: 30_000 });
+    await expect(page).toHaveURL(/\/select-school\/?/, { timeout: 30_000 });
     await selectSchoolPage.expectVisible();
 
     // Select the first visible school and click Continue
@@ -77,7 +77,7 @@ test.describe('School Selection', () => {
     await selectSchoolPage.continue();
 
     // Should redirect to /dashboard
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 30_000 });
+    await expect(page).toHaveURL(/\/dashboard\/?/, { timeout: 30_000 });
   });
 
   test('single-school admin skips school selection', async ({ page }) => {
@@ -86,12 +86,12 @@ test.describe('School Selection', () => {
 
     await loginPage.goto();
     await loginPage.loginWithEmail(TEST_ACCOUNTS.adminKings.email);
-    await expect(page).toHaveURL(/\/verify-otp\?ref=/, { timeout: 25_000 });
+    await expect(page).toHaveURL(/\/verify-otp\/?\?ref=/, { timeout: 25_000 });
     await otpPage.expectVisible();
     await otpPage.fillOtp(TEST_ACCOUNTS.adminKings.otp);
 
     // Single-school user should go directly to /dashboard (no /select-school)
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 30_000 });
+    await expect(page).toHaveURL(/\/dashboard\/?/, { timeout: 30_000 });
   });
 
   test('super admin skips school selection', async ({ page }) => {
@@ -100,11 +100,11 @@ test.describe('School Selection', () => {
 
     await loginPage.goto();
     await loginPage.loginWithEmail(TEST_ACCOUNTS.superAdmin.email);
-    await expect(page).toHaveURL(/\/verify-otp\?ref=/, { timeout: 25_000 });
+    await expect(page).toHaveURL(/\/verify-otp\/?\?ref=/, { timeout: 25_000 });
     await otpPage.expectVisible();
     await otpPage.fillOtp(TEST_ACCOUNTS.superAdmin.otp);
 
     // Super admin has no schools → goes directly to /dashboard
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 30_000 });
+    await expect(page).toHaveURL(/\/dashboard\/?/, { timeout: 30_000 });
   });
 });

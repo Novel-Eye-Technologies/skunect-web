@@ -15,7 +15,7 @@ test.describe('OTP Verification', () => {
     // Navigate through the login flow first so we land on /verify-otp?ref=...
     await loginPage.goto();
     await loginPage.loginWithEmail(TEST_ACCOUNTS.adminKings.email);
-    await expect(page).toHaveURL(/\/verify-otp\?ref=/, { timeout: 10_000 });
+    await expect(page).toHaveURL(/\/verify-otp\/?\?ref=/, { timeout: 10_000 });
     await otpPage.expectVisible();
   });
 
@@ -58,7 +58,7 @@ test.describe('OTP Verification', () => {
     // The component shows "Verifying..." then "Verified!" briefly before
     // redirecting. The transient state is too fast to reliably assert in
     // headless mode, so we verify the end result instead.
-    await expect(page).toHaveURL(/\/dashboard|\/select-school/, {
+    await expect(page).toHaveURL(/\/dashboard\/?|\/select-school\/?/, {
       timeout: 30_000,
     });
   });
@@ -70,7 +70,7 @@ test.describe('OTP Verification', () => {
 
     // Should auto-submit, verify, and redirect
     await otpPage.expectVerified();
-    await expect(page).toHaveURL(/\/dashboard|\/select-school/, {
+    await expect(page).toHaveURL(/\/dashboard\/?|\/select-school\/?/, {
       timeout: 15_000,
     });
   });

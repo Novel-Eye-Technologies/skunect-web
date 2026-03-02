@@ -43,6 +43,6 @@ test.describe('Fees Management', () => {
   test('parent is redirected away from /fees (admin-only route)', async ({ parentPage }) => {
     // /fees is in ADMIN_ONLY_ROUTES so parents get redirected to /dashboard
     await parentPage.goto('/fees');
-    await expect(parentPage).toHaveURL(/\/dashboard/, { timeout: 10_000 });
+    await expect(parentPage).toHaveURL(/\/dashboard\/?/, { timeout: 10_000 });
   });
 });

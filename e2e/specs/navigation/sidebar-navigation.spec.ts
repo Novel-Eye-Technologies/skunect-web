@@ -42,7 +42,7 @@ test.describe('Sidebar Navigation', () => {
 
     const sidebar = new SidebarPage(adminPage);
     await sidebar.navigateTo('Students');
-    await expect(adminPage).toHaveURL(/\/students/, { timeout: 10_000 });
+    await expect(adminPage).toHaveURL(/\/students\/?/, { timeout: 10_000 });
   });
 
   test('admin can navigate to Homework via sidebar', async ({ adminPage }) => {
@@ -51,6 +51,6 @@ test.describe('Sidebar Navigation', () => {
 
     const sidebar = new SidebarPage(adminPage);
     await sidebar.navigateTo('Homework');
-    await expect(adminPage).toHaveURL(/\/homework/, { timeout: 10_000 });
+    await expect(adminPage).toHaveURL(/\/homework\/?/, { timeout: 10_000 });
   });
 });

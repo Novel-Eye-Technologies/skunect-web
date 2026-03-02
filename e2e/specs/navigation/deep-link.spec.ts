@@ -6,21 +6,21 @@ test.describe('Deep Linking', () => {
   }) => {
     // Use a clean page (no storageState)
     await page.goto('/dashboard');
-    await expect(page).toHaveURL(/\/login/, { timeout: 10_000 });
+    await expect(page).toHaveURL(/\/login\/?/, { timeout: 10_000 });
   });
 
   test('unauthenticated user visiting /students redirects to /login', async ({
     page,
   }) => {
     await page.goto('/students');
-    await expect(page).toHaveURL(/\/login/, { timeout: 10_000 });
+    await expect(page).toHaveURL(/\/login\/?/, { timeout: 10_000 });
   });
 
   test('authenticated admin can deep-link to /students', async ({
     adminPage,
   }) => {
     await adminPage.goto('/students');
-    await expect(adminPage).toHaveURL(/\/students/);
+    await expect(adminPage).toHaveURL(/\/students\/?/);
     await expect(
       adminPage.getByRole('heading', { name: /students/i })
     ).toBeVisible({ timeout: 20_000 });
@@ -31,7 +31,7 @@ test.describe('Deep Linking', () => {
   }) => {
     // Homework page has a runtime error ("Something went wrong") - skipping until app bug is fixed
     await adminPage.goto('/homework');
-    await expect(adminPage).toHaveURL(/\/homework/);
+    await expect(adminPage).toHaveURL(/\/homework\/?/);
     await expect(
       adminPage.getByRole('heading', { name: /homework/i })
     ).toBeVisible({ timeout: 20_000 });
@@ -41,7 +41,7 @@ test.describe('Deep Linking', () => {
     adminPage,
   }) => {
     await adminPage.goto('/attendance');
-    await expect(adminPage).toHaveURL(/\/attendance/);
+    await expect(adminPage).toHaveURL(/\/attendance\/?/);
     await expect(
       adminPage.getByRole('heading', { name: /attendance/i })
     ).toBeVisible({ timeout: 20_000 });
@@ -51,7 +51,7 @@ test.describe('Deep Linking', () => {
     teacherPage,
   }) => {
     await teacherPage.goto('/attendance');
-    await expect(teacherPage).toHaveURL(/\/attendance/);
+    await expect(teacherPage).toHaveURL(/\/attendance\/?/);
     await expect(
       teacherPage.getByRole('heading', { name: /attendance/i })
     ).toBeVisible({ timeout: 20_000 });
@@ -62,7 +62,7 @@ test.describe('Deep Linking', () => {
   }) => {
     // Homework page has a runtime error ("Something went wrong") - skipping until app bug is fixed
     await parentPage.goto('/homework');
-    await expect(parentPage).toHaveURL(/\/homework/);
+    await expect(parentPage).toHaveURL(/\/homework\/?/);
     await expect(
       parentPage.getByRole('heading', { name: /homework/i })
     ).toBeVisible({ timeout: 20_000 });
@@ -73,6 +73,6 @@ test.describe('Deep Linking', () => {
   }) => {
     // /fees is in ADMIN_ONLY_ROUTES, so parent gets redirected to /dashboard
     await parentPage.goto('/fees');
-    await expect(parentPage).toHaveURL(/\/dashboard/, { timeout: 10_000 });
+    await expect(parentPage).toHaveURL(/\/dashboard\/?/, { timeout: 10_000 });
   });
 });

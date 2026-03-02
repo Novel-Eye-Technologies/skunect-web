@@ -12,7 +12,7 @@ test.describe('Logout', () => {
     await sidebar.logout();
 
     // Should redirect to login
-    await expect(adminPage).toHaveURL(/\/login/, { timeout: 15_000 });
+    await expect(adminPage).toHaveURL(/\/login\/?/, { timeout: 15_000 });
   });
 
   test('after logout, accessing protected route redirects to login', async ({
@@ -24,12 +24,12 @@ test.describe('Logout', () => {
     const sidebar = new SidebarPage(adminPage);
     await sidebar.logout();
 
-    await expect(adminPage).toHaveURL(/\/login/, { timeout: 15_000 });
+    await expect(adminPage).toHaveURL(/\/login\/?/, { timeout: 15_000 });
 
     // Try to access a protected route directly
     await adminPage.goto('/students');
 
     // Should be redirected back to login
-    await expect(adminPage).toHaveURL(/\/login/, { timeout: 15_000 });
+    await expect(adminPage).toHaveURL(/\/login\/?/, { timeout: 15_000 });
   });
 });
