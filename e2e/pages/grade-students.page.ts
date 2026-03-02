@@ -56,28 +56,37 @@ export class GradeStudentsPage {
     }
   }
 
-  async selectAssessmentClass(className: string) {
+  async selectAssessmentClass(className: string | RegExp) {
     const selects = this.dialog.getByRole('combobox');
     await selects.first().click();
-    await this.page.getByRole('option', { name: className }).click();
+    await this.page.getByRole('option', { name: className }).first().click();
   }
 
-  async selectAssessmentSubject(subjectName: string) {
+  async selectAssessmentSubject(subjectName: string | RegExp) {
     const selects = this.dialog.getByRole('combobox');
     await selects.nth(1).click();
-    await this.page.getByRole('option', { name: subjectName }).click();
+    await this.page.getByRole('option', { name: subjectName }).first().click();
   }
 
-  async selectAssessmentTerm(termName: string) {
+  async selectAssessmentTerm(termName: string | RegExp) {
+    // Terms load asynchronously after currentSessionId resolves from school settings.
+    // Click once to open the dropdown; the popup stays open while React re-renders
+    // the options when the terms data arrives.
     const selects = this.dialog.getByRole('combobox');
-    await selects.nth(2).click();
-    await this.page.getByRole('option', { name: termName }).click();
+    const termCombobox = selects.nth(2);
+
+    await termCombobox.click();
+
+    // Wait for options to appear (generous timeout for async data loading)
+    const option = this.page.getByRole('option', { name: termName }).first();
+    await expect(option).toBeVisible({ timeout: 20_000 });
+    await option.click();
   }
 
-  async selectAssessmentType(type: string) {
+  async selectAssessmentType(type: string | RegExp) {
     const selects = this.dialog.getByRole('combobox');
     await selects.nth(3).click();
-    await this.page.getByRole('option', { name: type }).click();
+    await this.page.getByRole('option', { name: type }).first().click();
   }
 
   async submitAssessmentForm() {
@@ -97,8 +106,12 @@ export class GradeStudentsPage {
     const row = this.dataTable.locator('tr', { hasText: title });
     await row.getByRole('button').last().click();
     await this.page.getByRole('menuitem', { name: /delete/i }).click();
-    const confirmButton = this.page.getByRole('button', { name: /delete/i });
+    // Confirm dialog uses role="alertdialog"
+    const alertDialog = this.page.locator('[role="alertdialog"]');
+    await expect(alertDialog).toBeVisible({ timeout: 3_000 });
+    const confirmButton = alertDialog.getByRole('button', { name: /delete/i });
     await confirmButton.click();
+    await expect(alertDialog).not.toBeVisible({ timeout: 5_000 });
   }
 
   // --- Grade Entry tab ---
@@ -108,10 +121,11 @@ export class GradeStudentsPage {
   }
 
   async selectAssessmentForGrading(assessmentLabel: string) {
-    const select = this.page.getByRole('combobox');
+    const select = this.page.getByRole('combobox').first();
     await select.click();
     await this.page
       .getByRole('option', { name: new RegExp(assessmentLabel, 'i') })
+      .first()
       .click();
   }
 

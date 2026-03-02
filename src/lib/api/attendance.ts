@@ -41,7 +41,7 @@ export async function submitBulkAttendance(
   data: BulkAttendanceRequest,
 ): Promise<ApiResponse<void>> {
   const response = await apiClient.post<ApiResponse<void>>(
-    `/schools/${schoolId}/attendance/bulk`,
+    `/schools/${schoolId}/attendance`,
     data,
   );
   return response.data;

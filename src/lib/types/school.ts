@@ -103,6 +103,7 @@ export interface CreateClassRequest {
   section?: string;
   capacity: number;
   classTeacherId?: string;
+  sessionId?: string;
 }
 
 export interface UpdateClassRequest extends CreateClassRequest {}

@@ -26,10 +26,13 @@ test.describe('Academic Sessions - Advanced Operations', () => {
     const firstSession = adminPage
       .locator('[class*="cursor-pointer"]')
       .first();
-    const sessionName = await firstSession.locator('.font-medium').textContent();
+    await expect(firstSession).toBeVisible({ timeout: 10_000 });
+    const sessionText = await firstSession.textContent();
+    // Extract session name (e.g. "2025/2026") — it's the first text in the item
+    const sessionName = sessionText?.match(/(\d{4}\/\d{4})/)?.[1] ?? sessionText?.trim();
     await firstSession.click();
 
-    // Terms panel should show session name
+    // Terms panel should show session name in header
     await expect(adminPage.getByText(`Terms — ${sessionName}`)).toBeVisible({
       timeout: 5_000,
     });
@@ -42,9 +45,9 @@ test.describe('Academic Sessions - Advanced Operations', () => {
     await terms.goto();
     await terms.expectVisible();
 
-    // Terms panel should show empty state initially
+    // Terms panel should show empty state heading
     await expect(
-      adminPage.getByText('Select a session to view its terms')
+      adminPage.getByRole('heading', { name: /no session selected/i })
     ).toBeVisible({ timeout: 5_000 });
   });
 
@@ -56,7 +59,7 @@ test.describe('Academic Sessions - Advanced Operations', () => {
 
     // Should see grading systems heading
     await expect(
-      adminPage.getByText('Grading Systems')
+      adminPage.getByRole('heading', { name: 'Grading Systems' })
     ).toBeVisible({ timeout: 10_000 });
   });
 });

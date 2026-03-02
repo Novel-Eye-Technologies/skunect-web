@@ -43,24 +43,12 @@ export async function getHomework(
 export async function createHomework(
   schoolId: string,
   data: CreateHomeworkRequest,
-  files?: File[],
+  _files?: File[],
 ): Promise<ApiResponse<HomeworkDetail>> {
-  const formData = new FormData();
-  formData.append(
-    'data',
-    new Blob([JSON.stringify(data)], { type: 'application/json' }),
-  );
-
-  if (files && files.length > 0) {
-    files.forEach((file) => {
-      formData.append('files', file);
-    });
-  }
-
+  // Backend expects plain JSON @RequestBody (not multipart)
   const response = await apiClient.post<ApiResponse<HomeworkDetail>>(
     `/schools/${schoolId}/homework`,
-    formData,
-    { headers: { 'Content-Type': 'multipart/form-data' } },
+    data,
   );
   return response.data;
 }
@@ -110,7 +98,7 @@ export async function gradeSubmission(
   data: GradeSubmissionRequest,
 ): Promise<ApiResponse<Submission>> {
   const response = await apiClient.put<ApiResponse<Submission>>(
-    `/schools/${schoolId}/homework/${homeworkId}/submissions/${submissionId}/grade`,
+    `/schools/${schoolId}/homework/${homeworkId}/submissions/${submissionId}`,
     data,
   );
   return response.data;

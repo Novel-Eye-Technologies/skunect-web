@@ -82,7 +82,7 @@ export async function getAssessmentScores(
   assessmentId: string,
 ): Promise<ApiResponse<StudentScore[]>> {
   const response = await apiClient.get<ApiResponse<StudentScore[]>>(
-    `/schools/${schoolId}/assessments/${assessmentId}/scores`,
+    `/schools/${schoolId}/assessments/${assessmentId}/grades`,
   );
   return response.data;
 }
@@ -93,7 +93,7 @@ export async function submitBulkScores(
   data: BulkScoreRequest,
 ): Promise<ApiResponse<void>> {
   const response = await apiClient.post<ApiResponse<void>>(
-    `/schools/${schoolId}/assessments/${assessmentId}/scores/bulk`,
+    `/schools/${schoolId}/assessments/${assessmentId}/grades`,
     data,
   );
   return response.data;

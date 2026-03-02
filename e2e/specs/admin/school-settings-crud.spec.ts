@@ -93,7 +93,7 @@ test.describe('School Settings - General Information CRUD', () => {
 
     // Should see grading systems heading and add button
     await expect(
-      adminPage.getByText('Grading Systems')
+      adminPage.getByRole('heading', { name: 'Grading Systems' })
     ).toBeVisible({ timeout: 10_000 });
     await expect(
       adminPage.getByRole('button', { name: /add grading system/i })

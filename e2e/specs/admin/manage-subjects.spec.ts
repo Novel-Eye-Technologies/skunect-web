@@ -41,11 +41,15 @@ test.describe('Subjects Management (CRUD)', () => {
     await subjects.expectVisible();
     await subjects.expectTableNotEmpty();
 
-    // Edit the first subject
-    const firstRow = subjects.dataTable.locator('tbody tr').first();
-    await firstRow.getByRole('button').first().click();
+    // Edit the first subject — use page object to target Actions column
+    const firstName = await subjects.dataTable
+      .locator('tbody tr')
+      .first()
+      .locator('td')
+      .first()
+      .textContent();
+    await subjects.editSubject(firstName!.trim());
 
-    await expect(subjects.dialog).toBeVisible();
     // Clear and update the description
     await subjects.descriptionInput.fill('Updated description via E2E');
     await subjects.submitForm();

@@ -61,17 +61,17 @@ export class ManageHomeworkPage {
     }
   }
 
-  async selectClass(className: string) {
-    // Click the Class combobox/select and choose a class
+  async selectClass(className: string | RegExp) {
+    // Click the Class combobox/select and choose the first matching class
     const classSelects = this.dialog.getByRole('combobox');
     await classSelects.first().click();
-    await this.page.getByRole('option', { name: className }).click();
+    await this.page.getByRole('option', { name: className }).first().click();
   }
 
-  async selectSubject(subjectName: string) {
+  async selectSubject(subjectName: string | RegExp) {
     const subjectSelects = this.dialog.getByRole('combobox');
     await subjectSelects.nth(1).click();
-    await this.page.getByRole('option', { name: subjectName }).click();
+    await this.page.getByRole('option', { name: subjectName }).first().click();
   }
 
   async setDates(assignedDate: string, dueDate: string) {
@@ -105,8 +105,12 @@ export class ManageHomeworkPage {
   async deleteHomework(title: string) {
     await this.openRowActions(title);
     await this.clickRowAction('Delete');
-    const confirmButton = this.page.getByRole('button', { name: /delete/i });
+    // Confirm dialog uses role="alertdialog"
+    const alertDialog = this.page.locator('[role="alertdialog"]');
+    await expect(alertDialog).toBeVisible({ timeout: 3_000 });
+    const confirmButton = alertDialog.getByRole('button', { name: /delete/i });
     await confirmButton.click();
+    await expect(alertDialog).not.toBeVisible({ timeout: 5_000 });
   }
 
   async expectHomeworkNotInTable(title: string) {

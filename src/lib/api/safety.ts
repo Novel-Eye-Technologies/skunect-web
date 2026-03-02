@@ -16,7 +16,7 @@ export async function getEmergencyAlerts(
   params?: PaginatedParams,
 ): Promise<ApiResponse<EmergencyAlert[]>> {
   const response = await apiClient.get<ApiResponse<EmergencyAlert[]>>(
-    `/schools/${schoolId}/safety/emergency-alerts`,
+    `/schools/${schoolId}/emergency-alerts`,
     { params },
   );
   return response.data;
@@ -26,9 +26,15 @@ export async function createEmergencyAlert(
   schoolId: string,
   data: CreateEmergencyAlertRequest,
 ): Promise<ApiResponse<EmergencyAlert>> {
+  // Backend expects { title, message, severity } — map frontend fields
+  const payload = {
+    title: data.title,
+    message: data.description,
+    severity: data.severity,
+  };
   const response = await apiClient.post<ApiResponse<EmergencyAlert>>(
-    `/schools/${schoolId}/safety/emergency-alerts`,
-    data,
+    `/schools/${schoolId}/emergency-alerts`,
+    payload,
   );
   return response.data;
 }
@@ -38,7 +44,7 @@ export async function resolveEmergencyAlert(
   alertId: string,
 ): Promise<ApiResponse<EmergencyAlert>> {
   const response = await apiClient.put<ApiResponse<EmergencyAlert>>(
-    `/schools/${schoolId}/safety/emergency-alerts/${alertId}/resolve`,
+    `/schools/${schoolId}/emergency-alerts/${alertId}/resolve`,
   );
   return response.data;
 }
@@ -56,7 +62,7 @@ export async function getPickupLogs(
   params?: PickupLogListParams,
 ): Promise<ApiResponse<PickupLog[]>> {
   const response = await apiClient.get<ApiResponse<PickupLog[]>>(
-    `/schools/${schoolId}/safety/pickup-logs`,
+    `/schools/${schoolId}/pickup-logs`,
     { params },
   );
   return response.data;
@@ -67,7 +73,7 @@ export async function createPickupLog(
   data: CreatePickupLogRequest,
 ): Promise<ApiResponse<PickupLog>> {
   const response = await apiClient.post<ApiResponse<PickupLog>>(
-    `/schools/${schoolId}/safety/pickup-logs`,
+    `/schools/${schoolId}/pickup-logs`,
     data,
   );
   return response.data;
@@ -78,7 +84,7 @@ export async function verifyPickupLog(
   pickupLogId: string,
 ): Promise<ApiResponse<PickupLog>> {
   const response = await apiClient.post<ApiResponse<PickupLog>>(
-    `/schools/${schoolId}/safety/pickup-logs/${pickupLogId}/verify`,
+    `/schools/${schoolId}/pickup-logs/${pickupLogId}/verify`,
   );
   return response.data;
 }

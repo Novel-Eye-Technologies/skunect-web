@@ -46,6 +46,7 @@ import {
   useCreateClass,
   useUpdateClass,
   useDeleteClass,
+  useSessions,
 } from '@/lib/hooks/use-school-settings';
 import type { SchoolClass } from '@/lib/types/school';
 
@@ -68,9 +69,13 @@ type ClassFormValues = z.infer<typeof classSchema>;
 
 export function ClassesManager() {
   const { data: classes, isLoading } = useClasses();
+  const { data: sessions } = useSessions();
   const createClass = useCreateClass();
   const updateClass = useUpdateClass();
   const deleteClass = useDeleteClass();
+
+  // Find the current session to associate classes with
+  const currentSessionId = sessions?.find((s) => s.isCurrent)?.id ?? sessions?.[0]?.id;
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingClass, setEditingClass] = useState<SchoolClass | null>(null);
@@ -109,6 +114,7 @@ export function ClassesManager() {
       capacity: values.capacity,
       section: values.section || undefined,
       classTeacherId: values.classTeacherId || undefined,
+      sessionId: currentSessionId,
     };
 
     if (editingClass) {
@@ -329,7 +335,9 @@ export function ClassesManager() {
                 <Button
                   type="submit"
                   disabled={
-                    createClass.isPending || updateClass.isPending
+                    createClass.isPending ||
+                    updateClass.isPending ||
+                    (!editingClass && !currentSessionId)
                   }
                 >
                   {(createClass.isPending || updateClass.isPending) && (

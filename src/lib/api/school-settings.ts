@@ -27,21 +27,87 @@ import type {
 export async function getSchoolSettings(
   schoolId: string,
 ): Promise<ApiResponse<SchoolSettings>> {
-  const response = await apiClient.get<ApiResponse<SchoolSettings>>(
-    `/schools/${schoolId}/settings`,
-  );
-  return response.data;
+  // Fetch school info and sessions in parallel to resolve currentSessionId
+  const [schoolRes, sessionsRes] = await Promise.all([
+    apiClient.get<ApiResponse<Record<string, unknown>>>(`/schools/${schoolId}`),
+    apiClient.get<ApiResponse<AcademicSession[]>>(
+      `/schools/${schoolId}/sessions`,
+    ),
+  ]);
+  const school = schoolRes.data.data;
+  const sessions = (sessionsRes.data.data ?? []) as AcademicSession[];
+  const currentSession = sessions.find((s) => s.isCurrent) ?? null;
+
+  // If we have a current session, try to find the current term
+  let currentTermId: string | null = null;
+  if (currentSession) {
+    try {
+      const termsRes = await apiClient.get<ApiResponse<Term[]>>(
+        `/schools/${schoolId}/terms`,
+        { params: { sessionId: currentSession.id } },
+      );
+      const terms = (termsRes.data.data ?? []) as Term[];
+      const currentTerm = terms.find((t) => t.isCurrent) ?? null;
+      currentTermId = currentTerm?.id ?? null;
+    } catch {
+      // Terms may not exist yet — that's fine
+    }
+  }
+
+  const settings: SchoolSettings = {
+    id: school.id as string,
+    schoolId: school.id as string,
+    schoolName: (school.name as string) ?? '',
+    address: (school.address as string) ?? '',
+    phone: (school.phone as string) ?? '',
+    email: (school.email as string) ?? '',
+    logo: (school.logoUrl as string) ?? null,
+    motto: null,
+    website: null,
+    state: (school.state as string) ?? null,
+    lga: (school.city as string) ?? null,
+    country: 'Nigeria',
+    currentSessionId: currentSession?.id ?? null,
+    currentTermId,
+  };
+  return { ...schoolRes.data, data: settings } as ApiResponse<SchoolSettings>;
 }
 
 export async function updateSchoolSettings(
   schoolId: string,
   data: UpdateSchoolSettingsRequest,
 ): Promise<ApiResponse<SchoolSettings>> {
-  const response = await apiClient.put<ApiResponse<SchoolSettings>>(
-    `/schools/${schoolId}/settings`,
-    data,
+  // Map SchoolSettings fields to the existing school update endpoint
+  const updatePayload: Record<string, unknown> = {};
+  if (data.schoolName !== undefined) updatePayload.name = data.schoolName;
+  if (data.address !== undefined) updatePayload.address = data.address;
+  if (data.phone !== undefined) updatePayload.phone = data.phone;
+  if (data.email !== undefined) updatePayload.email = data.email;
+  if (data.state !== undefined) updatePayload.state = data.state;
+  if (data.lga !== undefined) updatePayload.city = data.lga;
+
+  const response = await apiClient.put<ApiResponse<Record<string, unknown>>>(
+    `/schools/${schoolId}`,
+    updatePayload,
   );
-  return response.data;
+  const school = response.data.data;
+  const settings: SchoolSettings = {
+    id: school.id as string,
+    schoolId: school.id as string,
+    schoolName: (school.name as string) ?? '',
+    address: (school.address as string) ?? '',
+    phone: (school.phone as string) ?? '',
+    email: (school.email as string) ?? '',
+    logo: (school.logoUrl as string) ?? null,
+    motto: null,
+    website: null,
+    state: (school.state as string) ?? null,
+    lga: (school.city as string) ?? null,
+    country: 'Nigeria',
+    currentSessionId: null,
+    currentTermId: null,
+  };
+  return { ...response.data, data: settings } as ApiResponse<SchoolSettings>;
 }
 
 // ---------------------------------------------------------------------------
