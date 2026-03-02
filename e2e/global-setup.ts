@@ -9,7 +9,7 @@ import path from 'path';
 import { TEST_ACCOUNTS, type TestAccountKey } from './fixtures/test-accounts';
 import { authenticateAccount } from './helpers/api.helper';
 
-const BASE_URL = process.env.E2E_BASE_URL || 'https://skunect.com';
+const BASE_URL = process.env.E2E_BASE_URL || 'https://dev.skunect.com';
 
 /**
  * Build a Playwright-compatible storageState object that includes

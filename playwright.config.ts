@@ -27,7 +27,7 @@ export default defineConfig({
     : [['html', { open: 'on-failure' }]],
 
   use: {
-    baseURL: process.env.E2E_BASE_URL || 'https://skunect.com',
+    baseURL: process.env.E2E_BASE_URL || 'https://dev.skunect.com',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
