@@ -45,10 +45,14 @@ export async function createHomework(
   data: CreateHomeworkRequest,
   _files?: File[],
 ): Promise<ApiResponse<HomeworkDetail>> {
-  // Backend expects plain JSON @RequestBody (not multipart)
+  // Backend expects plain JSON @RequestBody (not multipart).
+  // The backend entity maps attachment_urls to a JSONB column; omitting the
+  // field causes a Hibernate type mismatch (varchar ↔ jsonb).  Always send an
+  // explicit array so PostgreSQL receives valid JSON.
+  const payload = { attachmentUrls: [], ...data };
   const response = await apiClient.post<ApiResponse<HomeworkDetail>>(
     `/schools/${schoolId}/homework`,
-    data,
+    payload,
   );
   return response.data;
 }

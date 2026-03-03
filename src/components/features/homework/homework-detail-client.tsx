@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, usePathname } from 'next/navigation';
 import { type ColumnDef, type PaginationState } from '@tanstack/react-table';
 import {
   ArrowLeft,
@@ -27,7 +27,16 @@ import type { Submission } from '@/lib/types/homework';
 export function HomeworkDetailClient() {
   const params = useParams();
   const router = useRouter();
-  const homeworkId = params.homeworkId as string;
+  const pathname = usePathname();
+
+  // In a static export, useParams() may return the placeholder value ('_') when
+  // nginx serves the pre-rendered page for a different dynamic segment.  Fall back
+  // to extracting the real ID from the pathname.
+  const rawParam = params.homeworkId as string;
+  const homeworkId =
+    !rawParam || rawParam === '_'
+      ? pathname.split('/').filter(Boolean)[1] ?? rawParam
+      : rawParam;
 
   // ---------------------------------------------------------------------------
   // Data fetching

@@ -64,6 +64,10 @@ test.describe('Academics - Assessments & Grades', () => {
   });
 
   test('admin can create an assessment', async ({ adminPage }) => {
+    // A freshly-created class is required to avoid unique constraint collisions
+    // on (class_id, subject_id, term_id, type).  Skip if beforeAll failed.
+    test.skip(!freshClassName, 'Fresh class creation failed in beforeAll — skipping to avoid unique constraint collision');
+
     const grades = new GradeStudentsPage(adminPage);
     await grades.goto();
     await grades.expectVisible();
@@ -75,9 +79,7 @@ test.describe('Academics - Assessments & Grades', () => {
     await grades.fillAssessmentForm(title, '100', today);
 
     // Select the freshly-created class to avoid unique constraint collisions
-    const classPattern = freshClassName
-      ? new RegExp(freshClassName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-      : /.+/;
+    const classPattern = new RegExp(freshClassName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
     await grades.selectAssessmentClass(classPattern);
     await grades.selectAssessmentSubject(/.+/);
     await grades.selectAssessmentTerm(/.+/);

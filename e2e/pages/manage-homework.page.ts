@@ -62,16 +62,21 @@ export class ManageHomeworkPage {
   }
 
   async selectClass(className: string | RegExp) {
-    // Click the Class combobox/select and choose the first matching class
+    // Click the Class combobox/select and choose the first matching class.
+    // Options load asynchronously — wait for them to appear.
     const classSelects = this.dialog.getByRole('combobox');
     await classSelects.first().click();
-    await this.page.getByRole('option', { name: className }).first().click();
+    const option = this.page.getByRole('option', { name: className }).first();
+    await expect(option).toBeVisible({ timeout: 10_000 });
+    await option.click();
   }
 
   async selectSubject(subjectName: string | RegExp) {
     const subjectSelects = this.dialog.getByRole('combobox');
     await subjectSelects.nth(1).click();
-    await this.page.getByRole('option', { name: subjectName }).first().click();
+    const option = this.page.getByRole('option', { name: subjectName }).first();
+    await expect(option).toBeVisible({ timeout: 10_000 });
+    await option.click();
   }
 
   async setDates(assignedDate: string, dueDate: string) {

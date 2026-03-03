@@ -59,13 +59,17 @@ export class GradeStudentsPage {
   async selectAssessmentClass(className: string | RegExp) {
     const selects = this.dialog.getByRole('combobox');
     await selects.first().click();
-    await this.page.getByRole('option', { name: className }).first().click();
+    const option = this.page.getByRole('option', { name: className }).first();
+    await expect(option).toBeVisible({ timeout: 10_000 });
+    await option.click();
   }
 
   async selectAssessmentSubject(subjectName: string | RegExp) {
     const selects = this.dialog.getByRole('combobox');
     await selects.nth(1).click();
-    await this.page.getByRole('option', { name: subjectName }).first().click();
+    const option = this.page.getByRole('option', { name: subjectName }).first();
+    await expect(option).toBeVisible({ timeout: 10_000 });
+    await option.click();
   }
 
   async selectAssessmentTerm(termName: string | RegExp) {
@@ -86,13 +90,16 @@ export class GradeStudentsPage {
   async selectAssessmentType(type: string | RegExp) {
     const selects = this.dialog.getByRole('combobox');
     await selects.nth(3).click();
-    await this.page.getByRole('option', { name: type }).first().click();
+    const option = this.page.getByRole('option', { name: type }).first();
+    await expect(option).toBeVisible({ timeout: 10_000 });
+    await option.click();
   }
 
   async submitAssessmentForm() {
     const submitButton = this.dialog.getByRole('button', {
       name: /create assessment|save changes/i,
     });
+    await expect(submitButton).toBeEnabled({ timeout: 5_000 });
     await submitButton.click();
   }
 

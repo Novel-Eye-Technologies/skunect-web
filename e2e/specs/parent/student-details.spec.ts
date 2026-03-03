@@ -8,24 +8,29 @@ test.describe('Student Details (Parent View)', () => {
     await students.expectVisible();
   });
 
-  // Skipped: Frontend does not yet implement parent-specific student list
-  // Backend has GET /parents/children but frontend uses GET /schools/{id}/students which is admin-only
-  test.skip('parent sees their children in the list', async ({ parentPage }) => {
+  test('parent sees their children in the list', async ({ parentPage }) => {
     const students = new StudentsPage(parentPage);
     await students.goto();
     await students.expectVisible();
+    // Parent endpoint returns linked children — table should have rows
     await students.expectTableNotEmpty();
   });
 
-  // Skipped: Frontend does not yet implement role-based button visibility
-  test.skip('parent does not see Add Student button', async ({ parentPage }) => {
+  test('parent does not see Add Student button', async ({ parentPage }) => {
     const students = new StudentsPage(parentPage);
     await students.goto();
     await students.expectVisible();
-    await expect(students.addStudentButton).not.toBeVisible({ timeout: 3_000 });
+    // The "Add Student" button is hidden for PARENT role
+    await expect(
+      parentPage.getByRole('button', { name: /add student/i })
+    ).not.toBeVisible({ timeout: 3_000 });
   });
 
-  // Skipped: Depends on parent-specific student list
+  // Skipped: Next.js static export serves pre-rendered RSC data with placeholder
+  // param '_' from generateStaticParams.  Navigating to /students/<uuid> in the
+  // Docker (nginx + static export) environment triggers a route reconciliation
+  // error caught by the root error boundary.  Works in production (Next.js server
+  // or CloudFront SPA fallback).
   test.skip('parent can navigate to student detail page', async ({
     parentPage,
   }) => {
@@ -40,7 +45,7 @@ test.describe('Student Details (Parent View)', () => {
     await expect(parentPage.locator('h1')).toBeVisible({ timeout: 15_000 });
   });
 
-  // Skipped: Depends on parent-specific student list
+  // Skipped: depends on detail page navigation (see above)
   test.skip('student detail page shows profile tab with student info', async ({
     parentPage,
   }) => {
@@ -62,7 +67,7 @@ test.describe('Student Details (Parent View)', () => {
     });
   });
 
-  // Skipped: Depends on parent-specific student list
+  // Skipped: depends on detail page navigation (see above)
   test.skip('student detail page shows parents tab', async ({ parentPage }) => {
     const students = new StudentsPage(parentPage);
     await students.goto();
@@ -85,6 +90,7 @@ test.describe('Student Details (Parent View)', () => {
   });
 
   // Skipped: Frontend doesn't support cross-school parent view yet
+  // (each school session uses a different schoolId context)
   test.skip('cross-school parent sees children across schools', async ({
     parentCrossPage,
   }) => {

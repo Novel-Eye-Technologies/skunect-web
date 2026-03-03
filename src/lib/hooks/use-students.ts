@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import {
   getStudents,
+  getParentChildren,
   getStudent,
   createStudent,
   updateStudent,
@@ -41,10 +42,14 @@ const studentKeys = {
 
 export function useStudents(params?: StudentListParams) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
+  const role = useAuthStore((s) => s.currentRole);
 
   return useQuery({
-    queryKey: studentKeys.list(schoolId!, params),
-    queryFn: () => getStudents(schoolId!, params),
+    queryKey: role === 'PARENT'
+      ? [...studentKeys.all, 'children']
+      : studentKeys.list(schoolId!, params),
+    queryFn: () =>
+      role === 'PARENT' ? getParentChildren() : getStudents(schoolId!, params),
     enabled: !!schoolId,
   });
 }

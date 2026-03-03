@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, usePathname } from 'next/navigation';
 import {
   ArrowLeft,
   Edit,
@@ -39,7 +39,15 @@ import type { ParentInfo, StudentDocument } from '@/lib/types/student';
 export function StudentDetailClient() {
   const params = useParams();
   const router = useRouter();
-  const studentId = params.studentId as string;
+  const pathname = usePathname();
+
+  // In a static export, useParams() may return the placeholder value ('_') when
+  // nginx serves the pre-rendered page for a different dynamic segment.
+  const rawParam = params.studentId as string;
+  const studentId =
+    !rawParam || rawParam === '_'
+      ? pathname.split('/').filter(Boolean)[1] ?? rawParam
+      : rawParam;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // ---------------------------------------------------------------------------

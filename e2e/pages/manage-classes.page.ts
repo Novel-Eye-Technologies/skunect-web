@@ -57,6 +57,8 @@ export class ManageClassesPage {
     const submitButton = this.dialog.getByRole('button', {
       name: /create|update/i,
     });
+    // Button is disabled until sessions finish loading (provides sessionId)
+    await expect(submitButton).toBeEnabled({ timeout: 10_000 });
     await submitButton.click();
   }
 
@@ -79,9 +81,12 @@ export class ManageClassesPage {
     // Actions cell is last; second button = delete (trash)
     const actionsCell = row.locator('td').last();
     await actionsCell.locator('button').last().click();
-    // Confirm deletion
-    const confirmButton = this.page.getByRole('button', { name: /delete/i });
+    // Wait for the confirmation dialog and click Delete inside it
+    const alertDialog = this.page.locator('[role="alertdialog"]');
+    await expect(alertDialog).toBeVisible({ timeout: 3_000 });
+    const confirmButton = alertDialog.getByRole('button', { name: /delete/i });
     await confirmButton.click();
+    await expect(alertDialog).not.toBeVisible({ timeout: 5_000 });
   }
 
   async expectClassNotInTable(name: string) {

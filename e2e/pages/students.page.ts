@@ -10,9 +10,11 @@ export class StudentsPage {
 
   constructor(page: Page) {
     this.page = page;
-    // PageHeader renders title as <h1>
-    this.heading = page.getByRole('heading', { name: /students/i });
-    this.description = page.getByText('Manage student records and information.');
+    // PageHeader renders title as <h1>.  Parent role sees "My Children", others see "Students".
+    this.heading = page.getByRole('heading', { name: /students|my children/i });
+    this.description = page
+      .getByText('Manage student records and information.')
+      .or(page.getByText('View your children and their school information.'));
     this.addStudentButton = page.getByRole('button', { name: /add student/i });
     this.searchInput = page.getByPlaceholder('Search students...');
     this.dataTable = page.locator('table');

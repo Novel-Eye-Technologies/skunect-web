@@ -36,6 +36,8 @@ import type { StudentListItem } from '@/lib/types/student';
 export default function StudentsPage() {
   const router = useRouter();
   const schoolId = useAuthStore((s) => s.currentSchoolId);
+  const role = useAuthStore((s) => s.currentRole);
+  const isParent = role === 'PARENT';
 
   // ---------------------------------------------------------------------------
   // Pagination, filter, and search state
@@ -160,14 +162,18 @@ export default function StudentsPage() {
                 <Eye className="mr-2 h-4 w-4" />
                 View Details
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => setDeleteTarget(student)}
-                className="text-destructive focus:text-destructive"
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete
-              </DropdownMenuItem>
+              {!isParent && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => setDeleteTarget(student)}
+                    className="text-destructive focus:text-destructive"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete
+                  </DropdownMenuItem>
+                </>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -181,12 +187,18 @@ export default function StudentsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Students"
-        description="Manage student records and information."
+        title={isParent ? 'My Children' : 'Students'}
+        description={
+          isParent
+            ? 'View your children and their school information.'
+            : 'Manage student records and information.'
+        }
         actions={
-          <Button onClick={() => setCreateDialogOpen(true)}>
-            Add Student
-          </Button>
+          !isParent ? (
+            <Button onClick={() => setCreateDialogOpen(true)}>
+              Add Student
+            </Button>
+          ) : undefined
         }
       />
 

@@ -1,8 +1,41 @@
+import fs from 'fs';
+import path from 'path';
 import { test, expect } from '../../fixtures/auth.fixture';
 import { ManageClassesPage } from '../../pages/manage-classes.page';
+import { apiGet, apiDelete } from '../../helpers/api.helper';
 
 test.describe('Classes Management (CRUD)', () => {
   const uniqueClassName = `E2E Class ${Date.now()}`;
+
+  // Clean up accumulated E2E test classes from previous runs to keep
+  // the list under the backend's default page size.
+  test.beforeAll(async () => {
+    try {
+      const authFile = path.resolve(process.cwd(), '.auth/admin-kings.json');
+      const authData = JSON.parse(fs.readFileSync(authFile, 'utf-8'));
+      const zustand = JSON.parse(authData.origins[0].localStorage[0].value);
+      const token = zustand.state.accessToken as string;
+      const schoolId = zustand.state.currentSchoolId as string;
+
+      const res = await apiGet<Array<{ id: string; name: string }>>(
+        `/schools/${schoolId}/classes?size=200`,
+        token,
+      );
+      const staleClasses = (res.data ?? []).filter(
+        (c) =>
+          c.name.startsWith('E2E Class') ||
+          c.name.startsWith('Delete Me') ||
+          c.name.startsWith('AssessClass'),
+      );
+      for (const c of staleClasses) {
+        await apiDelete(`/schools/${schoolId}/classes/${c.id}`, token).catch(
+          () => {},
+        );
+      }
+    } catch {
+      // Cleanup is best-effort; tests still run if it fails
+    }
+  });
 
   test('admin can view classes tab', async ({ adminPage }) => {
     const classes = new ManageClassesPage(adminPage);

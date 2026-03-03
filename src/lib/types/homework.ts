@@ -40,6 +40,7 @@ export interface CreateHomeworkRequest {
   assignedDate: string;
   dueDate: string;
   maxScore: number;
+  attachmentUrls?: string[];
 }
 
 export interface UpdateHomeworkRequest extends Partial<CreateHomeworkRequest> {

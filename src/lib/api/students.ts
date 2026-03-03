@@ -30,6 +30,51 @@ export async function getStudents(
   return response.data;
 }
 
+/**
+ * Fetch children linked to the authenticated parent.
+ * Backend endpoint: GET /parents/children (requires PARENT role).
+ * The response uses `studentId` instead of `id` and omits several fields
+ * present in the admin student list, so we normalise the shape here.
+ */
+export async function getParentChildren(): Promise<ApiResponse<StudentListItem[]>> {
+  interface ParentChild {
+    studentId: string;
+    schoolId: string;
+    classId: string;
+    firstName: string;
+    lastName: string;
+    admissionNumber: string;
+    className?: string;
+    gender?: string;
+    status?: string;
+    photo?: string | null;
+    [key: string]: unknown;
+  }
+
+  const response = await apiClient.get<ApiResponse<ParentChild[]>>(
+    '/parents/children',
+  );
+  const raw = response.data;
+
+  // Map the backend shape to the frontend StudentListItem shape
+  const mapped: StudentListItem[] = (raw.data ?? []).map((child) => ({
+    id: child.studentId,
+    admissionNumber: child.admissionNumber,
+    firstName: child.firstName,
+    lastName: child.lastName,
+    otherName: null,
+    dateOfBirth: '',
+    gender: (child.gender as StudentListItem['gender']) ?? 'MALE',
+    classId: child.classId,
+    className: child.className ?? '',
+    status: (child.status as StudentListItem['status']) ?? 'ACTIVE',
+    photo: child.photo ?? null,
+    createdAt: '',
+  }));
+
+  return { ...raw, data: mapped };
+}
+
 export async function getStudent(
   schoolId: string,
   studentId: string,

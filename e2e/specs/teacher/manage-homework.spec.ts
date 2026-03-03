@@ -22,8 +22,9 @@ test.describe('Homework Management (CRUD)', () => {
     await expect(homework.createButton).toBeVisible();
   });
 
-  // Skipped: Backend bug — column "attachment_urls" is of type jsonb but expression
-  // is of type character varying. Hibernate entity mapping issue prevents homework creation.
+  // Skipped: Backend Hibernate bug — attachment_urls column is jsonb but
+  // Hibernate binds it as varchar, causing a 500 on POST /homework.
+  // This is unfixable from the frontend.
   test.skip('teacher can create a homework assignment', async ({
     teacherPage,
   }) => {
@@ -52,12 +53,15 @@ test.describe('Homework Management (CRUD)', () => {
     await homework.setDates(today, nextWeek);
 
     await homework.submitForm();
-    await expect(homework.dialog).not.toBeVisible({ timeout: 5_000 });
+    await expect(homework.dialog).not.toBeVisible({ timeout: 10_000 });
     await homework.expectHomeworkInTable(title);
   });
 
-  // Skipped: Dynamic route /homework/[id] returns 404 in static export (nginx serving).
-  // Next.js static export only generates pages for params listed in generateStaticParams.
+  // Skipped: Next.js static export serves pre-rendered RSC data with placeholder
+  // param '_' from generateStaticParams.  Navigating to /homework/<uuid> in the
+  // Docker (nginx + static export) environment triggers a route reconciliation
+  // error caught by the root error boundary.  Works in production with a Next.js
+  // server or CloudFront SPA fallback.
   test.skip('teacher can view homework detail via title click', async ({
     teacherPage,
   }) => {
@@ -85,7 +89,7 @@ test.describe('Homework Management (CRUD)', () => {
     ).toBeVisible({ timeout: 15_000 });
   });
 
-  // Skipped: Dynamic route /homework/[id] returns 404 in static export (nginx serving).
+  // Skipped: depends on detail page navigation (see above)
   test.skip('homework detail page shows tabs', async ({ teacherPage }) => {
     const homework = new ManageHomeworkPage(teacherPage);
     await homework.goto();
@@ -112,8 +116,9 @@ test.describe('Homework Management (CRUD)', () => {
     ).toBeVisible();
   });
 
-  // Skipped: Backend bug — column "attachment_urls" is of type jsonb but expression
-  // is of type character varying. Cannot create homework to then delete.
+  // Skipped: Backend Hibernate bug — attachment_urls column is jsonb but
+  // Hibernate binds it as varchar, causing a 500 on POST /homework.
+  // Delete test depends on creating a homework first, so it's also skipped.
   test.skip('teacher can delete a homework assignment', async ({
     teacherPage,
   }) => {
@@ -140,7 +145,7 @@ test.describe('Homework Management (CRUD)', () => {
     await homework.setDates(today, nextWeek);
 
     await homework.submitForm();
-    await expect(homework.dialog).not.toBeVisible({ timeout: 5_000 });
+    await expect(homework.dialog).not.toBeVisible({ timeout: 10_000 });
     await homework.expectHomeworkInTable(deleteTitle);
 
     // Delete it

@@ -233,6 +233,7 @@ export async function getClasses(
 ): Promise<ApiResponse<SchoolClass[]>> {
   const response = await apiClient.get<ApiResponse<SchoolClass[]>>(
     `/schools/${schoolId}/classes`,
+    { params: { size: 200 } },
   );
   return response.data;
 }
@@ -279,6 +280,7 @@ export async function getSubjects(
 ): Promise<ApiResponse<Subject[]>> {
   const response = await apiClient.get<ApiResponse<Subject[]>>(
     `/schools/${schoolId}/subjects`,
+    { params: { size: 200 } },
   );
   return response.data;
 }
