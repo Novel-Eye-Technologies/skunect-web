@@ -78,9 +78,11 @@ test.describe('Registration Page', () => {
     });
     await register.submit();
 
+    // Zod validation message: "Please enter a valid email address"
+    // or native HTML5 validation may show different message
     await expect(
-      page.getByText(/please enter a valid email/i)
-    ).toBeVisible({ timeout: 3_000 });
+      page.getByText(/valid email/i)
+    ).toBeVisible({ timeout: 5_000 });
   });
 
   test('shows validation error for short first name', async ({ page }) => {

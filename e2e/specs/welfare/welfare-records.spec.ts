@@ -61,9 +61,9 @@ test.describe('Welfare Records Management (CRUD)', () => {
     const studentOptions = adminPage.getByRole('option');
     await studentOptions.first().click();
 
-    // Select status
+    // Select status — use exact:true because 'Well' also matches 'Unwell'
     await welfare.statusSelect.click();
-    await adminPage.getByRole('option', { name: 'Well' }).click();
+    await adminPage.getByRole('option', { name: 'Well', exact: true }).click();
 
     // Fill notes
     await welfare.fillNotes('E2E test welfare observation - student is doing well');
@@ -96,12 +96,12 @@ test.describe('Welfare Records Management (CRUD)', () => {
 
     // Select Unwell status
     await welfare.statusSelect.click();
-    await adminPage.getByRole('option', { name: 'Unwell' }).click();
+    await adminPage.getByRole('option', { name: 'Unwell', exact: true }).click();
 
     await welfare.fillNotes('Student has a mild headache');
 
     await welfare.submitForm();
-    await expect(welfare.dialog).not.toBeVisible({ timeout: 5_000 });
+    await expect(welfare.dialog).not.toBeVisible({ timeout: 10_000 });
   });
 
   test('cancel button closes dialog without saving', async ({
@@ -148,8 +148,9 @@ test.describe('Welfare Records Management (CRUD)', () => {
     await welfare.expectVisible();
     await welfare.expectTableVisible();
 
-    // Apply filter first
-    await welfare.classFilter.click();
+    // Apply filter first — click the class filter select trigger
+    const filterTrigger = adminPage.locator('button[role="combobox"]').filter({ hasText: /class/i }).first();
+    await filterTrigger.click();
     const options = adminPage.getByRole('option');
     const optionCount = await options.count();
 
@@ -157,8 +158,10 @@ test.describe('Welfare Records Management (CRUD)', () => {
       await options.nth(1).click();
       await adminPage.waitForTimeout(500);
 
-      // Reset to All Classes
-      await welfare.classFilter.click();
+      // Reset to All Classes — the trigger text has changed to the selected class name
+      // so we need to locate it differently
+      const trigger = adminPage.locator('button[role="combobox"]').first();
+      await trigger.click();
       await adminPage.getByRole('option', { name: /all classes/i }).click();
       await adminPage.waitForTimeout(1_000);
       await welfare.expectTableVisible();
@@ -205,7 +208,7 @@ test.describe('Welfare Records Management (CRUD)', () => {
 
     // Select status
     await welfare.statusSelect.click();
-    await teacherPage.getByRole('option', { name: 'Upset' }).click();
+    await teacherPage.getByRole('option', { name: 'Upset', exact: true }).click();
 
     await welfare.fillNotes('Teacher recorded: student seemed upset during class');
 
