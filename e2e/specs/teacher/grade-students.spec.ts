@@ -7,7 +7,6 @@ import { apiPost } from '../../helpers/api.helper';
 test.describe('Academics - Assessments & Grades', () => {
   // Create a unique class for assessment tests to avoid the unique constraint
   // on (class_id, subject_id, term_id, type) from stale E2E data.
-  // The backend does not support DELETE /assessments, so cleanup is impossible.
   let freshClassName: string;
 
   test.beforeAll(async () => {
@@ -90,9 +89,7 @@ test.describe('Academics - Assessments & Grades', () => {
     await grades.expectAssessmentInTable(title);
   });
 
-  // Skipped: Backend does not implement DELETE /assessments/{id} (returns 405).
-  // The create test above proves assessment creation works end-to-end.
-  test.skip('admin can delete an assessment', async ({ adminPage }) => {
+  test('admin can delete an assessment', async ({ adminPage }) => {
     const grades = new GradeStudentsPage(adminPage);
     await grades.goto();
     await grades.expectVisible();

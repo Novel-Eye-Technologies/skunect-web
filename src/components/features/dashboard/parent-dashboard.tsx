@@ -14,252 +14,63 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { StatCard } from '@/components/shared/stat-card';
 import { useAuthStore } from '@/lib/stores/auth-store';
-
-// ---------------------------------------------------------------------------
-// Mock data — will be replaced with API calls when parent endpoints are built.
-// Keyed by school ID so the dashboard visually updates when the parent
-// switches between schools via the SchoolSwitcher.  When real APIs are
-// available the correct school's data will come from the backend
-// automatically (React Query keys include schoolId).
-// ---------------------------------------------------------------------------
-
-const FALLBACK_SCHOOL = 'default';
-
-type MockChild = {
-  id: string;
-  name: string;
-  className: string;
-  school: string;
-  attendance: string;
-  recentGrade: string;
-};
-
-type MockFee = {
-  id: string;
-  child: string;
-  description: string;
-  amount: number;
-  dueDate: string;
-  status: 'paid' | 'pending' | 'overdue';
-};
-
-type MockHomework = {
-  id: string;
-  child: string;
-  subject: string;
-  title: string;
-  dueDate: string;
-  status: 'submitted' | 'pending' | 'graded';
-};
-
-type MockSchoolData = {
-  stats: {
-    myChildren: number;
-    todayAttendance: string;
-    pendingFees: number;
-    pendingHomework: number;
-  };
-  children: MockChild[];
-  upcomingFees: MockFee[];
-  recentHomework: MockHomework[];
-};
-
-const mockDataBySchool: Record<string, MockSchoolData> = {
-  // Kings Academy (schoolId a0000000-0000-0000-0000-000000000001)
-  'a0000000-0000-0000-0000-000000000001': {
-    stats: {
-      myChildren: 1,
-      todayAttendance: 'Present',
-      pendingFees: 150_000,
-      pendingHomework: 2,
-    },
-    children: [
-      {
-        id: '1',
-        name: 'Tunde Johnson',
-        className: 'JSS 1A',
-        school: 'Kings Academy Lagos',
-        attendance: 'Present',
-        recentGrade: 'A (Mathematics CA1)',
-      },
-    ],
-    upcomingFees: [
-      {
-        id: '1',
-        child: 'Tunde Johnson',
-        description: 'Second Term Tuition',
-        amount: 150_000,
-        dueDate: '2026-03-15',
-        status: 'overdue',
-      },
-    ],
-    recentHomework: [
-      {
-        id: '1',
-        child: 'Tunde Johnson',
-        subject: 'Mathematics',
-        title: 'Algebra Practice',
-        dueDate: '2026-03-05',
-        status: 'submitted',
-      },
-      {
-        id: '2',
-        child: 'Tunde Johnson',
-        subject: 'English',
-        title: 'Essay Writing',
-        dueDate: '2026-03-07',
-        status: 'pending',
-      },
-    ],
-  },
-
-  // Greenfield International (schoolId a0000000-0000-0000-0000-000000000002)
-  'a0000000-0000-0000-0000-000000000002': {
-    stats: {
-      myChildren: 1,
-      todayAttendance: 'Present',
-      pendingFees: 100_000,
-      pendingHomework: 1,
-    },
-    children: [
-      {
-        id: '2',
-        name: 'Aisha Johnson',
-        className: 'Primary 5B',
-        school: 'Greenfield International School',
-        attendance: 'Present',
-        recentGrade: 'B+ (English CA1)',
-      },
-    ],
-    upcomingFees: [
-      {
-        id: '2',
-        child: 'Aisha Johnson',
-        description: 'Second Term Tuition',
-        amount: 100_000,
-        dueDate: '2026-03-20',
-        status: 'pending',
-      },
-    ],
-    recentHomework: [
-      {
-        id: '3',
-        child: 'Aisha Johnson',
-        subject: 'Science',
-        title: 'Weather Report',
-        dueDate: '2026-03-06',
-        status: 'pending',
-      },
-    ],
-  },
-
-  // Fallback for any other school
-  [FALLBACK_SCHOOL]: {
-    stats: {
-      myChildren: 2,
-      todayAttendance: 'All Present',
-      pendingFees: 250_000,
-      pendingHomework: 3,
-    },
-    children: [
-      {
-        id: '1',
-        name: 'Tunde Johnson',
-        className: 'JSS 1A',
-        school: 'Kings Academy Lagos',
-        attendance: 'Present',
-        recentGrade: 'A (Mathematics CA1)',
-      },
-      {
-        id: '2',
-        name: 'Aisha Johnson',
-        className: 'Primary 5B',
-        school: 'Greenfield International School',
-        attendance: 'Present',
-        recentGrade: 'B+ (English CA1)',
-      },
-    ],
-    upcomingFees: [
-      {
-        id: '1',
-        child: 'Tunde Johnson',
-        description: 'Second Term Tuition',
-        amount: 150_000,
-        dueDate: '2026-03-15',
-        status: 'overdue',
-      },
-      {
-        id: '2',
-        child: 'Aisha Johnson',
-        description: 'Second Term Tuition',
-        amount: 100_000,
-        dueDate: '2026-03-20',
-        status: 'pending',
-      },
-    ],
-    recentHomework: [
-      {
-        id: '1',
-        child: 'Tunde Johnson',
-        subject: 'Mathematics',
-        title: 'Algebra Practice',
-        dueDate: '2026-03-05',
-        status: 'submitted',
-      },
-      {
-        id: '2',
-        child: 'Tunde Johnson',
-        subject: 'English',
-        title: 'Essay Writing',
-        dueDate: '2026-03-07',
-        status: 'pending',
-      },
-      {
-        id: '3',
-        child: 'Aisha Johnson',
-        subject: 'Science',
-        title: 'Weather Report',
-        dueDate: '2026-03-06',
-        status: 'pending',
-      },
-    ],
-  },
-};
+import { useParentDashboard } from '@/lib/hooks/use-dashboard';
 
 const feeStatusColors: Record<string, string> = {
-  paid: 'bg-emerald-100 text-emerald-700',
-  pending: 'bg-amber-100 text-amber-700',
-  overdue: 'bg-red-100 text-red-700',
+  PAID: 'bg-emerald-100 text-emerald-700',
+  PENDING: 'bg-amber-100 text-amber-700',
+  OVERDUE: 'bg-red-100 text-red-700',
 };
 
 const homeworkStatusColors: Record<string, string> = {
-  submitted: 'bg-emerald-100 text-emerald-700',
-  pending: 'bg-amber-100 text-amber-700',
-  graded: 'bg-blue-100 text-blue-700',
+  SUBMITTED: 'bg-emerald-100 text-emerald-700',
+  PENDING: 'bg-amber-100 text-amber-700',
+  GRADED: 'bg-blue-100 text-blue-700',
 };
 
-// ---------------------------------------------------------------------------
-// Component
-// ---------------------------------------------------------------------------
+function DashboardSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Skeleton key={i} className="h-[120px] rounded-lg" />
+        ))}
+      </div>
+      <Skeleton className="h-[200px] rounded-lg" />
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Skeleton className="h-[200px] rounded-lg" />
+        <Skeleton className="h-[200px] rounded-lg" />
+      </div>
+    </div>
+  );
+}
 
 export function ParentDashboard() {
-  const currentSchoolId = useAuthStore((s) => s.currentSchoolId);
   const user = useAuthStore((s) => s.user);
+  const currentSchoolId = useAuthStore((s) => s.currentSchoolId);
+  const { data: response, isLoading } = useParentDashboard();
 
-  // Resolve current school name from the user's roles
   const currentSchool = user?.roles.find(
     (r) => r.schoolId === currentSchoolId,
   );
   const schoolName = currentSchool?.schoolName ?? 'School';
 
-  // Pick mock data for the currently selected school (falls back to default)
-  const data =
-    mockDataBySchool[currentSchoolId ?? FALLBACK_SCHOOL] ??
-    mockDataBySchool[FALLBACK_SCHOOL];
+  if (isLoading) return <DashboardSkeleton />;
 
-  const { stats, children, upcomingFees, recentHomework } = data;
+  const data = response?.data;
+
+  if (!data) {
+    return (
+      <div className="flex h-64 items-center justify-center text-muted-foreground">
+        Unable to load dashboard data. Please try again.
+      </div>
+    );
+  }
+
+  const { children, upcomingFees, recentHomework } = data;
 
   return (
     <div className="space-y-6">
@@ -267,25 +78,29 @@ export function ParentDashboard() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="My Children"
-          value={stats.myChildren}
+          value={data.childrenCount}
           description={`at ${schoolName}`}
           icon={GraduationCap}
         />
         <StatCard
           title="Today's Attendance"
-          value={stats.todayAttendance}
-          description="all children present"
+          value={data.todayAttendance}
+          description="attendance status"
           icon={ClipboardCheck}
         />
         <StatCard
           title="Pending Fees"
-          value={`\u20A6${(stats.pendingFees / 1_000).toFixed(0)}K`}
+          value={
+            data.pendingFees > 0
+              ? `\u20A6${(data.pendingFees / 1_000).toFixed(0)}K`
+              : '\u20A60'
+          }
           description="awaiting payment"
           icon={DollarSign}
         />
         <StatCard
           title="Pending Homework"
-          value={stats.pendingHomework}
+          value={data.pendingHomework}
           description="assignments due"
           icon={BookOpen}
         />
@@ -308,17 +123,17 @@ export function ParentDashboard() {
             <div className="space-y-3">
               {children.map((child) => (
                 <div
-                  key={child.id}
+                  key={child.studentId}
                   className="flex items-center justify-between rounded-lg border p-4 transition-colors hover:bg-muted/50"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#2A9D8F]/10">
-                      <GraduationCap className="h-5 w-5 text-[#2A9D8F]" />
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                      <GraduationCap className="h-5 w-5 text-primary" />
                     </div>
                     <div>
                       <p className="font-medium">{child.name}</p>
                       <p className="text-sm text-muted-foreground">
-                        {child.className} &middot; {child.school}
+                        {child.className}
                       </p>
                     </div>
                   </div>
@@ -326,15 +141,15 @@ export function ParentDashboard() {
                     <Badge
                       variant="secondary"
                       className={
-                        child.attendance === 'Present'
+                        child.attendance?.toLowerCase().includes('present')
                           ? 'bg-emerald-100 text-emerald-700'
                           : 'bg-red-100 text-red-700'
                       }
                     >
-                      {child.attendance}
+                      {child.attendance || 'N/A'}
                     </Badge>
                     <span className="text-muted-foreground">
-                      {child.recentGrade}
+                      {child.recentGrade || 'No grades'}
                     </span>
                   </div>
                 </div>
@@ -359,15 +174,15 @@ export function ParentDashboard() {
               </p>
             ) : (
               <div className="space-y-3">
-                {upcomingFees.map((fee) => (
+                {upcomingFees.map((fee, index) => (
                   <div
-                    key={fee.id}
+                    key={`${fee.childName}-${fee.description}-${index}`}
                     className="flex items-start justify-between rounded-lg border p-3"
                   >
                     <div>
                       <p className="text-sm font-medium">{fee.description}</p>
                       <p className="text-xs text-muted-foreground">
-                        {fee.child} &middot; Due{' '}
+                        {fee.childName} &middot; Due{' '}
                         {new Date(fee.dueDate).toLocaleDateString('en-NG', {
                           day: 'numeric',
                           month: 'short',
@@ -382,7 +197,7 @@ export function ParentDashboard() {
                       </p>
                       <Badge
                         variant="secondary"
-                        className={`text-[10px] uppercase ${feeStatusColors[fee.status] ?? ''}`}
+                        className={`text-[10px] uppercase ${feeStatusColors[fee.status?.toUpperCase()] ?? ''}`}
                       >
                         {fee.status}
                       </Badge>
@@ -398,7 +213,9 @@ export function ParentDashboard() {
         <Card>
           <CardHeader>
             <CardTitle>Recent Homework</CardTitle>
-            <CardDescription>Latest assignments for your children</CardDescription>
+            <CardDescription>
+              Latest assignments for your children
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {recentHomework.length === 0 ? (
@@ -407,15 +224,15 @@ export function ParentDashboard() {
               </p>
             ) : (
               <div className="space-y-3">
-                {recentHomework.map((hw) => (
+                {recentHomework.map((hw, index) => (
                   <div
-                    key={hw.id}
+                    key={`${hw.childName}-${hw.title}-${index}`}
                     className="flex items-start justify-between rounded-lg border p-3"
                   >
                     <div>
                       <p className="text-sm font-medium">{hw.title}</p>
                       <p className="text-xs text-muted-foreground">
-                        {hw.child} &middot; {hw.subject} &middot; Due{' '}
+                        {hw.childName} &middot; {hw.subject} &middot; Due{' '}
                         {new Date(hw.dueDate).toLocaleDateString('en-NG', {
                           day: 'numeric',
                           month: 'short',
@@ -425,7 +242,7 @@ export function ParentDashboard() {
                     </div>
                     <Badge
                       variant="secondary"
-                      className={`text-[10px] uppercase ${homeworkStatusColors[hw.status] ?? ''}`}
+                      className={`text-[10px] uppercase ${homeworkStatusColors[hw.status?.toUpperCase()] ?? ''}`}
                     >
                       {hw.status}
                     </Badge>

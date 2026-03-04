@@ -5,6 +5,7 @@ import { useUIStore } from '@/lib/stores/ui-store';
 import { Breadcrumbs } from '@/components/layout/breadcrumbs';
 import { NotificationBell } from '@/components/layout/notification-bell';
 import { SchoolSwitcher } from '@/components/layout/school-switcher';
+import { ChildSwitcher } from '@/components/layout/child-switcher';
 import { UserMenu } from '@/components/layout/user-menu';
 import { Separator } from '@/components/ui/separator';
 
@@ -34,6 +35,7 @@ export function Header() {
       {/* Right side actions */}
       <div className="flex items-center gap-2">
         <SchoolSwitcher />
+        <ChildSwitcher />
         <NotificationBell />
         <Separator orientation="vertical" className="mx-1 h-6" />
         <UserMenu />

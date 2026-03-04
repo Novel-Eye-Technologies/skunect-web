@@ -34,6 +34,8 @@ import type { HomeworkListItem } from '@/lib/types/homework';
 export default function HomeworkPage() {
   const router = useRouter();
   const schoolId = useAuthStore((s) => s.currentSchoolId);
+  const currentRole = useAuthStore((s) => s.currentRole);
+  const canManage = currentRole === 'TEACHER' || currentRole === 'ADMIN';
 
   // ---------------------------------------------------------------------------
   // Pagination and filter state
@@ -197,10 +199,12 @@ export default function HomeworkPage() {
         title="Homework"
         description="Manage homework assignments and submissions."
         actions={
-          <Button onClick={() => setCreateDialogOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Create Assignment
-          </Button>
+          canManage ? (
+            <Button onClick={() => setCreateDialogOpen(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Create Assignment
+            </Button>
+          ) : undefined
         }
       />
 

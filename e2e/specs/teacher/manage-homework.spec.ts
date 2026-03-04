@@ -22,10 +22,7 @@ test.describe('Homework Management (CRUD)', () => {
     await expect(homework.createButton).toBeVisible();
   });
 
-  // Skipped: Backend Hibernate bug — attachment_urls column is jsonb but
-  // Hibernate binds it as varchar, causing a 500 on POST /homework.
-  // This is unfixable from the frontend.
-  test.skip('teacher can create a homework assignment', async ({
+  test('teacher can create a homework assignment', async ({
     teacherPage,
   }) => {
     const homework = new ManageHomeworkPage(teacherPage);
@@ -60,8 +57,7 @@ test.describe('Homework Management (CRUD)', () => {
   // Skipped: Next.js static export serves pre-rendered RSC data with placeholder
   // param '_' from generateStaticParams.  Navigating to /homework/<uuid> in the
   // Docker (nginx + static export) environment triggers a route reconciliation
-  // error caught by the root error boundary.  Works in production with a Next.js
-  // server or CloudFront SPA fallback.
+  // error caught by the root error boundary.
   test.skip('teacher can view homework detail via title click', async ({
     teacherPage,
   }) => {
@@ -116,10 +112,7 @@ test.describe('Homework Management (CRUD)', () => {
     ).toBeVisible();
   });
 
-  // Skipped: Backend Hibernate bug — attachment_urls column is jsonb but
-  // Hibernate binds it as varchar, causing a 500 on POST /homework.
-  // Delete test depends on creating a homework first, so it's also skipped.
-  test.skip('teacher can delete a homework assignment', async ({
+  test('teacher can delete a homework assignment', async ({
     teacherPage,
   }) => {
     const homework = new ManageHomeworkPage(teacherPage);
