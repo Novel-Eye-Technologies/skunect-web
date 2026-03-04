@@ -26,10 +26,9 @@ test.describe('Deep Linking', () => {
     ).toBeVisible({ timeout: 20_000 });
   });
 
-  test.fixme('authenticated admin can deep-link to /homework', async ({
+  test('authenticated admin can deep-link to /homework', async ({
     adminPage,
   }) => {
-    // Homework page has a runtime error ("Something went wrong") - skipping until app bug is fixed
     await adminPage.goto('/homework');
     await expect(adminPage).toHaveURL(/\/homework\/?/);
     await expect(
@@ -57,10 +56,9 @@ test.describe('Deep Linking', () => {
     ).toBeVisible({ timeout: 20_000 });
   });
 
-  test.fixme('authenticated parent can deep-link to /homework', async ({
+  test('authenticated parent can deep-link to /homework', async ({
     parentPage,
   }) => {
-    // Homework page has a runtime error ("Something went wrong") - skipping until app bug is fixed
     await parentPage.goto('/homework');
     await expect(parentPage).toHaveURL(/\/homework\/?/);
     await expect(

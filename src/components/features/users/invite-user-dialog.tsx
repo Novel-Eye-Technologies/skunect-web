@@ -44,7 +44,11 @@ const inviteUserSchema = z.object({
 
 type InviteUserFormValues = z.infer<typeof inviteUserSchema>;
 
-export function InviteUserDialog() {
+interface InviteUserDialogProps {
+  defaultRole?: 'ADMIN' | 'TEACHER';
+}
+
+export function InviteUserDialog({ defaultRole }: InviteUserDialogProps = {}) {
   const [open, setOpen] = useState(false);
   const inviteUser = useInviteUser();
 
@@ -54,7 +58,7 @@ export function InviteUserDialog() {
       email: '',
       firstName: '',
       lastName: '',
-      role: undefined,
+      role: defaultRole,
       phone: '',
     },
   });

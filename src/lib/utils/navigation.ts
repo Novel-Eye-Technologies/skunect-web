@@ -15,6 +15,14 @@ import {
   BarChart3,
   Building2,
   Database,
+  UserCheck,
+  UserRound,
+  HeartPulse,
+  Settings2,
+  Activity,
+  Smile,
+  Stethoscope,
+  HelpCircle,
 } from 'lucide-react';
 
 export type NavItem = {
@@ -66,10 +74,28 @@ export const navigationConfig: NavItem[] = [
     roles: ['ADMIN'],
   },
   {
+    title: 'Teachers',
+    href: '/teachers',
+    icon: UserCheck,
+    roles: ['ADMIN'],
+  },
+  {
+    title: 'Parents',
+    href: '/parents',
+    icon: UserRound,
+    roles: ['ADMIN'],
+  },
+  {
     title: 'Students',
     href: '/students',
     icon: GraduationCap,
     roles: ['ADMIN', 'TEACHER'],
+  },
+  {
+    title: 'My Classes',
+    href: '/my-classes',
+    icon: BookOpen,
+    roles: ['TEACHER'],
   },
   {
     title: 'My Children',
@@ -107,6 +133,23 @@ export const navigationConfig: NavItem[] = [
     ],
   },
   {
+    title: 'Activity',
+    href: '/activity',
+    icon: Activity,
+    roles: ['ADMIN'],
+  },
+  {
+    title: 'Welfare',
+    href: '/welfare',
+    icon: HeartPulse,
+    roles: ['ADMIN', 'TEACHER'],
+    children: [
+      { title: 'Welfare Logs', href: '/welfare', icon: HeartPulse, roles: ['ADMIN', 'TEACHER'] },
+      { title: 'Mood Tracker', href: '/welfare/mood', icon: Smile, roles: ['ADMIN', 'TEACHER'] },
+      { title: 'Health Records', href: '/welfare/health-records', icon: Stethoscope, roles: ['ADMIN', 'TEACHER'] },
+    ],
+  },
+  {
     title: 'Safety',
     href: '/safety',
     icon: Shield,
@@ -129,5 +172,17 @@ export const navigationConfig: NavItem[] = [
     href: '/analytics',
     icon: BarChart3,
     roles: ['ADMIN'],
+  },
+  {
+    title: 'Notification Preferences',
+    href: '/notification-preferences',
+    icon: Settings2,
+    roles: ['ADMIN', 'TEACHER', 'PARENT'],
+  },
+  {
+    title: 'Help & Support',
+    href: '/help',
+    icon: HelpCircle,
+    roles: ['ADMIN', 'TEACHER', 'PARENT', 'SUPER_ADMIN'],
   },
 ];

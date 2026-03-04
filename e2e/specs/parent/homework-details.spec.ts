@@ -8,9 +8,7 @@ test.describe('Homework Details (Parent View)', () => {
     await homework.expectVisible();
   });
 
-  // Skipped: Frontend does not yet implement role-based button visibility
-  // The Create Assignment button shows for all users; backend only allows TEACHER
-  test.skip('parent does not see Create Assignment button', async ({
+  test('parent does not see Create Assignment button', async ({
     parentPage,
   }) => {
     const homework = new HomeworkPage(parentPage);
