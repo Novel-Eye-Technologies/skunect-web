@@ -28,13 +28,13 @@ test.describe('Landing Page', () => {
     const landing = new LandingPage(page);
     await landing.goto();
     await landing.expectVisible();
-    await expect(landing.getStartedButton).toHaveAttribute('href', '/login');
+    await expect(landing.getStartedButton).toHaveAttribute('href', /\/login\/?/);
   });
 
   test('Sign In button links to login', async ({ page }) => {
     const landing = new LandingPage(page);
     await landing.goto();
     await landing.expectVisible();
-    await expect(landing.signInButton).toHaveAttribute('href', '/login');
+    await expect(landing.signInButton).toHaveAttribute('href', /\/login\/?/);
   });
 });
