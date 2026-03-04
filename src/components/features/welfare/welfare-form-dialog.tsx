@@ -82,7 +82,7 @@ export function WelfareFormDialog({
       {
         classId: values.classId,
         date: format(values.date, 'yyyy-MM-dd'),
-        entries: [
+        records: [
           {
             studentId: values.studentId,
             status: values.status,

@@ -11,8 +11,9 @@ export class AuditLogsPage {
     this.page = page;
     this.heading = page.getByRole('heading', { name: /audit trail/i });
     this.dataTable = page.locator('table');
-    this.entityTypeFilter = page.locator('button').filter({ hasText: /all entities/i });
-    this.actionFilter = page.locator('button').filter({ hasText: /all actions/i });
+    // Use combobox role selector — the text changes after selection, so hasText won't work for reset
+    this.entityTypeFilter = page.locator('button[role="combobox"]').nth(0);
+    this.actionFilter = page.locator('button[role="combobox"]').nth(1);
   }
 
   async goto() {

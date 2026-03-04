@@ -7,7 +7,7 @@ export interface WelfareEntry {
 export interface RecordWelfareRequest {
   classId: string;
   date: string;
-  entries: WelfareEntry[];
+  records: WelfareEntry[];
 }
 
 export interface WelfareRecord {

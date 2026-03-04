@@ -152,7 +152,7 @@ export default function EventsPage() {
                         {evt.targetAudience}
                       </span>
                     </div>
-                    {evt.coordinators.length > 0 && (
+                    {evt.coordinators?.length > 0 && (
                       <div className="text-xs text-muted-foreground">
                         Coordinators: {evt.coordinators.map((c) => c.teacherName).join(', ')}
                       </div>

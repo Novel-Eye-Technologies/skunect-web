@@ -78,11 +78,12 @@ test.describe('Registration Page', () => {
     });
     await register.submit();
 
-    // Zod validation message: "Please enter a valid email address"
-    // or native HTML5 validation may show different message
-    await expect(
-      page.getByText(/valid email/i)
-    ).toBeVisible({ timeout: 5_000 });
+    // The email input has type="email", so the browser validates natively
+    // before Zod runs. We check the input's constraint validation state.
+    const isInvalid = await register.emailInput.evaluate(
+      (el: HTMLInputElement) => !el.validity.valid
+    );
+    expect(isInvalid).toBe(true);
   });
 
   test('shows validation error for short first name', async ({ page }) => {
