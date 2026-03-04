@@ -27,6 +27,10 @@ import { StatusBadge } from '@/components/shared/status-badge';
 import { ConfirmDialog } from '@/components/shared/confirm-dialog';
 import { StudentFormDialog } from '@/components/features/students/student-form-dialog';
 import { LinkParentDialog } from '@/components/features/students/link-parent-dialog';
+import { StudentAcademicTab } from '@/components/features/students/student-academic-tab';
+import { StudentDisciplineTab } from '@/components/features/students/student-discipline-tab';
+import { StudentPaymentsTab } from '@/components/features/students/student-payments-tab';
+import { StudentSiblingsTab } from '@/components/features/students/student-siblings-tab';
 import {
   useStudent,
   useUnlinkParent,
@@ -165,11 +169,15 @@ export function StudentDetailClient() {
       />
 
       <Tabs defaultValue="profile" className="space-y-4">
-        <TabsList>
+        <TabsList className="flex-wrap h-auto gap-1">
           <TabsTrigger value="profile">Profile</TabsTrigger>
           <TabsTrigger value="parents">
             Parents ({student.parents.length})
           </TabsTrigger>
+          <TabsTrigger value="academics">Academics</TabsTrigger>
+          <TabsTrigger value="discipline">Welfare</TabsTrigger>
+          <TabsTrigger value="payments">Payments</TabsTrigger>
+          <TabsTrigger value="siblings">Siblings</TabsTrigger>
           <TabsTrigger value="documents">
             Documents ({student.documents.length})
           </TabsTrigger>
@@ -290,6 +298,26 @@ export function StudentDetailClient() {
               </div>
             )}
           </div>
+        </TabsContent>
+
+        {/* ACADEMICS TAB */}
+        <TabsContent value="academics">
+          <StudentAcademicTab studentId={studentId} />
+        </TabsContent>
+
+        {/* WELFARE / DISCIPLINE TAB */}
+        <TabsContent value="discipline">
+          <StudentDisciplineTab studentId={studentId} />
+        </TabsContent>
+
+        {/* PAYMENTS TAB */}
+        <TabsContent value="payments">
+          <StudentPaymentsTab studentId={studentId} />
+        </TabsContent>
+
+        {/* SIBLINGS TAB */}
+        <TabsContent value="siblings">
+          <StudentSiblingsTab studentId={studentId} />
         </TabsContent>
 
         {/* DOCUMENTS TAB */}

@@ -46,9 +46,10 @@ type InviteUserFormValues = z.infer<typeof inviteUserSchema>;
 
 interface InviteUserDialogProps {
   defaultRole?: 'ADMIN' | 'TEACHER';
+  buttonLabel?: string;
 }
 
-export function InviteUserDialog({ defaultRole }: InviteUserDialogProps = {}) {
+export function InviteUserDialog({ defaultRole, buttonLabel }: InviteUserDialogProps = {}) {
   const [open, setOpen] = useState(false);
   const inviteUser = useInviteUser();
 
@@ -77,7 +78,7 @@ export function InviteUserDialog({ defaultRole }: InviteUserDialogProps = {}) {
       <DialogTrigger asChild>
         <Button>
           <UserPlus className="mr-2 h-4 w-4" />
-          Invite User
+          {buttonLabel ?? 'Invite User'}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">

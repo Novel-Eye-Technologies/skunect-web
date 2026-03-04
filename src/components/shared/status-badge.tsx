@@ -7,6 +7,7 @@ type Status =
   | 'ACTIVE'
   | 'INACTIVE'
   | 'SUSPENDED'
+  | 'EXPELLED'
   | 'GRADUATED'
   | 'TRANSFERRED'
   | 'CLOSED'
@@ -44,6 +45,11 @@ const statusConfig: Record<
   },
   SUSPENDED: {
     label: 'Suspended',
+    className:
+      'bg-amber-100 text-amber-800 hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-400',
+  },
+  EXPELLED: {
+    label: 'Expelled',
     className:
       'bg-red-100 text-red-800 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-400',
   },

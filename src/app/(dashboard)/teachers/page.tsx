@@ -28,6 +28,7 @@ import { ConfirmDialog } from '@/components/shared/confirm-dialog';
 import { InviteUserDialog } from '@/components/features/users/invite-user-dialog';
 import { UserStatusDialog } from '@/components/features/users/user-status-dialog';
 import { AssignClassDialog } from '@/components/features/teachers/assign-class-dialog';
+import { TeacherOverviewCards } from '@/components/features/teachers/teacher-overview';
 import { useTeachers } from '@/lib/hooks/use-teachers';
 import { useRemoveUser } from '@/lib/hooks/use-users';
 import { formatDate } from '@/lib/utils/format-date';
@@ -174,8 +175,10 @@ export default function TeachersPage() {
       <PageHeader
         title="Teachers"
         description="Manage teachers in your school."
-        actions={<InviteUserDialog defaultRole="TEACHER" />}
+        actions={<InviteUserDialog defaultRole="TEACHER" buttonLabel="Add Teacher" />}
       />
+
+      <TeacherOverviewCards />
 
       <DataTable
         columns={columns}

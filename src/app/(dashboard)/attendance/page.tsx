@@ -6,6 +6,7 @@ import { PageHeader } from '@/components/shared/page-header';
 import { DataTable } from '@/components/shared/data-table';
 import { StatusBadge } from '@/components/shared/status-badge';
 import { AttendanceGrid } from '@/components/features/attendance/attendance-grid';
+import { AttendanceOverview } from '@/components/features/attendance/attendance-overview';
 import { useAttendanceRecords } from '@/lib/hooks/use-attendance';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useQuery } from '@tanstack/react-query';
@@ -121,6 +122,7 @@ export default function AttendancePage() {
         <TabsList>
           <TabsTrigger value="mark">Mark Attendance</TabsTrigger>
           <TabsTrigger value="records">Records</TabsTrigger>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
         </TabsList>
 
         {/* Mark Attendance Tab */}
@@ -172,6 +174,11 @@ export default function AttendancePage() {
               </div>
             }
           />
+        </TabsContent>
+
+        {/* Overview Tab (Admin) */}
+        <TabsContent value="overview" className="space-y-6">
+          <AttendanceOverview />
         </TabsContent>
       </Tabs>
     </div>

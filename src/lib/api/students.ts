@@ -7,7 +7,28 @@ import type {
   UpdateStudentRequest,
   LinkParentRequest,
   StudentDocument,
+  FileUploadResponse,
 } from '@/lib/types/student';
+
+// ---------------------------------------------------------------------------
+// File Upload
+// ---------------------------------------------------------------------------
+
+export async function uploadFile(
+  file: File,
+  folder?: string,
+): Promise<ApiResponse<FileUploadResponse>> {
+  const formData = new FormData();
+  formData.append('file', file);
+  if (folder) formData.append('folder', folder);
+
+  const response = await apiClient.post<ApiResponse<FileUploadResponse>>(
+    '/files/upload',
+    formData,
+    { headers: { 'Content-Type': 'multipart/form-data' } },
+  );
+  return response.data;
+}
 
 // ---------------------------------------------------------------------------
 // Student API functions

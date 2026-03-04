@@ -23,6 +23,10 @@ import {
   Smile,
   Stethoscope,
   HelpCircle,
+  Calendar,
+  Send,
+  CalendarDays,
+  ScrollText,
 } from 'lucide-react';
 
 export type NavItem = {
@@ -116,6 +120,12 @@ export const navigationConfig: NavItem[] = [
     roles: ['ADMIN', 'TEACHER'],
   },
   {
+    title: 'Timetable',
+    href: '/timetable',
+    icon: Calendar,
+    roles: ['ADMIN'],
+  },
+  {
     title: 'Homework',
     href: '/homework',
     icon: FileText,
@@ -133,33 +143,46 @@ export const navigationConfig: NavItem[] = [
     ],
   },
   {
+    title: 'Broadcasts',
+    href: '/broadcasts',
+    icon: Send,
+    roles: ['ADMIN'],
+  },
+  {
+    title: 'Events',
+    href: '/events',
+    icon: CalendarDays,
+    roles: ['ADMIN'],
+  },
+  {
     title: 'Activity',
     href: '/activity',
     icon: Activity,
     roles: ['ADMIN'],
   },
   {
-    title: 'Welfare',
-    href: '/welfare',
-    icon: HeartPulse,
+    title: 'Safety',
+    href: '/safety',
+    icon: Shield,
     roles: ['ADMIN', 'TEACHER'],
     children: [
+      { title: 'Emergency Alerts', href: '/safety', icon: Shield, roles: ['ADMIN', 'TEACHER'] },
       { title: 'Welfare Logs', href: '/welfare', icon: HeartPulse, roles: ['ADMIN', 'TEACHER'] },
       { title: 'Mood Tracker', href: '/welfare/mood', icon: Smile, roles: ['ADMIN', 'TEACHER'] },
       { title: 'Health Records', href: '/welfare/health-records', icon: Stethoscope, roles: ['ADMIN', 'TEACHER'] },
     ],
   },
   {
-    title: 'Safety',
-    href: '/safety',
-    icon: Shield,
-    roles: ['ADMIN', 'TEACHER'],
-  },
-  {
     title: 'Fees',
     href: '/fees',
     icon: DollarSign,
     roles: ['ADMIN', 'PARENT'],
+  },
+  {
+    title: 'Audit Trail',
+    href: '/audit-logs',
+    icon: ScrollText,
+    roles: ['ADMIN'],
   },
   {
     title: 'Data Migration',

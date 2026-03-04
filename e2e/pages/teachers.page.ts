@@ -13,7 +13,7 @@ export class TeachersPage {
       'Manage teachers in your school.'
     );
     this.inviteTeacherButton = page.getByRole('button', {
-      name: /Invite User/i,
+      name: /Add Teacher/i,
     });
   }
 

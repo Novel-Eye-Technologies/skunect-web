@@ -57,3 +57,34 @@ export async function getAttendanceSummary(
   );
   return response.data;
 }
+
+// ---------------------------------------------------------------------------
+// Attendance Overview (Admin)
+// ---------------------------------------------------------------------------
+
+export interface AttendanceOverview {
+  totalStudents: number;
+  presentCount: number;
+  absentCount: number;
+  lateCount: number;
+  attendanceRate: number;
+  classSummaries: {
+    classId: string;
+    className: string;
+    present: number;
+    absent: number;
+    late: number;
+    total: number;
+  }[];
+}
+
+export async function getAttendanceOverview(
+  schoolId: string,
+  date: string,
+): Promise<ApiResponse<AttendanceOverview>> {
+  const response = await apiClient.get<ApiResponse<AttendanceOverview>>(
+    `/schools/${schoolId}/attendance/overview`,
+    { params: { date } },
+  );
+  return response.data;
+}

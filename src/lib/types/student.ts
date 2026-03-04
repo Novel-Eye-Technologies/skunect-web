@@ -8,7 +8,7 @@ export interface StudentListItem {
   gender: 'MALE' | 'FEMALE';
   classId: string;
   className: string;
-  status: 'ACTIVE' | 'INACTIVE' | 'GRADUATED' | 'TRANSFERRED';
+  status: 'ACTIVE' | 'INACTIVE' | 'GRADUATED' | 'TRANSFERRED' | 'SUSPENDED' | 'EXPELLED';
   photo: string | null;
   createdAt: string;
 }
@@ -45,14 +45,24 @@ export interface StudentDocument {
   uploadedAt: string;
 }
 
+export interface GuardianInfo {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  relationship: string;
+  isEmergencyContact: boolean;
+}
+
 export interface CreateStudentRequest {
-  admissionNumber: string;
+  admissionNumber?: string; // optional — auto-generated if blank
   firstName: string;
   lastName: string;
   otherName?: string;
   dateOfBirth: string;
   gender: 'MALE' | 'FEMALE';
   classId: string;
+  photoUrl?: string;
   address?: string;
   stateOfOrigin?: string;
   lga?: string;
@@ -61,10 +71,19 @@ export interface CreateStudentRequest {
   genotype?: string;
   allergies?: string;
   medicalConditions?: string;
+  guardians?: GuardianInfo[];
 }
 
 export interface UpdateStudentRequest extends Partial<CreateStudentRequest> {
-  status?: 'ACTIVE' | 'INACTIVE' | 'GRADUATED' | 'TRANSFERRED';
+  status?: 'ACTIVE' | 'INACTIVE' | 'GRADUATED' | 'TRANSFERRED' | 'SUSPENDED' | 'EXPELLED';
+}
+
+export interface FileUploadResponse {
+  fileId: string;
+  fileName: string;
+  fileUrl: string;
+  contentType: string;
+  fileSize: number;
 }
 
 export interface LinkParentRequest {

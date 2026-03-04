@@ -260,6 +260,8 @@ export default function StudentsPage() {
                 <SelectItem value="INACTIVE">Inactive</SelectItem>
                 <SelectItem value="GRADUATED">Graduated</SelectItem>
                 <SelectItem value="TRANSFERRED">Transferred</SelectItem>
+                <SelectItem value="SUSPENDED">Suspended</SelectItem>
+                <SelectItem value="EXPELLED">Expelled</SelectItem>
               </SelectContent>
             </Select>
           </div>
