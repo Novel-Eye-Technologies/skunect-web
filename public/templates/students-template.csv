@@ -1,0 +1,3 @@
+firstName,lastName,middleName,admissionNumber,gender,dateOfBirth,bloodGroup,genotype,address,healthNotes,classId,guardianFirstName,guardianLastName,guardianEmail,guardianPhone,guardianRelationship,guardianIsEmergencyContact
+John,Doe,Michael,,MALE,2012-05-15,O+,AA,12 Example Street Lagos,,<class-id-here>,James,Doe,james.doe@example.com,+2348012345678,FATHER,true
+Jane,Smith,,,FEMALE,2011-09-22,B+,AS,5 Sample Road Abuja,Asthmatic - carries inhaler,<class-id-here>,Mary,Smith,mary.smith@example.com,+2348098765432,MOTHER,true

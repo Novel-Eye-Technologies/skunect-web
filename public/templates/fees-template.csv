@@ -1,0 +1,4 @@
+name,amount,termId,classId,isMandatory,deadline,breakdown
+Tuition Fee,150000.00,<term-id-here>,,true,2025-09-30,School fees for the term
+Development Levy,25000.00,<term-id-here>,,true,2025-09-30,Infrastructure and facility maintenance
+Lab Fee,10000.00,<term-id-here>,<class-id-here>,false,2025-10-15,Science laboratory materials
