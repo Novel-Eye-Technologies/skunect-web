@@ -13,11 +13,11 @@ export class HelpPage {
     this.description = page.getByText(
       'Find answers to common questions and get support.'
     );
-    this.gettingStartedSection = page.getByRole('heading', {
-      name: 'Getting Started',
+    this.gettingStartedSection = page.locator('[data-slot="card-title"]', {
+      hasText: 'Getting Started',
     });
-    this.contactSection = page.getByRole('heading', {
-      name: 'Contact Support',
+    this.contactSection = page.locator('[data-slot="card-title"]', {
+      hasText: 'Contact Support',
     });
   }
 

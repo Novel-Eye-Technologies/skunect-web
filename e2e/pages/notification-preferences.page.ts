@@ -14,8 +14,8 @@ export class NotificationPreferencesPage {
     this.description = page.getByText(
       'Choose how you want to be notified for different events.'
     );
-    this.notificationChannelsCard = page.getByRole('heading', {
-      name: 'Notification Channels',
+    this.notificationChannelsCard = page.locator('[data-slot="card-title"]', {
+      hasText: 'Notification Channels',
     });
   }
 

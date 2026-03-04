@@ -3,11 +3,14 @@ import { LandingPage } from '../../pages/landing.page';
 
 // Landing page tests use unauthenticated context (no auth fixture)
 test.describe('Landing Page', () => {
-  test('unauthenticated user sees landing page', async ({ page }) => {
-    // Clear any stored auth state
+  test.beforeEach(async ({ page }) => {
+    // Navigate first to avoid SecurityError on about:blank
+    await page.goto('/');
     await page.context().clearCookies();
     await page.evaluate(() => localStorage.clear());
+  });
 
+  test('unauthenticated user sees landing page', async ({ page }) => {
     const landing = new LandingPage(page);
     await landing.goto();
     await landing.expectVisible();
@@ -15,9 +18,6 @@ test.describe('Landing Page', () => {
   });
 
   test('landing page shows feature cards', async ({ page }) => {
-    await page.context().clearCookies();
-    await page.evaluate(() => localStorage.clear());
-
     const landing = new LandingPage(page);
     await landing.goto();
     await landing.expectVisible();
@@ -25,9 +25,6 @@ test.describe('Landing Page', () => {
   });
 
   test('Get Started button links to login', async ({ page }) => {
-    await page.context().clearCookies();
-    await page.evaluate(() => localStorage.clear());
-
     const landing = new LandingPage(page);
     await landing.goto();
     await landing.expectVisible();
@@ -35,9 +32,6 @@ test.describe('Landing Page', () => {
   });
 
   test('Sign In button links to login', async ({ page }) => {
-    await page.context().clearCookies();
-    await page.evaluate(() => localStorage.clear());
-
     const landing = new LandingPage(page);
     await landing.goto();
     await landing.expectVisible();

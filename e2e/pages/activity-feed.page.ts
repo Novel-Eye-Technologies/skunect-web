@@ -12,8 +12,8 @@ export class ActivityFeedPage {
     this.description = page.getByText(
       'Recent activity across the school.'
     );
-    this.activityList = page.getByRole('heading', {
-      name: 'Recent Activity',
+    this.activityList = page.locator('[data-slot="card-title"]', {
+      hasText: 'Recent Activity',
     });
   }
 
