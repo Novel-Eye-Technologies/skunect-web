@@ -57,6 +57,46 @@ export class WelfarePage {
     await expect(this.dialog).toBeVisible();
   }
 
+  /**
+   * Select a class that has students and wait for them to load.
+   * Tries classes from last to first (seeded classes tend to sort after
+   * auto-generated E2E classes alphabetically). For each class, waits for
+   * the students API to respond and checks if any students exist.
+   */
+  async selectClassAndWaitForStudents(page: Page) {
+    await this.classSelect.click();
+    const options = page.getByRole('option');
+    const count = await options.count();
+
+    // Try classes from last to first (seeded classes have real students)
+    for (let i = count - 1; i >= 0; i--) {
+      const studentResponsePromise = page.waitForResponse(
+        (resp) => resp.url().includes('/students') && resp.status() === 200,
+        { timeout: 15_000 }
+      );
+      await options.nth(i).click();
+      const resp = await studentResponsePromise;
+      let hasStudents = false;
+      try {
+        const text = await resp.text();
+        const body = JSON.parse(text);
+        hasStudents = body?.data?.length > 0;
+      } catch {
+        // If response isn't parseable JSON, assume class has no students
+      }
+      if (hasStudents) {
+        await expect(this.studentSelect).toBeEnabled({ timeout: 5_000 });
+        return;
+      }
+      // No students in this class — try the next one
+      if (i > 0) {
+        await this.classSelect.click();
+      }
+    }
+    // Fallback: just ensure select is enabled even with 0 students
+    await expect(this.studentSelect).toBeEnabled({ timeout: 5_000 });
+  }
+
   async selectClass(className: string) {
     await this.classSelect.click();
     await this.page.getByRole('option', { name: className }).click();

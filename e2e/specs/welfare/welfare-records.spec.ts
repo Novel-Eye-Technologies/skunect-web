@@ -48,13 +48,8 @@ test.describe('Welfare Records Management (CRUD)', () => {
 
     await welfare.clickRecordWelfare();
 
-    // Select class (first available)
-    await welfare.classSelect.click();
-    const classOptions = adminPage.getByRole('option');
-    await classOptions.first().click();
-
-    // Wait for students to load
-    await adminPage.waitForTimeout(1_000);
+    // Select class and wait for students API response
+    await welfare.selectClassAndWaitForStudents(adminPage);
 
     // Select student (first available)
     await welfare.studentSelect.click();
@@ -83,11 +78,8 @@ test.describe('Welfare Records Management (CRUD)', () => {
 
     await welfare.clickRecordWelfare();
 
-    // Select class
-    await welfare.classSelect.click();
-    const classOptions = adminPage.getByRole('option');
-    await classOptions.first().click();
-    await adminPage.waitForTimeout(1_000);
+    // Select class and wait for students API response
+    await welfare.selectClassAndWaitForStudents(adminPage);
 
     // Select student
     await welfare.studentSelect.click();
@@ -195,11 +187,8 @@ test.describe('Welfare Records Management (CRUD)', () => {
     await welfare.clickRecordWelfare();
     await expect(welfare.dialog).toBeVisible();
 
-    // Select class
-    await welfare.classSelect.click();
-    const classOptions = teacherPage.getByRole('option');
-    await classOptions.first().click();
-    await teacherPage.waitForTimeout(1_000);
+    // Select class and wait for students API response
+    await welfare.selectClassAndWaitForStudents(teacherPage);
 
     // Select student
     await welfare.studentSelect.click();
