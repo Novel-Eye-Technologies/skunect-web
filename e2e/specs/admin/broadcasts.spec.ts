@@ -22,7 +22,7 @@ test.describe('Broadcasts Management (CRUD)', () => {
     await broadcasts.clickNewBroadcast();
     await expect(broadcasts.dialog).toBeVisible();
     await expect(
-      broadcasts.dialog.getByText(/send broadcast/i)
+      broadcasts.dialog.getByRole('heading', { name: /send broadcast/i })
     ).toBeVisible();
   });
 
@@ -75,9 +75,12 @@ test.describe('Broadcasts Management (CRUD)', () => {
     await broadcasts.goto();
     await broadcasts.expectVisible();
 
-    // Check that at least one broadcast card has a badge
-    const cards = adminPage.locator('[data-slot="card"]');
-    // If broadcasts exist, check badge presence
+    // Wait for loading to finish: empty state or actual card with badge
+    await expect(
+      broadcasts.emptyState.or(adminPage.locator('[data-slot="badge"]').first())
+    ).toBeVisible({ timeout: 10_000 });
+
+    const cards = adminPage.locator('[data-slot="card"]').filter({ has: adminPage.locator('[data-slot="badge"]') });
     const count = await cards.count();
     if (count > 0) {
       const firstBadge = cards.first().locator('[data-slot="badge"]');
@@ -90,8 +93,13 @@ test.describe('Broadcasts Management (CRUD)', () => {
     await broadcasts.goto();
     await broadcasts.expectVisible();
 
-    // Cards should render with recipient count if broadcasts exist
-    const cards = adminPage.locator('[data-slot="card"]');
+    // Wait for loading to finish: empty state or a card with "By" text (real content)
+    await expect(
+      broadcasts.emptyState.or(adminPage.getByText(/^By /).first())
+    ).toBeVisible({ timeout: 10_000 });
+
+    // Only check real broadcast cards (those with a badge, not skeletons)
+    const cards = adminPage.locator('[data-slot="card"]').filter({ has: adminPage.locator('[data-slot="badge"]') });
     const count = await cards.count();
     if (count > 0) {
       // SVG Users icon should be present indicating recipient count
@@ -104,7 +112,12 @@ test.describe('Broadcasts Management (CRUD)', () => {
     await broadcasts.goto();
     await broadcasts.expectVisible();
 
-    const cards = adminPage.locator('[data-slot="card"]');
+    // Wait for loading to finish
+    await expect(
+      broadcasts.emptyState.or(adminPage.getByText(/^By /).first())
+    ).toBeVisible({ timeout: 10_000 });
+
+    const cards = adminPage.locator('[data-slot="card"]').filter({ has: adminPage.locator('[data-slot="badge"]') });
     const count = await cards.count();
     if (count > 0) {
       // Should show "By <name>" text
