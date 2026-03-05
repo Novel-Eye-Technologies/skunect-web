@@ -80,8 +80,8 @@ test.describe('Timetable Management (CRUD)', () => {
     await timetable.selectClass(0);
     await timetable.expectGridVisible();
 
-    // Click on an empty slot (Monday Period 1)
-    await timetable.clickEmptySlot('MONDAY', 1);
+    // Click on an empty slot (Wednesday Period 3 — less likely to conflict)
+    await timetable.clickEmptySlot('WEDNESDAY', 3);
     await timetable.fillSlotForm(slotLabel);
     await timetable.submitSlotForm();
 
