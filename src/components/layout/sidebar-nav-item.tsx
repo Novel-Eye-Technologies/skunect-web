@@ -10,6 +10,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
+import { useAuthStore } from '@/lib/stores/auth-store';
 import type { NavItem } from '@/lib/utils/navigation';
 
 interface SidebarNavItemProps {
@@ -24,12 +25,18 @@ export function SidebarNavItem({
   onNavigate,
 }: SidebarNavItemProps) {
   const pathname = usePathname();
-  const hasChildren = item.children && item.children.length > 0;
+  const currentRole = useAuthStore((s) => s.currentRole);
+
+  // Filter children by the user's current role
+  const visibleChildren = item.children?.filter((child) =>
+    currentRole ? child.roles.includes(currentRole as 'ADMIN' | 'TEACHER' | 'PARENT' | 'SUPER_ADMIN') : false,
+  );
+  const hasChildren = visibleChildren && visibleChildren.length > 0;
 
   const isActive =
     pathname === item.href || pathname.startsWith(`${item.href}/`);
   const isChildActive = hasChildren
-    ? item.children!.some(
+    ? visibleChildren!.some(
         (child) =>
           pathname === child.href || pathname.startsWith(`${child.href}/`),
       )
@@ -97,7 +104,7 @@ export function SidebarNavItem({
         >
           <div className="overflow-hidden">
             <div className="ml-4 mt-1 space-y-0.5 border-l border-white/10 pl-3">
-              {item.children!.map((child) => {
+              {visibleChildren!.map((child) => {
                 const isSubActive =
                   pathname === child.href ||
                   pathname.startsWith(`${child.href}/`);

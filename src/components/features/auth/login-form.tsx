@@ -118,7 +118,7 @@ export function LoginForm() {
       </div>
 
       {/* Login tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <Tabs id="login-method" value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="w-full">
           <TabsTrigger value="email" className="flex-1 gap-1.5">
             <Mail className="w-4 h-4" />

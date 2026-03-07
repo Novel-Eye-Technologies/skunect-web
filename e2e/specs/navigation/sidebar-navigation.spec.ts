@@ -41,7 +41,11 @@ test.describe('Sidebar Navigation', () => {
     await expect(adminPage.locator('h1')).toBeVisible({ timeout: 20_000 });
 
     const sidebar = new SidebarPage(adminPage);
-    await sidebar.navigateTo('Students');
+    // Students is now a child of "People" — expand People first, then click child link
+    await sidebar.navigateTo('People');
+    const studentsLink = adminPage.locator('aside').first().getByRole('link', { name: 'Students' });
+    await studentsLink.waitFor({ state: 'visible', timeout: 5_000 });
+    await studentsLink.click();
     await expect(adminPage).toHaveURL(/\/students\/?/, { timeout: 10_000 });
   });
 
@@ -50,7 +54,11 @@ test.describe('Sidebar Navigation', () => {
     await expect(adminPage.locator('h1')).toBeVisible({ timeout: 20_000 });
 
     const sidebar = new SidebarPage(adminPage);
-    await sidebar.navigateTo('Homework');
+    // Homework is now a child of "Academics" — expand Academics first, then click child link
+    await sidebar.navigateTo('Academics');
+    const homeworkLink = adminPage.locator('aside').first().getByRole('link', { name: 'Homework' });
+    await homeworkLink.waitFor({ state: 'visible', timeout: 5_000 });
+    await homeworkLink.click();
     await expect(adminPage).toHaveURL(/\/homework\/?/, { timeout: 10_000 });
   });
 });

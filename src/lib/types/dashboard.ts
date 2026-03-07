@@ -1,3 +1,76 @@
+// ─── Admin Dashboard ────────────────────────────────────────────────
+
+export interface AdminDashboardData {
+  totalStudents: number;
+  activeStudents: number;
+  totalTeachers: number;
+  todayAttendanceRate: number;
+  todayPresentCount: number;
+  todayAbsentCount: number;
+  totalFeesBilled: number;
+  totalFeesCollected: number;
+  totalFeesOutstanding: number;
+  feeCollectionRate: number;
+  activeEmergencyAlerts: number;
+  totalClasses: number;
+}
+
+export interface AttendanceDailyBreakdown {
+  date: string;
+  present: number;
+  absent: number;
+  late: number;
+  rate: number;
+}
+
+export interface AttendanceSummaryData {
+  totalRecords: number;
+  presentCount: number;
+  absentCount: number;
+  lateCount: number;
+  attendanceRate: number;
+  dailyBreakdown: AttendanceDailyBreakdown[];
+}
+
+export interface FeeSummaryData {
+  totalBilled: number;
+  totalCollected: number;
+  totalOutstanding: number;
+  collectionRate: number;
+  totalInvoices: number;
+  paidInvoices: number;
+  pendingInvoices: number;
+  overdueInvoices: number;
+}
+
+// ─── Teacher Dashboard ──────────────────────────────────────────────
+
+export interface TeacherDashboardData {
+  myClassesCount: number;
+  todayAttendanceRate: number;
+  pendingHomeworkCount: number;
+  classAttendance: ClassAttendanceItem[];
+  upcomingAssignments: UpcomingAssignmentItem[];
+}
+
+export interface ClassAttendanceItem {
+  className: string;
+  present: number;
+  total: number;
+  percentage: number;
+}
+
+export interface UpcomingAssignmentItem {
+  id: string;
+  title: string;
+  className: string;
+  dueDate: string;
+  submissionRate: number;
+  status: string;
+}
+
+// ─── Parent Dashboard ───────────────────────────────────────────────
+
 export interface ParentDashboardData {
   childrenCount: number;
   todayAttendance: string;

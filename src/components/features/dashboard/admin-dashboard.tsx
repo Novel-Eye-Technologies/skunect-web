@@ -1,10 +1,18 @@
 'use client';
 
+import { useMemo } from 'react';
+import Link from 'next/link';
+import { format, formatDistanceToNow, startOfWeek, endOfWeek, parseISO } from 'date-fns';
 import {
   GraduationCap,
   Users,
   ClipboardCheck,
   DollarSign,
+  FileText,
+  Bell,
+  HeartPulse,
+  Activity,
+  ArrowRight,
 } from 'lucide-react';
 import {
   Card,
@@ -13,8 +21,11 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { StatCard } from '@/components/shared/stat-card';
+import { useAdminDashboard, useAttendanceSummary, useFeeSummary } from '@/lib/hooks/use-dashboard';
+import { useActivityFeed } from '@/lib/hooks/use-activity';
+import type { ActivityFeedItem } from '@/lib/types/activity';
 import {
   LineChart,
   Line,
@@ -28,78 +39,20 @@ import {
   Legend,
 } from 'recharts';
 
-// ---------------------------------------------------------------------------
-// Mock data - will be replaced with API calls
-// ---------------------------------------------------------------------------
+const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-const stats = {
-  totalStudents: 1_245,
-  totalTeachers: 86,
-  attendanceRate: 94.2,
-  outstandingFees: 3_450_000,
+const activityTypeIcons: Record<string, typeof Activity> = {
+  ATTENDANCE: ClipboardCheck,
+  HOMEWORK: FileText,
+  ANNOUNCEMENT: Bell,
+  WELFARE: HeartPulse,
 };
 
-const attendanceData = [
-  { date: 'Mon', present: 1180, absent: 40, late: 25 },
-  { date: 'Tue', present: 1195, absent: 30, late: 20 },
-  { date: 'Wed', present: 1170, absent: 50, late: 25 },
-  { date: 'Thu', present: 1200, absent: 25, late: 20 },
-  { date: 'Fri', present: 1150, absent: 60, late: 35 },
-];
-
-const feeCollectionData = [
-  { month: 'Sep', collected: 12_500_000, outstanding: 3_200_000 },
-  { month: 'Oct', collected: 14_000_000, outstanding: 2_800_000 },
-  { month: 'Nov', collected: 13_200_000, outstanding: 3_000_000 },
-  { month: 'Dec', collected: 15_000_000, outstanding: 2_500_000 },
-  { month: 'Jan', collected: 14_800_000, outstanding: 2_900_000 },
-  { month: 'Feb', collected: 13_500_000, outstanding: 3_450_000 },
-];
-
-const recentActivity = [
-  {
-    id: '1',
-    type: 'enrollment' as const,
-    description: 'New student Adaobi Okafor enrolled in JSS 1A',
-    timestamp: '2 hours ago',
-    user: 'Admin',
-  },
-  {
-    id: '2',
-    type: 'attendance' as const,
-    description: 'Attendance marked for 24 classes today',
-    timestamp: '3 hours ago',
-    user: 'System',
-  },
-  {
-    id: '3',
-    type: 'fee' as const,
-    description: 'Payment of N150,000 received from Chinedu Eze',
-    timestamp: '4 hours ago',
-    user: 'Bursar',
-  },
-  {
-    id: '4',
-    type: 'grade' as const,
-    description: 'CA1 scores uploaded for SS2 Mathematics',
-    timestamp: '5 hours ago',
-    user: 'Mr. Balogun',
-  },
-  {
-    id: '5',
-    type: 'announcement' as const,
-    description: 'Mid-term break announcement published',
-    timestamp: '6 hours ago',
-    user: 'Admin',
-  },
-];
-
 const activityTypeColors: Record<string, string> = {
-  enrollment: 'bg-blue-100 text-blue-700',
-  attendance: 'bg-emerald-100 text-emerald-700',
-  fee: 'bg-amber-100 text-amber-700',
-  grade: 'bg-purple-100 text-purple-700',
-  announcement: 'bg-rose-100 text-rose-700',
+  ATTENDANCE: 'bg-blue-100 text-blue-700',
+  HOMEWORK: 'bg-purple-100 text-purple-700',
+  ANNOUNCEMENT: 'bg-amber-100 text-amber-700',
+  WELFARE: 'bg-emerald-100 text-emerald-700',
 };
 
 // ---------------------------------------------------------------------------
@@ -107,38 +60,81 @@ const activityTypeColors: Record<string, string> = {
 // ---------------------------------------------------------------------------
 
 export function AdminDashboard() {
+  const { data: dashboardRes, isLoading: dashboardLoading } = useAdminDashboard();
+  const dashboard = dashboardRes?.data;
+
+  // Weekly attendance: current week Mon–Fri
+  const { weekFrom, weekTo } = useMemo(() => {
+    const now = new Date();
+    const start = startOfWeek(now, { weekStartsOn: 1 }); // Monday
+    const end = endOfWeek(now, { weekStartsOn: 1 }); // Sunday
+    return {
+      weekFrom: format(start, 'yyyy-MM-dd'),
+      weekTo: format(end, 'yyyy-MM-dd'),
+    };
+  }, []);
+
+  const { data: attendanceRes, isLoading: attendanceLoading } = useAttendanceSummary(weekFrom, weekTo);
+  const attendanceChart = useMemo(() => {
+    const breakdown = attendanceRes?.data?.dailyBreakdown ?? [];
+    return breakdown.map((d) => ({
+      date: DAY_LABELS[parseISO(d.date).getDay()] || d.date,
+      present: d.present,
+      absent: d.absent,
+      late: d.late,
+    }));
+  }, [attendanceRes]);
+
+  const { data: feeRes, isLoading: feeLoading } = useFeeSummary();
+  const feeSummary = feeRes?.data;
+
+  const { data: activityResponse, isLoading: activityLoading } = useActivityFeed(10);
+  const activities = activityResponse?.data ?? [];
+
+  const isStatsLoading = dashboardLoading;
+
   return (
     <div className="space-y-6">
       {/* Stat Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          title="Total Students"
-          value={stats.totalStudents.toLocaleString()}
-          description="across all classes"
-          icon={GraduationCap}
-          trend={{ value: 3.2, direction: 'up' }}
-        />
-        <StatCard
-          title="Total Teachers"
-          value={stats.totalTeachers}
-          description="active staff"
-          icon={Users}
-          trend={{ value: 1.5, direction: 'up' }}
-        />
-        <StatCard
-          title="Attendance Rate"
-          value={`${stats.attendanceRate}%`}
-          description="this week"
-          icon={ClipboardCheck}
-          trend={{ value: 0.8, direction: 'up' }}
-        />
-        <StatCard
-          title="Outstanding Fees"
-          value={`₦${(stats.outstandingFees / 1_000_000).toFixed(1)}M`}
-          description="pending collection"
-          icon={DollarSign}
-          trend={{ value: 2.1, direction: 'down' }}
-        />
+        {isStatsLoading ? (
+          Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i}>
+              <CardContent className="p-6">
+                <Skeleton className="h-4 w-24 mb-2" />
+                <Skeleton className="h-8 w-16" />
+                <Skeleton className="h-3 w-32 mt-2" />
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <>
+            <StatCard
+              title="Total Students"
+              value={dashboard?.activeStudents?.toLocaleString() ?? '0'}
+              description="active students"
+              icon={GraduationCap}
+            />
+            <StatCard
+              title="Total Teachers"
+              value={dashboard?.totalTeachers ?? 0}
+              description="active staff"
+              icon={Users}
+            />
+            <StatCard
+              title="Attendance Rate"
+              value={`${dashboard?.todayAttendanceRate ?? 0}%`}
+              description="today"
+              icon={ClipboardCheck}
+            />
+            <StatCard
+              title="Outstanding Fees"
+              value={`₦${((dashboard?.totalFeesOutstanding ?? 0) / 1_000_000).toFixed(1)}M`}
+              description="pending collection"
+              icon={DollarSign}
+            />
+          </>
+        )}
       </div>
 
       {/* Charts */}
@@ -153,107 +149,131 @@ export function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={attendanceData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis
-                    dataKey="date"
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <YAxis fontSize={12} tickLine={false} axisLine={false} />
-                  <Tooltip
-                    contentStyle={{
-                      borderRadius: '8px',
-                      border: '1px solid #e5e7eb',
-                      boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-                    }}
-                  />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="present"
-                    stroke="#2A9D8F"
-                    strokeWidth={2}
-                    dot={{ fill: '#2A9D8F', r: 4 }}
-                    activeDot={{ r: 6 }}
-                    name="Present"
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="absent"
-                    stroke="#ef4444"
-                    strokeWidth={2}
-                    dot={{ fill: '#ef4444', r: 4 }}
-                    name="Absent"
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="late"
-                    stroke="#f59e0b"
-                    strokeWidth={2}
-                    dot={{ fill: '#f59e0b', r: 4 }}
-                    name="Late"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+              {attendanceLoading ? (
+                <div className="flex h-full items-center justify-center">
+                  <Skeleton className="h-full w-full rounded-lg" />
+                </div>
+              ) : attendanceChart.length === 0 ? (
+                <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+                  No attendance data for this week yet.
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={attendanceChart}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                    <XAxis
+                      dataKey="date"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <YAxis fontSize={12} tickLine={false} axisLine={false} />
+                    <Tooltip
+                      contentStyle={{
+                        borderRadius: '8px',
+                        border: '1px solid #e5e7eb',
+                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                      }}
+                    />
+                    <Legend />
+                    <Line
+                      type="monotone"
+                      dataKey="present"
+                      stroke="#2A9D8F"
+                      strokeWidth={2}
+                      dot={{ fill: '#2A9D8F', r: 4 }}
+                      activeDot={{ r: 6 }}
+                      name="Present"
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="absent"
+                      stroke="#ef4444"
+                      strokeWidth={2}
+                      dot={{ fill: '#ef4444', r: 4 }}
+                      name="Absent"
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="late"
+                      stroke="#f59e0b"
+                      strokeWidth={2}
+                      dot={{ fill: '#f59e0b', r: 4 }}
+                      name="Late"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </CardContent>
         </Card>
 
-        {/* Fee Collection Chart */}
+        {/* Fee Summary Card */}
         <Card>
           <CardHeader>
-            <CardTitle>Fee Collection</CardTitle>
+            <CardTitle>Fee Summary</CardTitle>
             <CardDescription>
-              Monthly fee collection vs outstanding
+              Overall fee collection status
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={feeCollectionData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis
-                    dataKey="month"
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <YAxis
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                    tickFormatter={(value: number) =>
-                      `₦${(value / 1_000_000).toFixed(0)}M`
-                    }
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      borderRadius: '8px',
-                      border: '1px solid #e5e7eb',
-                      boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-                    }}
-                    formatter={(value) =>
-                      `₦${(Number(value) / 1_000_000).toFixed(1)}M`
-                    }
-                  />
-                  <Legend />
-                  <Bar
-                    dataKey="collected"
-                    fill="#2A9D8F"
-                    radius={[4, 4, 0, 0]}
-                    name="Collected"
-                  />
-                  <Bar
-                    dataKey="outstanding"
-                    fill="#f59e0b"
-                    radius={[4, 4, 0, 0]}
-                    name="Outstanding"
-                  />
-                </BarChart>
-              </ResponsiveContainer>
+              {feeLoading ? (
+                <div className="flex h-full items-center justify-center">
+                  <Skeleton className="h-full w-full rounded-lg" />
+                </div>
+              ) : !feeSummary ? (
+                <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+                  No fee data available.
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={[
+                      {
+                        label: 'Collected',
+                        amount: Number(feeSummary.totalCollected),
+                      },
+                      {
+                        label: 'Outstanding',
+                        amount: Number(feeSummary.totalOutstanding),
+                      },
+                    ]}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                    <XAxis
+                      dataKey="label"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <YAxis
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                      tickFormatter={(value: number) =>
+                        `₦${(value / 1_000_000).toFixed(0)}M`
+                      }
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        borderRadius: '8px',
+                        border: '1px solid #e5e7eb',
+                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                      }}
+                      formatter={(value) =>
+                        `₦${(Number(value) / 1_000_000).toFixed(1)}M`
+                      }
+                    />
+                    <Bar
+                      dataKey="amount"
+                      radius={[4, 4, 0, 0]}
+                      name="Amount"
+                      fill="#2A9D8F"
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -261,38 +281,68 @@ export function AdminDashboard() {
 
       {/* Recent Activity */}
       <Card>
-        <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
-          <CardDescription>
-            Latest actions across the platform
-          </CardDescription>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle>Recent Activity</CardTitle>
+            <CardDescription>
+              Latest actions across the school
+            </CardDescription>
+          </div>
+          <Link
+            href="/activity"
+            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            View all
+            <ArrowRight className="h-4 w-4" />
+          </Link>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {recentActivity.map((activity) => (
-              <div
-                key={activity.id}
-                className="flex items-start gap-4 rounded-lg border p-3 transition-colors hover:bg-muted/50"
-              >
-                <Badge
-                  variant="secondary"
-                  className={`shrink-0 text-[10px] uppercase tracking-wider ${activityTypeColors[activity.type] ?? ''}`}
-                >
-                  {activity.type}
-                </Badge>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm text-foreground">
-                    {activity.description}
-                  </p>
-                  <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-                    <span>{activity.user}</span>
-                    <span aria-hidden="true">-</span>
-                    <span>{activity.timestamp}</span>
+          {activityLoading ? (
+            <div className="space-y-3">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="flex gap-3 rounded-lg border p-3">
+                  <Skeleton className="h-8 w-8 shrink-0 rounded-full" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-3 w-1/2" />
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : activities.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              No recent activity to show.
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {activities.map((item: ActivityFeedItem, index: number) => {
+                const Icon = activityTypeIcons[item.type] ?? Activity;
+                const colorClass = activityTypeColors[item.type] ?? 'bg-gray-100 text-gray-700';
+
+                return (
+                  <div
+                    key={`${item.type}-${item.timestamp}-${index}`}
+                    className="flex items-start gap-3 rounded-lg border p-3 transition-colors hover:bg-muted/50"
+                  >
+                    <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${colorClass}`}>
+                      <Icon className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium">{item.title}</p>
+                      <p className="text-sm text-muted-foreground line-clamp-1">
+                        {item.description}
+                      </p>
+                      <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
+                        <span>{item.actorName}</span>
+                        <span aria-hidden="true">&middot;</span>
+                        <span>{formatDistanceToNow(new Date(item.timestamp), { addSuffix: true })}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

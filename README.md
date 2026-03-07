@@ -16,6 +16,7 @@ Frontend for the Skunect School Management Platform, built with Next.js 15, Reac
 - [State Management](#state-management)
 - [Configuration](#configuration)
 - [Deployment](#deployment)
+- [Testing](#testing)
 - [Test Accounts](#test-accounts)
 
 ---
@@ -273,6 +274,91 @@ aws cloudfront create-invalidation --distribution-id EUW2XYFIEOP1A --paths "/*"
 ### CI/CD
 
 Push to `main` triggers GitHub Actions which builds and deploys automatically.
+
+---
+
+## Testing
+
+### E2E Tests (Playwright)
+
+E2E tests run against the deployed app by default (`https://dev.skunect.com`). To run locally, you need both the API and web dev server running.
+
+#### Prerequisites
+
+1. **Start the backend API** (from the `Skunect-api` directory):
+
+```bash
+cd ../Skunect-api
+docker compose up -d postgres    # Start PostgreSQL
+./gradlew bootRun                # Start API on localhost:8080
+```
+
+2. **Start the web dev server** (from this directory):
+
+```bash
+npm run dev                      # Start Next.js on localhost:3000
+```
+
+3. **Install Playwright browsers** (first time only):
+
+```bash
+npx playwright install chromium
+```
+
+#### Running Tests
+
+```bash
+# Run against deployed app (default)
+npm run test:e2e
+
+# Run against local dev servers
+E2E_BASE_URL=http://localhost:3000 E2E_API_URL=http://localhost:8080/api/v1 npm run test:e2e
+
+# Run a single test file
+E2E_BASE_URL=http://localhost:3000 E2E_API_URL=http://localhost:8080/api/v1 npx playwright test e2e/specs/navigation/sidebar-navigation.spec.ts
+
+# Run with UI mode (interactive)
+E2E_BASE_URL=http://localhost:3000 E2E_API_URL=http://localhost:8080/api/v1 npx playwright test --ui
+
+# View the HTML test report after a run
+npx playwright show-report
+```
+
+#### Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `E2E_BASE_URL` | `https://dev.skunect.com` | Web app URL for browser navigation |
+| `E2E_API_URL` | `{E2E_BASE_URL}/api/v1` | API URL for test setup (auth, seed) |
+
+#### Test Structure
+
+```
+e2e/
+├── fixtures/           # Auth fixture, test accounts
+├── helpers/            # API helpers (direct fetch calls for setup)
+├── pages/              # Page Object Models (sidebar, login, etc.)
+├── specs/              # Test specs organized by feature
+│   ├── admin/          # Admin-specific tests
+│   ├── auth/           # Login, logout, route protection
+│   ├── navigation/     # Sidebar navigation tests
+│   ├── teacher/        # Teacher-specific tests
+│   └── welfare/        # Welfare feature tests
+├── global-setup.ts     # Authenticates all test accounts before tests
+└── global-teardown.ts  # Cleanup after tests
+```
+
+### Type Checking
+
+```bash
+npx tsc --noEmit
+```
+
+### Linting
+
+```bash
+npm run lint
+```
 
 ---
 

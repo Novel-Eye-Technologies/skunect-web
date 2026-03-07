@@ -21,7 +21,7 @@ export function MobileNav() {
   const currentSchoolId = useAuthStore((s) => s.currentSchoolId);
 
   const filteredNav = navigationConfig.filter((item) =>
-    currentRole ? item.roles.includes(currentRole as 'ADMIN' | 'TEACHER') : false,
+    currentRole ? item.roles.includes(currentRole as 'ADMIN' | 'TEACHER' | 'PARENT' | 'SUPER_ADMIN') : false,
   );
 
   const currentSchool = user?.roles.find((r) => r.schoolId === currentSchoolId);

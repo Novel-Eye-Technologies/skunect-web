@@ -19,12 +19,10 @@ import {
   UserRound,
   HeartPulse,
   Settings2,
-  Activity,
   Smile,
   Stethoscope,
   HelpCircle,
   Calendar,
-  Send,
   CalendarDays,
   ScrollText,
 } from 'lucide-react';
@@ -58,7 +56,7 @@ export const navigationConfig: NavItem[] = [
     roles: ['SUPER_ADMIN'],
   },
 
-  // ─── School Admin & Teacher ───
+  // ─── School Admin, Teacher & Parent ───
   {
     title: 'Dashboard',
     href: '/dashboard',
@@ -66,34 +64,22 @@ export const navigationConfig: NavItem[] = [
     roles: ['ADMIN', 'TEACHER', 'PARENT'],
   },
   {
-    title: 'School Settings',
-    href: '/school-settings',
-    icon: School,
-    roles: ['ADMIN'],
-  },
-  {
-    title: 'Users',
+    title: 'People',
     href: '/users',
     icon: Users,
     roles: ['ADMIN'],
-  },
-  {
-    title: 'Teachers',
-    href: '/teachers',
-    icon: UserCheck,
-    roles: ['ADMIN'],
-  },
-  {
-    title: 'Parents',
-    href: '/parents',
-    icon: UserRound,
-    roles: ['ADMIN'],
+    children: [
+      { title: 'All Users', href: '/users', icon: Users, roles: ['ADMIN'] },
+      { title: 'Teachers', href: '/teachers', icon: UserCheck, roles: ['ADMIN'] },
+      { title: 'Parents', href: '/parents', icon: UserRound, roles: ['ADMIN'] },
+      { title: 'Students', href: '/students', icon: GraduationCap, roles: ['ADMIN'] },
+    ],
   },
   {
     title: 'Students',
     href: '/students',
     icon: GraduationCap,
-    roles: ['ADMIN', 'TEACHER'],
+    roles: ['TEACHER'],
   },
   {
     title: 'My Classes',
@@ -112,24 +98,18 @@ export const navigationConfig: NavItem[] = [
     href: '/academics',
     icon: BookOpen,
     roles: ['ADMIN', 'TEACHER'],
-  },
-  {
-    title: 'Attendance',
-    href: '/attendance',
-    icon: ClipboardCheck,
-    roles: ['ADMIN', 'TEACHER'],
-  },
-  {
-    title: 'Timetable',
-    href: '/timetable',
-    icon: Calendar,
-    roles: ['ADMIN'],
+    children: [
+      { title: 'Overview', href: '/academics', icon: BookOpen, roles: ['ADMIN', 'TEACHER'] },
+      { title: 'Timetable', href: '/timetable', icon: Calendar, roles: ['ADMIN'] },
+      { title: 'Attendance', href: '/attendance', icon: ClipboardCheck, roles: ['ADMIN', 'TEACHER'] },
+      { title: 'Homework', href: '/homework', icon: FileText, roles: ['ADMIN', 'TEACHER'] },
+    ],
   },
   {
     title: 'Homework',
     href: '/homework',
     icon: FileText,
-    roles: ['ADMIN', 'TEACHER', 'PARENT'],
+    roles: ['PARENT'],
   },
   {
     title: 'Communication',
@@ -139,29 +119,11 @@ export const navigationConfig: NavItem[] = [
     children: [
       { title: 'Messages', href: '/communication/messages', icon: MessageSquare, roles: ['ADMIN', 'TEACHER', 'PARENT'] },
       { title: 'Announcements', href: '/communication/announcements', icon: Bell, roles: ['ADMIN', 'TEACHER', 'PARENT'] },
-      { title: 'Notifications', href: '/communication/notifications', icon: Bell, roles: ['ADMIN', 'TEACHER', 'PARENT'] },
+      { title: 'Events', href: '/events', icon: CalendarDays, roles: ['ADMIN'] },
     ],
   },
   {
-    title: 'Broadcasts',
-    href: '/broadcasts',
-    icon: Send,
-    roles: ['ADMIN'],
-  },
-  {
-    title: 'Events',
-    href: '/events',
-    icon: CalendarDays,
-    roles: ['ADMIN'],
-  },
-  {
-    title: 'Activity',
-    href: '/activity',
-    icon: Activity,
-    roles: ['ADMIN'],
-  },
-  {
-    title: 'Safety',
+    title: 'Safety & Welfare',
     href: '/safety',
     icon: Shield,
     roles: ['ADMIN', 'TEACHER'],
@@ -179,28 +141,31 @@ export const navigationConfig: NavItem[] = [
     roles: ['ADMIN', 'PARENT'],
   },
   {
-    title: 'Audit Trail',
-    href: '/audit-logs',
-    icon: ScrollText,
-    roles: ['ADMIN'],
-  },
-  {
-    title: 'Data Migration',
-    href: '/data-migration',
-    icon: Upload,
-    roles: ['ADMIN'],
-  },
-  {
     title: 'Analytics',
     href: '/analytics',
     icon: BarChart3,
     roles: ['ADMIN'],
+    children: [
+      { title: 'Reports', href: '/analytics', icon: BarChart3, roles: ['ADMIN'] },
+      { title: 'Audit Trail', href: '/audit-logs', icon: ScrollText, roles: ['ADMIN'] },
+    ],
+  },
+  {
+    title: 'Settings',
+    href: '/school-settings',
+    icon: Settings2,
+    roles: ['ADMIN'],
+    children: [
+      { title: 'School Settings', href: '/school-settings', icon: School, roles: ['ADMIN'] },
+      { title: 'Data Migration', href: '/data-migration', icon: Upload, roles: ['ADMIN'] },
+      { title: 'Notification Preferences', href: '/notification-preferences', icon: Settings2, roles: ['ADMIN'] },
+    ],
   },
   {
     title: 'Notification Preferences',
     href: '/notification-preferences',
     icon: Settings2,
-    roles: ['ADMIN', 'TEACHER', 'PARENT'],
+    roles: ['TEACHER', 'PARENT'],
   },
   {
     title: 'Help & Support',
