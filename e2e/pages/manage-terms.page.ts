@@ -124,9 +124,11 @@ export class ManageTermsPage {
   }
 
   async editTerm(name: string) {
-    const termItem = this.page.locator('[class*="cursor-pointer"]', {
+    // Term cards use rounded-lg border p-4 (no cursor-pointer like sessions)
+    const termItem = this.page.locator('.rounded-lg.border.p-4', {
       hasText: name,
     });
+    // Edit is the pencil button (second-to-last)
     const buttons = termItem.locator('button');
     const count = await buttons.count();
     await buttons.nth(count - 2).click();
@@ -134,9 +136,10 @@ export class ManageTermsPage {
   }
 
   async deleteTerm(name: string) {
-    const termItem = this.page.locator('[class*="cursor-pointer"]', {
+    const termItem = this.page.locator('.rounded-lg.border.p-4', {
       hasText: name,
     });
+    // Delete is the last button (trash icon)
     await termItem.locator('button').last().click();
     // ConfirmDialog uses AlertDialog role
     const alertDialog = this.page.locator('[role="alertdialog"]');

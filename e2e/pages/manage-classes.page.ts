@@ -27,6 +27,21 @@ export class ManageClassesPage {
     this.cancelButton = page.getByRole('button', { name: /cancel/i });
   }
 
+  /**
+   * Select a class teacher from the dropdown in the dialog.
+   * If no teacher name is given, picks the first available teacher.
+   */
+  async selectClassTeacher(teacherName?: string) {
+    const trigger = this.dialog.getByRole('combobox');
+    await trigger.click();
+    if (teacherName) {
+      await this.page.getByRole('option', { name: teacherName }).click();
+    } else {
+      // Pick the first option
+      await this.page.getByRole('option').first().click();
+    }
+  }
+
   async goto() {
     await this.page.goto('/school-settings');
     await expect(this.heading).toBeVisible({ timeout: 15_000 });
@@ -47,10 +62,16 @@ export class ManageClassesPage {
     await expect(this.dialog).toBeVisible();
   }
 
-  async fillClassForm(name: string, section: string, capacity: string) {
+  async fillClassForm(
+    name: string,
+    section: string,
+    capacity: string,
+    teacherName?: string
+  ) {
     await this.classNameInput.fill(name);
     await this.sectionInput.fill(section);
     await this.capacityInput.fill(capacity);
+    await this.selectClassTeacher(teacherName);
   }
 
   async submitForm() {

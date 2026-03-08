@@ -77,8 +77,10 @@ test.describe('Classes Management (CRUD)', () => {
     await firstRow.getByRole('button').first().click();
 
     await expect(classes.dialog).toBeVisible();
-    // Update the capacity
+    // Update the capacity and ensure class teacher is selected
     await classes.capacityInput.fill('35');
+    // Select a class teacher if not already set (required field)
+    await classes.selectClassTeacher();
     await classes.submitForm();
 
     await expect(classes.dialog).not.toBeVisible({ timeout: 5_000 });

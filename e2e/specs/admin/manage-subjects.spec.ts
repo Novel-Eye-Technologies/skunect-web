@@ -1,7 +1,39 @@
+import fs from 'fs';
+import path from 'path';
 import { test, expect } from '../../fixtures/auth.fixture';
 import { ManageSubjectsPage } from '../../pages/manage-subjects.page';
+import { apiGet, apiDelete } from '../../helpers/api.helper';
 
 test.describe('Subjects Management (CRUD)', () => {
+  // Clean up E2E test subjects from previous runs
+  test.beforeAll(async () => {
+    try {
+      const authFile = path.resolve(process.cwd(), '.auth/admin-kings.json');
+      const authData = JSON.parse(fs.readFileSync(authFile, 'utf-8'));
+      const zustand = JSON.parse(authData.origins[0].localStorage[0].value);
+      const token = zustand.state.accessToken as string;
+      const schoolId = zustand.state.currentSchoolId as string;
+
+      const res = await apiGet<Array<{ id: string; name: string }>>(
+        `/schools/${schoolId}/subjects?size=200`,
+        token
+      );
+      const stale = (res.data ?? []).filter(
+        (s) =>
+          s.name.startsWith('E2E Subject') ||
+          s.name.startsWith('Delete Subject')
+      );
+      for (const s of stale) {
+        await apiDelete(
+          `/schools/${schoolId}/subjects/${s.id}`,
+          token
+        ).catch(() => {});
+      }
+    } catch {
+      // best-effort
+    }
+  });
+
   test('admin can view subjects tab', async ({ adminPage }) => {
     const subjects = new ManageSubjectsPage(adminPage);
     await subjects.goto();
@@ -77,7 +109,7 @@ test.describe('Subjects Management (CRUD)', () => {
     await subjects.expectSubjectNotInTable(deleteSubject);
   });
 
-  test('subject table shows code and status columns', async ({
+  test('subject table shows expected columns without Status', async ({
     adminPage,
   }) => {
     const subjects = new ManageSubjectsPage(adminPage);
@@ -85,10 +117,32 @@ test.describe('Subjects Management (CRUD)', () => {
     await subjects.expectVisible();
     await subjects.expectTableNotEmpty();
 
-    // Verify table has expected headers
+    // Verify table has expected headers: Name, Code, Description, Actions
     const headers = subjects.dataTable.locator('thead th');
     await expect(headers.getByText('Name')).toBeVisible();
     await expect(headers.getByText('Code')).toBeVisible();
-    await expect(headers.getByText('Status')).toBeVisible();
+
+    // Status column was removed — verify it's gone
+    const headerTexts: string[] = [];
+    const count = await headers.count();
+    for (let i = 0; i < count; i++) {
+      const text = await headers.nth(i).textContent();
+      if (text) headerTexts.push(text.trim());
+    }
+    expect(headerTexts).not.toContain('Status');
+  });
+
+  test('cancel button closes dialog without saving', async ({
+    adminPage,
+  }) => {
+    const subjects = new ManageSubjectsPage(adminPage);
+    await subjects.goto();
+    await subjects.expectVisible();
+
+    await subjects.clickAddSubject();
+    await subjects.fillSubjectForm('Should Not Save', 'NOSAVE');
+    await subjects.cancelButton.click();
+
+    await expect(subjects.dialog).not.toBeVisible({ timeout: 3_000 });
   });
 });
