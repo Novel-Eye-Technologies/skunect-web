@@ -40,7 +40,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
-import { StatusBadge } from '@/components/shared/status-badge';
+
 import { ConfirmDialog } from '@/components/shared/confirm-dialog';
 import { EmptyState } from '@/components/shared/empty-state';
 import {
@@ -117,18 +117,6 @@ export function SubjectsManager() {
     }
   }
 
-  function toggleActive(subject: Subject) {
-    updateSubject.mutate({
-      subjectId: subject.id,
-      data: {
-        name: subject.name,
-        code: subject.code,
-        description: subject.description ?? undefined,
-        isActive: !subject.isActive,
-      },
-    });
-  }
-
   function confirmDelete() {
     if (!deleteSubjectId) return;
     deleteSubject.mutate(deleteSubjectId, {
@@ -194,7 +182,6 @@ export function SubjectsManager() {
                   <TableHead>Name</TableHead>
                   <TableHead>Code</TableHead>
                   <TableHead>Description</TableHead>
-                  <TableHead>Status</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -207,18 +194,6 @@ export function SubjectsManager() {
                     <TableCell>{subject.code}</TableCell>
                     <TableCell className="max-w-[200px] truncate">
                       {subject.description ?? '—'}
-                    </TableCell>
-                    <TableCell>
-                      <button
-                        type="button"
-                        onClick={() => toggleActive(subject)}
-                        className="cursor-pointer"
-                        title={`Click to ${subject.isActive ? 'deactivate' : 'activate'}`}
-                      >
-                        <StatusBadge
-                          status={subject.isActive ? 'ACTIVE' : 'INACTIVE'}
-                        />
-                      </button>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">

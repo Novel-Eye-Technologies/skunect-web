@@ -35,6 +35,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { StateCombobox } from '@/components/shared/state-combobox';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { getClasses } from '@/lib/api/school-settings';
 import { uploadFile } from '@/lib/api/students';
@@ -458,7 +459,10 @@ export function StudentFormDialog({
                     <FormItem>
                       <FormLabel>State of Origin (Optional)</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g. Lagos" {...field} />
+                        <StateCombobox
+                          value={field.value ?? ''}
+                          onValueChange={field.onChange}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

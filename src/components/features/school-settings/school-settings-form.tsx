@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
+import { StateCombobox } from '@/components/shared/state-combobox';
 import {
   useSchoolSettings,
   useUpdateSchoolSettings,
@@ -250,7 +251,10 @@ export function SchoolSettingsForm() {
                   <FormItem>
                     <FormLabel>State</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g. Lagos" {...field} />
+                      <StateCombobox
+                        value={field.value ?? ''}
+                        onValueChange={field.onChange}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

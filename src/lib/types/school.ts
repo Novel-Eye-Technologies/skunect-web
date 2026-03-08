@@ -38,7 +38,6 @@ export interface Subject {
   name: string;
   code: string;
   description: string | null;
-  isActive: boolean;
   createdAt: string;
 }
 
@@ -102,7 +101,7 @@ export interface CreateClassRequest {
   name: string;
   section?: string;
   capacity: number;
-  classTeacherId?: string;
+  classTeacherId: string;
   sessionId?: string;
 }
 
@@ -114,9 +113,7 @@ export interface CreateSubjectRequest {
   description?: string;
 }
 
-export interface UpdateSubjectRequest extends CreateSubjectRequest {
-  isActive?: boolean;
-}
+export interface UpdateSubjectRequest extends CreateSubjectRequest {}
 
 export interface CreateGradingSystemRequest {
   name: string;

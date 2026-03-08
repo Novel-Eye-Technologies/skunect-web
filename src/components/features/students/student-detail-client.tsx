@@ -172,14 +172,14 @@ export function StudentDetailClient() {
         <TabsList className="flex-wrap h-auto gap-1">
           <TabsTrigger value="profile">Profile</TabsTrigger>
           <TabsTrigger value="parents">
-            Parents ({student.parents.length})
+            Parents ({student.parents?.length ?? 0})
           </TabsTrigger>
           <TabsTrigger value="academics">Academics</TabsTrigger>
           <TabsTrigger value="discipline">Welfare</TabsTrigger>
           <TabsTrigger value="payments">Payments</TabsTrigger>
           <TabsTrigger value="siblings">Siblings</TabsTrigger>
           <TabsTrigger value="documents">
-            Documents ({student.documents.length})
+            Documents ({student.documents?.length ?? 0})
           </TabsTrigger>
         </TabsList>
 
@@ -238,7 +238,7 @@ export function StudentDetailClient() {
               </Button>
             </div>
 
-            {student.parents.length === 0 ? (
+            {!student.parents || student.parents.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
                   No parents linked to this student yet.
@@ -246,7 +246,7 @@ export function StudentDetailClient() {
               </Card>
             ) : (
               <div className="grid gap-4 sm:grid-cols-2">
-                {student.parents.map((parent) => (
+                {(student.parents ?? []).map((parent) => (
                   <Card key={parent.id}>
                     <CardContent className="pt-6">
                       <div className="flex items-start justify-between">
@@ -339,7 +339,7 @@ export function StudentDetailClient() {
               </Button>
             </div>
 
-            {student.documents.length === 0 ? (
+            {!student.documents || student.documents.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
                   No documents uploaded yet.
@@ -347,7 +347,7 @@ export function StudentDetailClient() {
               </Card>
             ) : (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {student.documents.map((doc) => (
+                {(student.documents ?? []).map((doc) => (
                   <Card key={doc.id}>
                     <CardContent className="pt-6">
                       <div className="flex items-start justify-between">

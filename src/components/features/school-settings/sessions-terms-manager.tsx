@@ -15,6 +15,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { toast } from 'sonner';
 import {
   Card,
   CardContent,
@@ -183,6 +184,34 @@ export function SessionsTermsManager() {
 
   function onTermSubmit(values: TermFormValues) {
     if (!selectedSession) return;
+
+    const sessionStart = selectedSession.startDate.split('T')[0];
+    const sessionEnd = selectedSession.endDate.split('T')[0];
+
+    if (values.startDate < sessionStart) {
+      toast.error(`Term start date cannot be before session start (${sessionStart})`);
+      return;
+    }
+    if (values.endDate > sessionEnd) {
+      toast.error(`Term end date cannot be after session end (${sessionEnd})`);
+      return;
+    }
+
+    // Check for overlap with other terms in the same session
+    const otherTerms = (terms ?? []).filter(
+      (t) => !editingTerm || t.id !== editingTerm.id,
+    );
+    const overlapping = otherTerms.find((t) => {
+      const existingStart = t.startDate.split('T')[0];
+      const existingEnd = t.endDate.split('T')[0];
+      return values.startDate < existingEnd && values.endDate > existingStart;
+    });
+    if (overlapping) {
+      toast.error(
+        `Dates overlap with "${overlapping.name}" (${overlapping.startDate.split('T')[0]} — ${overlapping.endDate.split('T')[0]})`,
+      );
+      return;
+    }
 
     if (editingTerm) {
       updateTerm.mutate(
@@ -575,7 +604,12 @@ export function SessionsTermsManager() {
                     <FormItem>
                       <FormLabel>Start Date</FormLabel>
                       <FormControl>
-                        <Input type="date" {...field} />
+                        <Input
+                          type="date"
+                          min={selectedSession?.startDate.split('T')[0]}
+                          max={selectedSession?.endDate.split('T')[0]}
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -588,7 +622,12 @@ export function SessionsTermsManager() {
                     <FormItem>
                       <FormLabel>End Date</FormLabel>
                       <FormControl>
-                        <Input type="date" {...field} />
+                        <Input
+                          type="date"
+                          min={selectedSession?.startDate.split('T')[0]}
+                          max={selectedSession?.endDate.split('T')[0]}
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

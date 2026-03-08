@@ -8,6 +8,13 @@ import { Loader2, Plus, Pencil, Trash2, School } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   Card,
   CardContent,
   CardDescription,
@@ -48,6 +55,7 @@ import {
   useDeleteClass,
   useSessions,
 } from '@/lib/hooks/use-school-settings';
+import { useTeachers } from '@/lib/hooks/use-teachers';
 import type { SchoolClass } from '@/lib/types/school';
 
 // ---------------------------------------------------------------------------
@@ -58,7 +66,7 @@ const classSchema = z.object({
   name: z.string().min(1, 'Class name is required'),
   section: z.string().optional().or(z.literal('')),
   capacity: z.number().min(1, 'Capacity must be at least 1'),
-  classTeacherId: z.string().optional().or(z.literal('')),
+  classTeacherId: z.string().min(1, 'Class teacher is required'),
 });
 
 type ClassFormValues = z.infer<typeof classSchema>;
@@ -70,6 +78,8 @@ type ClassFormValues = z.infer<typeof classSchema>;
 export function ClassesManager() {
   const { data: classes, isLoading } = useClasses();
   const { data: sessions } = useSessions();
+  const { data: teachersResponse } = useTeachers({ size: 200 });
+  const teachers = teachersResponse?.data ?? [];
   const createClass = useCreateClass();
   const updateClass = useUpdateClass();
   const deleteClass = useDeleteClass();
@@ -113,7 +123,7 @@ export function ClassesManager() {
       name: values.name,
       capacity: values.capacity,
       section: values.section || undefined,
-      classTeacherId: values.classTeacherId || undefined,
+      classTeacherId: values.classTeacherId,
       sessionId: currentSessionId,
     };
 
@@ -312,13 +322,24 @@ export function ClassesManager() {
                   name="classTeacherId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Class Teacher ID (Optional)</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Teacher ID"
-                          {...field}
-                        />
-                      </FormControl>
+                      <FormLabel>Class Teacher</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a teacher" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {teachers.map((teacher) => (
+                            <SelectItem key={teacher.id} value={teacher.id}>
+                              {teacher.firstName} {teacher.lastName}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
