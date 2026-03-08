@@ -4,6 +4,7 @@ import type {
   UserListItem,
   InviteUserRequest,
   UpdateUserStatusRequest,
+  UpdateSchoolUserRequest,
 } from '@/lib/types/user';
 
 // ---------------------------------------------------------------------------
@@ -44,6 +45,18 @@ export async function updateUserStatus(
 ): Promise<ApiResponse<UserListItem>> {
   const response = await apiClient.put<ApiResponse<UserListItem>>(
     `/schools/${schoolId}/users/${userId}/status`,
+    data,
+  );
+  return response.data;
+}
+
+export async function updateSchoolUser(
+  schoolId: string,
+  userId: string,
+  data: UpdateSchoolUserRequest,
+): Promise<ApiResponse<UserListItem>> {
+  const response = await apiClient.put<ApiResponse<UserListItem>>(
+    `/schools/${schoolId}/users/${userId}`,
     data,
   );
   return response.data;

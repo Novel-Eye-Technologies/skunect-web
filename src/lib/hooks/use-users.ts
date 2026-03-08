@@ -7,10 +7,11 @@ import {
   getUsers,
   inviteUser,
   updateUserStatus,
+  updateSchoolUser,
   removeUser,
   type UserListParams,
 } from '@/lib/api/users';
-import type { InviteUserRequest, UpdateUserStatusRequest } from '@/lib/types/user';
+import type { InviteUserRequest, UpdateUserStatusRequest, UpdateSchoolUserRequest } from '@/lib/types/user';
 
 // ---------------------------------------------------------------------------
 // Query keys
@@ -74,6 +75,29 @@ export function useUpdateUserStatus() {
     },
     onError: () => {
       toast.error('Failed to update user status');
+    },
+  });
+}
+
+export function useUpdateSchoolUser() {
+  const schoolId = useAuthStore((s) => s.currentSchoolId);
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      userId,
+      data,
+    }: {
+      userId: string;
+      data: UpdateSchoolUserRequest;
+    }) => updateSchoolUser(schoolId!, userId, data),
+    onSuccess: () => {
+      toast.success('User updated successfully');
+      queryClient.invalidateQueries({ queryKey: userKeys.all });
+      queryClient.invalidateQueries({ queryKey: ['teachers'] });
+    },
+    onError: () => {
+      toast.error('Failed to update user');
     },
   });
 }

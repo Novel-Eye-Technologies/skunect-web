@@ -26,7 +26,7 @@ import { useUpdateProfile } from '@/lib/hooks/use-students';
 const profileSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
-  phone: z.string().optional(),
+  phone: z.string().regex(/^\+234\d{10}$/, 'Phone must start with +234 followed by 10 digits').optional().or(z.literal('')),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;

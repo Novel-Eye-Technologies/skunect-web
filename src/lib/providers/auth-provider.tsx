@@ -48,6 +48,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     // No token → redirect immediately
     if (!accessToken) {
+      setIsValidating(false);
       handleLogout();
       return;
     }

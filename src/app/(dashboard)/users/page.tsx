@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react';
 import { type ColumnDef } from '@tanstack/react-table';
 import { type PaginationState } from '@tanstack/react-table';
-import { MoreHorizontal, Shield, UserX } from 'lucide-react';
+import { MoreHorizontal, Shield, UserX, Pencil } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -26,6 +26,7 @@ import { StatusBadge } from '@/components/shared/status-badge';
 import { ConfirmDialog } from '@/components/shared/confirm-dialog';
 import { InviteUserDialog } from '@/components/features/users/invite-user-dialog';
 import { UserStatusDialog } from '@/components/features/users/user-status-dialog';
+import { EditUserDialog } from '@/components/features/users/edit-user-dialog';
 import { useUsers, useRemoveUser } from '@/lib/hooks/use-users';
 import { formatDate } from '@/lib/utils/format-date';
 import type { UserListItem } from '@/lib/types/user';
@@ -44,6 +45,8 @@ export default function UsersPage() {
   // ---------------------------------------------------------------------------
   // Dialog state
   // ---------------------------------------------------------------------------
+  const [editDialogUser, setEditDialogUser] = useState<UserListItem | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [statusDialogUser, setStatusDialogUser] = useState<UserListItem | null>(
     null,
   );
@@ -110,13 +113,17 @@ export default function UsersPage() {
       header: 'Email',
     },
     {
-      accessorKey: 'role',
+      accessorKey: 'roles',
       header: 'Role',
-      cell: ({ row }) => (
-        <Badge variant="outline" className="capitalize">
-          {row.original.role.toLowerCase()}
-        </Badge>
-      ),
+      cell: ({ row }) => {
+        const roles = row.original.roles ?? [];
+        const roleLabel = roles.map((r) => r.role).join(', ') || '—';
+        return (
+          <Badge variant="outline" className="capitalize">
+            {roleLabel.toLowerCase()}
+          </Badge>
+        );
+      },
     },
     {
       accessorKey: 'status',
@@ -144,6 +151,15 @@ export default function UsersPage() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                onClick={() => {
+                  setEditDialogUser(user);
+                  setEditDialogOpen(true);
+                }}
+              >
+                <Pencil className="mr-2 h-4 w-4" />
+                Edit Details
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleChangeStatus(user)}>
                 <Shield className="mr-2 h-4 w-4" />
                 Change Status
@@ -219,6 +235,13 @@ export default function UsersPage() {
             </Select>
           </div>
         }
+      />
+
+      {/* Edit User Dialog */}
+      <EditUserDialog
+        user={editDialogUser}
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
       />
 
       {/* Change Status Dialog */}

@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { type ColumnDef, type PaginationState } from '@tanstack/react-table';
-import { MoreHorizontal, Shield, UserX, Mail, Phone, BookOpen } from 'lucide-react';
+import { MoreHorizontal, Shield, UserX, Mail, Phone, BookOpen, Pencil } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -27,6 +27,7 @@ import { StatusBadge } from '@/components/shared/status-badge';
 import { ConfirmDialog } from '@/components/shared/confirm-dialog';
 import { InviteUserDialog } from '@/components/features/users/invite-user-dialog';
 import { UserStatusDialog } from '@/components/features/users/user-status-dialog';
+import { EditUserDialog } from '@/components/features/users/edit-user-dialog';
 import { AssignClassDialog } from '@/components/features/teachers/assign-class-dialog';
 import { TeacherOverviewCards } from '@/components/features/teachers/teacher-overview';
 import { useTeachers } from '@/lib/hooks/use-teachers';
@@ -42,6 +43,8 @@ export default function TeachersPage() {
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [search, setSearch] = useState('');
 
+  const [editDialogUser, setEditDialogUser] = useState<UserListItem | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [statusDialogUser, setStatusDialogUser] = useState<UserListItem | null>(null);
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   const [removeDialogUser, setRemoveDialogUser] = useState<UserListItem | null>(null);
@@ -139,6 +142,15 @@ export default function TeachersPage() {
             <DropdownMenuContent align="end">
               <DropdownMenuItem
                 onClick={() => {
+                  setEditDialogUser(user);
+                  setEditDialogOpen(true);
+                }}
+              >
+                <Pencil className="mr-2 h-4 w-4" />
+                Edit Details
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
                   setAssignDialogUser(user);
                   setAssignDialogOpen(true);
                 }}
@@ -221,6 +233,12 @@ export default function TeachersPage() {
             </Select>
           </div>
         }
+      />
+
+      <EditUserDialog
+        user={editDialogUser}
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
       />
 
       <AssignClassDialog

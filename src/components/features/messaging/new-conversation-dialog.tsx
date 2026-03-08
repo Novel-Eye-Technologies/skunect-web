@@ -171,7 +171,7 @@ export function NewConversationDialog({
                                 {user.firstName} {user.lastName}
                               </p>
                               <p className="truncate text-xs text-muted-foreground">
-                                {user.role} &middot; {user.email}
+                                {user.roles?.map((r) => r.role).join(', ') || '—'} &middot; {user.email}
                               </p>
                             </div>
                           </button>

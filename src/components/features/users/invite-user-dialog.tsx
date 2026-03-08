@@ -39,7 +39,7 @@ const inviteUserSchema = z.object({
   role: z.enum(['ADMIN', 'TEACHER'], {
     message: 'Please select a role',
   }),
-  phone: z.string().optional(),
+  phone: z.string().regex(/^\+234\d{10}$/, 'Phone must start with +234 followed by 10 digits').optional().or(z.literal('')),
 });
 
 type InviteUserFormValues = z.infer<typeof inviteUserSchema>;
@@ -65,7 +65,11 @@ export function InviteUserDialog({ defaultRole, buttonLabel }: InviteUserDialogP
   });
 
   function onSubmit(values: InviteUserFormValues) {
-    inviteUser.mutate(values, {
+    const payload = {
+      ...values,
+      phone: values.phone || undefined,
+    };
+    inviteUser.mutate(payload, {
       onSuccess: () => {
         form.reset();
         setOpen(false);
@@ -164,7 +168,7 @@ export function InviteUserDialog({ defaultRole, buttonLabel }: InviteUserDialogP
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Phone (Optional)</FormLabel>
+                  <FormLabel>Phone</FormLabel>
                   <FormControl>
                     <Input
                       type="tel"

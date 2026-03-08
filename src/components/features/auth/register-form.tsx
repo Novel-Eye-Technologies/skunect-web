@@ -32,7 +32,7 @@ const registerSchema = z.object({
   email: z.string().min(1, "Email is required").email("Please enter a valid email address"),
   phone: z
     .string()
-    .regex(/^\+?[0-9\s-]*$/, "Please enter a valid phone number")
+    .regex(/^\+234\d{10}$/, "Phone must start with +234 followed by 10 digits")
     .optional()
     .or(z.literal("")),
 });

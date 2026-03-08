@@ -13,6 +13,7 @@ import {
   HeartPulse,
   Activity,
   ArrowRight,
+  Shield,
 } from 'lucide-react';
 import {
   Card,
@@ -46,12 +47,14 @@ const activityTypeIcons: Record<string, typeof Activity> = {
   HOMEWORK: FileText,
   ANNOUNCEMENT: Bell,
   WELFARE: HeartPulse,
+  ADMIN: Shield,
 };
 
 const activityTypeColors: Record<string, string> = {
   ATTENDANCE: 'bg-blue-100 text-blue-700',
   HOMEWORK: 'bg-purple-100 text-purple-700',
   ANNOUNCEMENT: 'bg-amber-100 text-amber-700',
+  ADMIN: 'bg-indigo-100 text-indigo-700',
   WELFARE: 'bg-emerald-100 text-emerald-700',
 };
 
