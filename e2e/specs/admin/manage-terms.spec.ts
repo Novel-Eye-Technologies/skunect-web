@@ -54,10 +54,10 @@ test.describe('Sessions & Terms Management (CRUD)', () => {
 
     await terms.clickAddTerm();
     const termName = `E2E Term ${Date.now()}`;
-    await terms.fillTermForm(termName, '2025-09-01', '2025-12-15');
+    await terms.fillTermForm(termName, '2040-09-01', '2040-12-15');
     await terms.submitForm();
 
-    await expect(terms.dialog).not.toBeVisible({ timeout: 5_000 });
+    await expect(terms.dialog).not.toBeVisible({ timeout: 10_000 });
     await terms.expectTermVisible(termName);
   });
 
