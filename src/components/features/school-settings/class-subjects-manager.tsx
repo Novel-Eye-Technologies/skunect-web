@@ -52,6 +52,7 @@ interface ClassSubjectsManagerProps {
   className: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  readOnly?: boolean;
 }
 
 export function ClassSubjectsManager({
@@ -59,6 +60,7 @@ export function ClassSubjectsManager({
   className,
   open,
   onOpenChange,
+  readOnly = false,
 }: ClassSubjectsManagerProps) {
   const { data: classSubjects, isLoading } = useClassSubjects(classId);
   const { data: allSubjects } = useSubjects();
@@ -139,22 +141,25 @@ export function ClassSubjectsManager({
           <SheetHeader>
             <SheetTitle>Subjects — {className}</SheetTitle>
             <SheetDescription>
-              Manage subject-teacher assignments for this class. Subjects without
-              a specific teacher are taught by the class teacher.
+              {readOnly
+                ? 'Subject-teacher assignments for this class are read-only because the current term is closed or not set.'
+                : 'Manage subject-teacher assignments for this class. Subjects without a specific teacher are taught by the class teacher.'}
             </SheetDescription>
           </SheetHeader>
 
           <div className="mt-6 space-y-4">
-            <div className="flex justify-end">
-              <Button
-                size="sm"
-                onClick={() => setAddDialogOpen(true)}
-                disabled={unassignedSubjects.length === 0}
-              >
-                <Plus className="mr-1 h-4 w-4" />
-                Add Subjects
-              </Button>
-            </div>
+            {!readOnly && (
+              <div className="flex justify-end">
+                <Button
+                  size="sm"
+                  onClick={() => setAddDialogOpen(true)}
+                  disabled={unassignedSubjects.length === 0}
+                >
+                  <Plus className="mr-1 h-4 w-4" />
+                  Add Subjects
+                </Button>
+              </div>
+            )}
 
             {isLoading ? (
               <div className="space-y-3">
@@ -185,7 +190,7 @@ export function ClassSubjectsManager({
                     <TableHead>Subject</TableHead>
                     <TableHead>Code</TableHead>
                     <TableHead>Teacher</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    {!readOnly && <TableHead className="text-right">Actions</TableHead>}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -205,35 +210,37 @@ export function ClassSubjectsManager({
                           )}
                         </div>
                       </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            title="Change teacher"
-                            onClick={() => {
-                              setChangeTeacherSubject(cs);
-                              setSelectedTeacherId(
-                                cs.isClassTeacher
-                                  ? '__class_teacher__'
-                                  : cs.teacherId ?? '',
-                              );
-                            }}
-                          >
-                            <UserCog className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-destructive"
-                            title="Remove subject"
-                            onClick={() => setRemoveSubjectId(cs.subjectId)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
+                      {!readOnly && (
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              title="Change teacher"
+                              onClick={() => {
+                                setChangeTeacherSubject(cs);
+                                setSelectedTeacherId(
+                                  cs.isClassTeacher
+                                    ? '__class_teacher__'
+                                    : cs.teacherId ?? '',
+                                );
+                              }}
+                            >
+                              <UserCog className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-destructive"
+                              title="Remove subject"
+                              onClick={() => setRemoveSubjectId(cs.subjectId)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
                 </TableBody>

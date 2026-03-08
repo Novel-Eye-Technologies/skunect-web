@@ -55,6 +55,7 @@ import {
   useUpdateClass,
   useDeleteClass,
   useSessions,
+  useTerms,
 } from '@/lib/hooks/use-school-settings';
 import { useTeachers } from '@/lib/hooks/use-teachers';
 import type { SchoolClass } from '@/lib/types/school';
@@ -87,6 +88,11 @@ export function ClassesManager() {
 
   // Find the current session to associate classes with
   const currentSessionId = sessions?.find((s) => s.isCurrent)?.id ?? sessions?.[0]?.id;
+
+  // Check if the current term is closed — class subjects are read-only when no active term
+  const { data: terms } = useTerms(currentSessionId ?? '');
+  const currentTerm = terms?.find((t) => t.isCurrent);
+  const classSubjectsReadOnly = !currentTerm;
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingClass, setEditingClass] = useState<SchoolClass | null>(null);
@@ -404,6 +410,7 @@ export function ClassesManager() {
           className={subjectsClass.name}
           open={!!subjectsClass}
           onOpenChange={(open) => !open && setSubjectsClass(null)}
+          readOnly={classSubjectsReadOnly}
         />
       )}
     </>

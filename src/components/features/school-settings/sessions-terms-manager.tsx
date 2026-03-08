@@ -435,6 +435,11 @@ export function SessionsTermsManager() {
                               Current
                             </Badge>
                           )}
+                          {term.isClosed && (
+                            <Badge variant="secondary" className="text-xs">
+                              Closed
+                            </Badge>
+                          )}
                         </div>
                         <p className="text-sm text-muted-foreground">
                           {new Date(term.startDate).toLocaleDateString()} —{' '}
@@ -457,7 +462,7 @@ export function SessionsTermsManager() {
                           >
                             <XCircle className="h-4 w-4" />
                           </Button>
-                        ) : (
+                        ) : !term.isClosed ? (
                           <Button
                             variant="ghost"
                             size="icon"
@@ -472,23 +477,27 @@ export function SessionsTermsManager() {
                           >
                             <CheckCircle2 className="h-4 w-4" />
                           </Button>
+                        ) : null}
+                        {!term.isClosed && (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => openEditTerm(term)}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-destructive"
+                              onClick={() => setDeleteTermId(term.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </>
                         )}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => openEditTerm(term)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-destructive"
-                          onClick={() => setDeleteTermId(term.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
                       </div>
                     </div>
                   </div>

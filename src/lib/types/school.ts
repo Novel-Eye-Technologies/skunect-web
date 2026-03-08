@@ -17,6 +17,7 @@ export interface Term {
   startDate: string;
   endDate: string;
   isCurrent: boolean;
+  isClosed: boolean;
   createdAt: string;
 }
 
