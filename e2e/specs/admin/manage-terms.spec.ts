@@ -41,20 +41,27 @@ test.describe('Sessions & Terms Management (CRUD)', () => {
     await terms.goto();
     await terms.expectVisible();
 
-    // Select the first session
-    const firstSession = adminPage
-      .locator('[class*="cursor-pointer"]')
-      .first();
-    await firstSession.click();
+    // Create a dedicated session so we know the exact date range
+    const suffix = Date.now().toString().slice(-6);
+    const sessionName = `Term Test ${suffix}`;
+    await terms.clickAddSession();
+    await terms.fillSessionForm(sessionName, '2042-01-01', '2042-12-31');
+    await terms.submitForm();
+    await expect(terms.dialog).not.toBeVisible({ timeout: 10_000 });
+    await terms.expectSessionVisible(sessionName);
 
-    // Wait for terms panel to update — header changes from "Terms" to "Terms — {name}"
+    // Select the session we just created
+    await terms.selectSession(sessionName);
+
+    // Wait for terms panel to update
     await expect(adminPage.getByText(/Terms —/)).toBeVisible({
       timeout: 5_000,
     });
 
+    // Now add a term within the session's date range
     await terms.clickAddTerm();
-    const termName = `E2E Term ${Date.now()}`;
-    await terms.fillTermForm(termName, '2040-09-01', '2040-12-15');
+    const termName = `E2E Term ${suffix}`;
+    await terms.fillTermForm(termName, '2042-01-15', '2042-04-30');
     await terms.submitForm();
 
     await expect(terms.dialog).not.toBeVisible({ timeout: 10_000 });
