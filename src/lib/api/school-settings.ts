@@ -41,21 +41,8 @@ export async function getSchoolSettings(
   const sessions = (sessionsRes.data.data ?? []) as AcademicSession[];
   const currentSession = sessions.find((s) => s.isCurrent) ?? null;
 
-  // If we have a current session, try to find the current term
-  let currentTermId: string | null = null;
-  if (currentSession) {
-    try {
-      const termsRes = await apiClient.get<ApiResponse<Term[]>>(
-        `/schools/${schoolId}/terms`,
-        { params: { sessionId: currentSession.id } },
-      );
-      const terms = (termsRes.data.data ?? []) as Term[];
-      const currentTerm = terms.find((t) => t.isCurrent) ?? null;
-      currentTermId = currentTerm?.id ?? null;
-    } catch {
-      // Terms may not exist yet — that's fine
-    }
-  }
+  // Use currentTermId directly from the school response (set by admin via set-current)
+  const currentTermId = (school.currentTermId as string) ?? null;
 
   const settings: SchoolSettings = {
     id: school.id as string,
@@ -227,6 +214,16 @@ export async function setCurrentTerm(
   return response.data;
 }
 
+export async function closeTerm(
+  schoolId: string,
+  termId: string,
+): Promise<ApiResponse<void>> {
+  const response = await apiClient.post<ApiResponse<void>>(
+    `/schools/${schoolId}/terms/${termId}/close`,
+  );
+  return response.data;
+}
+
 // ---------------------------------------------------------------------------
 // Classes
 // ---------------------------------------------------------------------------
@@ -328,9 +325,11 @@ export async function deleteSubject(
 export async function getClassSubjects(
   schoolId: string,
   classId: string,
+  termId?: string,
 ): Promise<ApiResponse<ClassSubject[]>> {
   const response = await apiClient.get<ApiResponse<ClassSubject[]>>(
     `/schools/${schoolId}/classes/${classId}/subjects`,
+    termId ? { params: { termId } } : undefined,
   );
   return response.data;
 }

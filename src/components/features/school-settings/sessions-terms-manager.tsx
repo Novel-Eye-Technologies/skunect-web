@@ -11,6 +11,7 @@ import {
   Plus,
   Pencil,
   Trash2,
+  XCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -53,6 +54,7 @@ import {
   useUpdateTerm,
   useDeleteTerm,
   useSetCurrentTerm,
+  useCloseTerm,
 } from '@/lib/hooks/use-school-settings';
 import type { AcademicSession, Term } from '@/lib/types/school';
 
@@ -106,6 +108,7 @@ export function SessionsTermsManager() {
   const updateTerm = useUpdateTerm();
   const deleteTerm = useDeleteTerm();
   const setCurrentTerm = useSetCurrentTerm();
+  const closeTermMutation = useCloseTerm();
 
   // ---------------------------------------------------------------------------
   // Session form
@@ -439,7 +442,22 @@ export function SessionsTermsManager() {
                         </p>
                       </div>
                       <div className="flex gap-1">
-                        {!term.isCurrent && (
+                        {term.isCurrent ? (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-orange-500"
+                            title="Close term"
+                            onClick={() =>
+                              closeTermMutation.mutate({
+                                termId: term.id,
+                                sessionId: selectedSession.id,
+                              })
+                            }
+                          >
+                            <XCircle className="h-4 w-4" />
+                          </Button>
+                        ) : (
                           <Button
                             variant="ghost"
                             size="icon"

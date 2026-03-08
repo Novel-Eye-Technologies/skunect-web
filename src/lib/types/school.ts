@@ -49,6 +49,8 @@ export interface ClassSubject {
   subjectCode: string;
   teacherId: string | null;
   teacherName: string | null;
+  termId: string;
+  termName: string | null;
   isClassTeacher: boolean;
 }
 

@@ -16,6 +16,7 @@ import {
   updateTerm,
   deleteTerm,
   setCurrentTerm,
+  closeTerm,
   getClasses,
   createClass,
   updateClass,
@@ -310,6 +311,32 @@ export function useSetCurrentTerm() {
     },
     onError: () => {
       toast.error('Failed to set current term');
+    },
+  });
+}
+
+export function useCloseTerm() {
+  const schoolId = useAuthStore((s) => s.currentSchoolId);
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      termId,
+    }: {
+      termId: string;
+      sessionId: string;
+    }) => closeTerm(schoolId!, termId),
+    onSuccess: (_response, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: schoolSettingsKeys.terms(schoolId!, variables.sessionId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: schoolSettingsKeys.settings(schoolId!),
+      });
+      toast.success('Term closed successfully');
+    },
+    onError: () => {
+      toast.error('Failed to close term');
     },
   });
 }
