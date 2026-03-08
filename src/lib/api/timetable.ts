@@ -33,10 +33,11 @@ export async function getTimetableSlots(
   schoolId: string,
   sessionId: string,
   classId?: string,
+  teacherId?: string,
 ): Promise<ApiResponse<TimetableSlot[]>> {
   const response = await apiClient.get<ApiResponse<TimetableSlot[]>>(
     `/schools/${schoolId}/timetable/slots`,
-    { params: { sessionId, classId } },
+    { params: { sessionId, classId, teacherId } },
   );
   return response.data;
 }

@@ -24,6 +24,11 @@ import {
   createSubject,
   updateSubject,
   deleteSubject,
+  getClassSubjects,
+  assignSubjectsToClass,
+  removeSubjectFromClass,
+  assignTeacherToSubject,
+  getMySubjects,
   getGradingSystems,
   createGradingSystem,
   updateGradingSystem,
@@ -39,6 +44,8 @@ import type {
   UpdateClassRequest,
   CreateSubjectRequest,
   UpdateSubjectRequest,
+  AssignSubjectTeacherRequest,
+  BulkAssignSubjectsRequest,
   CreateGradingSystemRequest,
   UpdateGradingSystemRequest,
 } from '@/lib/types/school';
@@ -59,6 +66,10 @@ export const schoolSettingsKeys = {
     [...schoolSettingsKeys.all, 'classes', schoolId] as const,
   subjects: (schoolId: string) =>
     [...schoolSettingsKeys.all, 'subjects', schoolId] as const,
+  classSubjects: (schoolId: string, classId: string) =>
+    [...schoolSettingsKeys.all, 'class-subjects', schoolId, classId] as const,
+  mySubjects: (schoolId: string) =>
+    [...schoolSettingsKeys.all, 'my-subjects', schoolId] as const,
   gradingSystems: (schoolId: string) =>
     [...schoolSettingsKeys.all, 'grading-systems', schoolId] as const,
 };
@@ -451,6 +462,107 @@ export function useDeleteSubject() {
     onError: () => {
       toast.error('Failed to delete subject');
     },
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Class Subjects (Subject-Teacher Assignment)
+// ---------------------------------------------------------------------------
+
+export function useClassSubjects(classId: string) {
+  const schoolId = useAuthStore((s) => s.currentSchoolId);
+
+  return useQuery({
+    queryKey: schoolSettingsKeys.classSubjects(schoolId!, classId),
+    queryFn: () => getClassSubjects(schoolId!, classId),
+    enabled: !!schoolId && !!classId,
+    select: (response) => response.data,
+  });
+}
+
+export function useAssignSubjectsToClass() {
+  const schoolId = useAuthStore((s) => s.currentSchoolId);
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      classId,
+      data,
+    }: {
+      classId: string;
+      data: BulkAssignSubjectsRequest;
+    }) => assignSubjectsToClass(schoolId!, classId, data),
+    onSuccess: (_response, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: schoolSettingsKeys.classSubjects(schoolId!, variables.classId),
+      });
+      toast.success('Subjects assigned to class');
+    },
+    onError: () => {
+      toast.error('Failed to assign subjects');
+    },
+  });
+}
+
+export function useRemoveSubjectFromClass() {
+  const schoolId = useAuthStore((s) => s.currentSchoolId);
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      classId,
+      subjectId,
+    }: {
+      classId: string;
+      subjectId: string;
+    }) => removeSubjectFromClass(schoolId!, classId, subjectId),
+    onSuccess: (_response, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: schoolSettingsKeys.classSubjects(schoolId!, variables.classId),
+      });
+      toast.success('Subject removed from class');
+    },
+    onError: () => {
+      toast.error('Failed to remove subject');
+    },
+  });
+}
+
+export function useAssignTeacherToSubject() {
+  const schoolId = useAuthStore((s) => s.currentSchoolId);
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      classId,
+      subjectId,
+      data,
+    }: {
+      classId: string;
+      subjectId: string;
+      data: AssignSubjectTeacherRequest;
+    }) => assignTeacherToSubject(schoolId!, classId, subjectId, data),
+    onSuccess: (_response, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: schoolSettingsKeys.classSubjects(schoolId!, variables.classId),
+      });
+      toast.success('Teacher assigned to subject');
+    },
+    onError: () => {
+      toast.error('Failed to assign teacher');
+    },
+  });
+}
+
+export function useMySubjects() {
+  const schoolId = useAuthStore((s) => s.currentSchoolId);
+  const currentRole = useAuthStore((s) => s.currentRole);
+
+  return useQuery({
+    queryKey: schoolSettingsKeys.mySubjects(schoolId!),
+    queryFn: () => getMySubjects(schoolId!),
+    enabled: !!schoolId && currentRole === 'TEACHER',
+    select: (response) => response.data,
   });
 }
 

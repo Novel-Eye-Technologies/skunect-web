@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 interface StatCardProps {
   title: string;
   value: string | number;
-  description?: string;
+  description?: React.ReactNode;
   icon?: LucideIcon;
   trend?: {
     value: number;
@@ -51,7 +51,7 @@ export function StatCard({
                   </span>
                 )}
                 {description && (
-                  <p className="text-xs text-muted-foreground">{description}</p>
+                  <div className="text-xs text-muted-foreground">{description}</div>
                 )}
               </div>
             )}

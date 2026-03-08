@@ -5,6 +5,7 @@ import type {
   Term,
   SchoolClass,
   Subject,
+  ClassSubject,
   GradingSystem,
   SchoolSettings,
   CreateSessionRequest,
@@ -15,6 +16,8 @@ import type {
   UpdateClassRequest,
   CreateSubjectRequest,
   UpdateSubjectRequest,
+  AssignSubjectTeacherRequest,
+  BulkAssignSubjectsRequest,
   CreateGradingSystemRequest,
   UpdateGradingSystemRequest,
   UpdateSchoolSettingsRequest,
@@ -314,6 +317,75 @@ export async function deleteSubject(
 ): Promise<ApiResponse<void>> {
   const response = await apiClient.delete<ApiResponse<void>>(
     `/schools/${schoolId}/subjects/${subjectId}`,
+  );
+  return response.data;
+}
+
+// ---------------------------------------------------------------------------
+// Class Subjects (Subject-Teacher Assignment)
+// ---------------------------------------------------------------------------
+
+export async function getClassSubjects(
+  schoolId: string,
+  classId: string,
+): Promise<ApiResponse<ClassSubject[]>> {
+  const response = await apiClient.get<ApiResponse<ClassSubject[]>>(
+    `/schools/${schoolId}/classes/${classId}/subjects`,
+  );
+  return response.data;
+}
+
+export async function assignSubjectsToClass(
+  schoolId: string,
+  classId: string,
+  data: BulkAssignSubjectsRequest,
+): Promise<ApiResponse<ClassSubject[]>> {
+  const response = await apiClient.post<ApiResponse<ClassSubject[]>>(
+    `/schools/${schoolId}/classes/${classId}/subjects`,
+    data,
+  );
+  return response.data;
+}
+
+export async function removeSubjectFromClass(
+  schoolId: string,
+  classId: string,
+  subjectId: string,
+): Promise<ApiResponse<void>> {
+  const response = await apiClient.delete<ApiResponse<void>>(
+    `/schools/${schoolId}/classes/${classId}/subjects/${subjectId}`,
+  );
+  return response.data;
+}
+
+export async function assignTeacherToSubject(
+  schoolId: string,
+  classId: string,
+  subjectId: string,
+  data: AssignSubjectTeacherRequest,
+): Promise<ApiResponse<ClassSubject>> {
+  const response = await apiClient.put<ApiResponse<ClassSubject>>(
+    `/schools/${schoolId}/classes/${classId}/subjects/${subjectId}/teacher`,
+    data,
+  );
+  return response.data;
+}
+
+export async function getTeacherSubjects(
+  schoolId: string,
+  teacherId: string,
+): Promise<ApiResponse<ClassSubject[]>> {
+  const response = await apiClient.get<ApiResponse<ClassSubject[]>>(
+    `/schools/${schoolId}/teachers/${teacherId}/subjects`,
+  );
+  return response.data;
+}
+
+export async function getMySubjects(
+  schoolId: string,
+): Promise<ApiResponse<ClassSubject[]>> {
+  const response = await apiClient.get<ApiResponse<ClassSubject[]>>(
+    `/schools/${schoolId}/my-subjects`,
   );
   return response.data;
 }

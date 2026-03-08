@@ -35,7 +35,7 @@ import {
   useCreateAssessment,
   useUpdateAssessment,
 } from '@/lib/hooks/use-academics';
-import { useSchoolSettings } from '@/lib/hooks/use-school-settings';
+import { useSchoolSettings, useMySubjects } from '@/lib/hooks/use-school-settings';
 import type { Assessment } from '@/lib/types/academics';
 
 const assessmentFormSchema = z.object({
@@ -64,7 +64,9 @@ export function AssessmentFormDialog({
   assessment,
 }: AssessmentFormDialogProps) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
+  const currentRole = useAuthStore((s) => s.currentRole);
   const isEdit = !!assessment;
+  const isTeacher = currentRole === 'TEACHER';
 
   const createAssessment = useCreateAssessment();
   const updateAssessment = useUpdateAssessment();
@@ -97,8 +99,11 @@ export function AssessmentFormDialog({
     select: (res) => res.data,
   });
 
-  const classes = classesResponse ?? [];
-  const subjects = subjectsResponse ?? [];
+  // Load teacher's assigned subjects (only for TEACHER role)
+  const { data: mySubjects } = useMySubjects();
+
+  const allClasses = classesResponse ?? [];
+  const allSubjects = subjectsResponse ?? [];
   const terms = termsResponse ?? [];
 
   const form = useForm<AssessmentFormValues>({
@@ -113,6 +118,24 @@ export function AssessmentFormDialog({
       date: '',
     },
   });
+
+  // Filter classes and subjects for teachers based on their assignments
+  const selectedClassId = form.watch('classId');
+  const classes = isTeacher && mySubjects
+    ? allClasses.filter((cls) =>
+        mySubjects.some((ms) => ms.classId === cls.id),
+      )
+    : allClasses;
+
+  const subjects = isTeacher && mySubjects
+    ? allSubjects.filter((sub) =>
+        mySubjects.some(
+          (ms) =>
+            ms.subjectId === sub.id &&
+            (!selectedClassId || ms.classId === selectedClassId),
+        ),
+      )
+    : allSubjects;
 
   // Pre-fill form when editing
   useEffect(() => {

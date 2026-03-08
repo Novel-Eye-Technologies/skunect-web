@@ -37,6 +37,7 @@ import {
   useCreateHomework,
   useUpdateHomework,
 } from '@/lib/hooks/use-homework';
+import { useMySubjects } from '@/lib/hooks/use-school-settings';
 import type { HomeworkListItem, HomeworkDetail } from '@/lib/types/homework';
 
 const homeworkFormSchema = z.object({
@@ -63,7 +64,9 @@ export function HomeworkFormDialog({
   homework,
 }: HomeworkFormDialogProps) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
+  const currentRole = useAuthStore((s) => s.currentRole);
   const isEdit = !!homework;
+  const isTeacher = currentRole === 'TEACHER';
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [files, setFiles] = useState<File[]>([]);
 
@@ -84,8 +87,11 @@ export function HomeworkFormDialog({
     select: (res) => res.data,
   });
 
-  const classes = classesResponse ?? [];
-  const subjects = subjectsResponse ?? [];
+  // Load teacher's assigned subjects (only for TEACHER role)
+  const { data: mySubjects } = useMySubjects();
+
+  const allClasses = classesResponse ?? [];
+  const allSubjects = subjectsResponse ?? [];
 
   const form = useForm<HomeworkFormValues>({
     resolver: zodResolver(homeworkFormSchema),
@@ -99,6 +105,24 @@ export function HomeworkFormDialog({
       maxScore: 100,
     },
   });
+
+  // Filter classes and subjects for teachers based on their assignments
+  const selectedClassId = form.watch('classId');
+  const classes = isTeacher && mySubjects
+    ? allClasses.filter((cls) =>
+        mySubjects.some((ms) => ms.classId === cls.id),
+      )
+    : allClasses;
+
+  const subjects = isTeacher && mySubjects
+    ? allSubjects.filter((sub) =>
+        mySubjects.some(
+          (ms) =>
+            ms.subjectId === sub.id &&
+            (!selectedClassId || ms.classId === selectedClassId),
+        ),
+      )
+    : allSubjects;
 
   // Pre-fill form when editing
   useEffect(() => {

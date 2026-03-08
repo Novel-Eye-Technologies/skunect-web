@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Loader2, Plus, Pencil, Trash2, School } from 'lucide-react';
+import { Loader2, Plus, Pencil, Trash2, School, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -48,6 +48,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { ConfirmDialog } from '@/components/shared/confirm-dialog';
 import { EmptyState } from '@/components/shared/empty-state';
+import { ClassSubjectsManager } from './class-subjects-manager';
 import {
   useClasses,
   useCreateClass,
@@ -90,6 +91,7 @@ export function ClassesManager() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingClass, setEditingClass] = useState<SchoolClass | null>(null);
   const [deleteClassId, setDeleteClassId] = useState<string | null>(null);
+  const [subjectsClass, setSubjectsClass] = useState<SchoolClass | null>(null);
 
   const form = useForm<ClassFormValues>({
     resolver: zodResolver(classSchema),
@@ -225,6 +227,16 @@ export function ClassesManager() {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8"
+                          title="Manage subjects"
+                          onClick={() => setSubjectsClass(cls)}
+                        >
+                          <BookOpen className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          title="Edit class"
                           onClick={() => openEdit(cls)}
                         >
                           <Pencil className="h-4 w-4" />
@@ -233,6 +245,7 @@ export function ClassesManager() {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8 text-destructive"
+                          title="Delete class"
                           onClick={() => setDeleteClassId(cls.id)}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -383,6 +396,16 @@ export function ClassesManager() {
         onConfirm={confirmDelete}
         isLoading={deleteClass.isPending}
       />
+
+      {/* ---- Class Subjects Sheet ---- */}
+      {subjectsClass && (
+        <ClassSubjectsManager
+          classId={subjectsClass.id}
+          className={subjectsClass.name}
+          open={!!subjectsClass}
+          onOpenChange={(open) => !open && setSubjectsClass(null)}
+        />
+      )}
     </>
   );
 }

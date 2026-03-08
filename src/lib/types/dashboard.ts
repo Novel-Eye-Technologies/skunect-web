@@ -47,10 +47,22 @@ export interface FeeSummaryData {
 
 export interface TeacherDashboardData {
   myClassesCount: number;
+  totalStudentsCount: number;
   todayAttendanceRate: number;
   pendingHomeworkCount: number;
   classAttendance: ClassAttendanceItem[];
   upcomingAssignments: UpcomingAssignmentItem[];
+  dailySchedule: DailyScheduleItem[];
+}
+
+export interface DailyScheduleItem {
+  periodNumber: number;
+  className: string;
+  subjectName: string | null;
+  startTime: string;
+  endTime: string;
+  durationMinutes: number;
+  label: string | null;
 }
 
 export interface ClassAttendanceItem {

@@ -41,6 +41,25 @@ export interface Subject {
   createdAt: string;
 }
 
+export interface ClassSubject {
+  id: string;
+  classId: string;
+  subjectId: string;
+  subjectName: string;
+  subjectCode: string;
+  teacherId: string | null;
+  teacherName: string | null;
+  isClassTeacher: boolean;
+}
+
+export interface AssignSubjectTeacherRequest {
+  teacherId: string | null;
+}
+
+export interface BulkAssignSubjectsRequest {
+  subjectIds: string[];
+}
+
 export interface GradingSystem {
   id: string;
   schoolId: string;
