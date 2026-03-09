@@ -23,7 +23,7 @@ export class ManageHomeworkPage {
       name: /create assignment/i,
     });
     this.dataTable = page.locator('table');
-    this.dialog = page.getByRole('dialog');
+    this.dialog = page.locator('[data-slot="dialog-content"]');
     this.titleInput = page.getByPlaceholder('e.g. Chapter 5 Questions');
     this.descriptionTextarea = page.getByPlaceholder(
       'Describe the assignment...'

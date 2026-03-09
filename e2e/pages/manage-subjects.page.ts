@@ -20,9 +20,9 @@ export class ManageSubjectsPage {
     this.subjectsTab = page.getByRole('tab', { name: 'Subjects' });
     this.addSubjectButton = page.getByRole('button', {
       name: /add subject/i,
-    });
+    }).first();
     this.dataTable = page.locator('table');
-    this.dialog = page.getByRole('dialog');
+    this.dialog = page.locator('[data-slot="dialog-content"]');
     this.subjectNameInput = page.getByPlaceholder('e.g. Mathematics');
     this.subjectCodeInput = page.getByPlaceholder('e.g. MATH101');
     this.descriptionInput = page.getByPlaceholder(

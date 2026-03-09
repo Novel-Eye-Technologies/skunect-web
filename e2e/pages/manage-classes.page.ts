@@ -18,7 +18,7 @@ export class ManageClassesPage {
     this.page = page;
     this.heading = page.getByRole('heading', { name: 'School Settings' });
     this.classesTab = page.getByRole('tab', { name: 'Classes' });
-    this.addClassButton = page.getByRole('button', { name: /add class/i });
+    this.addClassButton = page.getByRole('button', { name: /add class/i }).first();
     this.dataTable = page.locator('table');
     this.dialog = page.locator('[data-slot="dialog-content"]');
     this.classNameInput = page.getByPlaceholder('e.g. JSS 1');
