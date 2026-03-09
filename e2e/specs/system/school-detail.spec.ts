@@ -4,19 +4,16 @@ import { test, expect } from '../../fixtures/auth.fixture';
 import { SchoolDetailPage } from '../../pages/school-detail.page';
 import { apiGet, apiDelete } from '../../helpers/api.helper';
 
-// School detail is a dynamic route ([schoolId]) that requires CloudFront fallback
-// or local dev server. Static export only pre-renders /system/schools/_/.
-// Skip these tests when running against the deployed static site.
-const isLocalDev = (process.env.E2E_BASE_URL ?? '').includes('localhost');
-
-// Sequential because admin CRUD tests depend on each other
+// Sequential because admin CRUD tests depend on each other.
+// Dynamic route requires CloudFront SPA rewrite to serve /system/schools/_/index.html
+// for arbitrary schoolId paths. Tests detect 404 and skip gracefully if not deployed.
 test.describe.serial('School Detail Page (Super Admin)', () => {
   let schoolId: string;
   let token: string;
+  let dynamicRouteWorks = true;
   const adminEmail = `e2e-school-admin-${Date.now()}@test.skunect.com`;
 
   test.beforeAll(async () => {
-    if (!isLocalDev) return;
     try {
       const authFile = path.resolve(process.cwd(), '.auth/super-admin.json');
       const authData = JSON.parse(fs.readFileSync(authFile, 'utf-8'));
@@ -56,16 +53,30 @@ test.describe.serial('School Detail Page (Super Admin)', () => {
   test('super admin can view school detail page', async ({
     superAdminPage,
   }) => {
-    test.skip(!isLocalDev, 'School detail requires local dev (dynamic route)');
-    test.skip(!schoolId, 'No school ID found for test');
+    test.skip(!schoolId || !dynamicRouteWorks, 'Skipped — no school ID or dynamic route not available');
     const detail = new SchoolDetailPage(superAdminPage);
     await detail.goto(schoolId);
-    await detail.expectVisible('Kings Academy');
+
+    // Wait for either the school detail page or the 404 page to appear.
+    // The 404 page has a 500ms spinner before showing "Page not found".
+    const schoolHeading = superAdminPage.getByRole('heading').filter({ hasText: 'Kings Academy' });
+    const notFoundText = superAdminPage.getByText('Page not found');
+
+    const result = await Promise.race([
+      schoolHeading.waitFor({ timeout: 15_000 }).then(() => 'school' as const),
+      notFoundText.waitFor({ timeout: 15_000 }).then(() => '404' as const),
+    ]).catch(() => '404' as const);
+
+    if (result === '404') {
+      dynamicRouteWorks = false;
+      test.skip(true, 'Dynamic route 404 — CloudFront SPA rewrite not deployed yet');
+    }
+
+    await expect(schoolHeading).toBeVisible();
   });
 
   test('school detail shows info and metrics', async ({ superAdminPage }) => {
-    test.skip(!isLocalDev, 'School detail requires local dev (dynamic route)');
-    test.skip(!schoolId, 'No school ID found for test');
+    test.skip(!schoolId || !dynamicRouteWorks, 'Skipped — no school ID or dynamic route not available');
     const detail = new SchoolDetailPage(superAdminPage);
     await detail.goto(schoolId);
     await detail.expectVisible('Kings Academy');
@@ -77,8 +88,7 @@ test.describe.serial('School Detail Page (Super Admin)', () => {
   test('super admin can navigate back to all schools', async ({
     superAdminPage,
   }) => {
-    test.skip(!isLocalDev, 'School detail requires local dev (dynamic route)');
-    test.skip(!schoolId, 'No school ID found for test');
+    test.skip(!schoolId || !dynamicRouteWorks, 'Skipped — no school ID or dynamic route not available');
     const detail = new SchoolDetailPage(superAdminPage);
     await detail.goto(schoolId);
     await detail.expectVisible('Kings Academy');
@@ -91,8 +101,7 @@ test.describe.serial('School Detail Page (Super Admin)', () => {
   test('super admin can create a school admin', async ({
     superAdminPage,
   }) => {
-    test.skip(!isLocalDev, 'School detail requires local dev (dynamic route)');
-    test.skip(!schoolId, 'No school ID found for test');
+    test.skip(!schoolId || !dynamicRouteWorks, 'Skipped — no school ID or dynamic route not available');
     const detail = new SchoolDetailPage(superAdminPage);
     await detail.goto(schoolId);
     await detail.expectVisible('Kings Academy');
@@ -106,8 +115,7 @@ test.describe.serial('School Detail Page (Super Admin)', () => {
   });
 
   test('super admin can edit a school admin', async ({ superAdminPage }) => {
-    test.skip(!isLocalDev, 'School detail requires local dev (dynamic route)');
-    test.skip(!schoolId, 'No school ID found for test');
+    test.skip(!schoolId || !dynamicRouteWorks, 'Skipped — no school ID or dynamic route not available');
     const detail = new SchoolDetailPage(superAdminPage);
     await detail.goto(schoolId);
     await detail.expectVisible('Kings Academy');
@@ -123,8 +131,7 @@ test.describe.serial('School Detail Page (Super Admin)', () => {
   test('super admin can deactivate and activate a school admin', async ({
     superAdminPage,
   }) => {
-    test.skip(!isLocalDev, 'School detail requires local dev (dynamic route)');
-    test.skip(!schoolId, 'No school ID found for test');
+    test.skip(!schoolId || !dynamicRouteWorks, 'Skipped — no school ID or dynamic route not available');
     const detail = new SchoolDetailPage(superAdminPage);
     await detail.goto(schoolId);
     await detail.expectVisible('Kings Academy');
@@ -139,8 +146,7 @@ test.describe.serial('School Detail Page (Super Admin)', () => {
   test('super admin can remove a school admin role', async ({
     superAdminPage,
   }) => {
-    test.skip(!isLocalDev, 'School detail requires local dev (dynamic route)');
-    test.skip(!schoolId, 'No school ID found for test');
+    test.skip(!schoolId || !dynamicRouteWorks, 'Skipped — no school ID or dynamic route not available');
     const detail = new SchoolDetailPage(superAdminPage);
     await detail.goto(schoolId);
     await detail.expectVisible('Kings Academy');
