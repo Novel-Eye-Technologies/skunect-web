@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import {
   ArrowLeft,
@@ -85,7 +85,16 @@ const emptyAdminForm: CreateSchoolAdminRequest = {
 export function SchoolDetailClient() {
   const params = useParams();
   const router = useRouter();
-  const schoolId = params.schoolId as string;
+  const pathname = usePathname();
+
+  // In a static export, useParams() may return the placeholder value ('_') when
+  // CloudFront serves the pre-rendered page for a different dynamic segment.
+  // Fall back to extracting the real ID from the pathname.
+  const rawParam = params.schoolId as string;
+  const schoolId =
+    !rawParam || rawParam === '_'
+      ? pathname.split('/').filter(Boolean).pop() ?? rawParam
+      : rawParam;
 
   const [school, setSchool] = useState<SchoolDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -124,9 +133,7 @@ export function SchoolDetailClient() {
   }, [schoolId]);
 
   useEffect(() => {
-    if (schoolId && schoolId !== '_') {
-      fetchSchool();
-    }
+    if (schoolId && schoolId !== '_') fetchSchool();
   }, [schoolId, fetchSchool]);
 
   function openEditAdminDialog(admin: SuperAdminUser) {
