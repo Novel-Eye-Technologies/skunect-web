@@ -331,6 +331,33 @@ npx playwright show-report
 | `E2E_BASE_URL` | `https://dev.skunect.com` | Web app URL for browser navigation |
 | `E2E_API_URL` | `{E2E_BASE_URL}/api/v1` | API URL for test setup (auth, seed) |
 
+#### School Lifecycle E2E Flow
+
+The `e2e/specs/flows/school-lifecycle.spec.ts` test exercises the **full school management lifecycle** across Super Admin, School Admin, and Teacher roles. It runs as a serial test suite (27 tests) and covers:
+
+- **Super Admin:** Create school, update details, add admin, verify school detail page
+- **School Admin:** Create second admin, 3 teachers, session, term, 2 classes, 5 subjects, grading system, 10 students with parents, timetable, validate dashboard and People pages
+- **Teacher:** Login and validate dashboard
+
+```bash
+# Run the lifecycle flow against local servers
+E2E_BASE_URL=http://localhost:3000 E2E_API_URL=http://localhost:8080/api/v1 \
+  npx playwright test e2e/specs/flows/school-lifecycle.spec.ts --workers=1
+
+# Run with headed browser (useful for debugging)
+E2E_BASE_URL=http://localhost:3000 E2E_API_URL=http://localhost:8080/api/v1 \
+  npx playwright test e2e/specs/flows/school-lifecycle.spec.ts --workers=1 --headed
+
+# Run via Docker (full stack, fresh DB — same as CI)
+docker compose -f e2e/docker/docker-compose.yml up -d
+# Wait for backend health check...
+E2E_BASE_URL=http://localhost:3000 E2E_API_URL=http://localhost:3000/api/v1 \
+  npx playwright test e2e/specs/flows/school-lifecycle.spec.ts --workers=1
+docker compose -f e2e/docker/docker-compose.yml down -v
+```
+
+> **Note:** This test must run with `--workers=1` because the tests are serial and share state across steps.
+
 #### Test Structure
 
 ```
@@ -341,6 +368,7 @@ e2e/
 ├── specs/              # Test specs organized by feature
 │   ├── admin/          # Admin-specific tests
 │   ├── auth/           # Login, logout, route protection
+│   ├── flows/          # End-to-end lifecycle flows (serial)
 │   ├── navigation/     # Sidebar navigation tests
 │   ├── teacher/        # Teacher-specific tests
 │   └── welfare/        # Welfare feature tests

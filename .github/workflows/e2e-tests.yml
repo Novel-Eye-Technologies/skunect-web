@@ -29,8 +29,8 @@ jobs:
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Run Playwright tests
-        run: npx playwright test --shard=${{ matrix.shard }}
+      - name: Run Playwright tests (excluding lifecycle flows)
+        run: npx playwright test --shard=${{ matrix.shard }} --grep-invert="School Lifecycle"
         env:
           E2E_BASE_URL: https://dev.skunect.com
           E2E_API_URL: https://dev.skunect.com/api/v1

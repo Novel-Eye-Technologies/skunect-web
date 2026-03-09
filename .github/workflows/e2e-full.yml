@@ -86,8 +86,8 @@ jobs:
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Run Playwright tests
-        run: npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+      - name: Run Playwright tests (excluding lifecycle flow)
+        run: npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} --grep-invert="School Lifecycle"
         env:
           E2E_BASE_URL: http://localhost:3000
           E2E_API_URL: http://localhost:3000/api/v1
@@ -104,10 +104,42 @@ jobs:
         if: always()
         run: docker compose -f e2e/docker/docker-compose.yml down -v
 
+  e2e-lifecycle:
+    name: E2E School Lifecycle Flow
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run School Lifecycle E2E Flow
+        run: npx playwright test e2e/specs/flows/ --workers=1
+        env:
+          E2E_BASE_URL: https://dev.skunect.com
+          E2E_API_URL: https://dev.skunect.com/api/v1
+
+      - name: Upload blob report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: blob-report-full-lifecycle
+          path: blob-report/
+          retention-days: 7
+
   merge-reports:
     name: Merge E2E Full Reports
     if: always()
-    needs: e2e-full
+    needs: [e2e-full, e2e-lifecycle]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
