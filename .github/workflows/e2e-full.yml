@@ -106,38 +106,10 @@ jobs:
 
   e2e-lifecycle:
     name: E2E School Lifecycle Flow
-    needs: build-frontend
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-
-      - name: Download frontend build
-        uses: actions/download-artifact@v4
-        with:
-          name: frontend-build
-          path: out/
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-
-      - name: Login to Amazon ECR
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Start test environment
-        run: docker compose -f e2e/docker/docker-compose.yml up -d
-        env:
-          API_IMAGE: ${{ secrets.ECR_REGISTRY }}/skunect-api-dev:latest
-
-      - name: Wait for backend to be healthy
-        run: |
-          echo "Waiting for backend to be healthy..."
-          timeout 120 bash -c 'until curl -sf http://localhost:3000/actuator/health > /dev/null 2>&1; do sleep 3; done'
-          echo "Backend is healthy!"
 
       - uses: actions/setup-node@v4
         with:
@@ -153,8 +125,8 @@ jobs:
       - name: Run School Lifecycle E2E Flow
         run: npx playwright test e2e/specs/flows/ --workers=1
         env:
-          E2E_BASE_URL: http://localhost:3000
-          E2E_API_URL: http://localhost:3000/api/v1
+          E2E_BASE_URL: https://dev.skunect.com
+          E2E_API_URL: https://dev.skunect.com/api/v1
 
       - name: Upload blob report
         uses: actions/upload-artifact@v4
@@ -163,10 +135,6 @@ jobs:
           name: blob-report-full-lifecycle
           path: blob-report/
           retention-days: 7
-
-      - name: Teardown test environment
-        if: always()
-        run: docker compose -f e2e/docker/docker-compose.yml down -v
 
   merge-reports:
     name: Merge E2E Full Reports
