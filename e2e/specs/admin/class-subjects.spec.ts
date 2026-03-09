@@ -52,12 +52,9 @@ test.describe('Class Subject-Teacher Assignment (Admin)', () => {
       await page.clickManageSubjects(className.trim());
       await page.expectSheetVisible(className.trim());
 
-      // At least one subject should show "Class Teacher" badge
-      const classTeacherBadges = page.sheet.getByText('Class Teacher');
-      const count = await classTeacherBadges.count();
-      // It's OK if all subjects have specialist teachers (count = 0)
-      // Just verify the sheet loaded with subjects
+      // Wait for subjects table to load
       const subjectRows = page.sheet.locator('table tbody tr');
+      await expect(subjectRows.first()).toBeVisible({ timeout: 10_000 });
       expect(await subjectRows.count()).toBeGreaterThan(0);
     }
   });

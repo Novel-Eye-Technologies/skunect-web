@@ -20,7 +20,7 @@ export class ManageClassesPage {
     this.classesTab = page.getByRole('tab', { name: 'Classes' });
     this.addClassButton = page.getByRole('button', { name: /add class/i });
     this.dataTable = page.locator('table');
-    this.dialog = page.getByRole('dialog');
+    this.dialog = page.locator('[data-slot="dialog-content"]');
     this.classNameInput = page.getByPlaceholder('e.g. JSS 1');
     this.sectionInput = page.getByPlaceholder('e.g. A');
     this.capacityInput = page.getByPlaceholder('30');
@@ -91,17 +91,13 @@ export class ManageClassesPage {
 
   async editClass(name: string) {
     const row = this.dataTable.locator('tbody tr', { hasText: name });
-    // Actions cell is last; first button = edit (pencil), second = delete (trash)
-    const actionsCell = row.locator('td').last();
-    await actionsCell.locator('button').first().click();
+    await row.getByTitle('Edit class').click();
     await expect(this.dialog).toBeVisible();
   }
 
   async deleteClass(name: string) {
     const row = this.dataTable.locator('tbody tr', { hasText: name });
-    // Actions cell is last; second button = delete (trash)
-    const actionsCell = row.locator('td').last();
-    await actionsCell.locator('button').last().click();
+    await row.getByTitle('Delete class').click();
     // Wait for the confirmation dialog and click Delete inside it
     const alertDialog = this.page.locator('[role="alertdialog"]');
     await expect(alertDialog).toBeVisible({ timeout: 3_000 });

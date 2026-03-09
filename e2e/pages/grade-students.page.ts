@@ -20,7 +20,7 @@ export class GradeStudentsPage {
     this.gradeEntryTab = page.getByRole('tab', { name: /grade entry/i });
     this.reportCardsTab = page.getByRole('tab', { name: /report cards/i });
     this.dataTable = page.locator('table');
-    this.dialog = page.getByRole('dialog');
+    this.dialog = page.locator('[data-slot="dialog-content"]');
   }
 
   async goto() {

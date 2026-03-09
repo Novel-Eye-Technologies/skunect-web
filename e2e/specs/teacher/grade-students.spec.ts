@@ -2,41 +2,72 @@ import fs from 'fs';
 import path from 'path';
 import { test, expect } from '../../fixtures/auth.fixture';
 import { GradeStudentsPage } from '../../pages/grade-students.page';
-import { apiPost } from '../../helpers/api.helper';
 
 test.describe('Academics - Assessments & Grades', () => {
-  // Create a unique class for assessment tests to avoid the unique constraint
-  // on (class_id, subject_id, term_id, type) from stale E2E data.
-  let freshClassName: string;
-
   test.beforeAll(async () => {
-    freshClassName = `AssessClass ${Date.now()}`;
     try {
       const authFile = path.resolve(process.cwd(), '.auth/admin-kings.json');
       const authData = JSON.parse(fs.readFileSync(authFile, 'utf-8'));
       const zustand = JSON.parse(authData.origins[0].localStorage[0].value);
       const token = zustand.state.accessToken as string;
       const schoolId = zustand.state.currentSchoolId as string;
+      const apiBase =
+        process.env.E2E_API_URL ||
+        `${process.env.E2E_BASE_URL || 'https://dev.skunect.com'}/api/v1`;
 
-      // Find the current session to create the class in
-      const sessionsRes = await fetch(
-        `${process.env.E2E_API_URL || `${process.env.E2E_BASE_URL || 'https://dev.skunect.com'}/api/v1`}/schools/${schoolId}/sessions`,
+      // Clean up stale E2E assessments to prevent table overflow
+      const listRes = await fetch(
+        `${apiBase}/schools/${schoolId}/assessments?size=200`,
         { headers: { Authorization: `Bearer ${token}` } },
       );
-      const sessions = (await sessionsRes.json()).data ?? [];
-      const currentSession = sessions.find((s: { isCurrent: boolean }) => s.isCurrent);
-      const sessionId = currentSession?.id ?? sessions[0]?.id;
+      if (listRes.ok) {
+        const listBody = await listRes.json().catch(() => ({ data: [] }));
+        const assessments: Array<{ id: string; title?: string }> =
+          Array.isArray(listBody.data) ? listBody.data : [];
+        for (const a of assessments) {
+          if (
+            a.title?.startsWith('E2E Assessment') ||
+            a.title?.startsWith('Delete Assessment') ||
+            a.title?.startsWith('E2E Perm')
+          ) {
+            await fetch(
+              `${apiBase}/schools/${schoolId}/assessments/${a.id}`,
+              {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` },
+              },
+            ).catch(() => {});
+          }
+        }
+      }
 
-      if (sessionId) {
-        await apiPost(
-          `/schools/${schoolId}/classes`,
-          token,
-          { name: freshClassName, sessionId, capacity: 30 },
-        );
+      // Also clean up stale E2E classes to keep the class list manageable
+      const classRes = await fetch(
+        `${apiBase}/schools/${schoolId}/classes?size=200`,
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      if (classRes.ok) {
+        const classBody = await classRes.json().catch(() => ({ data: [] }));
+        const classes: Array<{ id: string; name: string }> =
+          Array.isArray(classBody.data) ? classBody.data : [];
+        for (const c of classes) {
+          if (
+            c.name.startsWith('AssessClass') ||
+            c.name.startsWith('Delete Me') ||
+            c.name.startsWith('E2E Class')
+          ) {
+            await fetch(
+              `${apiBase}/schools/${schoolId}/classes/${c.id}`,
+              {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` },
+              },
+            ).catch(() => {});
+          }
+        }
       }
     } catch {
-      // If setup fails, the create test will use whichever class is available
-      freshClassName = '';
+      // Best-effort cleanup
     }
   });
 
@@ -62,12 +93,8 @@ test.describe('Academics - Assessments & Grades', () => {
     await expect(grades.reportCardsTab).toBeVisible();
   });
 
-  test('admin can create an assessment', async ({ adminPage }) => {
-    // A freshly-created class is required to avoid unique constraint collisions
-    // on (class_id, subject_id, term_id, type).  Skip if beforeAll failed.
-    test.skip(!freshClassName, 'Fresh class creation failed in beforeAll — skipping to avoid unique constraint collision');
-
-    const grades = new GradeStudentsPage(adminPage);
+  test('teacher can create an assessment', async ({ teacherPage }) => {
+    const grades = new GradeStudentsPage(teacherPage);
     await grades.goto();
     await grades.expectVisible();
 
@@ -77,33 +104,35 @@ test.describe('Academics - Assessments & Grades', () => {
     await grades.clickCreateAssessment();
     await grades.fillAssessmentForm(title, '100', today);
 
-    // Select the freshly-created class to avoid unique constraint collisions
-    const classPattern = new RegExp(freshClassName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-    await grades.selectAssessmentClass(classPattern);
-    await grades.selectAssessmentSubject(/.+/);
-    await grades.selectAssessmentTerm(/.+/);
-    await grades.selectAssessmentType(/CA1/i);
+    // Use existing seed class JSS 1A (has subjects assigned)
+    await grades.selectAssessmentClass(/JSS 1A/);
+    await grades.selectAssessmentSubject(/Physics|Chemistry/);
+    await grades.selectAssessmentTerm(/Second Term/);
+    // Use CA2 to avoid collision with seed assessments (which use CA1 and EXAM)
+    await grades.selectAssessmentType(/CA2/i);
 
     await grades.submitAssessmentForm();
     await expect(grades.dialog).not.toBeVisible({ timeout: 10_000 });
+
+    // Wait for table to refresh and verify the new assessment appears
     await grades.expectAssessmentInTable(title);
   });
 
-  test('admin can delete an assessment', async ({ adminPage }) => {
-    const grades = new GradeStudentsPage(adminPage);
+  test('teacher can delete an assessment', async ({ teacherPage }) => {
+    const grades = new GradeStudentsPage(teacherPage);
     await grades.goto();
     await grades.expectVisible();
 
-    // Create one to delete
+    // Create one to delete (use CA3 to avoid collisions)
     const deleteTitle = `Delete Assessment ${Date.now()}`;
     const today = new Date().toISOString().split('T')[0];
 
     await grades.clickCreateAssessment();
     await grades.fillAssessmentForm(deleteTitle, '50', today);
-    await grades.selectAssessmentClass(/.+/);
-    await grades.selectAssessmentSubject(/.+/);
-    await grades.selectAssessmentTerm(/.+/);
-    await grades.selectAssessmentType(/CA2/i);
+    await grades.selectAssessmentClass(/JSS 1A/);
+    await grades.selectAssessmentSubject(/Physics|Chemistry/);
+    await grades.selectAssessmentTerm(/Second Term/);
+    await grades.selectAssessmentType(/CA3/i);
     await grades.submitAssessmentForm();
     await expect(grades.dialog).not.toBeVisible({ timeout: 5_000 });
     await grades.expectAssessmentInTable(deleteTitle);
@@ -124,7 +153,6 @@ test.describe('Academics - Assessments & Grades', () => {
 
     await grades.goToGradeEntry();
 
-    // Should see the assessment selector (label text appears in many places)
     await expect(
       teacherPage.getByRole('combobox').first()
     ).toBeVisible({ timeout: 10_000 });
