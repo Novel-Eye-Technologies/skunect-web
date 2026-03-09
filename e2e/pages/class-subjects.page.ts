@@ -13,7 +13,7 @@ export class ClassSubjectsPage {
     this.heading = page.getByRole('heading', { name: 'School Settings' });
     this.classesCard = page.locator('text=Classes').first();
     this.sheet = page.locator('[data-slot="sheet-content"]');
-    this.dialog = page.getByRole('dialog');
+    this.dialog = page.locator('[data-slot="dialog-content"]');
     this.alertDialog = page.locator('[role="alertdialog"]');
   }
 
