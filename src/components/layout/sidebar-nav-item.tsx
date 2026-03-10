@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { useUnreadMessageCount } from '@/lib/hooks/use-messaging';
 import type { NavItem } from '@/lib/utils/navigation';
 
 interface SidebarNavItemProps {
@@ -46,6 +47,11 @@ export function SidebarNavItem({
 
   const Icon = item.icon;
 
+  // Unread message badge for the Messages nav item
+  const isMessagesItem = item.href === '/communication/messages';
+  const { data: unreadCount } = useUnreadMessageCount();
+  const badgeCount = isMessagesItem && unreadCount ? unreadCount : 0;
+
   // When collapsed, render a tooltip-wrapped icon link
   if (collapsed) {
     return (
@@ -55,13 +61,18 @@ export function SidebarNavItem({
             href={item.href}
             onClick={onNavigate}
             className={cn(
-              'flex h-10 w-10 items-center justify-center rounded-lg transition-colors',
+              'relative flex h-10 w-10 items-center justify-center rounded-lg transition-colors',
               isActive || isChildActive
                 ? 'bg-[#2A9D8F]/20 text-[#2A9D8F]'
                 : 'text-white/70 hover:bg-white/10 hover:text-white',
             )}
           >
             <Icon className="h-5 w-5" />
+            {badgeCount > 0 && (
+              <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                {badgeCount > 99 ? '99+' : badgeCount}
+              </span>
+            )}
           </Link>
         </TooltipTrigger>
         <TooltipContent side="right" sideOffset={8}>
@@ -87,6 +98,11 @@ export function SidebarNavItem({
         >
           <Icon className="h-5 w-5 shrink-0" />
           <span className="flex-1 text-left">{item.title}</span>
+          {badgeCount > 0 && (
+            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white" data-testid="unread-message-badge">
+              {badgeCount > 99 ? '99+' : badgeCount}
+            </span>
+          )}
           <ChevronDown
             className={cn(
               'h-4 w-4 shrink-0 transition-transform duration-200',
@@ -108,6 +124,8 @@ export function SidebarNavItem({
                 const isSubActive =
                   pathname === child.href ||
                   pathname.startsWith(`${child.href}/`);
+                const isChildMessages = child.href === '/communication/messages';
+                const childBadge = isChildMessages && unreadCount ? unreadCount : 0;
 
                 return (
                   <Link
@@ -121,7 +139,12 @@ export function SidebarNavItem({
                         : 'text-white/60 hover:bg-white/5 hover:text-white/90',
                     )}
                   >
-                    <span>{child.title}</span>
+                    <span className="flex-1">{child.title}</span>
+                    {childBadge > 0 && (
+                      <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white">
+                        {childBadge > 99 ? '99+' : childBadge}
+                      </span>
+                    )}
                   </Link>
                 );
               })}
@@ -145,7 +168,12 @@ export function SidebarNavItem({
       )}
     >
       <Icon className="h-5 w-5 shrink-0" />
-      <span>{item.title}</span>
+      <span className="flex-1">{item.title}</span>
+      {badgeCount > 0 && (
+        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white" data-testid="unread-message-badge">
+          {badgeCount > 99 ? '99+' : badgeCount}
+        </span>
+      )}
     </Link>
   );
 }

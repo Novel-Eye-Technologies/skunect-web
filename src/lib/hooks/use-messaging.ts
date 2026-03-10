@@ -72,6 +72,21 @@ export function useCreateConversation() {
   });
 }
 
+export function useUnreadMessageCount() {
+  const schoolId = useAuthStore((s) => s.currentSchoolId);
+
+  return useQuery({
+    queryKey: [...messagingKeys.all, 'unread-count', schoolId],
+    queryFn: async () => {
+      const res = await getConversations(schoolId!, { page: 0, size: 100 });
+      const conversations = res.data ?? [];
+      return conversations.reduce((sum, c) => sum + (c.unreadCount ?? 0), 0);
+    },
+    enabled: !!schoolId,
+    refetchInterval: 30_000,
+  });
+}
+
 export function useSendMessage() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
   const queryClient = useQueryClient();
