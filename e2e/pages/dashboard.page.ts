@@ -74,10 +74,12 @@ export class DashboardPage {
   // ─── Parent Dashboard: Stat Cards ────────────────────────────────
 
   async expectParentStatCards() {
-    await expect(this.page.getByText('My Children')).toBeVisible();
-    await expect(this.page.getByText("Today's Attendance")).toBeVisible();
-    await expect(this.page.getByText('Pending Fees')).toBeVisible();
-    await expect(this.page.getByText('Pending Homework')).toBeVisible();
+    // Scope to the main content area to avoid matching sidebar nav items
+    const main = this.page.locator('main');
+    await expect(main.getByText('My Children').first()).toBeVisible();
+    await expect(main.getByText("Today's Attendance")).toBeVisible();
+    await expect(main.getByText('Pending Fees')).toBeVisible();
+    await expect(main.getByText('Pending Homework')).toBeVisible();
   }
 
   async expectChildrenOverview() {
