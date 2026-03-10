@@ -126,12 +126,17 @@ export function EventFormDialog({
     }
   }, [event, open, form]);
 
+  function toInstant(datetimeLocal: string): string {
+    // datetime-local gives "2026-03-15T10:00", backend expects ISO Instant "2026-03-15T10:00:00Z"
+    return new Date(datetimeLocal).toISOString();
+  }
+
   function onSubmit(values: EventFormValues) {
     const payload = {
       title: values.title,
       description: values.description || undefined,
-      startTime: values.startTime,
-      endTime: values.endTime || undefined,
+      startTime: toInstant(values.startTime),
+      endTime: values.endTime ? toInstant(values.endTime) : undefined,
       location: values.location || undefined,
       visibility: values.visibility,
       reminderMinutes: values.reminderMinutes && values.reminderMinutes !== 'none' ? Number(values.reminderMinutes) : undefined,
