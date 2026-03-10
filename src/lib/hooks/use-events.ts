@@ -3,12 +3,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
-import { getEvents, createEvent, updateEvent, deleteEvent } from '@/lib/api/events';
+import { getEvents, getCalendarEvents, createEvent, updateEvent, deleteEvent } from '@/lib/api/events';
 import type { CreateEventRequest, UpdateEventRequest } from '@/lib/types/event';
 
 export const eventKeys = {
   all: ['events'] as const,
   list: (schoolId: string) => [...eventKeys.all, 'list', schoolId] as const,
+  calendar: (schoolId: string, from: string, to: string) =>
+    [...eventKeys.all, 'calendar', schoolId, from, to] as const,
 };
 
 export function useEvents() {
@@ -17,6 +19,15 @@ export function useEvents() {
     queryKey: eventKeys.list(schoolId!),
     queryFn: () => getEvents(schoolId!),
     enabled: !!schoolId,
+  });
+}
+
+export function useCalendarEvents(from: string, to: string) {
+  const schoolId = useAuthStore((s) => s.currentSchoolId);
+  return useQuery({
+    queryKey: eventKeys.calendar(schoolId!, from, to),
+    queryFn: () => getCalendarEvents(schoolId!, from, to),
+    enabled: !!schoolId && !!from && !!to,
   });
 }
 

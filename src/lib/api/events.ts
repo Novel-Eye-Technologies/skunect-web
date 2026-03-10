@@ -14,6 +14,21 @@ export async function getEvents(
   return response.data;
 }
 
+export async function getCalendarEvents(
+  schoolId: string,
+  from: string,
+  to: string,
+): Promise<ApiResponse<EventItem[]>> {
+  // Backend expects Instant format (ISO 8601 with timezone)
+  const fromInstant = `${from}T00:00:00Z`;
+  const toInstant = `${to}T23:59:59Z`;
+  const response = await apiClient.get<ApiResponse<EventItem[]>>(
+    `/schools/${schoolId}/events/calendar`,
+    { params: { from: fromInstant, to: toInstant } },
+  );
+  return response.data;
+}
+
 export async function getEvent(
   schoolId: string,
   eventId: string,

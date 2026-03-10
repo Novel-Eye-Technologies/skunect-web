@@ -118,6 +118,12 @@ export const navigationConfig: NavItem[] = [
     roles: ['PARENT'],
   },
   {
+    title: 'Calendar',
+    href: '/calendar',
+    icon: CalendarDays,
+    roles: ['ADMIN', 'TEACHER', 'PARENT'],
+  },
+  {
     title: 'Communication',
     href: '/communication/messages',
     icon: MessageSquare,
@@ -125,7 +131,7 @@ export const navigationConfig: NavItem[] = [
     children: [
       { title: 'Messages', href: '/communication/messages', icon: MessageSquare, roles: ['ADMIN', 'TEACHER', 'PARENT'] },
       { title: 'Announcements', href: '/communication/announcements', icon: Bell, roles: ['ADMIN', 'TEACHER', 'PARENT'] },
-      { title: 'Events', href: '/events', icon: CalendarDays, roles: ['ADMIN'] },
+      { title: 'Events', href: '/events', icon: CalendarDays, roles: ['ADMIN', 'TEACHER', 'PARENT'] },
     ],
   },
   {

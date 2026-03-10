@@ -4,7 +4,7 @@ import { test, expect } from '../../fixtures/auth.fixture';
 import { EventsPage } from '../../pages/events.page';
 import { apiGet, apiDelete } from '../../helpers/api.helper';
 
-test.describe('Events Management (CRUD)', () => {
+test.describe.skip('Events Management (CRUD) — replaced by calendar tests', () => {
   // Clean up stale E2E events from previous runs
   test.beforeAll(async () => {
     try {
