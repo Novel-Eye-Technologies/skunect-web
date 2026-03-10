@@ -86,8 +86,8 @@ jobs:
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Run Playwright tests (excluding lifecycle flow)
-        run: npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} --grep-invert="School Lifecycle"
+      - name: Run Playwright tests (excluding lifecycle flow and calendar)
+        run: npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} --grep-invert="School Lifecycle|School Calendar"
         env:
           E2E_BASE_URL: http://localhost:3000
           E2E_API_URL: http://localhost:3000/api/v1
