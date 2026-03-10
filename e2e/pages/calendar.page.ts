@@ -30,7 +30,7 @@ export class CalendarPage {
       'View and manage school events and schedules.'
     );
     this.createButton = page.getByRole('button', { name: /create event/i });
-    this.calendar = page.locator('.rdp');
+    this.calendar = page.locator('[data-slot="calendar"]');
     this.dayEventsPanel = page.locator('[data-slot="card"]').last();
     this.dialog = page.getByRole('dialog');
     this.loadingSkeleton = page.locator('.animate-pulse');
@@ -148,10 +148,12 @@ export class CalendarPage {
   }
 
   async clickDay(dayNumber: number) {
-    const dayButton = this.calendar.getByRole('button', {
-      name: String(dayNumber),
-      exact: true,
-    });
+    // Day buttons have accessible names like "Tuesday, March 10th, 2026"
+    // so we match by visible text content instead
+    const dayButton = this.calendar
+      .locator('button')
+      .filter({ hasText: new RegExp(`^${dayNumber}$`) })
+      .first();
     await dayButton.click();
   }
 
@@ -198,8 +200,8 @@ export class CalendarPage {
   }
 
   async expectCalendarLegend() {
-    await expect(this.page.getByText('School Event')).toBeVisible();
-    await expect(this.page.getByText('Class Event')).toBeVisible();
+    await expect(this.page.getByText('School Event', { exact: true })).toBeVisible();
+    await expect(this.page.getByText('Class Event', { exact: true })).toBeVisible();
   }
 
   async expectCreateButtonHidden() {

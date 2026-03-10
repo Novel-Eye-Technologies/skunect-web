@@ -52,7 +52,7 @@ test.describe('School Calendar', () => {
       await calendar.expectDialogHidden();
     });
 
-    test('can create a school event', async ({ adminPage }) => {
+    test('can create a school event', { tag: '@requires-calendar-api' }, async ({ adminPage }) => {
       const calendar = new CalendarPage(adminPage);
       await calendar.goto();
       await calendar.expectLoaded();
@@ -142,7 +142,7 @@ test.describe('School Calendar', () => {
   });
 
   test.describe('Admin - Cross-school isolation', () => {
-    test('Kings admin does not see Greenfield events', async ({
+    test('Kings admin does not see Greenfield events', { tag: '@requires-calendar-api' }, async ({
       adminPage,
       adminGreenfieldPage,
     }) => {

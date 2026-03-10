@@ -101,7 +101,7 @@ export function EventFormDialog({
       endTime: '',
       location: '',
       visibility: 'TEACHERS_AND_PARENTS',
-      reminderMinutes: '',
+      reminderMinutes: 'none',
       classId: '',
     },
   });
@@ -117,7 +117,7 @@ export function EventFormDialog({
         endTime: event.endTime ? event.endTime.slice(0, 16) : '',
         location: event.location ?? '',
         visibility: event.visibility,
-        reminderMinutes: event.reminderMinutes != null ? String(event.reminderMinutes) : '',
+        reminderMinutes: event.reminderMinutes != null ? String(event.reminderMinutes) : 'none',
         classId: event.classId ?? '',
       });
     } else if (!open) {
@@ -134,7 +134,7 @@ export function EventFormDialog({
       endTime: values.endTime || undefined,
       location: values.location || undefined,
       visibility: values.visibility,
-      reminderMinutes: values.reminderMinutes ? Number(values.reminderMinutes) : undefined,
+      reminderMinutes: values.reminderMinutes && values.reminderMinutes !== 'none' ? Number(values.reminderMinutes) : undefined,
       classId: (isTeacher || isClassEvent) && values.classId ? values.classId : undefined,
     };
 
@@ -302,7 +302,7 @@ export function EventFormDialog({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">None</SelectItem>
+                      <SelectItem value="none">None</SelectItem>
                       <SelectItem value="15">15 minutes before</SelectItem>
                       <SelectItem value="30">30 minutes before</SelectItem>
                       <SelectItem value="60">1 hour before</SelectItem>
