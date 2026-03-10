@@ -91,6 +91,12 @@ export interface ParentDashboardData {
   children: ChildSummary[];
   upcomingFees: UpcomingFee[];
   recentHomework: RecentHomeworkItem[];
+  // Enhanced fields (optional for backward compat with backend)
+  academicPerformance?: AcademicPerformance;
+  attendanceMetrics?: AttendanceMetrics;
+  recentAssessments?: RecentAssessment[];
+  subjectPerformance?: SubjectPerformance[];
+  unreadMessages?: number;
 }
 
 export interface ChildSummary {
@@ -115,4 +121,47 @@ export interface RecentHomeworkItem {
   title: string;
   dueDate: string;
   status: string;
+}
+
+// ─── Academic Performance ──────────────────────────────────────────
+
+export interface AcademicPerformance {
+  overallAverage: number;
+  classPosition: number;
+  totalStudents: number;
+  coreSubjects: number;
+  electiveSubjects: number;
+  pendingAssignments: number;
+}
+
+// ─── Attendance Metrics ────────────────────────────────────────────
+
+export interface AttendanceMetrics {
+  presentDays: number;
+  schoolDays: number;
+  lateDays: number;
+  absentDays: number;
+  attendanceRate: number;
+}
+
+// ─── Recent Assessments ────────────────────────────────────────────
+
+export interface RecentAssessment {
+  subjectName: string;
+  title: string;
+  score: number;
+  maxScore: number;
+  type: string;
+  date: string;
+  childName: string;
+}
+
+// ─── Subject Performance ───────────────────────────────────────────
+
+export interface SubjectPerformance {
+  subjectName: string;
+  currentScore: number;
+  maxPossible: number;
+  grade: string;
+  assessmentCount: number;
 }
