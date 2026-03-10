@@ -14,6 +14,18 @@ export async function getEvents(
   return response.data;
 }
 
+export async function getCalendarEvents(
+  schoolId: string,
+  from: string,
+  to: string,
+): Promise<ApiResponse<EventItem[]>> {
+  const response = await apiClient.get<ApiResponse<EventItem[]>>(
+    `/schools/${schoolId}/events/calendar`,
+    { params: { from, to } },
+  );
+  return response.data;
+}
+
 export async function getEvent(
   schoolId: string,
   eventId: string,

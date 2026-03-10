@@ -3,10 +3,13 @@ export interface EventItem {
   schoolId: string;
   title: string;
   description: string | null;
-  eventDate: string;
-  endDate: string | null;
+  startTime: string;
+  endTime: string | null;
   location: string | null;
-  targetAudience: string;
+  classId: string | null;
+  className: string | null;
+  reminderMinutes: number | null;
+  visibility: 'TEACHERS_ONLY' | 'TEACHERS_AND_PARENTS';
   status: string;
   createdBy: string;
   createdByName: string;
@@ -24,20 +27,24 @@ export interface CoordinatorInfo {
 export interface CreateEventRequest {
   title: string;
   description?: string;
-  eventDate: string;
-  endDate?: string;
+  startTime: string;
+  endTime?: string;
   location?: string;
-  targetAudience?: string;
+  classId?: string;
+  reminderMinutes?: number;
+  visibility?: 'TEACHERS_ONLY' | 'TEACHERS_AND_PARENTS';
   coordinatorIds?: string[];
 }
 
 export interface UpdateEventRequest {
   title?: string;
   description?: string;
-  eventDate?: string;
-  endDate?: string;
+  startTime?: string;
+  endTime?: string;
   location?: string;
-  targetAudience?: string;
+  classId?: string;
+  reminderMinutes?: number;
+  visibility?: 'TEACHERS_ONLY' | 'TEACHERS_AND_PARENTS';
   status?: string;
   coordinatorIds?: string[];
 }
