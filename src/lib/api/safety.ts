@@ -5,6 +5,8 @@ import type {
   CreateEmergencyAlertRequest,
   PickupLog,
   CreatePickupLogRequest,
+  PickupAuthorization,
+  CreatePickupAuthorizationRequest,
 } from '@/lib/types/safety';
 
 // ---------------------------------------------------------------------------
@@ -85,6 +87,53 @@ export async function verifyPickupLog(
 ): Promise<ApiResponse<PickupLog>> {
   const response = await apiClient.post<ApiResponse<PickupLog>>(
     `/schools/${schoolId}/pickup-logs/${pickupLogId}/verify`,
+  );
+  return response.data;
+}
+
+// ---------------------------------------------------------------------------
+// Pickup Authorizations
+// ---------------------------------------------------------------------------
+
+export async function getPickupAuthorizations(
+  schoolId: string,
+  params?: { studentId?: string; page?: number; size?: number },
+): Promise<ApiResponse<PickupAuthorization[]>> {
+  const response = await apiClient.get<ApiResponse<PickupAuthorization[]>>(
+    `/schools/${schoolId}/pickup-authorizations`,
+    { params },
+  );
+  return response.data;
+}
+
+export async function createPickupAuthorization(
+  schoolId: string,
+  data: CreatePickupAuthorizationRequest,
+): Promise<ApiResponse<PickupAuthorization>> {
+  const response = await apiClient.post<ApiResponse<PickupAuthorization>>(
+    `/schools/${schoolId}/pickup-authorizations`,
+    data,
+  );
+  return response.data;
+}
+
+export async function revokePickupAuthorization(
+  schoolId: string,
+  authorizationId: string,
+): Promise<ApiResponse<PickupAuthorization>> {
+  const response = await apiClient.put<ApiResponse<PickupAuthorization>>(
+    `/schools/${schoolId}/pickup-authorizations/${authorizationId}/revoke`,
+  );
+  return response.data;
+}
+
+export async function verifyPickupByQrCode(
+  schoolId: string,
+  qrCode: string,
+): Promise<ApiResponse<PickupAuthorization>> {
+  const response = await apiClient.get<ApiResponse<PickupAuthorization>>(
+    `/schools/${schoolId}/pickup-authorizations/verify`,
+    { params: { qrCode } },
   );
   return response.data;
 }

@@ -78,8 +78,8 @@ export class DashboardPage {
     const main = this.page.locator('main');
     await expect(main.getByText('My Children').first()).toBeVisible();
     await expect(main.getByText("Today's Attendance")).toBeVisible();
-    await expect(main.getByText('Pending Fees')).toBeVisible();
-    await expect(main.getByText('Pending Homework')).toBeVisible();
+    await expect(main.getByText('Pending Fees', { exact: true })).toBeVisible();
+    await expect(main.getByText('Pending Homework', { exact: true })).toBeVisible();
   }
 
   async expectChildrenOverview() {

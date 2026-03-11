@@ -348,7 +348,7 @@ export default function SafetyPage() {
                   }}
                   className="h-8 w-[160px]"
                 />
-                {isAdmin && (
+                {(isAdmin || isTeacher) && (
                   <Button
                     size="sm"
                     className="h-8"

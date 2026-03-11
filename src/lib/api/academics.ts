@@ -134,3 +134,23 @@ export async function publishReportCard(
   );
   return response.data;
 }
+
+export async function downloadReportCardPdf(
+  schoolId: string,
+  reportCardId: string,
+): Promise<void> {
+  const response = await apiClient.get(
+    `/schools/${schoolId}/report-cards/${reportCardId}/pdf`,
+    { responseType: 'blob' },
+  );
+
+  const blob = new Blob([response.data], { type: 'application/pdf' });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `report-card-${reportCardId}.pdf`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
+}

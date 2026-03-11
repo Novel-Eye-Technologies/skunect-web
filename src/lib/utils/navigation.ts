@@ -25,6 +25,7 @@ import {
   Calendar,
   CalendarDays,
   ScrollText,
+  Bus,
 } from 'lucide-react';
 
 export type NavItem = {
@@ -138,13 +139,29 @@ export const navigationConfig: NavItem[] = [
     title: 'Safety & Welfare',
     href: '/safety',
     icon: Shield,
-    roles: ['ADMIN', 'TEACHER'],
+    roles: ['ADMIN', 'TEACHER', 'PARENT'],
     children: [
       { title: 'Emergency Alerts', href: '/safety', icon: Shield, roles: ['ADMIN', 'TEACHER'] },
+      { title: 'Pickup Authorization', href: '/safety/pickup', icon: UserCheck, roles: ['PARENT'] },
       { title: 'Welfare Logs', href: '/welfare', icon: HeartPulse, roles: ['ADMIN', 'TEACHER'] },
       { title: 'Mood Tracker', href: '/welfare/mood', icon: Smile, roles: ['ADMIN', 'TEACHER'] },
       { title: 'Health Records', href: '/welfare/health-records', icon: Stethoscope, roles: ['ADMIN', 'TEACHER'] },
     ],
+  },
+  {
+    title: 'School Bus',
+    href: '/bus',
+    icon: Bus,
+    roles: ['ADMIN'],
+    children: [
+      { title: 'Bus Management', href: '/bus', icon: Bus, roles: ['ADMIN'] },
+    ],
+  },
+  {
+    title: 'Bus Tracking',
+    href: '/bus/tracking',
+    icon: Bus,
+    roles: ['PARENT'],
   },
   {
     title: 'Fees',
