@@ -10,6 +10,7 @@ import {
   Plus,
   Send,
   EyeOff,
+  FileIcon,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -352,6 +353,37 @@ export default function AnnouncementsPage() {
                   {viewTarget.content}
                 </p>
               </div>
+              {viewTarget.attachmentUrls &&
+                viewTarget.attachmentUrls.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium">Attachments</p>
+                    <ul className="space-y-1.5">
+                      {viewTarget.attachmentUrls.map((url, index) => {
+                        const fileName = (() => {
+                          try {
+                            const pathname = new URL(url).pathname;
+                            return decodeURIComponent(pathname.split('/').pop() || url);
+                          } catch {
+                            return url.split('/').pop() || url;
+                          }
+                        })();
+                        return (
+                          <li key={index}>
+                            <a
+                              href={url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm text-primary hover:underline"
+                            >
+                              <FileIcon className="h-4 w-4 flex-shrink-0" />
+                              {fileName}
+                            </a>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                )}
             </div>
           )}
         </DialogContent>

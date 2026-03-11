@@ -110,6 +110,7 @@ export class SystemSchoolsPage {
 
   async clickCreateAdmin(name: string) {
     const row = this.getRowBySchoolName(name);
+    await expect(row).toBeVisible({ timeout: 15_000 });
     await row.getByTitle('Add school admin').click();
     await expect(this.dialog).toBeVisible();
   }
@@ -130,7 +131,10 @@ export class SystemSchoolsPage {
 
   async submitAdminForm() {
     const btn = this.dialog.getByRole('button', { name: /create admin/i });
+    await expect(btn).toBeEnabled({ timeout: 5_000 });
     await btn.click();
+    // Wait for API response — button may briefly disable during submission
+    await this.page.waitForTimeout(500);
   }
 
   async confirmAlert(buttonName: RegExp) {

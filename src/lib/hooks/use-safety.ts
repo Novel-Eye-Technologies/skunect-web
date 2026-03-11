@@ -10,11 +10,15 @@ import {
   getPickupLogs,
   createPickupLog,
   verifyPickupLog,
+  getPickupAuthorizations,
+  createPickupAuthorization,
+  revokePickupAuthorization,
   type PickupLogListParams,
 } from '@/lib/api/safety';
 import type {
   CreateEmergencyAlertRequest,
   CreatePickupLogRequest,
+  CreatePickupAuthorizationRequest,
 } from '@/lib/types/safety';
 import type { PaginatedParams } from '@/lib/api/types';
 
@@ -28,6 +32,8 @@ const safetyKeys = {
     [...safetyKeys.all, 'alerts', schoolId, params] as const,
   pickupLogs: (schoolId: string, params?: PickupLogListParams) =>
     [...safetyKeys.all, 'pickup-logs', schoolId, params] as const,
+  pickupAuthorizations: (schoolId: string, studentId?: string) =>
+    [...safetyKeys.all, 'pickup-authorizations', schoolId, studentId] as const,
 };
 
 // ---------------------------------------------------------------------------
@@ -122,6 +128,57 @@ export function useVerifyPickupLog() {
     },
     onError: () => {
       toast.error('Failed to verify pickup');
+    },
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Pickup Authorization Queries & Mutations
+// ---------------------------------------------------------------------------
+
+export function usePickupAuthorizations(studentId?: string) {
+  const schoolId = useAuthStore((s) => s.currentSchoolId);
+
+  return useQuery({
+    queryKey: safetyKeys.pickupAuthorizations(schoolId!, studentId),
+    queryFn: () =>
+      getPickupAuthorizations(schoolId!, {
+        studentId: studentId || undefined,
+      }),
+    enabled: !!schoolId,
+  });
+}
+
+export function useCreatePickupAuthorization() {
+  const schoolId = useAuthStore((s) => s.currentSchoolId);
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: CreatePickupAuthorizationRequest) =>
+      createPickupAuthorization(schoolId!, data),
+    onSuccess: () => {
+      toast.success('Pickup authorization created');
+      queryClient.invalidateQueries({ queryKey: safetyKeys.all });
+    },
+    onError: () => {
+      toast.error('Failed to create pickup authorization');
+    },
+  });
+}
+
+export function useRevokePickupAuthorization() {
+  const schoolId = useAuthStore((s) => s.currentSchoolId);
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (authorizationId: string) =>
+      revokePickupAuthorization(schoolId!, authorizationId),
+    onSuccess: () => {
+      toast.success('Pickup authorization revoked');
+      queryClient.invalidateQueries({ queryKey: safetyKeys.all });
+    },
+    onError: () => {
+      toast.error('Failed to revoke pickup authorization');
     },
   });
 }

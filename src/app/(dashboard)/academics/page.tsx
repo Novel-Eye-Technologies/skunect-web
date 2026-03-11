@@ -7,6 +7,7 @@ import {
   Trash2,
   Pencil,
   Send,
+  Download,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -41,6 +42,7 @@ import {
   useDeleteAssessment,
   useReportCards,
   usePublishReportCard,
+  useDownloadReportCardPdf,
 } from '@/lib/hooks/use-academics';
 import { formatDate } from '@/lib/utils/format-date';
 import type { Assessment, ReportCard } from '@/lib/types/academics';
@@ -134,6 +136,7 @@ export default function AcademicsPage() {
     });
 
   const publishReportCard = usePublishReportCard();
+  const downloadReportCardPdf = useDownloadReportCardPdf();
   const reportCards = reportCardsResponse?.data ?? [];
   const rcPageCount = reportCardsResponse?.meta?.totalPages ?? 0;
 
@@ -285,23 +288,33 @@ export default function AcademicsPage() {
       id: 'actions',
       cell: ({ row }) => {
         const card = row.original;
-        if (card.status === 'DRAFT') {
-          return (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => publishReportCard.mutate(card.id)}
-              disabled={publishReportCard.isPending}
-            >
-              <Send className="mr-1 h-3 w-3" />
-              Publish
-            </Button>
-          );
-        }
         return (
-          <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
-            Published
-          </Badge>
+          <div className="flex items-center gap-1">
+            {card.status === 'DRAFT' ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => publishReportCard.mutate(card.id)}
+                disabled={publishReportCard.isPending}
+              >
+                <Send className="mr-1 h-3 w-3" />
+                Publish
+              </Button>
+            ) : (
+              <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                Published
+              </Badge>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => downloadReportCardPdf.mutate(card.id)}
+              disabled={downloadReportCardPdf.isPending}
+              title="Download PDF"
+            >
+              <Download className="h-4 w-4" />
+            </Button>
+          </div>
         );
       },
     },

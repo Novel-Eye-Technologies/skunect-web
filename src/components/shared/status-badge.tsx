@@ -27,7 +27,8 @@ type Status =
   | 'CRITICAL'
   | 'HIGH'
   | 'MEDIUM'
-  | 'LOW';
+  | 'LOW'
+  | 'REVOKED';
 
 const statusConfig: Record<
   Status,
@@ -152,6 +153,11 @@ const statusConfig: Record<
     label: 'Low',
     className:
       'bg-blue-100 text-blue-800 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400',
+  },
+  REVOKED: {
+    label: 'Revoked',
+    className:
+      'bg-red-100 text-red-800 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-400',
   },
 };
 

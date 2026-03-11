@@ -70,9 +70,12 @@ export class TimetablePage {
     if (dayIndex === -1) throw new Error(`Invalid day: ${day}`);
     const row = this.timetableGrid.locator('tbody tr').nth(period - 1);
     const cell = row.locator('td').nth(dayIndex + 1); // +1 for period label column
+    // Hover over cell to reveal the "+" button (only visible on hover)
+    await cell.hover();
     const addButton = cell.getByRole('button');
+    await expect(addButton).toBeVisible({ timeout: 10_000 });
     await addButton.click();
-    await expect(this.slotDialog).toBeVisible();
+    await expect(this.slotDialog).toBeVisible({ timeout: 10_000 });
   }
 
   async fillSlotForm(label: string) {

@@ -13,6 +13,7 @@ import {
   getReportCards,
   generateReportCards,
   publishReportCard,
+  downloadReportCardPdf,
   type AssessmentListParams,
   type ReportCardListParams,
 } from '@/lib/api/academics';
@@ -192,6 +193,21 @@ export function usePublishReportCard() {
     },
     onError: () => {
       toast.error('Failed to publish report card');
+    },
+  });
+}
+
+export function useDownloadReportCardPdf() {
+  const schoolId = useAuthStore((s) => s.currentSchoolId);
+
+  return useMutation({
+    mutationFn: (reportCardId: string) =>
+      downloadReportCardPdf(schoolId!, reportCardId),
+    onSuccess: () => {
+      toast.success('Report card PDF downloaded');
+    },
+    onError: () => {
+      toast.error('Failed to download report card PDF');
     },
   });
 }

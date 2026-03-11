@@ -35,4 +35,30 @@ export interface CreatePickupLogRequest {
   studentId: string;
   pickupPersonName: string;
   relationship: string;
+  authorizationId?: string;
+  notes?: string;
+}
+
+export interface PickupAuthorization {
+  id: string;
+  schoolId: string;
+  studentId: string;
+  authorizedBy: string;
+  pickupPersonName: string;
+  pickupPersonPhone: string | null;
+  pickupPersonRelationship: string | null;
+  qrCode: string;
+  isActive: boolean;
+  validFrom: string | null;
+  validUntil: string | null;
+  createdAt: string;
+}
+
+export interface CreatePickupAuthorizationRequest {
+  studentId: string;
+  pickupPersonName: string;
+  pickupPersonPhone?: string;
+  pickupPersonRelationship?: string;
+  validFrom?: string;
+  validUntil?: string;
 }

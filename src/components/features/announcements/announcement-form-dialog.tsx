@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { Upload, Loader2, FileIcon, X } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -33,7 +34,11 @@ import {
   useCreateAnnouncement,
   useUpdateAnnouncement,
 } from '@/lib/hooks/use-announcements';
+import { uploadFile } from '@/lib/api/files';
 import type { Announcement } from '@/lib/types/announcements';
+
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+const MAX_FILES = 5;
 
 const announcementFormSchema = z.object({
   title: z.string().min(1, { message: 'Title is required' }),
@@ -49,10 +54,28 @@ const announcementFormSchema = z.object({
 
 type AnnouncementFormValues = z.infer<typeof announcementFormSchema>;
 
+interface AttachmentItem {
+  id: string;
+  file?: File;
+  url?: string;
+  name: string;
+  status: 'pending' | 'uploading' | 'done' | 'error';
+  error?: string;
+}
+
 interface AnnouncementFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   announcement?: Announcement;
+}
+
+function getFileNameFromUrl(url: string): string {
+  try {
+    const pathname = new URL(url).pathname;
+    return decodeURIComponent(pathname.split('/').pop() || url);
+  } catch {
+    return url.split('/').pop() || url;
+  }
 }
 
 export function AnnouncementFormDialog({
@@ -65,6 +88,10 @@ export function AnnouncementFormDialog({
   const createAnnouncement = useCreateAnnouncement();
   const updateAnnouncement = useUpdateAnnouncement();
 
+  const [attachments, setAttachments] = useState<AttachmentItem[]>([]);
+  const [isUploadingFiles, setIsUploadingFiles] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const form = useForm<AnnouncementFormValues>({
     resolver: zodResolver(announcementFormSchema),
     defaultValues: {
@@ -76,7 +103,6 @@ export function AnnouncementFormDialog({
     },
   });
 
-  // Pre-fill form when editing
   useEffect(() => {
     if (announcement && open) {
       form.reset({
@@ -88,6 +114,18 @@ export function AnnouncementFormDialog({
           ? announcement.expiresAt.split('T')[0]
           : '',
       });
+      if (announcement.attachmentUrls?.length) {
+        setAttachments(
+          announcement.attachmentUrls.map((url) => ({
+            id: crypto.randomUUID(),
+            url,
+            name: getFileNameFromUrl(url),
+            status: 'done' as const,
+          })),
+        );
+      } else {
+        setAttachments([]);
+      }
     } else if (!open) {
       form.reset({
         title: '',
@@ -96,37 +134,103 @@ export function AnnouncementFormDialog({
         priority: 'NORMAL',
         expiresAt: '',
       });
+      setAttachments([]);
     }
   }, [announcement, open, form]);
 
-  function onSubmit(values: AnnouncementFormValues) {
-    const payload = {
-      ...values,
-      expiresAt: values.expiresAt || undefined,
-    };
+  const handleFilesSelected = useCallback(
+    (files: FileList | null) => {
+      if (!files || files.length === 0) return;
+      const remaining = MAX_FILES - attachments.length;
+      const filesToAdd = Array.from(files).slice(0, remaining);
 
-    if (isEdit) {
-      updateAnnouncement.mutate(
-        { announcementId: announcement.id, data: payload },
-        {
+      const newItems: AttachmentItem[] = filesToAdd
+        .filter((file) => file.size <= MAX_FILE_SIZE)
+        .map((file) => ({
+          id: crypto.randomUUID(),
+          file,
+          name: file.name,
+          status: 'pending' as const,
+        }));
+
+      setAttachments((prev) => [...prev, ...newItems]);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    },
+    [attachments.length],
+  );
+
+  const removeAttachment = useCallback((id: string) => {
+    setAttachments((prev) => prev.filter((a) => a.id !== id));
+  }, []);
+
+  async function uploadPendingFiles(): Promise<string[]> {
+    const updated = [...attachments];
+
+    for (let i = 0; i < updated.length; i++) {
+      const item = updated[i];
+      if (item.status === 'done' && item.url) continue;
+      if (!item.file) continue;
+
+      updated[i] = { ...item, status: 'uploading' };
+      setAttachments([...updated]);
+
+      try {
+        const url = await uploadFile(item.file, 'announcements');
+        updated[i] = { ...updated[i], status: 'done', url };
+        setAttachments([...updated]);
+      } catch {
+        updated[i] = { ...updated[i], status: 'error', error: 'Upload failed' };
+        setAttachments([...updated]);
+        throw new Error('One or more files failed to upload');
+      }
+    }
+
+    return updated.filter((a) => a.url).map((a) => a.url!);
+  }
+
+  async function onSubmit(values: AnnouncementFormValues) {
+    try {
+      setIsUploadingFiles(true);
+      const attachmentUrls = await uploadPendingFiles();
+      setIsUploadingFiles(false);
+
+      const payload = {
+        ...values,
+        expiresAt: values.expiresAt || undefined,
+        attachmentUrls: attachmentUrls.length > 0 ? attachmentUrls : undefined,
+      };
+
+      if (isEdit) {
+        updateAnnouncement.mutate(
+          { announcementId: announcement.id, data: payload },
+          {
+            onSuccess: () => {
+              form.reset();
+              setAttachments([]);
+              onOpenChange(false);
+            },
+          },
+        );
+      } else {
+        createAnnouncement.mutate(payload, {
           onSuccess: () => {
             form.reset();
+            setAttachments([]);
             onOpenChange(false);
           },
-        },
-      );
-    } else {
-      createAnnouncement.mutate(payload, {
-        onSuccess: () => {
-          form.reset();
-          onOpenChange(false);
-        },
-      });
+        });
+      }
+    } catch {
+      setIsUploadingFiles(false);
     }
   }
 
   const isPending =
-    createAnnouncement.isPending || updateAnnouncement.isPending;
+    createAnnouncement.isPending ||
+    updateAnnouncement.isPending ||
+    isUploadingFiles;
+
+  const canAddMoreFiles = attachments.length < MAX_FILES;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -143,7 +247,6 @@ export function AnnouncementFormDialog({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {/* Title */}
             <FormField
               control={form.control}
               name="title"
@@ -151,17 +254,13 @@ export function AnnouncementFormDialog({
                 <FormItem>
                   <FormLabel>Title</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="e.g. School Closure Notice"
-                      {...field}
-                    />
+                    <Input placeholder="e.g. School Closure Notice" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            {/* Audience & Priority */}
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -169,10 +268,7 @@ export function AnnouncementFormDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Target Audience</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select audience" />
@@ -195,10 +291,7 @@ export function AnnouncementFormDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Priority</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select priority" />
@@ -217,7 +310,6 @@ export function AnnouncementFormDialog({
               />
             </div>
 
-            {/* Expires At */}
             <FormField
               control={form.control}
               name="expiresAt"
@@ -232,7 +324,6 @@ export function AnnouncementFormDialog({
               )}
             />
 
-            {/* Content */}
             <FormField
               control={form.control}
               name="content"
@@ -251,7 +342,69 @@ export function AnnouncementFormDialog({
               )}
             />
 
-            {/* Actions */}
+            {/* Attachments */}
+            <div className="space-y-2">
+              <FormLabel>Attachments (Optional)</FormLabel>
+              {attachments.length > 0 && (
+                <ul className="space-y-1.5">
+                  {attachments.map((item) => (
+                    <li
+                      key={item.id}
+                      className="flex items-center gap-2 rounded-md border px-3 py-2 text-sm"
+                    >
+                      {item.status === 'uploading' ? (
+                        <Loader2 className="h-4 w-4 flex-shrink-0 animate-spin text-muted-foreground" />
+                      ) : (
+                        <FileIcon className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                      )}
+                      <span className="flex-1 truncate">{item.name}</span>
+                      {item.status === 'error' && (
+                        <span className="text-xs text-destructive">{item.error}</span>
+                      )}
+                      {item.status === 'uploading' ? (
+                        <span className="text-xs text-muted-foreground">Uploading...</span>
+                      ) : (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={() => removeAttachment(item.id)}
+                        >
+                          <X className="h-3.5 w-3.5" />
+                          <span className="sr-only">Remove</span>
+                        </Button>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {canAddMoreFiles && (
+                <div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => handleFilesSelected(e.target.files)}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isPending}
+                  >
+                    <Upload className="mr-2 h-4 w-4" />
+                    Add Files
+                  </Button>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Max {MAX_FILES} files, 10 MB each
+                  </p>
+                </div>
+              )}
+            </div>
+
             <div className="flex justify-end gap-2 pt-4">
               <Button
                 type="button"
@@ -261,11 +414,13 @@ export function AnnouncementFormDialog({
                 Cancel
               </Button>
               <Button type="submit" disabled={isPending}>
-                {isPending
-                  ? 'Saving...'
-                  : isEdit
-                    ? 'Save Changes'
-                    : 'Create Announcement'}
+                {isUploadingFiles
+                  ? 'Uploading files...'
+                  : isPending
+                    ? 'Saving...'
+                    : isEdit
+                      ? 'Save Changes'
+                      : 'Create Announcement'}
               </Button>
             </div>
           </form>

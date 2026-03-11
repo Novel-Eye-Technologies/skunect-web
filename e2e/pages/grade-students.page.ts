@@ -112,7 +112,9 @@ export class GradeStudentsPage {
   async deleteAssessment(title: string) {
     const row = this.dataTable.locator('tr', { hasText: title });
     await row.getByRole('button').last().click();
-    await this.page.getByRole('menuitem', { name: /delete/i }).click();
+    const deleteItem = this.page.getByRole('menuitem', { name: /delete/i });
+    await expect(deleteItem).toBeVisible({ timeout: 5_000 });
+    await deleteItem.click({ force: true });
     // Confirm dialog uses role="alertdialog"
     const alertDialog = this.page.locator('[role="alertdialog"]');
     await expect(alertDialog).toBeVisible({ timeout: 3_000 });
