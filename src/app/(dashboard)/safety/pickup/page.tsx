@@ -3,7 +3,6 @@
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
-  Shield,
   ShieldCheck,
   Plus,
   Phone,
@@ -250,7 +249,7 @@ export default function PickupAuthorizationPage() {
       <CreateAuthorizationDialog
         open={createOpen}
         onOpenChange={setCreateOpen}
-        children={children}
+        childrenList={children}
       />
 
       <ConfirmDialog

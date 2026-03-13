@@ -49,13 +49,13 @@ type AuthorizationFormValues = z.infer<typeof authorizationFormSchema>;
 interface CreateAuthorizationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  children: StudentListItem[];
+  childrenList: StudentListItem[];
 }
 
 export function CreateAuthorizationDialog({
   open,
   onOpenChange,
-  children,
+  childrenList,
 }: CreateAuthorizationDialogProps) {
   const createAuthorization = useCreatePickupAuthorization();
 
@@ -124,7 +124,7 @@ export function CreateAuthorizationDialog({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {children.map((child) => (
+                      {childrenList.map((child) => (
                         <SelectItem key={child.id} value={child.id}>
                           {child.firstName} {child.lastName}
                         </SelectItem>
