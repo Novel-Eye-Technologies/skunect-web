@@ -52,7 +52,7 @@ export class ClassSubjectsPage {
   }
 
   async clickAddSubjects() {
-    await this.sheet.getByRole('button', { name: /add subjects/i }).click();
+    await this.sheet.getByRole('button', { name: /add subjects/i }).first().click();
     await expect(this.dialog).toBeVisible();
   }
 

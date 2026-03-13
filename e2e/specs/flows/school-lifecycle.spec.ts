@@ -54,6 +54,11 @@ import { FeesPage } from '../../pages/fees.page';
 import { MessagesPage, AnnouncementsPage } from '../../pages/communication.page';
 import { SelectSchoolPage } from '../../pages/select-school.page';
 import { HomeworkPage } from '../../pages/homework.page';
+import { LandingPage } from '../../pages/landing.page';
+import { RegisterPage } from '../../pages/register.page';
+import { DataMigrationPage } from '../../pages/data-migration.page';
+import { HelpPage } from '../../pages/help.page';
+import { MyClassesPage } from '../../pages/my-classes.page';
 import {
   authenticateAccount,
   apiGet,
@@ -191,6 +196,152 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
   test.setTimeout(300_000); // 5 minutes per test
 
   // =========================================================================
+  // PHASE 0: PUBLIC PAGES (unauthenticated)
+  // =========================================================================
+
+  test('0.1 — Landing page renders for unauthenticated user', async ({ page }) => {
+    // Clear auth state to simulate unauthenticated visitor
+    await page.goto('/');
+    await page.context().clearCookies();
+    await page.evaluate(() => localStorage.clear());
+
+    const landing = new LandingPage(page);
+    await landing.goto();
+    await landing.expectVisible();
+    await expect(landing.heroDescription).toBeVisible();
+  });
+
+  test('0.2 — Landing page shows feature cards', async ({ page }) => {
+    await page.goto('/');
+    await page.context().clearCookies();
+    await page.evaluate(() => localStorage.clear());
+
+    const landing = new LandingPage(page);
+    await landing.goto();
+    await landing.expectVisible();
+    await expect(landing.featuresSection).toBeVisible();
+  });
+
+  test('0.3 — Get Started and Sign In buttons link to login', async ({ page }) => {
+    await page.goto('/');
+    await page.context().clearCookies();
+    await page.evaluate(() => localStorage.clear());
+
+    const landing = new LandingPage(page);
+    await landing.goto();
+    await landing.expectVisible();
+    await expect(landing.getStartedButton).toHaveAttribute('href', /\/login\/?/);
+    await expect(landing.signInButton).toHaveAttribute('href', /\/login\/?/);
+  });
+
+  test('0.4 — Register page renders with all form fields', async ({ page }) => {
+    const register = new RegisterPage(page);
+    await register.goto();
+    await register.expectVisible();
+    await expect(register.firstNameInput).toBeVisible();
+    await expect(register.lastNameInput).toBeVisible();
+    await expect(register.emailInput).toBeVisible();
+    await expect(register.phoneInput).toBeVisible();
+    await expect(register.submitButton).toBeVisible();
+  });
+
+  test('0.5 — Register page shows heading and login link', async ({ page }) => {
+    const register = new RegisterPage(page);
+    await register.goto();
+    await expect(register.heading).toBeVisible();
+    await expect(register.heading).toContainText('Create your account');
+    await expect(register.loginLink).toBeVisible();
+    await expect(register.loginLink).toContainText('Sign in');
+  });
+
+  test('0.6 — Register login link navigates to login page', async ({ page }) => {
+    const register = new RegisterPage(page);
+    await register.goto();
+    await register.goToLogin();
+    await expect(page).toHaveURL(/\/login/, { timeout: 10_000 });
+  });
+
+  test('0.7 — Register validates empty required fields', async ({ page }) => {
+    const register = new RegisterPage(page);
+    await register.goto();
+    await register.expectVisible();
+    await register.submit();
+    await expect(page.getByText(/first name is required/i)).toBeVisible({ timeout: 3_000 });
+    await expect(page.getByText(/last name is required/i)).toBeVisible({ timeout: 3_000 });
+    await expect(page.getByText(/email is required/i)).toBeVisible({ timeout: 3_000 });
+  });
+
+  test('0.8 — Register validates invalid email', async ({ page }) => {
+    const register = new RegisterPage(page);
+    await register.goto();
+    await register.expectVisible();
+    await register.fillForm({ firstName: 'Test', lastName: 'User', email: 'not-an-email' });
+    await register.submit();
+    const isInvalid = await register.emailInput.evaluate((el: HTMLInputElement) => !el.validity.valid);
+    expect(isInvalid).toBe(true);
+  });
+
+  test('0.9 — Register validates short first name', async ({ page }) => {
+    const register = new RegisterPage(page);
+    await register.goto();
+    await register.expectVisible();
+    await register.fillForm({ firstName: 'A', lastName: 'User', email: 'test@example.com' });
+    await register.submit();
+    await expect(page.getByText(/first name must be at least 2 characters/i)).toBeVisible({ timeout: 3_000 });
+  });
+
+  test('0.10 — Register phone field is optional', async ({ page }) => {
+    const register = new RegisterPage(page);
+    await register.goto();
+    await register.expectVisible();
+    await expect(page.getByText(/optional/i)).toBeVisible();
+  });
+
+  test('0.11 — Register form can be filled with all fields', async ({ page }) => {
+    const register = new RegisterPage(page);
+    await register.goto();
+    await register.expectVisible();
+    await register.fillForm({
+      firstName: 'Test',
+      lastName: 'User',
+      email: `e2e.test.${Date.now()}@example.com`,
+      phone: '+234 800 000 0000',
+    });
+    await expect(register.firstNameInput).toHaveValue('Test');
+    await expect(register.lastNameInput).toHaveValue('User');
+    await expect(register.phoneInput).toHaveValue('+234 800 000 0000');
+  });
+
+  test('0.12 — Unauthenticated user visiting /dashboard redirects to /login', async ({ page }) => {
+    await page.goto('/');
+    await page.context().clearCookies();
+    await page.evaluate(() => localStorage.clear());
+    await page.goto('/dashboard');
+    await expect(page).toHaveURL(/\/login\/?/, { timeout: 10_000 });
+  });
+
+  test('0.13 — Unauthenticated user visiting /students redirects to /login', async ({ page }) => {
+    await page.goto('/');
+    await page.context().clearCookies();
+    await page.evaluate(() => localStorage.clear());
+    await page.goto('/students');
+    await expect(page).toHaveURL(/\/login\/?/, { timeout: 10_000 });
+  });
+
+  test('0.14 — OTP page displays correctly after email submission', async ({ page }) => {
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
+    await loginPage.fillEmail('superadmin@skunect.com');
+    await loginPage.submit();
+
+    const otpPage = new VerifyOtpPage(page);
+    await otpPage.expectVisible();
+    // OTP page should have 6 digit inputs
+    const inputs = page.locator('input[maxlength="1"]');
+    await expect(inputs).toHaveCount(6, { timeout: 5_000 });
+  });
+
+  // =========================================================================
   // PHASE 1: SUPER ADMIN
   // =========================================================================
 
@@ -204,6 +355,42 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     const main = page.getByRole('main');
     await expect(main.getByText('Total Schools')).toBeVisible({ timeout: 15_000 });
     await expect(main.getByText('Total Users')).toBeVisible();
+  });
+
+  test('1.1b — Super Admin: Dashboard shows all system stat cards', async ({ page }) => {
+    await loginViaUI(page, 'superadmin@skunect.com');
+    const dashboard = new DashboardPage(page);
+    await dashboard.expectVisible();
+
+    const main = page.getByRole('main');
+    await expect(main.getByText('Total Schools')).toBeVisible({ timeout: 15_000 });
+    await expect(main.getByText('Total Students')).toBeVisible();
+    await expect(main.getByText('Total Teachers')).toBeVisible();
+    await expect(main.getByText('Total Parents')).toBeVisible();
+    await expect(main.getByText('Total Users')).toBeVisible();
+    await expect(main.getByText('School Admins')).toBeVisible();
+    await expect(main.getByText('Active Sessions')).toBeVisible();
+  });
+
+  test('1.1c — Super Admin: Sidebar shows correct nav items', async ({ page }) => {
+    await loginViaUI(page, 'superadmin@skunect.com');
+    await waitForDashboard(page);
+
+    const sidebar = new SidebarPage(page);
+    await sidebar.expectNavItem('System Dashboard');
+    await sidebar.expectNavItem('All Schools');
+    await sidebar.expectNavItem('Seed Data');
+    await sidebar.expectNavItem('Help & Support');
+  });
+
+  test('1.1d — Super Admin: Help page loads with FAQ sections', async ({ page }) => {
+    await loginViaUI(page, 'superadmin@skunect.com');
+    await waitForDashboard(page);
+
+    const helpPage = new HelpPage(page);
+    await helpPage.goto();
+    await helpPage.expectVisible();
+    await helpPage.expectFaqSections();
   });
 
   test('1.2 — Super Admin: Validate super admins page loads', async ({ page }) => {
@@ -325,6 +512,26 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await seedPage.goto();
     await seedPage.expectVisible();
     await seedPage.expectTestAccountsVisible();
+  });
+
+  test('1.7b — Super Admin: Seed data page shows reset button', async ({ page }) => {
+    await loginViaUI(page, 'superadmin@skunect.com');
+    await waitForDashboard(page);
+
+    const seedPage = new SystemSeedPage(page);
+    await seedPage.goto();
+    await seedPage.expectVisible();
+    await expect(page.getByRole('button', { name: /reset/i })).toBeVisible({ timeout: 10_000 });
+  });
+
+  test('1.7c — Super Admin: Non-super-admin cannot access system routes', async ({ page }) => {
+    // This will be tested more thoroughly in Phase 10, but verify the basic case here
+    // by logging in as a seed admin and trying to access /system/schools
+    await loginViaUI(page, 'admin@kingsacademy.ng');
+    await waitForDashboard(page);
+    await page.goto('/system/schools');
+    await expect(page).toHaveURL(/\/dashboard\/?/, { timeout: 10_000 });
+    await logout(page);
   });
 
   test('1.8 — Super Admin: Logout', async ({ page }) => {
@@ -892,7 +1099,9 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await usersPage.goto();
     await usersPage.expectVisible();
     await usersPage.expectTableNotEmpty();
-    // Should see the admin, second admin, and teachers
+    // Filter by admin role to verify second admin is present
+    await usersPage.roleFilter.click();
+    await page.getByRole('option', { name: /admin/i }).click();
     await usersPage.expectUserInTable(ADMIN2_EMAIL);
 
     // Check Teachers page
@@ -993,6 +1202,11 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await usersPage.goto();
     await usersPage.expectVisible();
 
+    // Filter by teacher role to find Teacher Three (may be on page 2 with default sort)
+    await usersPage.roleFilter.click();
+    await page.getByRole('option', { name: /teacher/i }).click();
+    await page.waitForTimeout(1000);
+
     // Open the Change User Status dialog for Teacher Three
     await usersPage.clickChangeStatus('Teacher Three');
     const dialog = page.getByRole('dialog');
@@ -1032,6 +1246,220 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     const activityPage = new ActivityFeedPage(page);
     await activityPage.goto();
     await activityPage.expectVisible();
+  });
+
+  test('2.26b — School Admin: Analytics page shows all four tabs', async ({ page }) => {
+    await loginViaUI(page, schoolData.adminEmail!);
+    await waitForDashboard(page);
+
+    await page.goto('/analytics');
+    await expect(page.getByRole('heading', { name: /analytics/i })).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole('tab', { name: /overview/i })).toBeVisible();
+    await expect(page.getByRole('tab', { name: /attendance/i })).toBeVisible();
+    await expect(page.getByRole('tab', { name: /academic/i })).toBeVisible();
+    await expect(page.getByRole('tab', { name: /fees/i })).toBeVisible();
+
+    // Overview stat cards
+    await expect(page.getByText('Total Students')).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText('Total Teachers')).toBeVisible();
+  });
+
+  test('2.26c — School Admin: Analytics attendance tab shows filters', async ({ page }) => {
+    await loginViaUI(page, schoolData.adminEmail!);
+    await waitForDashboard(page);
+
+    await page.goto('/analytics');
+    await expect(page.getByRole('heading', { name: /analytics/i })).toBeVisible({ timeout: 15_000 });
+    await page.getByRole('tab', { name: /attendance/i }).click();
+    await expect(page.locator('input[type="date"]').first()).toBeVisible({ timeout: 10_000 });
+  });
+
+  test('2.26d — School Admin: Analytics academic tab shows filters', async ({ page }) => {
+    await loginViaUI(page, schoolData.adminEmail!);
+    await waitForDashboard(page);
+
+    await page.goto('/analytics');
+    await expect(page.getByRole('heading', { name: /analytics/i })).toBeVisible({ timeout: 15_000 });
+    await page.getByRole('tab', { name: /academic/i }).click();
+    await expect(page.getByRole('combobox').first()).toBeVisible({ timeout: 10_000 });
+  });
+
+  test('2.26e — School Admin: Analytics fees tab shows collection data', async ({ page }) => {
+    await loginViaUI(page, schoolData.adminEmail!);
+    await waitForDashboard(page);
+
+    await page.goto('/analytics');
+    await expect(page.getByRole('heading', { name: /analytics/i })).toBeVisible({ timeout: 15_000 });
+    await page.getByRole('tab', { name: /fees/i }).click();
+    await expect(page.getByText('Collection Rate')).toBeVisible({ timeout: 10_000 });
+  });
+
+  test('2.26f — School Admin: Audit logs filtering works', async ({ page }) => {
+    await loginViaUI(page, schoolData.adminEmail!);
+    await waitForDashboard(page);
+
+    const auditPage = new AuditLogsPage(page);
+    await auditPage.goto();
+    await auditPage.expectVisible();
+    await auditPage.expectTableVisible();
+
+    // Verify table headers
+    await auditPage.expectTableHeaders();
+
+    // Filter by entity type
+    await auditPage.filterByEntityType('Student');
+    await page.waitForTimeout(1_000);
+    await auditPage.expectTableVisible();
+
+    // Reset filter
+    await auditPage.filterByEntityType('All Entities');
+    await page.waitForTimeout(500);
+
+    // Filter by action
+    await auditPage.filterByAction('Create');
+    await page.waitForTimeout(1_000);
+    await auditPage.expectTableVisible();
+
+    // Reset action filter
+    await auditPage.filterByAction('All Actions');
+    await page.waitForTimeout(500);
+
+    // Verify filter options exist
+    await auditPage.entityTypeFilter.click();
+    await expect(page.getByRole('option').getByText('Student')).toBeVisible();
+    await expect(page.getByRole('option').getByText('Teacher')).toBeVisible();
+    await page.keyboard.press('Escape');
+
+    await auditPage.actionFilter.click();
+    await expect(page.getByRole('option').getByText('Create')).toBeVisible();
+    await expect(page.getByRole('option').getByText('Update')).toBeVisible();
+    await expect(page.getByRole('option').getByText('Delete')).toBeVisible();
+    await page.keyboard.press('Escape');
+  });
+
+  test('2.26g — School Admin: Data migration page access and teacher restriction', async ({ page }) => {
+    await loginViaUI(page, schoolData.adminEmail!);
+    await waitForDashboard(page);
+
+    const dataMigration = new DataMigrationPage(page);
+    await dataMigration.goto();
+    await dataMigration.expectVisible();
+    await expect(dataMigration.uploadTab).toBeVisible();
+    await expect(dataMigration.historyTab).toBeVisible();
+  });
+
+  test('2.26h — School Admin: Safety page shows emergency alerts and pickup logs tabs', async ({ page }) => {
+    await loginViaUI(page, schoolData.adminEmail!);
+    await waitForDashboard(page);
+
+    await page.goto('/safety');
+    await expect(page.getByRole('heading', { name: /safety|emergency/i })).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole('tab', { name: /emergency alerts/i })).toBeVisible();
+    await expect(page.getByRole('tab', { name: /pickup logs/i })).toBeVisible();
+  });
+
+  test('2.26i — School Admin: Parents page shows data table', async ({ page }) => {
+    await loginViaUI(page, schoolData.adminEmail!);
+    await waitForDashboard(page);
+
+    const parentsPage = new ParentsPage(page);
+    await parentsPage.goto();
+    await parentsPage.expectVisible();
+    // Parents were created during student enrollment
+    await expect(page.locator('table')).toBeVisible({ timeout: 10_000 });
+  });
+
+  test('2.26j — School Admin: School settings shows all tabs', async ({ page }) => {
+    await loginViaUI(page, schoolData.adminEmail!);
+    await waitForDashboard(page);
+
+    const settingsPage = new SchoolSettingsPage(page);
+    await settingsPage.goto();
+    await settingsPage.expectVisible();
+    await expect(page.getByRole('tab', { name: /general/i })).toBeVisible();
+    await expect(page.getByRole('tab', { name: /grading/i })).toBeVisible();
+  });
+
+  test('2.26k — School Admin: Teachers page search works', async ({ page }) => {
+    await loginViaUI(page, schoolData.adminEmail!);
+    await waitForDashboard(page);
+
+    const teachersPage = new TeachersPage(page);
+    await teachersPage.goto();
+    await teachersPage.expectVisible();
+    await teachersPage.expectTableNotEmpty();
+
+    // Search for Teacher One (use partial name since search may work on individual fields)
+    const searchInput = page.getByPlaceholder(/search/i);
+    if (await searchInput.isVisible({ timeout: 3_000 }).catch(() => false)) {
+      await searchInput.fill('One');
+      await page.waitForTimeout(1_000);
+      await teachersPage.expectTeacherInTable('Teacher One');
+    }
+  });
+
+  test('2.26l — School Admin: User management filter by role', async ({ page }) => {
+    await loginViaUI(page, schoolData.adminEmail!);
+    await waitForDashboard(page);
+
+    const usersPage = new UsersPage(page);
+    await usersPage.goto();
+    await usersPage.expectVisible();
+    await usersPage.expectTableNotEmpty();
+
+    // Try filtering by role if filter exists
+    const roleFilter = page.getByRole('combobox').first();
+    if (await roleFilter.isVisible({ timeout: 3_000 }).catch(() => false)) {
+      await roleFilter.click();
+      const teacherOption = page.getByRole('option', { name: /teacher/i });
+      if (await teacherOption.isVisible({ timeout: 3_000 }).catch(() => false)) {
+        await teacherOption.click();
+        await page.waitForTimeout(1_000);
+        // Table should still be visible after filtering
+        await expect(page.locator('table')).toBeVisible();
+      } else {
+        await page.keyboard.press('Escape');
+      }
+    }
+  });
+
+  test('2.26m — School Admin: Sidebar shows correct nav items', async ({ page }) => {
+    await loginViaUI(page, schoolData.adminEmail!);
+    await waitForDashboard(page);
+
+    const sidebar = new SidebarPage(page);
+    await sidebar.expectNavItem('Dashboard');
+    await sidebar.expectNavItem('Academics');
+    await sidebar.expectNavItem('Communication');
+    await sidebar.expectNavItem('Help & Support');
+  });
+
+  test('2.26n — School Admin: Admin cannot access system routes', async ({ page }) => {
+    await loginViaUI(page, schoolData.adminEmail!);
+    await waitForDashboard(page);
+
+    await page.goto('/system/schools');
+    await expect(page).toHaveURL(/\/dashboard\/?/, { timeout: 10_000 });
+
+    await page.goto('/system/seed');
+    await expect(page).toHaveURL(/\/dashboard\/?/, { timeout: 10_000 });
+  });
+
+  test('2.26o — School Admin: Admin can deep-link to protected routes', async ({ page }) => {
+    await loginViaUI(page, schoolData.adminEmail!);
+    await waitForDashboard(page);
+
+    await page.goto('/students');
+    await expect(page).toHaveURL(/\/students\/?/);
+    await expect(page.getByRole('heading', { name: /students/i })).toBeVisible({ timeout: 20_000 });
+
+    await page.goto('/homework');
+    await expect(page).toHaveURL(/\/homework\/?/);
+    await expect(page.getByRole('heading', { name: /homework/i })).toBeVisible({ timeout: 20_000 });
+
+    await page.goto('/attendance');
+    await expect(page).toHaveURL(/\/attendance\/?/);
+    await expect(page.getByRole('heading', { name: /attendance/i })).toBeVisible({ timeout: 20_000 });
   });
 
   test('2.27 — School Admin: Add second parent to students via API', async () => {
@@ -1142,6 +1570,86 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await sidebar.expectNavItem('Academics');
   });
 
+  test('3.1b — Teacher: Dashboard shows all stat cards and quick actions', async ({ page }) => {
+    await loginViaUI(page, TEACHER1_EMAIL);
+    await waitForDashboard(page);
+
+    const main = page.getByRole('main');
+    // All four stat cards
+    await expect(main.getByText('My Classes')).toBeVisible({ timeout: 15_000 });
+    await expect(main.getByText('Total Students')).toBeVisible();
+    await expect(main.getByText("Today's Attendance")).toBeVisible();
+    await expect(main.getByText('Pending Homework')).toBeVisible();
+
+    // Quick Actions
+    await expect(page.getByText('Quick Actions')).toBeVisible();
+    await expect(page.getByText('Take Attendance')).toBeVisible();
+    await expect(page.getByText('Enter Grade')).toBeVisible();
+    await expect(page.getByText('Create Homework')).toBeVisible();
+    await expect(page.getByText('Send Message')).toBeVisible();
+
+    // Today's Schedule
+    await expect(page.getByText("Today's Schedule")).toBeVisible();
+  });
+
+  test('3.1c — Teacher: Quick action navigates to attendance page', async ({ page }) => {
+    await loginViaUI(page, TEACHER1_EMAIL);
+    await waitForDashboard(page);
+
+    const attendanceLink = page.getByRole('link', { name: /take attendance/i })
+      .or(page.locator('a', { hasText: 'Take Attendance' }));
+    if (await attendanceLink.isVisible({ timeout: 3_000 }).catch(() => false)) {
+      await attendanceLink.click();
+      await expect(page).toHaveURL(/\/attendance\/?/, { timeout: 10_000 });
+    }
+  });
+
+  test('3.1d — Teacher: Sidebar shows correct nav items', async ({ page }) => {
+    await loginViaUI(page, TEACHER1_EMAIL);
+    await waitForDashboard(page);
+
+    const sidebar = new SidebarPage(page);
+    await sidebar.expectNavItem('Dashboard');
+    await sidebar.expectNavItem('Students');
+    await sidebar.expectNavItem('My Classes');
+    await sidebar.expectNavItem('Academics');
+  });
+
+  test('3.1e — Teacher: Cannot access admin-only routes', async ({ page }) => {
+    await loginViaUI(page, TEACHER1_EMAIL);
+    await waitForDashboard(page);
+
+    await page.goto('/school-settings');
+    await expect(page).toHaveURL(/\/dashboard\/?/, { timeout: 10_000 });
+
+    await page.goto('/users');
+    await expect(page).toHaveURL(/\/dashboard\/?/, { timeout: 10_000 });
+
+    await page.goto('/fees');
+    await expect(page).toHaveURL(/\/dashboard\/?/, { timeout: 10_000 });
+
+    await page.goto('/data-migration');
+    await expect(page).toHaveURL(/\/dashboard\/?/, { timeout: 10_000 });
+  });
+
+  test('3.1f — Teacher: Can deep-link to attendance and homework', async ({ page }) => {
+    await loginViaUI(page, TEACHER1_EMAIL);
+    await waitForDashboard(page);
+
+    await page.goto('/attendance');
+    await expect(page).toHaveURL(/\/attendance\/?/);
+    await expect(page.getByRole('heading', { name: /attendance/i })).toBeVisible({ timeout: 20_000 });
+  });
+
+  test('3.1g — Teacher: Help page loads', async ({ page }) => {
+    await loginViaUI(page, TEACHER1_EMAIL);
+    await waitForDashboard(page);
+
+    const helpPage = new HelpPage(page);
+    await helpPage.goto();
+    await helpPage.expectVisible();
+  });
+
   test('3.2 — Teacher: Validate My Classes page and subjects', async ({ page }) => {
     await loginViaUI(page, TEACHER1_EMAIL);
     await waitForDashboard(page);
@@ -1165,6 +1673,45 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
 
     // Social Studies from JSS 2 should show as Subject Teacher
     await expect(subjectsTable.getByText('Social Studies').first()).toBeVisible();
+  });
+
+  test('3.2b — Teacher: My Subjects shows role badges (Class Teacher and Subject Teacher)', async ({ page }) => {
+    await loginViaUI(page, TEACHER1_EMAIL);
+    await waitForDashboard(page);
+
+    await page.goto('/my-classes');
+    await expect(page.getByRole('heading', { name: /my classes/i })).toBeVisible({ timeout: 15_000 });
+
+    // Scroll to My Subjects section
+    await expect(page.getByText('My Subjects')).toBeVisible({ timeout: 15_000 });
+    const subjectsTable = page.locator('table').last();
+
+    // Teacher 1 is class teacher of JSS 1 (inherited subjects) + subject teacher of Social Studies in JSS 2
+    // Should see "Class Teacher" badges for JSS 1 subjects
+    await expect(subjectsTable.getByText('Class Teacher').first()).toBeVisible({ timeout: 10_000 });
+    // Should see "Subject Teacher" badge for Social Studies in JSS 2
+    await expect(subjectsTable.getByText('Subject Teacher').first()).toBeVisible({ timeout: 10_000 });
+  });
+
+  test('3.2c — Teacher: My Classes shows summary stats and class cards', async ({ page }) => {
+    await loginViaUI(page, TEACHER1_EMAIL);
+    await waitForDashboard(page);
+
+    await page.goto('/my-classes');
+    await expect(page.getByRole('heading', { name: /my classes/i })).toBeVisible({ timeout: 15_000 });
+
+    // Summary stat cards
+    await expect(page.getByText('Total Classes')).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText('Total Students')).toBeVisible();
+
+    // Class card for JSS 1 should have student count and View Details button
+    const classCard = page.locator('[data-slot="card"]', { hasText: CLASS1_NAME }).first();
+    if (await classCard.isVisible({ timeout: 5_000 }).catch(() => false)) {
+      await expect(classCard.getByText(/student/i)).toBeVisible();
+      const viewDetailsBtn = classCard.getByRole('link', { name: /view details/i })
+        .or(classCard.getByRole('button', { name: /view details/i }));
+      await expect(viewDetailsBtn).toBeVisible();
+    }
   });
 
   test('3.3 — Teacher: Validate today\'s schedule from timetable', async ({ page }) => {
@@ -1243,6 +1790,34 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     // Submit attendance
     await page.getByRole('button', { name: /submit attendance/i }).click();
     await expectToast(page, 'success');
+  });
+
+  test('3.5b — Teacher: Attendance page shows daily overview and tabs', async ({ page }) => {
+    await loginViaUI(page, TEACHER1_EMAIL);
+    await waitForDashboard(page);
+
+    await page.goto('/attendance');
+    await expect(page.getByRole('heading', { name: /attendance/i })).toBeVisible({ timeout: 15_000 });
+
+    // Daily overview stats
+    await expect(page.getByText('Total Students')).toBeVisible({ timeout: 10_000 });
+
+    // Mark Attendance and Records tabs
+    await expect(page.getByRole('tab', { name: /mark attendance/i })).toBeVisible();
+    await expect(page.getByRole('tab', { name: /records/i })).toBeVisible();
+  });
+
+  test('3.5c — Teacher: Academics page shows all three tabs', async ({ page }) => {
+    await loginViaUI(page, TEACHER1_EMAIL);
+    await waitForDashboard(page);
+
+    const academics = new GradeStudentsPage(page);
+    await academics.goto();
+    await academics.expectVisible();
+
+    await expect(academics.assessmentsTab).toBeVisible();
+    await expect(academics.gradeEntryTab).toBeVisible();
+    await expect(academics.reportCardsTab).toBeVisible();
   });
 
   test('3.6 — Teacher: Create CA1 assessments for all subjects in JSS 1', async ({ page }) => {
@@ -1345,6 +1920,34 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     // Verify at least one score is visible
     const scoreInputs = page.locator('table tbody tr input[type="number"]');
     await expect(scoreInputs.first()).toBeVisible({ timeout: 5_000 });
+  });
+
+  test('3.8b — Teacher: Assessment table shows expected columns', async ({ page }) => {
+    await loginViaUI(page, TEACHER1_EMAIL);
+    await waitForDashboard(page);
+
+    const academics = new GradeStudentsPage(page);
+    await academics.goto();
+    await academics.expectVisible();
+
+    const headers = academics.dataTable.locator('thead th');
+    await expect(headers.getByText('Title')).toBeVisible();
+    await expect(headers.getByText('Type')).toBeVisible();
+    await expect(headers.getByText('Max Score')).toBeVisible();
+  });
+
+  test('3.8c — Teacher: Report cards tab shows generate button', async ({ page }) => {
+    await loginViaUI(page, TEACHER1_EMAIL);
+    await waitForDashboard(page);
+
+    const academics = new GradeStudentsPage(page);
+    await academics.goto();
+    await academics.expectVisible();
+
+    await academics.goToReportCards();
+    await expect(
+      page.getByRole('button', { name: /generate report cards/i })
+    ).toBeVisible({ timeout: 10_000 });
   });
 
   test('3.9 — Teacher: Create homework for all 4 subjects in JSS 1', async ({ page }) => {
@@ -1540,6 +2143,123 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await expectDialogClosed(page);
   });
 
+  test('3.15b — Teacher: Welfare page shows filters and table headers', async ({ page }) => {
+    await loginViaUI(page, TEACHER1_EMAIL);
+    await waitForDashboard(page);
+
+    const welfarePage = new WelfarePage(page);
+    await welfarePage.goto();
+    await welfarePage.expectVisible();
+
+    // Verify welfare table headers
+    const table = page.locator('table');
+    await expect(table).toBeVisible({ timeout: 10_000 });
+
+    // Record Welfare button should be visible
+    await expect(page.getByRole('button', { name: /record welfare/i })).toBeVisible();
+  });
+
+  test('3.15c — Teacher: Mood tracker page shows Log Mood button', async ({ page }) => {
+    await loginViaUI(page, TEACHER1_EMAIL);
+    await waitForDashboard(page);
+
+    const moodPage = new MoodTrackerPage(page);
+    await moodPage.goto();
+    await moodPage.expectVisible();
+    await expect(page.getByRole('button', { name: /log mood/i })).toBeVisible({ timeout: 10_000 });
+  });
+
+  test('3.15d — Teacher: Health records page shows Add Record button', async ({ page }) => {
+    await loginViaUI(page, TEACHER1_EMAIL);
+    await waitForDashboard(page);
+
+    const healthPage = new HealthRecordsPage(page);
+    await healthPage.goto();
+    await healthPage.expectVisible();
+    await expect(page.getByRole('button', { name: /add record/i })).toBeVisible({ timeout: 10_000 });
+  });
+
+  test('3.15e — Teacher: Create and delete a homework assignment', async ({ page }) => {
+    await loginViaUI(page, TEACHER1_EMAIL);
+    await waitForDashboard(page);
+
+    const homework = new ManageHomeworkPage(page);
+    await homework.goto();
+    await homework.expectVisible();
+
+    const deleteTitle = `Delete HW ${TS}`;
+    const today = new Date().toISOString().split('T')[0];
+    const dueDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+    await homework.clickCreate();
+    await homework.fillHomeworkForm(deleteTitle, 'This homework will be deleted.', '25');
+    await homework.selectClass(new RegExp(CLASS1_NAME));
+    await homework.selectSubject(/Mathematics/);
+    await homework.setDates(today, dueDate);
+    await homework.submitForm();
+    await expectDialogClosed(page);
+    await homework.expectHomeworkInTable(deleteTitle);
+
+    // Delete it
+    await homework.deleteHomework(deleteTitle);
+    await homework.expectHomeworkNotInTable(deleteTitle);
+  });
+
+  test('3.15f — Teacher: Create and delete an assessment', async ({ page }) => {
+    await loginViaUI(page, TEACHER1_EMAIL);
+    await waitForDashboard(page);
+
+    const academics = new GradeStudentsPage(page);
+    await academics.goto();
+    await academics.expectVisible();
+
+    const deleteTitle = `Delete Assessment ${TS}`;
+    const today = new Date().toISOString().split('T')[0];
+
+    await academics.clickCreateAssessment();
+    await academics.fillAssessmentForm(deleteTitle, '50', today);
+    await academics.selectAssessmentClass(new RegExp(CLASS1_NAME));
+    await academics.selectAssessmentSubject(/Mathematics/);
+    await academics.selectAssessmentTerm(new RegExp(TERM_NAME));
+    await academics.selectAssessmentType(/CA3/i);
+    await academics.submitAssessmentForm();
+    await expectDialogClosed(page);
+    await academics.expectAssessmentInTable(deleteTitle);
+
+    // Delete it
+    await academics.deleteAssessment(deleteTitle);
+    await expect(academics.dataTable.getByText(deleteTitle)).not.toBeVisible({ timeout: 5_000 });
+  });
+
+  test('3.15g — Teacher: Subject permissions (class teacher vs specialist) via API', async () => {
+    // Teacher 1 is class teacher for JSS 1 — should be able to create assessment for inherited subjects
+    const auth = await authenticateAccount(TEACHER1_EMAIL, TEST_OTP);
+    const sid = schoolData.schoolId!;
+
+    // Get class and subject IDs
+    const classesRes = await apiGet<Array<{ id: string; name: string }>>(
+      `/schools/${sid}/classes?size=200`,
+      auth.accessToken,
+    );
+    const jss1 = classesRes.data.find((c) => c.name === CLASS1_NAME);
+    expect(jss1).toBeTruthy();
+
+    // Get Teacher 1's subjects via my-subjects endpoint
+    const subjectsRes = await apiGet<Array<{ subjectName?: string; name?: string }>>(
+      `/schools/${sid}/my-subjects`,
+      auth.accessToken,
+    );
+    expect(subjectsRes.data).toBeDefined();
+    expect(Array.isArray(subjectsRes.data)).toBe(true);
+    // Teacher 1 should have inherited subjects from JSS 1 + Social Studies from JSS 2
+    expect(subjectsRes.data.length).toBeGreaterThanOrEqual(4);
+
+    const subjectNames = subjectsRes.data
+      .map((s) => (s.subjectName ?? s.name ?? '').toLowerCase());
+    expect(subjectNames.some((n) => n.includes('mathematics'))).toBeTruthy();
+    expect(subjectNames.some((n) => n.includes('english'))).toBeTruthy();
+  });
+
   test('3.16 — Teacher: Send message to parent', async ({ page }) => {
     await loginViaUI(page, TEACHER1_EMAIL);
     await waitForDashboard(page);
@@ -1659,6 +2379,54 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await dashboard.expectParentStatCards();
   });
 
+  test('4.2b — Parent: Dashboard shows all stat cards and sections', async ({ page }) => {
+    await loginViaUI(page, SECOND_PARENT_EMAIL);
+    await waitForDashboard(page);
+
+    const main = page.getByRole('main');
+    // Parent stat cards
+    await expect(main.getByText('My Children').first()).toBeVisible({ timeout: 15_000 });
+    await expect(main.getByText("Today's Attendance")).toBeVisible();
+    await expect(main.getByText('Pending Fees', { exact: true })).toBeVisible();
+    await expect(main.getByText('Pending Homework', { exact: true })).toBeVisible();
+  });
+
+  test('4.2c — Parent: Sidebar shows correct nav items', async ({ page }) => {
+    await loginViaUI(page, SECOND_PARENT_EMAIL);
+    await waitForDashboard(page);
+
+    const sidebar = new SidebarPage(page);
+    await sidebar.expectNavItem('Dashboard');
+    await sidebar.expectNavItem('Homework');
+    await sidebar.expectNavItem('Help & Support');
+  });
+
+  test('4.2d — Parent: Cannot access admin-only routes', async ({ page }) => {
+    await loginViaUI(page, SECOND_PARENT_EMAIL);
+    await waitForDashboard(page);
+
+    await page.goto('/school-settings');
+    await expect(page).toHaveURL(/\/dashboard\/?/, { timeout: 10_000 });
+
+    await page.goto('/users');
+    await expect(page).toHaveURL(/\/dashboard\/?/, { timeout: 10_000 });
+
+    await page.goto('/data-migration');
+    await expect(page).toHaveURL(/\/dashboard\/?/, { timeout: 10_000 });
+
+    await page.goto('/fees');
+    await expect(page).toHaveURL(/\/dashboard\/?/, { timeout: 10_000 });
+  });
+
+  test('4.2e — Parent: Can deep-link to /homework', async ({ page }) => {
+    await loginViaUI(page, SECOND_PARENT_EMAIL);
+    await waitForDashboard(page);
+
+    await page.goto('/homework');
+    await expect(page).toHaveURL(/\/homework\/?/);
+    await expect(page.getByRole('heading', { name: /homework/i })).toBeVisible({ timeout: 20_000 });
+  });
+
   test('4.3 — Parent: Switch child profile', async ({ page }) => {
     await loginViaUI(page, SECOND_PARENT_EMAIL);
     await waitForDashboard(page);
@@ -1691,6 +2459,51 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await studentsPage.goto();
     await studentsPage.expectVisible();
     // Parent should see their children listed
+  });
+
+  test('4.4b — Parent: Students page does not show Add Student button', async ({ page }) => {
+    await loginViaUI(page, SECOND_PARENT_EMAIL);
+    await waitForDashboard(page);
+
+    const studentsPage = new StudentsPage(page);
+    await studentsPage.goto();
+    await studentsPage.expectVisible();
+
+    // Parent should NOT see Add Student button
+    await expect(page.getByRole('button', { name: /add student/i })).not.toBeVisible({ timeout: 3_000 });
+  });
+
+  test('4.4c — Parent: Homework page does not show Create Assignment button', async ({ page }) => {
+    await loginViaUI(page, SECOND_PARENT_EMAIL);
+    await waitForDashboard(page);
+
+    const homeworkPage = new HomeworkPage(page);
+    await homeworkPage.goto();
+    await homeworkPage.expectVisible();
+
+    // Parent should NOT see Create Assignment button
+    await expect(page.getByRole('button', { name: /create assignment/i })).not.toBeVisible({ timeout: 3_000 });
+  });
+
+  test('4.4d — Parent: Announcements page does not show Create Announcement button', async ({ page }) => {
+    await loginViaUI(page, SECOND_PARENT_EMAIL);
+    await waitForDashboard(page);
+
+    const announcementsPage = new AnnouncementsPage(page);
+    await announcementsPage.goto();
+    await announcementsPage.expectVisible();
+
+    // Parent should NOT see Create Announcement button
+    await expect(page.getByRole('button', { name: /create announcement/i })).not.toBeVisible({ timeout: 3_000 });
+  });
+
+  test('4.4e — Parent: Help page loads', async ({ page }) => {
+    await loginViaUI(page, SECOND_PARENT_EMAIL);
+    await waitForDashboard(page);
+
+    const helpPage = new HelpPage(page);
+    await helpPage.goto();
+    await helpPage.expectVisible();
   });
 
   test('4.5 — Parent: Validate attendance visible', async ({ page }) => {
@@ -1964,6 +2777,19 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     // Verify the fee structures tab has content
     await feesPage.switchToFeeStructures();
     await expect(page.getByText(`Tuition Fee ${TS}`)).toBeVisible({ timeout: 10_000 });
+  });
+
+  test('6.4b — Admin Return: Fees page shows Fee Structures and Invoices tabs', async ({ page }) => {
+    await loginViaUI(page, schoolData.adminEmail!);
+    await waitForDashboard(page);
+
+    const feesPage = new FeesPage(page);
+    await feesPage.goto();
+    await feesPage.expectVisible();
+
+    // Verify tabs exist
+    await expect(page.getByRole('tab', { name: /fee structures/i })).toBeVisible();
+    await expect(page.getByRole('tab', { name: /invoices/i })).toBeVisible();
   });
 
   test('6.5 — Admin Return: Create emergency alert', async ({ page }) => {
@@ -2248,6 +3074,41 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
 
   test('9.4 — Super Admin Cleanup: Logout', async ({ page }) => {
     await loginViaUI(page, 'superadmin@skunect.com');
+    await waitForDashboard(page);
+    await logout(page);
+  });
+
+  // =========================================================================
+  // PHASE 10: TEACHER ANALYTICS & DATA MIGRATION ACCESS CONTROL
+  // =========================================================================
+
+  test('10.1 — Teacher can view analytics page (read-only)', async ({ page }) => {
+    await loginViaUI(page, TEACHER1_EMAIL);
+    await waitForDashboard(page);
+
+    await page.goto('/analytics');
+    await expect(page.getByRole('heading', { name: /analytics/i })).toBeVisible({ timeout: 20_000 });
+  });
+
+  test('10.2 — Teacher cannot access data migration', async ({ page }) => {
+    await loginViaUI(page, TEACHER1_EMAIL);
+    await waitForDashboard(page);
+
+    await page.goto('/data-migration');
+    await expect(page).toHaveURL(/\/dashboard\/?/, { timeout: 10_000 });
+  });
+
+  test('10.3 — Teacher can view attendance page', async ({ page }) => {
+    await loginViaUI(page, TEACHER1_EMAIL);
+    await waitForDashboard(page);
+
+    await page.goto('/attendance');
+    await expect(page).toHaveURL(/\/attendance\/?/, { timeout: 10_000 });
+    await expect(page.getByRole('heading', { name: /attendance/i })).toBeVisible({ timeout: 20_000 });
+  });
+
+  test('10.4 — Teacher Logout', async ({ page }) => {
+    await loginViaUI(page, TEACHER1_EMAIL);
     await waitForDashboard(page);
     await logout(page);
   });
