@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { getApiErrorMessage } from '@/lib/utils/get-error-message';
 import { useNotificationStore } from '@/lib/stores/notification-store';
 import {
   getNotifications,
@@ -32,7 +33,7 @@ export function useNotifications(params?: NotificationListParams) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   return useQuery({
-    queryKey: notificationKeys.list(schoolId!, params),
+    queryKey: notificationKeys.list(schoolId ?? '', params),
     queryFn: () => getNotifications(schoolId!, params),
     enabled: !!schoolId,
   });
@@ -43,7 +44,7 @@ export function useUnreadCount() {
   const setUnreadCount = useNotificationStore((s) => s.setUnreadCount);
 
   return useQuery({
-    queryKey: notificationKeys.unreadCount(schoolId!),
+    queryKey: notificationKeys.unreadCount(schoolId ?? ''),
     queryFn: async () => {
       const response = await getUnreadCount(schoolId!);
       setUnreadCount(response.data.count);
@@ -70,8 +71,8 @@ export function useMarkAsRead() {
       decrementUnread();
       queryClient.invalidateQueries({ queryKey: notificationKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to mark notification as read');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to mark notification as read'));
     },
   });
 }
@@ -88,8 +89,8 @@ export function useMarkAllAsRead() {
       toast.success('All notifications marked as read');
       queryClient.invalidateQueries({ queryKey: notificationKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to mark all as read');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to mark all as read'));
     },
   });
 }

@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { getApiErrorMessage } from '@/lib/utils/get-error-message';
 import {
   getHomeworkList,
   getHomework,
@@ -42,7 +43,7 @@ export function useHomeworkList(params?: HomeworkListParams) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   return useQuery({
-    queryKey: homeworkKeys.list(schoolId!, params),
+    queryKey: homeworkKeys.list(schoolId ?? '', params),
     queryFn: () => getHomeworkList(schoolId!, params),
     enabled: !!schoolId,
   });
@@ -52,7 +53,7 @@ export function useHomework(homeworkId: string) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   return useQuery({
-    queryKey: homeworkKeys.detail(schoolId!, homeworkId),
+    queryKey: homeworkKeys.detail(schoolId ?? '', homeworkId),
     queryFn: () => getHomework(schoolId!, homeworkId),
     enabled: !!schoolId && !!homeworkId,
     select: (response) => response.data,
@@ -63,7 +64,7 @@ export function useSubmissions(homeworkId: string, params?: PaginatedParams) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   return useQuery({
-    queryKey: homeworkKeys.submissions(schoolId!, homeworkId, params),
+    queryKey: homeworkKeys.submissions(schoolId ?? '', homeworkId, params),
     queryFn: () => getSubmissions(schoolId!, homeworkId, params),
     enabled: !!schoolId && !!homeworkId,
   });
@@ -89,8 +90,8 @@ export function useCreateHomework() {
       toast.success('Homework created successfully');
       queryClient.invalidateQueries({ queryKey: homeworkKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to create homework');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to create homework'));
     },
   });
 }
@@ -111,8 +112,8 @@ export function useUpdateHomework() {
       toast.success('Homework updated successfully');
       queryClient.invalidateQueries({ queryKey: homeworkKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to update homework');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to update homework'));
     },
   });
 }
@@ -127,8 +128,8 @@ export function useDeleteHomework() {
       toast.success('Homework deleted');
       queryClient.invalidateQueries({ queryKey: homeworkKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to delete homework');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to delete homework'));
     },
   });
 }
@@ -151,8 +152,8 @@ export function useGradeSubmission() {
       toast.success('Submission graded successfully');
       queryClient.invalidateQueries({ queryKey: homeworkKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to grade submission');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to grade submission'));
     },
   });
 }

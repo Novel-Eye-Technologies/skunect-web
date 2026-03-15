@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { getApiErrorMessage } from '@/lib/utils/get-error-message';
 import type { PaginatedParams } from '@/lib/api/types';
 import {
   getMigrationJobs,
@@ -54,8 +55,8 @@ export function useValidateMigration() {
   return useMutation({
     mutationFn: ({ file, type }: { file: File; type: string }) =>
       validateMigrationFile(schoolId!, file, type),
-    onError: () => {
-      toast.error('Validation failed. Please check the file and try again.');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Validation failed. Please check the file and try again.'));
     },
   });
 }
@@ -71,8 +72,8 @@ export function useImportMigration() {
       toast.success('Import started successfully.');
       queryClient.invalidateQueries({ queryKey: ['migration-jobs'] });
     },
-    onError: () => {
-      toast.error('Import failed. Please try again.');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Import failed. Please try again.'));
     },
   });
 }

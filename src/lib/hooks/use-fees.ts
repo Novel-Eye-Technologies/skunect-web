@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { getApiErrorMessage } from '@/lib/utils/get-error-message';
 import {
   getFeeStructures,
   createFeeStructure,
@@ -44,7 +45,7 @@ export function useFeeStructures(params?: PaginatedParams) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   return useQuery({
-    queryKey: feesKeys.structures(schoolId!, params),
+    queryKey: feesKeys.structures(schoolId ?? '', params),
     queryFn: () => getFeeStructures(schoolId!, params),
     enabled: !!schoolId,
   });
@@ -54,7 +55,7 @@ export function useInvoices(params?: InvoiceListParams) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   return useQuery({
-    queryKey: feesKeys.invoices(schoolId!, params),
+    queryKey: feesKeys.invoices(schoolId ?? '', params),
     queryFn: () => getInvoices(schoolId!, params),
     enabled: !!schoolId,
   });
@@ -64,7 +65,7 @@ export function useInvoice(invoiceId: string) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   return useQuery({
-    queryKey: feesKeys.invoice(schoolId!, invoiceId),
+    queryKey: feesKeys.invoice(schoolId ?? '', invoiceId),
     queryFn: () => getInvoice(schoolId!, invoiceId),
     enabled: !!schoolId && !!invoiceId,
     select: (response) => response.data,
@@ -86,8 +87,8 @@ export function useCreateFeeStructure() {
       toast.success('Fee structure created');
       queryClient.invalidateQueries({ queryKey: feesKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to create fee structure');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to create fee structure'));
     },
   });
 }
@@ -108,8 +109,8 @@ export function useUpdateFeeStructure() {
       toast.success('Fee structure updated');
       queryClient.invalidateQueries({ queryKey: feesKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to update fee structure');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to update fee structure'));
     },
   });
 }
@@ -125,8 +126,8 @@ export function useDeleteFeeStructure() {
       toast.success('Fee structure deleted');
       queryClient.invalidateQueries({ queryKey: feesKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to delete fee structure');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to delete fee structure'));
     },
   });
 }
@@ -142,8 +143,8 @@ export function useGenerateInvoices() {
       toast.success('Invoices generated successfully');
       queryClient.invalidateQueries({ queryKey: feesKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to generate invoices');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to generate invoices'));
     },
   });
 }
@@ -164,8 +165,8 @@ export function useRecordPayment() {
       toast.success('Payment recorded successfully');
       queryClient.invalidateQueries({ queryKey: feesKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to record payment');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to record payment'));
     },
   });
 }

@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { getApiErrorMessage } from '@/lib/utils/get-error-message';
 import {
   getBusRoutes,
   createBusRoute,
@@ -53,7 +54,7 @@ export function useBusRoutes(params?: PaginatedParams) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   return useQuery({
-    queryKey: busKeys.routes(schoolId!, params),
+    queryKey: busKeys.routes(schoolId ?? '', params),
     queryFn: () => getBusRoutes(schoolId!, params),
     enabled: !!schoolId,
   });
@@ -63,7 +64,7 @@ export function useBuses(params?: PaginatedParams) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   return useQuery({
-    queryKey: busKeys.buses(schoolId!, params),
+    queryKey: busKeys.buses(schoolId ?? '', params),
     queryFn: () => getBuses(schoolId!, params),
     enabled: !!schoolId,
   });
@@ -73,7 +74,7 @@ export function useBusEnrollments(params?: PaginatedParams) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   return useQuery({
-    queryKey: busKeys.enrollments(schoolId!, params),
+    queryKey: busKeys.enrollments(schoolId ?? '', params),
     queryFn: () => getBusEnrollments(schoolId!, params),
     enabled: !!schoolId,
   });
@@ -83,7 +84,7 @@ export function useBusTrips(params?: PaginatedParams) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   return useQuery({
-    queryKey: busKeys.trips(schoolId!, params),
+    queryKey: busKeys.trips(schoolId ?? '', params),
     queryFn: () => getBusTrips(schoolId!, params),
     enabled: !!schoolId,
   });
@@ -93,7 +94,7 @@ export function useBusTracking(studentId: string) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   return useQuery({
-    queryKey: busKeys.tracking(schoolId!, studentId),
+    queryKey: busKeys.tracking(schoolId ?? '', studentId),
     queryFn: () => getBusTracking(schoolId!, studentId),
     enabled: !!schoolId && !!studentId,
   });
@@ -114,8 +115,8 @@ export function useCreateBusRoute() {
       toast.success('Bus route created');
       queryClient.invalidateQueries({ queryKey: busKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to create bus route');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to create bus route'));
     },
   });
 }
@@ -130,8 +131,8 @@ export function useDeleteBusRoute() {
       toast.success('Bus route deleted');
       queryClient.invalidateQueries({ queryKey: busKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to delete bus route');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to delete bus route'));
     },
   });
 }
@@ -146,8 +147,8 @@ export function useCreateBus() {
       toast.success('Bus created');
       queryClient.invalidateQueries({ queryKey: busKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to create bus');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to create bus'));
     },
   });
 }
@@ -162,8 +163,8 @@ export function useDeleteBus() {
       toast.success('Bus deleted');
       queryClient.invalidateQueries({ queryKey: busKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to delete bus');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to delete bus'));
     },
   });
 }
@@ -179,8 +180,8 @@ export function useEnrollStudent() {
       toast.success('Student enrolled on bus');
       queryClient.invalidateQueries({ queryKey: busKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to enroll student');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to enroll student'));
     },
   });
 }
@@ -196,8 +197,8 @@ export function useUnenrollStudent() {
       toast.success('Student unenrolled from bus');
       queryClient.invalidateQueries({ queryKey: busKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to unenroll student');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to unenroll student'));
     },
   });
 }
@@ -213,8 +214,8 @@ export function useCreateBusTrip() {
       toast.success('Bus trip created');
       queryClient.invalidateQueries({ queryKey: busKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to create bus trip');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to create bus trip'));
     },
   });
 }
@@ -237,8 +238,8 @@ export function useUpdateTripStudentStatus() {
       toast.success('Student trip status updated');
       queryClient.invalidateQueries({ queryKey: busKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to update student trip status');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to update student trip status'));
     },
   });
 }

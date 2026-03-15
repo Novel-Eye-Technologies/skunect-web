@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { getApiErrorMessage } from '@/lib/utils/get-error-message';
 import {
   getNotificationPreferences,
   updateNotificationPreference,
@@ -52,8 +53,8 @@ export function useUpdateNotificationPreference() {
       toast.success('Preference updated');
       queryClient.invalidateQueries({ queryKey: prefKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to update preference');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to update preference'));
     },
   });
 }

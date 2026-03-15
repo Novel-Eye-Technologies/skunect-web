@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { getApiErrorMessage } from '@/lib/utils/get-error-message';
 import { getEvents, getCalendarEvents, createEvent, updateEvent, deleteEvent } from '@/lib/api/events';
 import type { CreateEventRequest, UpdateEventRequest } from '@/lib/types/event';
 
@@ -16,7 +17,7 @@ export const eventKeys = {
 export function useEvents() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
   return useQuery({
-    queryKey: eventKeys.list(schoolId!),
+    queryKey: eventKeys.list(schoolId ?? ''),
     queryFn: () => getEvents(schoolId!),
     enabled: !!schoolId,
   });
@@ -25,7 +26,7 @@ export function useEvents() {
 export function useCalendarEvents(from: string, to: string) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
   return useQuery({
-    queryKey: eventKeys.calendar(schoolId!, from, to),
+    queryKey: eventKeys.calendar(schoolId ?? '', from, to),
     queryFn: () => getCalendarEvents(schoolId!, from, to),
     enabled: !!schoolId && !!from && !!to,
   });
@@ -40,7 +41,7 @@ export function useCreateEvent() {
       queryClient.invalidateQueries({ queryKey: eventKeys.all });
       toast.success('Event created');
     },
-    onError: () => toast.error('Failed to create event'),
+    onError: (error) => toast.error(getApiErrorMessage(error, 'Failed to create event')),
   });
 }
 
@@ -54,7 +55,7 @@ export function useUpdateEvent() {
       queryClient.invalidateQueries({ queryKey: eventKeys.all });
       toast.success('Event updated');
     },
-    onError: () => toast.error('Failed to update event'),
+    onError: (error) => toast.error(getApiErrorMessage(error, 'Failed to update event')),
   });
 }
 
@@ -67,6 +68,6 @@ export function useDeleteEvent() {
       queryClient.invalidateQueries({ queryKey: eventKeys.all });
       toast.success('Event deleted');
     },
-    onError: () => toast.error('Failed to delete event'),
+    onError: (error) => toast.error(getApiErrorMessage(error, 'Failed to delete event')),
   });
 }

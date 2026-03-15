@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { getApiErrorMessage } from '@/lib/utils/get-error-message';
 import {
   getAttendanceRecords,
   submitBulkAttendance,
@@ -32,7 +33,7 @@ export function useAttendanceRecords(params?: AttendanceListParams) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   return useQuery({
-    queryKey: attendanceKeys.records(schoolId!, params),
+    queryKey: attendanceKeys.records(schoolId ?? '', params),
     queryFn: () => getAttendanceRecords(schoolId!, params),
     enabled: !!schoolId,
   });
@@ -42,7 +43,7 @@ export function useAttendanceSummary(params?: AttendanceSummaryParams) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   return useQuery({
-    queryKey: attendanceKeys.summary(schoolId!, params),
+    queryKey: attendanceKeys.summary(schoolId ?? '', params),
     queryFn: () => getAttendanceSummary(schoolId!, params!),
     enabled: !!schoolId && !!params?.classId && !!params?.startDate && !!params?.endDate,
   });
@@ -63,8 +64,8 @@ export function useSubmitBulkAttendance() {
       queryClient.invalidateQueries({ queryKey: attendanceKeys.all });
       toast.success('Attendance submitted successfully');
     },
-    onError: () => {
-      toast.error('Failed to submit attendance');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to submit attendance'));
     },
   });
 }

@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { getApiErrorMessage } from '@/lib/utils/get-error-message';
 import {
   getConversations,
   getMessages,
@@ -35,7 +36,7 @@ export function useConversations(params?: PaginatedParams) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   return useQuery({
-    queryKey: messagingKeys.conversations(schoolId!, params),
+    queryKey: messagingKeys.conversations(schoolId ?? '', params),
     queryFn: () => getConversations(schoolId!, params),
     enabled: !!schoolId,
   });
@@ -45,7 +46,7 @@ export function useMessages(conversationId: string, params?: PaginatedParams) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   return useQuery({
-    queryKey: messagingKeys.messages(schoolId!, conversationId, params),
+    queryKey: messagingKeys.messages(schoolId ?? '', conversationId, params),
     queryFn: () => getMessages(schoolId!, conversationId, params),
     enabled: !!schoolId && !!conversationId,
   });
@@ -66,8 +67,8 @@ export function useCreateConversation() {
       toast.success('Conversation started');
       queryClient.invalidateQueries({ queryKey: messagingKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to start conversation');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to start conversation'));
     },
   });
 }
@@ -76,12 +77,9 @@ export function useUnreadMessageCount() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   return useQuery({
-    queryKey: [...messagingKeys.all, 'unread-count', schoolId],
-    queryFn: async () => {
-      const res = await getConversations(schoolId!, { page: 0, size: 100 });
-      const conversations = res.data ?? [];
-      return conversations.reduce((sum, c) => sum + (c.unreadCount ?? 0), 0);
-    },
+    queryKey: [...messagingKeys.all, 'unread-count', schoolId ?? ''],
+    queryFn: () => getConversations(schoolId!, { page: 0, size: 100 }),
+    select: (res) => (res.data ?? []).reduce((sum, c) => sum + (c.unreadCount ?? 0), 0),
     enabled: !!schoolId,
     refetchInterval: 30_000,
   });
@@ -102,8 +100,8 @@ export function useSendMessage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: messagingKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to send message');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to send message'));
     },
   });
 }

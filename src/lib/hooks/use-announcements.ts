@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { getApiErrorMessage } from '@/lib/utils/get-error-message';
 import {
   getAnnouncements,
   getAnnouncement,
@@ -38,7 +39,7 @@ export function useAnnouncements(params?: AnnouncementListParams) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   return useQuery({
-    queryKey: announcementKeys.list(schoolId!, params),
+    queryKey: announcementKeys.list(schoolId ?? '', params),
     queryFn: () => getAnnouncements(schoolId!, params),
     enabled: !!schoolId,
   });
@@ -48,7 +49,7 @@ export function useAnnouncement(announcementId: string) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   return useQuery({
-    queryKey: announcementKeys.detail(schoolId!, announcementId),
+    queryKey: announcementKeys.detail(schoolId ?? '', announcementId),
     queryFn: () => getAnnouncement(schoolId!, announcementId),
     enabled: !!schoolId && !!announcementId,
     select: (response) => response.data,
@@ -70,8 +71,8 @@ export function useCreateAnnouncement() {
       toast.success('Announcement created successfully');
       queryClient.invalidateQueries({ queryKey: announcementKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to create announcement');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to create announcement'));
     },
   });
 }
@@ -92,8 +93,8 @@ export function useUpdateAnnouncement() {
       toast.success('Announcement updated successfully');
       queryClient.invalidateQueries({ queryKey: announcementKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to update announcement');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to update announcement'));
     },
   });
 }
@@ -109,8 +110,8 @@ export function useDeleteAnnouncement() {
       toast.success('Announcement deleted');
       queryClient.invalidateQueries({ queryKey: announcementKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to delete announcement');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to delete announcement'));
     },
   });
 }
@@ -126,8 +127,8 @@ export function usePublishAnnouncement() {
       toast.success('Announcement published');
       queryClient.invalidateQueries({ queryKey: announcementKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to publish announcement');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to publish announcement'));
     },
   });
 }
@@ -143,8 +144,8 @@ export function useUnpublishAnnouncement() {
       toast.success('Announcement unpublished');
       queryClient.invalidateQueries({ queryKey: announcementKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to unpublish announcement');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to unpublish announcement'));
     },
   });
 }
