@@ -111,8 +111,9 @@ export function SchoolSubscriptionClient() {
       }
 
       if (payRes.status === 'fulfilled' && payRes.value.status === 'SUCCESS') {
-        const payData = payRes.value.data;
-        // Handle both paginated ({ content: [] }) and plain array responses
+        // Backend returns paginated response ({ content: [] }), but API type says array
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const payData = payRes.value.data as any;
         setPayments(Array.isArray(payData) ? payData : payData?.content ?? []);
       }
     } catch {
