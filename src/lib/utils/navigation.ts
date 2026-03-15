@@ -26,6 +26,9 @@ import {
   CalendarDays,
   ScrollText,
   Bus,
+  CreditCard,
+  Tag,
+  Layers,
 } from 'lucide-react';
 
 export type NavItem = {
@@ -54,6 +57,30 @@ export const navigationConfig: NavItem[] = [
     title: 'Super Admins',
     href: '/system/super-admins',
     icon: Shield,
+    roles: ['SUPER_ADMIN'],
+  },
+  {
+    title: 'Subscription Plans',
+    href: '/system/subscription-plans',
+    icon: CreditCard,
+    roles: ['SUPER_ADMIN'],
+  },
+  {
+    title: 'Subscription Dashboard',
+    href: '/system/subscription-dashboard',
+    icon: BarChart3,
+    roles: ['SUPER_ADMIN'],
+  },
+  {
+    title: 'Bulk Subscriptions',
+    href: '/system/subscription-bulk',
+    icon: Layers,
+    roles: ['SUPER_ADMIN'],
+  },
+  {
+    title: 'Discounts',
+    href: '/system/subscription-discounts',
+    icon: Tag,
     roles: ['SUPER_ADMIN'],
   },
   {
@@ -168,6 +195,12 @@ export const navigationConfig: NavItem[] = [
     href: '/fees',
     icon: DollarSign,
     roles: ['ADMIN', 'PARENT'],
+  },
+  {
+    title: 'Subscription',
+    href: '/subscription',
+    icon: CreditCard,
+    roles: ['ADMIN'],
   },
   {
     title: 'Analytics',
