@@ -16,10 +16,12 @@ export class LandingPage {
     this.heroDescription = page.getByText(
       /bridges the gap between schools and parents/i
     );
-    this.getStartedButton = page.getByRole('link', {
-      name: /Get Started/i,
-    });
-    this.signInButton = page.getByRole('link', { name: /Sign In/i });
+    this.getStartedButton = page
+      .getByRole('link', { name: 'Get Started', exact: true })
+      .first();
+    this.signInButton = page
+      .getByRole('link', { name: /Sign In/i })
+      .first();
     this.featuresSection = page.getByRole('heading', {
       name: /Everything Your School Needs/i,
     });
