@@ -24,150 +24,150 @@ async function waitForPageLoad(page: import('@playwright/test').Page) {
   await page.waitForTimeout(1000);
 }
 
-// ─── Admin Screenshots ───────────────────────────────────────────────
+// ─── Admin Screenshots (Skunect Academy) ────────────────────────────
 
 test.describe('Admin screenshots', () => {
-  test('dashboard', async ({ adminPage: page }) => {
+  test('dashboard', async ({ adminSkunectPage: page }) => {
     await page.goto('/dashboard');
     await waitForPageLoad(page);
     await page.screenshot(screenshotOpts('admin-dashboard'));
   });
 
-  test('students list', async ({ adminPage: page }) => {
+  test('students list', async ({ adminSkunectPage: page }) => {
     await page.goto('/students');
     await waitForPageLoad(page);
     await page.screenshot(screenshotOpts('admin-students'));
   });
 
-  test('attendance', async ({ adminPage: page }) => {
+  test('attendance', async ({ adminSkunectPage: page }) => {
     await page.goto('/attendance');
     await waitForPageLoad(page);
     await page.screenshot(screenshotOpts('admin-attendance'));
   });
 
-  test('homework', async ({ adminPage: page }) => {
+  test('homework', async ({ adminSkunectPage: page }) => {
     await page.goto('/homework');
     await waitForPageLoad(page);
     await page.screenshot(screenshotOpts('admin-homework'));
   });
 
-  test('fees', async ({ adminPage: page }) => {
+  test('fees', async ({ adminSkunectPage: page }) => {
     await page.goto('/fees');
     await waitForPageLoad(page);
     await page.screenshot(screenshotOpts('admin-fees'));
   });
 
-  test('messages', async ({ adminPage: page }) => {
-    await page.goto('/messages');
+  test('messages', async ({ adminSkunectPage: page }) => {
+    await page.goto('/communication/messages');
     await waitForPageLoad(page);
     await page.screenshot(screenshotOpts('admin-messages'));
   });
 
-  test('safety alerts', async ({ adminPage: page }) => {
+  test('safety alerts', async ({ adminSkunectPage: page }) => {
     await page.goto('/safety');
     await waitForPageLoad(page);
     await page.screenshot(screenshotOpts('admin-safety'));
   });
 
-  test('bus management', async ({ adminPage: page }) => {
+  test('bus management', async ({ adminSkunectPage: page }) => {
     await page.goto('/bus');
     await waitForPageLoad(page);
     await page.screenshot(screenshotOpts('admin-bus'));
   });
 
-  test('school settings', async ({ adminPage: page }) => {
+  test('school settings', async ({ adminSkunectPage: page }) => {
     await page.goto('/school-settings');
     await waitForPageLoad(page);
     await page.screenshot(screenshotOpts('admin-settings'));
   });
 
-  test('users management', async ({ adminPage: page }) => {
+  test('users management', async ({ adminSkunectPage: page }) => {
     await page.goto('/users');
     await waitForPageLoad(page);
     await page.screenshot(screenshotOpts('admin-users'));
   });
 
-  test('analytics', async ({ adminPage: page }) => {
+  test('analytics', async ({ adminSkunectPage: page }) => {
     await page.goto('/analytics');
     await waitForPageLoad(page);
     await page.screenshot(screenshotOpts('admin-analytics'));
   });
 });
 
-// ─── Teacher Screenshots ─────────────────────────────────────────────
+// ─── Teacher Screenshots (Skunect Academy) ──────────────────────────
 
 test.describe('Teacher screenshots', () => {
-  test('dashboard', async ({ teacherPage: page }) => {
+  test('dashboard', async ({ teacherSkunectPage: page }) => {
     await page.goto('/dashboard');
     await waitForPageLoad(page);
     await page.screenshot(screenshotOpts('teacher-dashboard'));
   });
 
-  test('my classes', async ({ teacherPage: page }) => {
+  test('my classes', async ({ teacherSkunectPage: page }) => {
     await page.goto('/my-classes');
     await waitForPageLoad(page);
     await page.screenshot(screenshotOpts('teacher-classes'));
   });
 
-  test('attendance', async ({ teacherPage: page }) => {
+  test('attendance', async ({ teacherSkunectPage: page }) => {
     await page.goto('/attendance');
     await waitForPageLoad(page);
     await page.screenshot(screenshotOpts('teacher-attendance'));
   });
 
-  test('homework', async ({ teacherPage: page }) => {
+  test('homework', async ({ teacherSkunectPage: page }) => {
     await page.goto('/homework');
     await waitForPageLoad(page);
     await page.screenshot(screenshotOpts('teacher-homework'));
   });
 
-  test('messages', async ({ teacherPage: page }) => {
-    await page.goto('/messages');
+  test('messages', async ({ teacherSkunectPage: page }) => {
+    await page.goto('/communication/messages');
     await waitForPageLoad(page);
     await page.screenshot(screenshotOpts('teacher-messages'));
   });
 
-  test('welfare', async ({ teacherPage: page }) => {
+  test('welfare', async ({ teacherSkunectPage: page }) => {
     await page.goto('/welfare');
     await waitForPageLoad(page);
     await page.screenshot(screenshotOpts('teacher-welfare'));
   });
 });
 
-// ─── Parent Screenshots ──────────────────────────────────────────────
+// ─── Parent Screenshots (Skunect Academy) ───────────────────────────
 
 test.describe('Parent screenshots', () => {
-  test('dashboard', async ({ parentPage: page }) => {
+  test('dashboard', async ({ parentSkunectPage: page }) => {
     await page.goto('/dashboard');
     await waitForPageLoad(page);
     await page.screenshot(screenshotOpts('parent-dashboard'));
   });
 
-  test('academics / homework', async ({ parentPage: page }) => {
+  test('academics / homework', async ({ parentSkunectPage: page }) => {
     await page.goto('/homework');
     await waitForPageLoad(page);
     await page.screenshot(screenshotOpts('parent-homework'));
   });
 
-  test('attendance', async ({ parentPage: page }) => {
+  test('attendance', async ({ parentSkunectPage: page }) => {
     await page.goto('/attendance');
     await waitForPageLoad(page);
     await page.screenshot(screenshotOpts('parent-attendance'));
   });
 
-  test('fees', async ({ parentPage: page }) => {
+  test('fees', async ({ parentSkunectPage: page }) => {
     await page.goto('/fees');
     await waitForPageLoad(page);
     await page.screenshot(screenshotOpts('parent-fees'));
   });
 
-  test('messages', async ({ parentPage: page }) => {
-    await page.goto('/messages');
+  test('messages', async ({ parentSkunectPage: page }) => {
+    await page.goto('/communication/messages');
     await waitForPageLoad(page);
     await page.screenshot(screenshotOpts('parent-messages'));
   });
 
-  test('safety / pickup', async ({ parentPage: page }) => {
+  test('safety / pickup', async ({ parentSkunectPage: page }) => {
     await page.goto('/safety/pickup');
     await waitForPageLoad(page);
     await page.screenshot(screenshotOpts('parent-pickup'));

@@ -32,6 +32,12 @@ type AuthFixtures = {
   superAdminPage: Page;
   /** Pre-authenticated page for TEACHER+PARENT dual role */
   teacherParentPage: Page;
+  /** Pre-authenticated page for ADMIN @ Skunect Academy (screenshots) */
+  adminSkunectPage: Page;
+  /** Pre-authenticated page for TEACHER @ Skunect Academy (screenshots) */
+  teacherSkunectPage: Page;
+  /** Pre-authenticated page for PARENT @ Skunect Academy (screenshots) */
+  parentSkunectPage: Page;
 };
 
 export const test = base.extend<AuthFixtures>({
@@ -110,6 +116,33 @@ export const test = base.extend<AuthFixtures>({
   teacherParentPage: async ({ browser }, use) => {
     const context = await browser.newContext({
       storageState: TEST_ACCOUNTS.teacherParent.storageStatePath,
+    });
+    const page = await context.newPage();
+    await use(page);
+    await context.close();
+  },
+
+  adminSkunectPage: async ({ browser }, use) => {
+    const context = await browser.newContext({
+      storageState: TEST_ACCOUNTS.adminSkunect.storageStatePath,
+    });
+    const page = await context.newPage();
+    await use(page);
+    await context.close();
+  },
+
+  teacherSkunectPage: async ({ browser }, use) => {
+    const context = await browser.newContext({
+      storageState: TEST_ACCOUNTS.teacherSkunect.storageStatePath,
+    });
+    const page = await context.newPage();
+    await use(page);
+    await context.close();
+  },
+
+  parentSkunectPage: async ({ browser }, use) => {
+    const context = await browser.newContext({
+      storageState: TEST_ACCOUNTS.parentSkunect.storageStatePath,
     });
     const page = await context.newPage();
     await use(page);
