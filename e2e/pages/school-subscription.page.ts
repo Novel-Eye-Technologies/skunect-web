@@ -69,7 +69,7 @@ export class SchoolSubscriptionPage {
 
   // --- Create Subscription Dialog ---
   async openCreateDialog() {
-    await this.createSubscriptionButton.click();
+    await this.createSubscriptionButton.first().click();
     await expect(this.dialog).toBeVisible();
   }
 
