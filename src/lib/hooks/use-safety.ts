@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { getApiErrorMessage } from '@/lib/utils/get-error-message';
 import {
   getEmergencyAlerts,
   createEmergencyAlert,
@@ -44,7 +45,7 @@ export function useEmergencyAlerts(params?: PaginatedParams) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   return useQuery({
-    queryKey: safetyKeys.alerts(schoolId!, params),
+    queryKey: safetyKeys.alerts(schoolId ?? '', params),
     queryFn: () => getEmergencyAlerts(schoolId!, params),
     enabled: !!schoolId,
   });
@@ -54,7 +55,7 @@ export function usePickupLogs(params?: PickupLogListParams) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   return useQuery({
-    queryKey: safetyKeys.pickupLogs(schoolId!, params),
+    queryKey: safetyKeys.pickupLogs(schoolId ?? '', params),
     queryFn: () => getPickupLogs(schoolId!, params),
     enabled: !!schoolId,
   });
@@ -75,8 +76,8 @@ export function useCreateEmergencyAlert() {
       toast.success('Emergency alert created');
       queryClient.invalidateQueries({ queryKey: safetyKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to create emergency alert');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to create emergency alert'));
     },
   });
 }
@@ -92,8 +93,8 @@ export function useResolveEmergencyAlert() {
       toast.success('Alert resolved');
       queryClient.invalidateQueries({ queryKey: safetyKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to resolve alert');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to resolve alert'));
     },
   });
 }
@@ -109,8 +110,8 @@ export function useCreatePickupLog() {
       toast.success('Pickup log created');
       queryClient.invalidateQueries({ queryKey: safetyKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to create pickup log');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to create pickup log'));
     },
   });
 }
@@ -126,8 +127,8 @@ export function useVerifyPickupLog() {
       toast.success('Pickup verified');
       queryClient.invalidateQueries({ queryKey: safetyKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to verify pickup');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to verify pickup'));
     },
   });
 }
@@ -140,7 +141,7 @@ export function usePickupAuthorizations(studentId?: string) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   return useQuery({
-    queryKey: safetyKeys.pickupAuthorizations(schoolId!, studentId),
+    queryKey: safetyKeys.pickupAuthorizations(schoolId ?? '', studentId),
     queryFn: () =>
       getPickupAuthorizations(schoolId!, {
         studentId: studentId || undefined,
@@ -160,8 +161,8 @@ export function useCreatePickupAuthorization() {
       toast.success('Pickup authorization created');
       queryClient.invalidateQueries({ queryKey: safetyKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to create pickup authorization');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to create pickup authorization'));
     },
   });
 }
@@ -177,8 +178,8 @@ export function useRevokePickupAuthorization() {
       toast.success('Pickup authorization revoked');
       queryClient.invalidateQueries({ queryKey: safetyKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to revoke pickup authorization');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to revoke pickup authorization'));
     },
   });
 }

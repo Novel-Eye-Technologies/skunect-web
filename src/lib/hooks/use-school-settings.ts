@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { getApiErrorMessage } from '@/lib/utils/get-error-message';
 import {
   getSchoolSettings,
   updateSchoolSettings,
@@ -83,7 +84,7 @@ export function useSchoolSettings() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   return useQuery({
-    queryKey: schoolSettingsKeys.settings(schoolId!),
+    queryKey: schoolSettingsKeys.settings(schoolId ?? ''),
     queryFn: () => getSchoolSettings(schoolId!),
     enabled: !!schoolId,
     select: (response) => response.data,
@@ -99,12 +100,12 @@ export function useUpdateSchoolSettings() {
       updateSchoolSettings(schoolId!, data),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: schoolSettingsKeys.settings(schoolId!),
+        queryKey: schoolSettingsKeys.settings(schoolId ?? ''),
       });
       toast.success('School settings updated successfully');
     },
-    onError: () => {
-      toast.error('Failed to update school settings');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to update school settings'));
     },
   });
 }
@@ -117,7 +118,7 @@ export function useSessions() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   return useQuery({
-    queryKey: schoolSettingsKeys.sessions(schoolId!),
+    queryKey: schoolSettingsKeys.sessions(schoolId ?? ''),
     queryFn: () => getSessions(schoolId!),
     enabled: !!schoolId,
     select: (response) => response.data,
@@ -133,12 +134,12 @@ export function useCreateSession() {
       createSession(schoolId!, data),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: schoolSettingsKeys.sessions(schoolId!),
+        queryKey: schoolSettingsKeys.sessions(schoolId ?? ''),
       });
       toast.success('Academic session created successfully');
     },
-    onError: () => {
-      toast.error('Failed to create academic session');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to create academic session'));
     },
   });
 }
@@ -157,12 +158,12 @@ export function useUpdateSession() {
     }) => updateSession(schoolId!, sessionId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: schoolSettingsKeys.sessions(schoolId!),
+        queryKey: schoolSettingsKeys.sessions(schoolId ?? ''),
       });
       toast.success('Academic session updated successfully');
     },
-    onError: () => {
-      toast.error('Failed to update academic session');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to update academic session'));
     },
   });
 }
@@ -175,12 +176,12 @@ export function useDeleteSession() {
     mutationFn: (sessionId: string) => deleteSession(schoolId!, sessionId),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: schoolSettingsKeys.sessions(schoolId!),
+        queryKey: schoolSettingsKeys.sessions(schoolId ?? ''),
       });
       toast.success('Academic session deleted successfully');
     },
-    onError: () => {
-      toast.error('Failed to delete academic session');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to delete academic session'));
     },
   });
 }
@@ -193,15 +194,15 @@ export function useSetCurrentSession() {
     mutationFn: (sessionId: string) => setCurrentSession(schoolId!, sessionId),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: schoolSettingsKeys.sessions(schoolId!),
+        queryKey: schoolSettingsKeys.sessions(schoolId ?? ''),
       });
       queryClient.invalidateQueries({
-        queryKey: schoolSettingsKeys.settings(schoolId!),
+        queryKey: schoolSettingsKeys.settings(schoolId ?? ''),
       });
       toast.success('Current session updated');
     },
-    onError: () => {
-      toast.error('Failed to set current session');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to set current session'));
     },
   });
 }
@@ -214,7 +215,7 @@ export function useTerms(sessionId: string) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   return useQuery({
-    queryKey: schoolSettingsKeys.terms(schoolId!, sessionId),
+    queryKey: schoolSettingsKeys.terms(schoolId ?? '', sessionId),
     queryFn: () => getTerms(schoolId!, sessionId),
     enabled: !!schoolId && !!sessionId,
     select: (response) => response.data,
@@ -229,12 +230,12 @@ export function useCreateTerm() {
     mutationFn: (data: CreateTermRequest) => createTerm(schoolId!, data),
     onSuccess: (_response, variables) => {
       queryClient.invalidateQueries({
-        queryKey: schoolSettingsKeys.terms(schoolId!, variables.sessionId),
+        queryKey: schoolSettingsKeys.terms(schoolId ?? '', variables.sessionId),
       });
       toast.success('Term created successfully');
     },
-    onError: () => {
-      toast.error('Failed to create term');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to create term'));
     },
   });
 }
@@ -254,14 +255,14 @@ export function useUpdateTerm() {
     onSuccess: (_response, variables) => {
       queryClient.invalidateQueries({
         queryKey: schoolSettingsKeys.terms(
-          schoolId!,
+          schoolId ?? '',
           variables.data.sessionId,
         ),
       });
       toast.success('Term updated successfully');
     },
-    onError: () => {
-      toast.error('Failed to update term');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to update term'));
     },
   });
 }
@@ -279,12 +280,12 @@ export function useDeleteTerm() {
     }) => deleteTerm(schoolId!, termId),
     onSuccess: (_response, variables) => {
       queryClient.invalidateQueries({
-        queryKey: schoolSettingsKeys.terms(schoolId!, variables.sessionId),
+        queryKey: schoolSettingsKeys.terms(schoolId ?? '', variables.sessionId),
       });
       toast.success('Term deleted successfully');
     },
-    onError: () => {
-      toast.error('Failed to delete term');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to delete term'));
     },
   });
 }
@@ -302,15 +303,15 @@ export function useSetCurrentTerm() {
     }) => setCurrentTerm(schoolId!, termId),
     onSuccess: (_response, variables) => {
       queryClient.invalidateQueries({
-        queryKey: schoolSettingsKeys.terms(schoolId!, variables.sessionId),
+        queryKey: schoolSettingsKeys.terms(schoolId ?? '', variables.sessionId),
       });
       queryClient.invalidateQueries({
-        queryKey: schoolSettingsKeys.settings(schoolId!),
+        queryKey: schoolSettingsKeys.settings(schoolId ?? ''),
       });
       toast.success('Current term updated');
     },
-    onError: () => {
-      toast.error('Failed to set current term');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to set current term'));
     },
   });
 }
@@ -328,15 +329,15 @@ export function useCloseTerm() {
     }) => closeTerm(schoolId!, termId),
     onSuccess: (_response, variables) => {
       queryClient.invalidateQueries({
-        queryKey: schoolSettingsKeys.terms(schoolId!, variables.sessionId),
+        queryKey: schoolSettingsKeys.terms(schoolId ?? '', variables.sessionId),
       });
       queryClient.invalidateQueries({
-        queryKey: schoolSettingsKeys.settings(schoolId!),
+        queryKey: schoolSettingsKeys.settings(schoolId ?? ''),
       });
       toast.success('Term closed successfully');
     },
-    onError: () => {
-      toast.error('Failed to close term');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to close term'));
     },
   });
 }
@@ -349,7 +350,7 @@ export function useClasses() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   return useQuery({
-    queryKey: schoolSettingsKeys.classes(schoolId!),
+    queryKey: schoolSettingsKeys.classes(schoolId ?? ''),
     queryFn: () => getClasses(schoolId!),
     enabled: !!schoolId,
     select: (response) => response.data,
@@ -364,12 +365,12 @@ export function useCreateClass() {
     mutationFn: (data: CreateClassRequest) => createClass(schoolId!, data),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: schoolSettingsKeys.classes(schoolId!),
+        queryKey: schoolSettingsKeys.classes(schoolId ?? ''),
       });
       toast.success('Class created successfully');
     },
-    onError: () => {
-      toast.error('Failed to create class');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to create class'));
     },
   });
 }
@@ -388,12 +389,12 @@ export function useUpdateClass() {
     }) => updateClass(schoolId!, classId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: schoolSettingsKeys.classes(schoolId!),
+        queryKey: schoolSettingsKeys.classes(schoolId ?? ''),
       });
       toast.success('Class updated successfully');
     },
-    onError: () => {
-      toast.error('Failed to update class');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to update class'));
     },
   });
 }
@@ -406,12 +407,12 @@ export function useDeleteClass() {
     mutationFn: (classId: string) => deleteClass(schoolId!, classId),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: schoolSettingsKeys.classes(schoolId!),
+        queryKey: schoolSettingsKeys.classes(schoolId ?? ''),
       });
       toast.success('Class deleted successfully');
     },
-    onError: () => {
-      toast.error('Failed to delete class');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to delete class'));
     },
   });
 }
@@ -424,7 +425,7 @@ export function useSubjects() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   return useQuery({
-    queryKey: schoolSettingsKeys.subjects(schoolId!),
+    queryKey: schoolSettingsKeys.subjects(schoolId ?? ''),
     queryFn: () => getSubjects(schoolId!),
     enabled: !!schoolId,
     select: (response) => response.data,
@@ -440,12 +441,12 @@ export function useCreateSubject() {
       createSubject(schoolId!, data),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: schoolSettingsKeys.subjects(schoolId!),
+        queryKey: schoolSettingsKeys.subjects(schoolId ?? ''),
       });
       toast.success('Subject created successfully');
     },
-    onError: () => {
-      toast.error('Failed to create subject');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to create subject'));
     },
   });
 }
@@ -464,12 +465,12 @@ export function useUpdateSubject() {
     }) => updateSubject(schoolId!, subjectId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: schoolSettingsKeys.subjects(schoolId!),
+        queryKey: schoolSettingsKeys.subjects(schoolId ?? ''),
       });
       toast.success('Subject updated successfully');
     },
-    onError: () => {
-      toast.error('Failed to update subject');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to update subject'));
     },
   });
 }
@@ -482,12 +483,12 @@ export function useDeleteSubject() {
     mutationFn: (subjectId: string) => deleteSubject(schoolId!, subjectId),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: schoolSettingsKeys.subjects(schoolId!),
+        queryKey: schoolSettingsKeys.subjects(schoolId ?? ''),
       });
       toast.success('Subject deleted successfully');
     },
-    onError: () => {
-      toast.error('Failed to delete subject');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to delete subject'));
     },
   });
 }
@@ -500,7 +501,7 @@ export function useClassSubjects(classId: string) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   return useQuery({
-    queryKey: schoolSettingsKeys.classSubjects(schoolId!, classId),
+    queryKey: schoolSettingsKeys.classSubjects(schoolId ?? '', classId),
     queryFn: () => getClassSubjects(schoolId!, classId),
     enabled: !!schoolId && !!classId,
     select: (response) => response.data,
@@ -521,12 +522,12 @@ export function useAssignSubjectsToClass() {
     }) => assignSubjectsToClass(schoolId!, classId, data),
     onSuccess: (_response, variables) => {
       queryClient.invalidateQueries({
-        queryKey: schoolSettingsKeys.classSubjects(schoolId!, variables.classId),
+        queryKey: schoolSettingsKeys.classSubjects(schoolId ?? '', variables.classId),
       });
       toast.success('Subjects assigned to class');
     },
-    onError: () => {
-      toast.error('Failed to assign subjects');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to assign subjects'));
     },
   });
 }
@@ -545,12 +546,12 @@ export function useRemoveSubjectFromClass() {
     }) => removeSubjectFromClass(schoolId!, classId, subjectId),
     onSuccess: (_response, variables) => {
       queryClient.invalidateQueries({
-        queryKey: schoolSettingsKeys.classSubjects(schoolId!, variables.classId),
+        queryKey: schoolSettingsKeys.classSubjects(schoolId ?? '', variables.classId),
       });
       toast.success('Subject removed from class');
     },
-    onError: () => {
-      toast.error('Failed to remove subject');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to remove subject'));
     },
   });
 }
@@ -571,12 +572,12 @@ export function useAssignTeacherToSubject() {
     }) => assignTeacherToSubject(schoolId!, classId, subjectId, data),
     onSuccess: (_response, variables) => {
       queryClient.invalidateQueries({
-        queryKey: schoolSettingsKeys.classSubjects(schoolId!, variables.classId),
+        queryKey: schoolSettingsKeys.classSubjects(schoolId ?? '', variables.classId),
       });
       toast.success('Teacher assigned to subject');
     },
-    onError: () => {
-      toast.error('Failed to assign teacher');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to assign teacher'));
     },
   });
 }
@@ -586,7 +587,7 @@ export function useMySubjects() {
   const currentRole = useAuthStore((s) => s.currentRole);
 
   return useQuery({
-    queryKey: schoolSettingsKeys.mySubjects(schoolId!),
+    queryKey: schoolSettingsKeys.mySubjects(schoolId ?? ''),
     queryFn: () => getMySubjects(schoolId!),
     enabled: !!schoolId && currentRole === 'TEACHER',
     select: (response) => response.data,
@@ -601,7 +602,7 @@ export function useGradingSystems() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   return useQuery({
-    queryKey: schoolSettingsKeys.gradingSystems(schoolId!),
+    queryKey: schoolSettingsKeys.gradingSystems(schoolId ?? ''),
     queryFn: () => getGradingSystems(schoolId!),
     enabled: !!schoolId,
     select: (response) => response.data,
@@ -617,12 +618,12 @@ export function useCreateGradingSystem() {
       createGradingSystem(schoolId!, data),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: schoolSettingsKeys.gradingSystems(schoolId!),
+        queryKey: schoolSettingsKeys.gradingSystems(schoolId ?? ''),
       });
       toast.success('Grading system created successfully');
     },
-    onError: () => {
-      toast.error('Failed to create grading system');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to create grading system'));
     },
   });
 }
@@ -641,12 +642,12 @@ export function useUpdateGradingSystem() {
     }) => updateGradingSystem(schoolId!, id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: schoolSettingsKeys.gradingSystems(schoolId!),
+        queryKey: schoolSettingsKeys.gradingSystems(schoolId ?? ''),
       });
       toast.success('Grading system updated successfully');
     },
-    onError: () => {
-      toast.error('Failed to update grading system');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to update grading system'));
     },
   });
 }
@@ -659,12 +660,12 @@ export function useDeleteGradingSystem() {
     mutationFn: (id: string) => deleteGradingSystem(schoolId!, id),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: schoolSettingsKeys.gradingSystems(schoolId!),
+        queryKey: schoolSettingsKeys.gradingSystems(schoolId ?? ''),
       });
       toast.success('Grading system deleted successfully');
     },
-    onError: () => {
-      toast.error('Failed to delete grading system');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to delete grading system'));
     },
   });
 }

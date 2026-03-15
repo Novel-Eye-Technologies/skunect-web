@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { getApiErrorMessage } from '@/lib/utils/get-error-message';
 import {
   getStudents,
   getParentChildren,
@@ -47,7 +48,7 @@ export function useStudents(params?: StudentListParams) {
   return useQuery({
     queryKey: role === 'PARENT'
       ? [...studentKeys.all, 'children']
-      : studentKeys.list(schoolId!, params),
+      : studentKeys.list(schoolId ?? '', params),
     queryFn: () =>
       role === 'PARENT' ? getParentChildren() : getStudents(schoolId!, params),
     enabled: !!schoolId,
@@ -58,7 +59,7 @@ export function useStudent(studentId: string) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   return useQuery({
-    queryKey: studentKeys.detail(schoolId!, studentId),
+    queryKey: studentKeys.detail(schoolId ?? '', studentId),
     queryFn: () => getStudent(schoolId!, studentId),
     enabled: !!schoolId && !!studentId,
     select: (response) => response.data,
@@ -79,8 +80,8 @@ export function useCreateStudent() {
       toast.success('Student created successfully');
       queryClient.invalidateQueries({ queryKey: studentKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to create student');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to create student'));
     },
   });
 }
@@ -101,8 +102,8 @@ export function useUpdateStudent() {
       toast.success('Student updated successfully');
       queryClient.invalidateQueries({ queryKey: studentKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to update student');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to update student'));
     },
   });
 }
@@ -117,8 +118,8 @@ export function useDeleteStudent() {
       toast.success('Student deleted');
       queryClient.invalidateQueries({ queryKey: studentKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to delete student');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to delete student'));
     },
   });
 }
@@ -143,8 +144,8 @@ export function useLinkParent() {
       toast.success('Parent linked successfully');
       queryClient.invalidateQueries({ queryKey: studentKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to link parent');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to link parent'));
     },
   });
 }
@@ -165,8 +166,8 @@ export function useUnlinkParent() {
       toast.success('Parent unlinked');
       queryClient.invalidateQueries({ queryKey: studentKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to unlink parent');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to unlink parent'));
     },
   });
 }
@@ -191,8 +192,8 @@ export function useUploadDocument() {
       toast.success('Document uploaded');
       queryClient.invalidateQueries({ queryKey: studentKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to upload document');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to upload document'));
     },
   });
 }
@@ -213,8 +214,8 @@ export function useDeleteDocument() {
       toast.success('Document deleted');
       queryClient.invalidateQueries({ queryKey: studentKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to delete document');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to delete document'));
     },
   });
 }
@@ -232,8 +233,8 @@ export function useUpdateProfile() {
       toast.success('Profile updated successfully');
       queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
     },
-    onError: () => {
-      toast.error('Failed to update profile');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to update profile'));
     },
   });
 }

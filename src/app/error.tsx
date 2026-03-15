@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { GraduationCap, RotateCw, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -11,10 +10,6 @@ interface ErrorPageProps {
 }
 
 export default function ErrorPage({ error, reset }: ErrorPageProps) {
-  useEffect(() => {
-    console.error("Application error:", error);
-  }, [error]);
-
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-4">
       <div className="flex flex-col items-center text-center max-w-md">

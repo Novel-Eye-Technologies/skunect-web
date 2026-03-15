@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { getApiErrorMessage } from '@/lib/utils/get-error-message';
 import {
   getAssessments,
   createAssessment,
@@ -46,7 +47,7 @@ export function useAssessments(params?: AssessmentListParams) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   return useQuery({
-    queryKey: academicsKeys.assessments(schoolId!, params),
+    queryKey: academicsKeys.assessments(schoolId ?? '', params),
     queryFn: () => getAssessments(schoolId!, params),
     enabled: !!schoolId,
   });
@@ -56,7 +57,7 @@ export function useAssessmentScores(assessmentId: string) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   return useQuery({
-    queryKey: academicsKeys.scores(schoolId!, assessmentId),
+    queryKey: academicsKeys.scores(schoolId ?? '', assessmentId),
     queryFn: () => getAssessmentScores(schoolId!, assessmentId),
     enabled: !!schoolId && !!assessmentId,
     select: (response) => response.data,
@@ -78,8 +79,8 @@ export function useCreateAssessment() {
       queryClient.invalidateQueries({ queryKey: academicsKeys.all });
       toast.success('Assessment created successfully');
     },
-    onError: () => {
-      toast.error('Failed to create assessment');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to create assessment'));
     },
   });
 }
@@ -100,8 +101,8 @@ export function useUpdateAssessment() {
       queryClient.invalidateQueries({ queryKey: academicsKeys.all });
       toast.success('Assessment updated successfully');
     },
-    onError: () => {
-      toast.error('Failed to update assessment');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to update assessment'));
     },
   });
 }
@@ -117,8 +118,8 @@ export function useDeleteAssessment() {
       queryClient.invalidateQueries({ queryKey: academicsKeys.all });
       toast.success('Assessment deleted successfully');
     },
-    onError: () => {
-      toast.error('Failed to delete assessment');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to delete assessment'));
     },
   });
 }
@@ -143,8 +144,8 @@ export function useSubmitBulkScores() {
       queryClient.invalidateQueries({ queryKey: academicsKeys.all });
       toast.success('Scores submitted successfully');
     },
-    onError: () => {
-      toast.error('Failed to submit scores');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to submit scores'));
     },
   });
 }
@@ -157,7 +158,7 @@ export function useReportCards(params?: ReportCardListParams) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   return useQuery({
-    queryKey: academicsKeys.reportCards(schoolId!, params),
+    queryKey: academicsKeys.reportCards(schoolId ?? '', params),
     queryFn: () => getReportCards(schoolId!, params),
     enabled: !!schoolId,
   });
@@ -174,8 +175,8 @@ export function useGenerateReportCards() {
       queryClient.invalidateQueries({ queryKey: academicsKeys.all });
       toast.success('Report cards generated successfully');
     },
-    onError: () => {
-      toast.error('Failed to generate report cards');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to generate report cards'));
     },
   });
 }
@@ -191,8 +192,8 @@ export function usePublishReportCard() {
       queryClient.invalidateQueries({ queryKey: academicsKeys.all });
       toast.success('Report card published successfully');
     },
-    onError: () => {
-      toast.error('Failed to publish report card');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to publish report card'));
     },
   });
 }
@@ -206,8 +207,8 @@ export function useDownloadReportCardPdf() {
     onSuccess: () => {
       toast.success('Report card PDF downloaded');
     },
-    onError: () => {
-      toast.error('Failed to download report card PDF');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to download report card PDF'));
     },
   });
 }

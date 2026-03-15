@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { getApiErrorMessage } from '@/lib/utils/get-error-message';
 import {
   getUsers,
   inviteUser,
@@ -31,7 +32,7 @@ export function useUsers(params?: UserListParams) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   return useQuery({
-    queryKey: userKeys.list(schoolId!, params),
+    queryKey: userKeys.list(schoolId ?? '', params),
     queryFn: () => getUsers(schoolId!, params),
     enabled: !!schoolId,
   });
@@ -51,8 +52,8 @@ export function useInviteUser() {
       toast.success('User invited successfully');
       queryClient.invalidateQueries({ queryKey: userKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to invite user');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to invite user'));
     },
   });
 }
@@ -73,8 +74,8 @@ export function useUpdateUserStatus() {
       toast.success('User status updated');
       queryClient.invalidateQueries({ queryKey: userKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to update user status');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to update user status'));
     },
   });
 }
@@ -96,8 +97,8 @@ export function useUpdateSchoolUser() {
       queryClient.invalidateQueries({ queryKey: userKeys.all });
       queryClient.invalidateQueries({ queryKey: ['teachers'] });
     },
-    onError: () => {
-      toast.error('Failed to update user');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to update user'));
     },
   });
 }
@@ -112,8 +113,8 @@ export function useRemoveUser() {
       toast.success('User removed from school');
       queryClient.invalidateQueries({ queryKey: userKeys.all });
     },
-    onError: () => {
-      toast.error('Failed to remove user');
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to remove user'));
     },
   });
 }

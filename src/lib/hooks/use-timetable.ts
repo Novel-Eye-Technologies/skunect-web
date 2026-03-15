@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { getApiErrorMessage } from '@/lib/utils/get-error-message';
 import {
   getTimetableConfig,
   saveTimetableConfig,
@@ -32,7 +33,7 @@ export const timetableKeys = {
 export function useTimetableConfig(sessionId?: string) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
   return useQuery({
-    queryKey: timetableKeys.config(schoolId!, sessionId!),
+    queryKey: timetableKeys.config(schoolId ?? '', sessionId!),
     queryFn: () => getTimetableConfig(schoolId!, sessionId!),
     enabled: !!schoolId && !!sessionId,
     select: (res) => res.data,
@@ -42,7 +43,7 @@ export function useTimetableConfig(sessionId?: string) {
 export function useTimetableSlots(sessionId?: string, classId?: string) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
   return useQuery({
-    queryKey: timetableKeys.slots(schoolId!, sessionId!, classId),
+    queryKey: timetableKeys.slots(schoolId ?? '', sessionId!, classId),
     queryFn: () => getTimetableSlots(schoolId!, sessionId!, classId),
     enabled: !!schoolId && !!sessionId,
     select: (res) => res.data,
@@ -62,7 +63,7 @@ export function useSaveTimetableConfig() {
       queryClient.invalidateQueries({ queryKey: timetableKeys.all });
       toast.success('Timetable configuration saved');
     },
-    onError: () => toast.error('Failed to save configuration'),
+    onError: (error) => toast.error(getApiErrorMessage(error, 'Failed to save configuration')),
   });
 }
 
@@ -75,7 +76,7 @@ export function useCreateTimetableSlot() {
       queryClient.invalidateQueries({ queryKey: timetableKeys.all });
       toast.success('Slot created');
     },
-    onError: () => toast.error('Failed to create slot. Check for conflicts.'),
+    onError: (error) => toast.error(getApiErrorMessage(error, 'Failed to create slot. Check for conflicts.')),
   });
 }
 
@@ -89,7 +90,7 @@ export function useUpdateTimetableSlot() {
       queryClient.invalidateQueries({ queryKey: timetableKeys.all });
       toast.success('Slot updated');
     },
-    onError: () => toast.error('Failed to update slot'),
+    onError: (error) => toast.error(getApiErrorMessage(error, 'Failed to update slot')),
   });
 }
 
@@ -102,6 +103,6 @@ export function useDeleteTimetableSlot() {
       queryClient.invalidateQueries({ queryKey: timetableKeys.all });
       toast.success('Slot deleted');
     },
-    onError: () => toast.error('Failed to delete slot'),
+    onError: (error) => toast.error(getApiErrorMessage(error, 'Failed to delete slot')),
   });
 }
