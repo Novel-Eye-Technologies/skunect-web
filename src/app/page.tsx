@@ -3,52 +3,157 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   GraduationCap,
-  ClipboardCheck,
-  MessageSquare,
-  Shield,
-  ArrowRight,
+  BarChart3,
+  Bell,
+  CreditCard,
+  ShieldCheck,
+  MessageCircle,
+  Smartphone,
+  Users,
+  ChevronRight,
+  Check,
+  Star,
+  School,
+  Menu,
+  X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 import { useAuthStore } from '@/lib/stores/auth-store';
 
 const features = [
   {
-    icon: GraduationCap,
-    title: 'Student Management',
+    icon: BarChart3,
+    title: 'Real-Time Analytics',
     description:
-      'Manage student records, enrollment, and academic performance in one place.',
+      'Track attendance, grades, and performance with live dashboards and actionable insights.',
+    gradient: 'from-blue-500 to-indigo-600',
   },
   {
-    icon: ClipboardCheck,
-    title: 'Attendance Tracking',
+    icon: Bell,
+    title: 'Smart Notifications',
     description:
-      'Track daily attendance with real-time updates for parents and administrators.',
+      'Instant alerts for attendance, grades, announcements, and safety events across all channels.',
+    gradient: 'from-amber-500 to-orange-600',
   },
   {
-    icon: MessageSquare,
-    title: 'Communication Hub',
+    icon: CreditCard,
+    title: 'Payment Integration',
     description:
-      'Keep parents, teachers, and administrators connected with announcements and messages.',
+      'Manage fee structures, generate invoices, track payments, and view outstanding balances.',
+    gradient: 'from-emerald-500 to-teal-600',
   },
   {
-    icon: Shield,
-    title: 'Student Welfare',
+    icon: ShieldCheck,
+    title: 'Security & Privacy',
     description:
-      'Monitor student well-being with mood tracking, health records, and welfare logs.',
+      'Enterprise-grade security with role-based access, pickup authorization, and emergency alerts.',
+    gradient: 'from-red-500 to-rose-600',
   },
+  {
+    icon: MessageCircle,
+    title: 'Direct Messaging',
+    description:
+      'Real-time messaging between parents, teachers, and admins with conversation history.',
+    gradient: 'from-violet-500 to-purple-600',
+  },
+  {
+    icon: Smartphone,
+    title: 'Mobile First',
+    description:
+      'Native mobile apps for parents and teachers — stay connected from anywhere, anytime.',
+    gradient: 'from-cyan-500 to-blue-600',
+  },
+];
+
+const steps = [
+  {
+    number: '01',
+    title: 'School Setup',
+    description:
+      'Admins configure the school — add classes, subjects, fee structures, and invite teachers. Everything is ready in minutes.',
+    icon: School,
+  },
+  {
+    number: '02',
+    title: 'Parent Invitation',
+    description:
+      'Parents receive invitations to join their child\'s school. One account connects them to all their children across multiple schools.',
+    icon: Users,
+  },
+  {
+    number: '03',
+    title: 'Real-Time Engagement',
+    description:
+      'Teachers mark attendance, enter grades, and assign homework. Parents see updates instantly on their phone.',
+    icon: BarChart3,
+  },
+];
+
+const whySkunect = [
+  'Built specifically for African schools — not a retrofitted Western tool',
+  'Parents see attendance, grades, and fees in real-time',
+  'Teachers save hours with digital attendance and grading',
+  'Admins get complete school oversight from one dashboard',
+  'Secure pickup authorization protects every child',
+  'Works on mobile — perfect for busy parents on the go',
+];
+
+const faqs = [
+  {
+    question: 'How does Skunect help parents stay connected?',
+    answer:
+      'Parents get real-time access to their children\'s attendance, grades, homework, and fee status through both the mobile app and web platform. They can message teachers directly and receive instant notifications about school events and safety alerts.',
+  },
+  {
+    question: 'What features do teachers get?',
+    answer:
+      'Teachers can mark digital attendance, enter grades, create and track homework assignments, send messages to parents, record welfare observations, and manage their class schedules — all from one platform.',
+  },
+  {
+    question: 'Is Skunect secure?',
+    answer:
+      'Absolutely. We use enterprise-grade security with role-based access control, encrypted data, secure pickup authorization, and multi-tenant isolation so each school\'s data is completely separate.',
+  },
+  {
+    question: 'How long does it take to set up?',
+    answer:
+      'Most schools are fully set up within a day. Admins can bulk-import students, teachers, and fee structures via CSV. Our data migration tools make switching from another system seamless.',
+  },
+  {
+    question: 'Can one parent have children in multiple schools?',
+    answer:
+      'Yes! A single parent account can be linked to children across different schools. Parents simply switch between schools to view each child\'s information.',
+  },
+  {
+    question: 'Does Skunect work offline?',
+    answer:
+      'The mobile app is optimized for low-bandwidth environments common in Africa. While real-time features need connectivity, the app is designed to work efficiently even on slower networks.',
+  },
+];
+
+const navLinks = [
+  { label: 'Features', href: '/features' },
+  { label: 'How It Works', href: '#how-it-works' },
+  { label: 'FAQ', href: '#faq' },
 ];
 
 export default function HomePage() {
   const router = useRouter();
   const token = useAuthStore((s) => s.accessToken);
   const [checked, setChecked] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    // Only run on the root path
     if (window.location.pathname !== '/') return;
-
     if (token) {
       router.replace('/dashboard');
     } else {
@@ -56,7 +161,6 @@ export default function HomePage() {
     }
   }, [router, token]);
 
-  // Show spinner while checking auth
   if (!checked) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -66,71 +170,473 @@ export default function HomePage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      {/* Header */}
-      <header className="border-b">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-          <div className="flex items-center gap-2">
-            <GraduationCap className="h-7 w-7 text-primary" />
-            <span className="text-xl font-bold">Skunect</span>
+    <div className="flex min-h-screen flex-col bg-background">
+      {/* Navigation */}
+      <nav className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-md">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-navy">
+              <GraduationCap className="h-5 w-5 text-white" />
+            </div>
+            <span className="text-xl font-bold tracking-tight">Skunect</span>
           </div>
-          <Link href="/login">
-            <Button>
-              Sign In
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </Link>
-        </div>
-      </header>
 
-      {/* Hero */}
-      <section className="flex flex-1 flex-col items-center justify-center px-4 py-20 text-center">
-        <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-          School Management
-          <br />
-          <span className="text-primary">Made Simple</span>
-        </h1>
-        <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
-          Skunect connects schools, teachers, and parents on one platform.
-          Manage students, track attendance, communicate effectively, and
-          monitor student welfare — all in one place.
-        </p>
-        <div className="mt-8 flex gap-4">
-          <Link href="/login">
-            <Button size="lg">
-              Get Started
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </Link>
+          {/* Desktop nav */}
+          <div className="hidden items-center gap-8 md:flex">
+            {navLinks.map((link) => (
+              <Link
+                key={link.label}
+                href={link.href}
+                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {link.label}
+              </Link>
+            ))}
+            <Link href="/login">
+              <Button variant="ghost" size="sm">
+                Sign In
+              </Button>
+            </Link>
+            <Link href="/register">
+              <Button size="sm">
+                Get Started
+                <ChevronRight className="ml-1 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+
+          {/* Mobile menu button */}
+          <button
+            className="md:hidden"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
+          </button>
+        </div>
+
+        {/* Mobile menu */}
+        {mobileMenuOpen && (
+          <div className="border-t bg-background px-4 pb-4 pt-2 md:hidden">
+            {navLinks.map((link) => (
+              <Link
+                key={link.label}
+                href={link.href}
+                className="block py-2 text-sm font-medium text-muted-foreground"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {link.label}
+              </Link>
+            ))}
+            <div className="mt-3 flex flex-col gap-2">
+              <Link href="/login">
+                <Button variant="outline" size="sm" className="w-full">
+                  Sign In
+                </Button>
+              </Link>
+              <Link href="/register">
+                <Button size="sm" className="w-full">
+                  Get Started
+                </Button>
+              </Link>
+            </div>
+          </div>
+        )}
+      </nav>
+
+      {/* Hero Section */}
+      <section className="relative overflow-hidden bg-navy px-4 py-20 sm:px-6 sm:py-28 lg:py-36">
+        {/* Background pattern */}
+        <div className="absolute inset-0 opacity-[0.06]">
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `radial-gradient(circle at 25% 25%, #2A9D8F 1px, transparent 1px),
+                radial-gradient(circle at 75% 75%, #2A9D8F 1px, transparent 1px)`,
+              backgroundSize: '48px 48px',
+            }}
+          />
+        </div>
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-navy via-navy to-navy/95" />
+
+        <div className="relative z-10 mx-auto max-w-7xl">
+          <div className="mx-auto max-w-3xl text-center">
+            <h1 className="text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl xl:text-7xl">
+              Stay Connected to Your Child&apos;s{' '}
+              <span className="bg-gradient-to-r from-teal to-emerald-400 bg-clip-text text-transparent">
+                Education
+              </span>
+            </h1>
+            <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-white/70 sm:text-xl">
+              Skunect bridges the gap between schools and parents. Real-time
+              attendance, grades, messaging, and payments — all in one platform
+              built for African schools.
+            </p>
+            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <Link href="/register">
+                <Button
+                  size="lg"
+                  className="bg-teal text-white hover:bg-teal/90"
+                >
+                  Get Started Free
+                  <ChevronRight className="ml-1 h-4 w-4" />
+                </Button>
+              </Link>
+              <Link href="/features">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-white/20 text-white hover:bg-white/10"
+                >
+                  Explore Features
+                </Button>
+              </Link>
+            </div>
+
+            {/* Trust badges */}
+            <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-white/50 sm:gap-10">
+              <div className="flex items-center gap-2">
+                <div className="flex">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className="h-4 w-4 fill-amber-400 text-amber-400"
+                    />
+                  ))}
+                </div>
+                <span>4.9/5 Rating</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <School className="h-4 w-4 text-teal" />
+                <span>500+ Schools</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4 text-teal" />
+                <span>50,000+ Parents</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Dashboard preview */}
+          <div className="mx-auto mt-16 max-w-5xl">
+            <div className="overflow-hidden rounded-xl border border-white/10 bg-white/5 shadow-2xl backdrop-blur-sm">
+              <div className="flex items-center gap-2 border-b border-white/10 px-4 py-3">
+                <div className="h-3 w-3 rounded-full bg-red-400/60" />
+                <div className="h-3 w-3 rounded-full bg-yellow-400/60" />
+                <div className="h-3 w-3 rounded-full bg-green-400/60" />
+                <span className="ml-2 text-xs text-white/40">
+                  app.skunect.com/dashboard
+                </span>
+              </div>
+              <Image
+                src="/screenshots/admin-dashboard.png"
+                alt="Skunect Admin Dashboard"
+                width={1280}
+                height={720}
+                className="w-full"
+                priority
+              />
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Features */}
-      <section className="border-t bg-muted/30 px-4 py-16">
-        <div className="mx-auto max-w-6xl">
-          <h2 className="mb-8 text-center text-2xl font-bold">
-            Everything You Need
-          </h2>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Features Grid */}
+      <section className="px-4 py-20 sm:px-6 sm:py-28">
+        <div className="mx-auto max-w-7xl">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+              Everything Your School Needs
+            </h2>
+            <p className="mt-4 text-lg text-muted-foreground">
+              One platform to manage academics, communication, safety, and
+              payments — designed specifically for how African schools operate.
+            </p>
+          </div>
+
+          <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {features.map((feature) => (
               <div
                 key={feature.title}
-                className="rounded-lg border bg-card p-6 transition-shadow hover:shadow-md"
+                className="group rounded-2xl border bg-card p-6 transition-all hover:shadow-lg hover:-translate-y-1"
               >
-                <feature.icon className="mb-3 h-8 w-8 text-primary" />
-                <h3 className="mb-2 font-semibold">{feature.title}</h3>
-                <p className="text-sm text-muted-foreground">
+                <div
+                  className={`mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${feature.gradient} text-white shadow-sm`}
+                >
+                  <feature.icon className="h-6 w-6" />
+                </div>
+                <h3 className="mb-2 text-lg font-semibold">{feature.title}</h3>
+                <p className="text-sm leading-relaxed text-muted-foreground">
                   {feature.description}
                 </p>
               </div>
             ))}
           </div>
+
+          <div className="mt-12 text-center">
+            <Link href="/features">
+              <Button variant="outline" size="lg">
+                See All Features
+                <ChevronRight className="ml-1 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section
+        id="how-it-works"
+        className="border-y bg-muted/30 px-4 py-20 sm:px-6 sm:py-28"
+      >
+        <div className="mx-auto max-w-7xl">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+              How It Works
+            </h2>
+            <p className="mt-4 text-lg text-muted-foreground">
+              Get your school up and running in three simple steps.
+            </p>
+          </div>
+
+          <div className="mx-auto mt-16 max-w-4xl">
+            <div className="relative">
+              {/* Vertical line connecting steps */}
+              <div className="absolute left-6 top-0 hidden h-full w-px bg-border sm:block" />
+
+              <div className="space-y-12 sm:space-y-16">
+                {steps.map((step, index) => (
+                  <div key={step.number} className="relative flex gap-6">
+                    {/* Step number circle */}
+                    <div className="relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-navy text-sm font-bold text-white shadow-md">
+                      {step.number}
+                    </div>
+                    <div className="pt-1.5">
+                      <h3 className="text-xl font-semibold">{step.title}</h3>
+                      <p className="mt-2 text-muted-foreground leading-relaxed">
+                        {step.description}
+                      </p>
+                      {/* Step illustration placeholder */}
+                      {index < steps.length && (
+                        <div className="mt-6 overflow-hidden rounded-xl border bg-card">
+                          <div className="flex aspect-[2/1] items-center justify-center text-muted-foreground/30">
+                            <step.icon className="h-12 w-12" />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="px-4 py-20 sm:px-6 sm:py-28">
+        <div className="mx-auto max-w-7xl">
+          <div className="overflow-hidden rounded-3xl bg-gradient-to-br from-navy via-navy to-[#1a3a5c] px-6 py-16 text-center sm:px-12 sm:py-20">
+            <div className="relative z-10">
+              <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                Ready to Transform Your School?
+              </h2>
+              <p className="mx-auto mt-4 max-w-xl text-lg text-white/70">
+                Join hundreds of schools across Africa already using Skunect to
+                connect parents, teachers, and administrators.
+              </p>
+              <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
+                <Link href="/register">
+                  <Button
+                    size="lg"
+                    className="bg-teal text-white hover:bg-teal/90"
+                  >
+                    Start Free Trial
+                    <ChevronRight className="ml-1 h-4 w-4" />
+                  </Button>
+                </Link>
+                <Link href="/">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="border-white/20 text-white hover:bg-white/10"
+                  >
+                    Contact Sales
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Why Skunect */}
+      <section className="border-t bg-muted/30 px-4 py-20 sm:px-6 sm:py-28">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+            <div>
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+                Why Schools Choose Skunect
+              </h2>
+              <p className="mt-4 text-lg text-muted-foreground">
+                Purpose-built for the unique needs of African schools — not
+                another generic tool adapted from a different market.
+              </p>
+              <ul className="mt-8 space-y-4">
+                {whySkunect.map((item) => (
+                  <li key={item} className="flex items-start gap-3">
+                    <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-teal/10">
+                      <Check className="h-3.5 w-3.5 text-teal" />
+                    </div>
+                    <span className="text-sm leading-relaxed">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            {/* Parent dashboard screenshot */}
+            <div className="overflow-hidden rounded-2xl border bg-card shadow-lg">
+              <Image
+                src="/screenshots/parent-dashboard.png"
+                alt="Skunect Parent Dashboard"
+                width={1280}
+                height={960}
+                className="w-full"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section id="faq" className="px-4 py-20 sm:px-6 sm:py-28">
+        <div className="mx-auto max-w-3xl">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+              Frequently Asked Questions
+            </h2>
+            <p className="mt-4 text-lg text-muted-foreground">
+              Everything you need to know about Skunect.
+            </p>
+          </div>
+
+          <div className="mt-12">
+            <Accordion type="single" collapsible className="w-full">
+              {faqs.map((faq, index) => (
+                <AccordionItem key={index} value={`item-${index}`}>
+                  <AccordionTrigger className="text-left text-base">
+                    {faq.question}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground leading-relaxed">
+                    {faq.answer}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t px-4 py-8 text-center text-sm text-muted-foreground">
-        <p>&copy; {new Date().getFullYear()} Skunect. All rights reserved.</p>
+      <footer className="border-t bg-navy px-4 py-12 sm:px-6 sm:py-16">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {/* Brand */}
+            <div className="sm:col-span-2 lg:col-span-1">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal/20">
+                  <GraduationCap className="h-5 w-5 text-teal" />
+                </div>
+                <span className="text-xl font-bold text-white">Skunect</span>
+              </div>
+              <p className="mt-3 max-w-xs text-sm text-white/50 leading-relaxed">
+                School Management & Parent Engagement Platform — connecting
+                schools and families across Africa.
+              </p>
+            </div>
+
+            {/* Product */}
+            <div>
+              <h4 className="mb-3 text-sm font-semibold text-white/80">
+                Product
+              </h4>
+              <ul className="space-y-2">
+                {[
+                  { label: 'Features', href: '/features' },
+                  { label: 'For Schools', href: '/' },
+                  { label: 'For Parents', href: '/' },
+                  { label: 'Pricing', href: '/' },
+                ].map((link) => (
+                  <li key={link.label}>
+                    <Link
+                      href={link.href}
+                      className="text-sm text-white/40 transition-colors hover:text-white/70"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Company */}
+            <div>
+              <h4 className="mb-3 text-sm font-semibold text-white/80">
+                Company
+              </h4>
+              <ul className="space-y-2">
+                {[
+                  { label: 'About Us', href: '/' },
+                  { label: 'Blog', href: '/' },
+                  { label: 'Careers', href: '/' },
+                  { label: 'Contact', href: '/' },
+                ].map((link) => (
+                  <li key={link.label}>
+                    <Link
+                      href={link.href}
+                      className="text-sm text-white/40 transition-colors hover:text-white/70"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Support */}
+            <div>
+              <h4 className="mb-3 text-sm font-semibold text-white/80">
+                Support
+              </h4>
+              <ul className="space-y-2">
+                {[
+                  { label: 'Help Center', href: '/' },
+                  { label: 'Privacy Policy', href: '/' },
+                  { label: 'Terms of Service', href: '/' },
+                ].map((link) => (
+                  <li key={link.label}>
+                    <Link
+                      href={link.href}
+                      className="text-sm text-white/40 transition-colors hover:text-white/70"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-12 border-t border-white/10 pt-8 text-center text-sm text-white/30">
+            <p>
+              &copy; {new Date().getFullYear()} Skunect. All rights reserved.
+            </p>
+          </div>
+        </div>
       </footer>
     </div>
   );
