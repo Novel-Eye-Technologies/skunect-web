@@ -124,7 +124,11 @@ export class BusPage {
     await expect(this.dataTable.getByText(plateNumber)).toBeVisible({ timeout: 10_000 });
   }
 
-  async expectEnrollmentInTable(studentName: string) {
-    await expect(this.dataTable.getByText(studentName)).toBeVisible({ timeout: 10_000 });
+  async expectEnrollmentInTable(indicator: string) {
+    await expect(this.dataTable.getByText(indicator)).toBeVisible({ timeout: 10_000 });
+  }
+
+  async expectEnrollmentRowCount(count: number) {
+    await expect(this.dataTable.locator('tbody tr')).toHaveCount(count, { timeout: 10_000 });
   }
 }
