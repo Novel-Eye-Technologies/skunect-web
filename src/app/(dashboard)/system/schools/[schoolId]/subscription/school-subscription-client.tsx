@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, usePathname } from 'next/navigation';
 import { toast } from 'sonner';
 import { Plus, CreditCard, Calculator, Download } from 'lucide-react';
 import { PageHeader } from '@/components/shared/page-header';
@@ -59,7 +59,16 @@ import type {
 } from '@/lib/types/subscription';
 
 export function SchoolSubscriptionClient() {
-  const { schoolId } = useParams<{ schoolId: string }>();
+  const params = useParams<{ schoolId: string }>();
+  const pathname = usePathname();
+
+  // In a static export, useParams() may return the placeholder '_' from
+  // generateStaticParams.  Extract the real ID from the URL in that case.
+  const rawSchoolId = params.schoolId;
+  const schoolId =
+    !rawSchoolId || rawSchoolId === '_'
+      ? pathname.split('/').filter(Boolean).at(-2) ?? rawSchoolId
+      : rawSchoolId;
 
   const [subscription, setSubscription] = useState<SchoolSubscription | null>(null);
   const [payments, setPayments] = useState<SubscriptionPayment[]>([]);

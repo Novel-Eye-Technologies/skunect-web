@@ -3121,7 +3121,8 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await pickupPage.expectVisible();
 
     // Initially should show empty state or Add Authorization button
-    await expect(pickupPage.addAuthorizationButton).toBeVisible();
+    // Parent may have multiple children — each shows its own button
+    await expect(pickupPage.addAuthorizationButton.first()).toBeVisible();
   });
 
   test('7.5e — Parent Return: Create pickup authorization', async ({ page }) => {
@@ -3334,6 +3335,7 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     const subPage = new SchoolSubscriptionPage(page);
     await subPage.goto(schoolData.schoolId!);
     await subPage.expectVisible();
+
     await subPage.expectHasSubscription();
     await subPage.expectStatusText('ACTIVE');
   });

@@ -38,7 +38,6 @@ export const AUTH_METHODS = {
 export const ADMIN_ONLY_ROUTES: string[] = [
   '/school-settings',
   '/users',
-  '/fees',
   '/data-migration',
   '/subscription',
 ];
