@@ -593,6 +593,36 @@ export default function FeaturesPage() {
               </div>
             ))}
           </div>
+
+          {/* Mobile App Screenshots */}
+          <div className="mt-16">
+            <h3 className="mb-8 text-center text-xl font-semibold">
+              Mobile App Preview
+            </h3>
+            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                { src: '/screenshots/mobile/parent-home.png', label: 'Parent Home' },
+                { src: '/screenshots/mobile/parent-academics.png', label: 'Parent Academics' },
+                { src: '/screenshots/mobile/teacher-home.png', label: 'Teacher Home' },
+                { src: '/screenshots/mobile/teacher-classes.png', label: 'Teacher Classes' },
+              ].map((screenshot) => (
+                <div key={screenshot.label} className="text-center">
+                  <div className="overflow-hidden rounded-2xl border shadow-sm">
+                    <Image
+                      src={screenshot.src}
+                      alt={screenshot.label}
+                      width={390}
+                      height={844}
+                      className="w-full"
+                    />
+                  </div>
+                  <p className="mt-3 text-sm font-medium text-muted-foreground">
+                    {screenshot.label}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 

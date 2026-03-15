@@ -81,6 +81,8 @@ const steps = [
     description:
       'Admins configure the school — add classes, subjects, fee structures, and invite teachers. Everything is ready in minutes.',
     icon: School,
+    screenshot: '/screenshots/admin-settings.png',
+    screenshotAlt: 'Admin configuring school settings',
   },
   {
     number: '02',
@@ -88,6 +90,8 @@ const steps = [
     description:
       'Parents receive invitations to join their child\'s school. One account connects them to all their children across multiple schools.',
     icon: Users,
+    screenshot: '/screenshots/admin-users.png',
+    screenshotAlt: 'Managing users and parent invitations',
   },
   {
     number: '03',
@@ -95,6 +99,8 @@ const steps = [
     description:
       'Teachers mark attendance, enter grades, and assign homework. Parents see updates instantly on their phone.',
     icon: BarChart3,
+    screenshot: '/screenshots/teacher-attendance.png',
+    screenshotAlt: 'Teacher marking attendance in real-time',
   },
 ];
 
@@ -421,12 +427,16 @@ export default function HomePage() {
                       <p className="mt-2 text-muted-foreground leading-relaxed">
                         {step.description}
                       </p>
-                      {/* Step illustration placeholder */}
-                      {index < steps.length && (
-                        <div className="mt-6 overflow-hidden rounded-xl border bg-card">
-                          <div className="flex aspect-[2/1] items-center justify-center text-muted-foreground/30">
-                            <step.icon className="h-12 w-12" />
-                          </div>
+                      {/* Step screenshot */}
+                      {step.screenshot && (
+                        <div className="mt-6 overflow-hidden rounded-xl border bg-card shadow-sm">
+                          <Image
+                            src={step.screenshot}
+                            alt={step.screenshotAlt}
+                            width={1280}
+                            height={720}
+                            className="w-full"
+                          />
                         </div>
                       )}
                     </div>
@@ -507,6 +517,79 @@ export default function HomePage() {
                 height={960}
                 className="w-full"
               />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Mobile App Showcase */}
+      <section className="px-4 py-20 sm:px-6 sm:py-28">
+        <div className="mx-auto max-w-7xl">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+              Always Connected on Mobile
+            </h2>
+            <p className="mt-4 text-lg text-muted-foreground">
+              Native mobile apps for parents and teachers — optimized for African
+              networks so you stay connected wherever you are.
+            </p>
+          </div>
+
+          <div className="mt-16 grid gap-12 lg:grid-cols-2">
+            {/* Parent Mobile */}
+            <div>
+              <h3 className="mb-2 text-xl font-semibold">For Parents</h3>
+              <p className="mb-6 text-sm text-muted-foreground">
+                Track attendance, grades, fees, and message teachers — all from your phone.
+              </p>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="overflow-hidden rounded-2xl border shadow-sm">
+                  <Image
+                    src="/screenshots/mobile/parent-home.png"
+                    alt="Parent home screen"
+                    width={390}
+                    height={844}
+                    className="w-full"
+                  />
+                </div>
+                <div className="overflow-hidden rounded-2xl border shadow-sm">
+                  <Image
+                    src="/screenshots/mobile/parent-academics.png"
+                    alt="Parent academics screen"
+                    width={390}
+                    height={844}
+                    className="w-full"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Teacher Mobile */}
+            <div>
+              <h3 className="mb-2 text-xl font-semibold">For Teachers</h3>
+              <p className="mb-6 text-sm text-muted-foreground">
+                Manage classes, mark attendance, and communicate with parents on the go.
+              </p>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="overflow-hidden rounded-2xl border shadow-sm">
+                  <Image
+                    src="/screenshots/mobile/teacher-home.png"
+                    alt="Teacher home screen"
+                    width={390}
+                    height={844}
+                    className="w-full"
+                  />
+                </div>
+                <div className="overflow-hidden rounded-2xl border shadow-sm">
+                  <Image
+                    src="/screenshots/mobile/teacher-classes.png"
+                    alt="Teacher classes screen"
+                    width={390}
+                    height={844}
+                    className="w-full"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
