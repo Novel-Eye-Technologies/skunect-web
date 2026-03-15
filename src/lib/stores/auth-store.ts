@@ -10,6 +10,8 @@ interface AuthState {
   user: UserInfo | null;
   currentSchoolId: string | null;
   currentRole: Role | null;
+  schoolActive: boolean;
+  subscriptionStatus: string | null;
   /** Internal flag — true once Zustand persist has restored state from localStorage. */
   _hydrated: boolean;
 }
@@ -32,6 +34,8 @@ const initialState: AuthState = {
   user: null,
   currentSchoolId: null,
   currentRole: null,
+  schoolActive: true,
+  subscriptionStatus: null,
   _hydrated: false,
 };
 
@@ -54,6 +58,8 @@ export const useAuthStore = create<AuthStore>()(
             user,
             currentSchoolId: null,
             currentRole: 'SUPER_ADMIN',
+            schoolActive: true,
+            subscriptionStatus: null,
           });
           return;
         }
@@ -64,10 +70,15 @@ export const useAuthStore = create<AuthStore>()(
 
         if (hasExistingSchool) {
           // Keep current selection, just update user data
-          const currentRole = user.roles.find(
+          const currentSchoolRole = user.roles.find(
             (r) => r.schoolId === state.currentSchoolId
-          )?.role ?? null;
-          set({ user, currentRole });
+          );
+          set({
+            user,
+            currentRole: currentSchoolRole?.role ?? null,
+            schoolActive: currentSchoolRole?.isSchoolActive !== false,
+            subscriptionStatus: currentSchoolRole?.subscriptionStatus ?? null,
+          });
         } else if (user.roles.length > 0) {
           // Auto-select first school
           const firstRole = user.roles[0];
@@ -75,9 +86,11 @@ export const useAuthStore = create<AuthStore>()(
             user,
             currentSchoolId: firstRole.schoolId,
             currentRole: firstRole.role,
+            schoolActive: firstRole.isSchoolActive !== false,
+            subscriptionStatus: firstRole.subscriptionStatus ?? null,
           });
         } else {
-          set({ user, currentSchoolId: null, currentRole: null });
+          set({ user, currentSchoolId: null, currentRole: null, schoolActive: true, subscriptionStatus: null });
         }
       },
 
@@ -93,6 +106,8 @@ export const useAuthStore = create<AuthStore>()(
           set({
             currentSchoolId: schoolRole.schoolId,
             currentRole: schoolRole.role,
+            schoolActive: schoolRole.isSchoolActive !== false,
+            subscriptionStatus: schoolRole.subscriptionStatus ?? null,
           });
         }
       },
@@ -133,6 +148,8 @@ export const useAuthStore = create<AuthStore>()(
         user: state.user,
         currentSchoolId: state.currentSchoolId,
         currentRole: state.currentRole,
+        schoolActive: state.schoolActive,
+        subscriptionStatus: state.subscriptionStatus,
       }),
     }
   )

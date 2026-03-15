@@ -40,7 +40,24 @@ export const ADMIN_ONLY_ROUTES: string[] = [
   '/users',
   '/fees',
   '/data-migration',
+  '/subscription',
 ];
+
+export const SUBSCRIPTION_STATUS = {
+  ACTIVE: 'ACTIVE',
+  EXPIRED: 'EXPIRED',
+  GRACE_PERIOD: 'GRACE_PERIOD',
+  CANCELLED: 'CANCELLED',
+  PENDING: 'PENDING',
+} as const;
+
+export const PAYMENT_TYPES = {
+  FULL: 'FULL',
+  PARTIAL: 'PARTIAL',
+  PRORATED: 'PRORATED',
+  UPGRADE: 'UPGRADE',
+  RENEWAL: 'RENEWAL',
+} as const;
 
 /**
  * Routes that require the SUPER_ADMIN role.

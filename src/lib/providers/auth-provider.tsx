@@ -19,6 +19,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const accessToken = useAuthStore((s) => s.accessToken);
   const currentRole = useAuthStore((s) => s.currentRole);
+  const schoolActive = useAuthStore((s) => s.schoolActive);
   const setUser = useAuthStore((s) => s.setUser);
   const logout = useAuthStore((s) => s.logout);
 
@@ -105,8 +106,28 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     if (isAdminRoute && currentRole !== 'ADMIN') {
       router.replace('/dashboard');
+      return;
     }
-  }, [isValidating, isPublicRoute, pathname, currentRole, router]);
+
+    // ── Inactive school routing ──
+    if (!schoolActive) {
+      // Allow subscription-related pages and school-inactive page
+      const isSubscriptionPage = pathname === '/subscription' || pathname.startsWith('/subscription/');
+      const isSchoolInactivePage = pathname === '/school-inactive';
+
+      if (currentRole === 'ADMIN') {
+        // Admins at inactive schools can only access the subscription page
+        if (!isSubscriptionPage) {
+          router.replace('/subscription');
+        }
+      } else if (currentRole === 'TEACHER' || currentRole === 'PARENT') {
+        // Teachers/Parents at inactive schools see the inactive page
+        if (!isSchoolInactivePage) {
+          router.replace('/school-inactive');
+        }
+      }
+    }
+  }, [isValidating, isPublicRoute, pathname, currentRole, schoolActive, router]);
 
   // Prevent flash of protected content (also wait for hydration)
   if (!isPublicRoute && (!hydrated || isValidating || !accessToken)) {

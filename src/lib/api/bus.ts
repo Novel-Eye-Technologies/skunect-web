@@ -169,7 +169,7 @@ export async function getBusTracking(
   studentId: string,
 ): Promise<ApiResponse<BusTracking>> {
   const response = await apiClient.get<ApiResponse<BusTracking>>(
-    `/schools/${schoolId}/bus/tracking/${studentId}`,
+    `/schools/${schoolId}/bus/students/${studentId}/tracking`,
   );
   return response.data;
 }

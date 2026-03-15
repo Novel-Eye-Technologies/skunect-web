@@ -6,6 +6,8 @@ export interface SchoolRoleInfo {
   schoolId: string | null;
   schoolName: string;
   role: Role;
+  isSchoolActive?: boolean;
+  subscriptionStatus?: string | null;
 }
 
 export interface UserInfo {
