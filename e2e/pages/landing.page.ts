@@ -11,17 +11,17 @@ export class LandingPage {
   constructor(page: Page) {
     this.page = page;
     this.heroHeading = page.getByRole('heading', {
-      name: /School Management/i,
+      name: /Stay Connected to Your Child/i,
     });
     this.heroDescription = page.getByText(
-      /connects schools, teachers, and parents/i
+      /bridges the gap between schools and parents/i
     );
     this.getStartedButton = page.getByRole('link', {
       name: /Get Started/i,
     });
     this.signInButton = page.getByRole('link', { name: /Sign In/i });
     this.featuresSection = page.getByRole('heading', {
-      name: /Everything You Need/i,
+      name: /Everything Your School Needs/i,
     });
   }
 

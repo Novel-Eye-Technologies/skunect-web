@@ -243,7 +243,7 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await expect(landing.featuresSection).toBeVisible();
   });
 
-  test('0.3 — Get Started and Sign In buttons link to login', async ({ page }) => {
+  test('0.3 — Get Started and Sign In buttons link correctly', async ({ page }) => {
     await page.goto('/');
     await page.context().clearCookies();
     await page.evaluate(() => localStorage.clear());
@@ -251,7 +251,7 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     const landing = new LandingPage(page);
     await landing.goto();
     await landing.expectVisible();
-    await expect(landing.getStartedButton).toHaveAttribute('href', /\/login\/?/);
+    await expect(landing.getStartedButton).toHaveAttribute('href', /\/register\/?/);
     await expect(landing.signInButton).toHaveAttribute('href', /\/login\/?/);
   });
 
