@@ -2433,8 +2433,9 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await page.goto('/data-migration');
     await expect(page).toHaveURL(/\/dashboard\/?/, { timeout: 10_000 });
 
+    // Parents CAN access /fees (it's shared between ADMIN and PARENT)
     await page.goto('/fees');
-    await expect(page).toHaveURL(/\/dashboard\/?/, { timeout: 10_000 });
+    await expect(page).toHaveURL(/\/fees\/?/, { timeout: 10_000 });
   });
 
   test('4.2e — Parent: Can deep-link to /homework', async ({ page }) => {
