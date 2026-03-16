@@ -2,7 +2,7 @@
 
 Frontend for the Skunect School Management Platform, built with Next.js 15, React 19, shadcn/ui, and Tailwind CSS.
 
-**Live:** [`https://skunect.com`](https://skunect.com) | **API:** [`https://api.skunect.com`](https://api.skunect.com)
+**Production:** [`https://skunect.com`](https://skunect.com) | **Dev:** [`https://dev.skunect.com`](https://dev.skunect.com) | **API (Dev):** [`https://dev.skunect.com/api/v1`](https://dev.skunect.com/api/v1)
 
 ---
 
@@ -62,7 +62,7 @@ npx serve out
 
 | Layer | Technology |
 |-------|-----------|
-| Framework | Next.js 15.1.6 (App Router, Static Export) |
+| Framework | Next.js 16.1.6 (App Router, Static Export) |
 | UI Library | React 19 |
 | Component Library | shadcn/ui (Radix UI primitives) |
 | Styling | Tailwind CSS 4 |
@@ -87,7 +87,9 @@ npx serve out
 
 ### Super Admin (`SUPER_ADMIN`)
 - System-wide dashboard with aggregate stats across all schools
-- All Schools management page
+- All Schools management (list, detail, create, update)
+- Super Admin user management
+- Subscription management (plans, bulk operations, dashboard, discounts)
 - Seed data reset for testing
 - No school-scoped data — platform-level access
 
@@ -95,23 +97,32 @@ npx serve out
 - School dashboard with student/teacher/attendance/fee stats
 - School settings (general, sessions/terms, classes, subjects, grading systems)
 - User management (invite, assign roles)
+- Teacher and parent management pages
 - Student enrollment and management
 - Academics (assessments, grade entry, report cards)
 - Attendance tracking
 - Homework management
 - Fee structures and invoices
-- Communication (messages, announcements, notifications)
+- Communication (messages, announcements, notifications, events)
 - Safety (emergency alerts, pickup authorization)
-- Analytics (attendance, academic, fees)
+- Welfare (health records, mood tracking)
+- Bus management (routes, buses, enrollments, trips)
+- Timetable management
+- Calendar view
+- Analytics (attendance, academic, fees, audit logs)
 - Data migration (CSV/Excel import)
+- School subscription management
 
 ### Teacher (`TEACHER`)
 - Teacher dashboard
+- My Classes view
 - Student list (assigned classes)
 - Academics (assessments, grade entry, report cards)
 - Attendance marking
 - Homework (create, grade submissions)
-- Communication
+- Communication (messages, announcements, events)
+- Welfare (health records, mood tracking)
+- Calendar view
 - Analytics (attendance, academic for assigned classes)
 
 ### Parent (`PARENT`)
@@ -120,6 +131,8 @@ npx serve out
 - Homework tracking
 - Fee invoices
 - Communication (messages, announcements, notifications)
+- Bus tracking
+- Calendar view
 
 ---
 
@@ -127,44 +140,75 @@ npx serve out
 
 ```
 skunect-web/
-├── .github/workflows/          # CI/CD pipeline
+├── .github/workflows/
+│   ├── ci.yml                  # PR checks (lint + typecheck)
+│   ├── deploy-dev.yml          # Dev deployment (push to main)
+│   ├── deploy-prod.yml         # Prod deployment (manual)
+│   ├── e2e-tests.yml           # Sharded E2E tests on PR + push
+│   └── e2e-full.yml            # Full CRUD E2E tests on PR + push
 ├── public/                     # Static assets
 ├── src/
 │   ├── app/                    # Next.js App Router pages
 │   │   ├── (auth)/             # Auth pages (login, register, verify-otp, select-school)
-│   │   ├── (dashboard)/        # Protected pages (dashboard, students, users, etc.)
+│   │   ├── (dashboard)/        # Protected pages
 │   │   │   ├── dashboard/      # Role-specific dashboards
-│   │   │   ├── system/         # Super Admin system pages (schools, seed)
+│   │   │   ├── system/         # Super Admin (schools, seed, super-admins, subscription-*)
 │   │   │   ├── school-settings/# Admin school configuration
 │   │   │   ├── students/       # Student management
 │   │   │   ├── users/          # User management
+│   │   │   ├── teachers/       # Teacher management
+│   │   │   ├── parents/        # Parent management
 │   │   │   ├── academics/      # Assessments, grades, report cards
 │   │   │   ├── attendance/     # Attendance tracking
 │   │   │   ├── homework/       # Homework management
 │   │   │   ├── fees/           # Fee structures and invoices
 │   │   │   ├── communication/  # Messages, announcements, notifications
+│   │   │   ├── events/         # School events management
+│   │   │   ├── calendar/       # Calendar view
 │   │   │   ├── safety/         # Emergency alerts, pickup
+│   │   │   ├── welfare/        # Health records, mood tracking
+│   │   │   ├── bus/            # Bus routes, tracking, enrollment, trips
+│   │   │   ├── timetable/      # Timetable management
 │   │   │   ├── analytics/      # Dashboard analytics
-│   │   │   └── data-migration/ # CSV/Excel import
+│   │   │   ├── audit-logs/     # Audit trail
+│   │   │   ├── activity/       # Activity feed
+│   │   │   ├── data-migration/ # CSV/Excel import
+│   │   │   ├── subscription/   # School subscription management
+│   │   │   ├── my-classes/     # Teacher classes view
+│   │   │   ├── profile/        # User profile
+│   │   │   ├── help/           # Help & support
+│   │   │   └── notification-preferences/
 │   │   └── layout.tsx          # Root layout
 │   ├── components/
-│   │   ├── features/           # Domain-specific components
+│   │   ├── features/           # Domain-specific components (22 feature directories)
 │   │   │   ├── auth/           # Login, register, OTP forms
 │   │   │   ├── dashboard/      # Admin, Teacher, Parent, Super Admin dashboards
 │   │   │   ├── students/       # Student list, detail, forms
 │   │   │   ├── school-settings/# Settings forms and tables
+│   │   │   ├── bus/            # Bus management components
+│   │   │   ├── calendar/       # Calendar components
+│   │   │   ├── timetable/      # Timetable components
+│   │   │   ├── welfare/        # Health records, mood tracker
 │   │   │   └── ...             # Other feature components
 │   │   ├── layout/             # Sidebar, header, school switcher
 │   │   ├── shared/             # Reusable: PageHeader, StatCard, DataTable
-│   │   └── ui/                 # shadcn/ui primitives (button, card, dialog, etc.)
+│   │   └── ui/                 # shadcn/ui primitives (28 components)
 │   ├── lib/
-│   │   ├── api/                # API client modules (auth, schools, students, admin, etc.)
+│   │   ├── api/                # API client modules (31 modules)
 │   │   ├── providers/          # AuthProvider (token validation, route guards)
-│   │   ├── stores/             # Zustand stores (auth-store, ui-store)
-│   │   ├── types/              # TypeScript interfaces (auth, admin, school, student, etc.)
+│   │   ├── stores/             # Zustand stores (auth, ui, child, notification)
+│   │   ├── types/              # TypeScript interfaces (28 type files)
 │   │   └── utils/              # Constants, navigation config, helpers
 │   └── styles/                 # Global CSS
-├── next.config.ts              # Next.js config (static export, API rewrites)
+├── e2e/
+│   ├── fixtures/               # Auth fixture, test accounts
+│   ├── helpers/                # API helpers for test setup
+│   ├── pages/                  # Page Object Models (48 POMs)
+│   ├── specs/                  # Test specs organized by feature
+│   ├── global-setup.ts         # Pre-test authentication
+│   └── global-teardown.ts      # Post-test cleanup
+├── next.config.ts              # Next.js config (static export)
+├── playwright.config.ts        # Playwright config
 ├── tailwind.config.ts          # Tailwind CSS config
 ├── tsconfig.json               # TypeScript config
 └── package.json
@@ -186,8 +230,8 @@ skunect-web/
 
 ### Route Protection
 
-- **Public routes:** `/login`, `/register`, `/verify-otp`, `/forgot-password`
-- **ADMIN-only routes:** `/school-settings`, `/users`, `/fees`, `/data-migration`, `/safety/emergency-alerts`
+- **Public routes:** `/login`, `/register`, `/verify-otp`, `/select-school`
+- **ADMIN-only routes:** `/school-settings`, `/users`, `/data-migration`, `/subscription`
 - **SUPER_ADMIN-only routes:** `/system/*`
 - All other dashboard routes require authentication
 
@@ -222,6 +266,14 @@ Key behaviors:
 - `isSuperAdmin()` — helper for role checks
 - Persisted to `localStorage` under key `skunect-auth`
 
+### Child Store (`useChildStore`)
+
+Manages parent's children list and selected child for scoped views. Persisted to `localStorage` under key `skunect-child-store`.
+
+### Notification Store (`useNotificationStore`)
+
+Manages notification state (unread count, preferences).
+
 ### UI Store (`useUIStore`)
 
 ```typescript
@@ -240,10 +292,18 @@ interface UIState {
 Create `.env.local` for local development:
 
 ```bash
-NEXT_PUBLIC_API_URL=https://api.skunect.com/api/v1
+NEXT_PUBLIC_API_URL=http://localhost:8080/api/v1
+NEXT_PUBLIC_WS_URL=ws://localhost:8080/ws/messages
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=<your-google-client-id>
 ```
 
-For production, this is set in `.env.production`.
+Production values (`.env.production`):
+
+```bash
+NEXT_PUBLIC_API_URL=https://dev.skunect.com/api/v1
+NEXT_PUBLIC_WS_URL=wss://dev.skunect.com/ws/messages
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=<google-client-id>
+```
 
 ---
 
@@ -273,7 +333,15 @@ aws cloudfront create-invalidation --distribution-id EUW2XYFIEOP1A --paths "/*"
 
 ### CI/CD
 
-Push to `main` triggers GitHub Actions which builds and deploys automatically.
+Five GitHub Actions workflows:
+
+| Workflow | File | Trigger | Description |
+|----------|------|---------|-------------|
+| **CI** | `ci.yml` | PR to `main` | Lint + typecheck |
+| **E2E Tests** | `e2e-tests.yml` | PR + push to `main` | Sharded Playwright E2E tests (4 shards) |
+| **E2E Full CRUD** | `e2e-full.yml` | PR + push to `main` | Full school lifecycle E2E tests (4 shards) |
+| **Deploy Dev** | `deploy-dev.yml` | Push to `main` | Build + deploy to S3/CloudFront (dev) |
+| **Deploy Prod** | `deploy-prod.yml` | Manual dispatch | Build + deploy to S3/CloudFront (prod) |
 
 ---
 
@@ -364,15 +432,13 @@ docker compose -f e2e/docker/docker-compose.yml down -v
 e2e/
 ├── fixtures/           # Auth fixture, test accounts
 ├── helpers/            # API helpers (direct fetch calls for setup)
-├── pages/              # Page Object Models (sidebar, login, etc.)
-├── specs/              # Test specs organized by feature
-│   ├── admin/          # Admin-specific tests
-│   ├── auth/           # Login, logout, route protection
+├── pages/              # Page Object Models (48 POMs covering all features)
+├── specs/
 │   ├── flows/          # End-to-end lifecycle flows (serial)
-│   ├── navigation/     # Sidebar navigation tests
-│   ├── teacher/        # Teacher-specific tests
-│   └── welfare/        # Welfare feature tests
-├── global-setup.ts     # Authenticates all test accounts before tests
+│   │   └── school-lifecycle.spec.ts  # Full school CRUD: 27 serial tests
+│   └── screenshots/    # Screenshot capture specs
+│       └── capture-screenshots.spec.ts
+├── global-setup.ts     # Seeds DB + authenticates all test accounts
 └── global-teardown.ts  # Cleanup after tests
 ```
 
