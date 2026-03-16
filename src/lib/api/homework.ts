@@ -43,7 +43,6 @@ export async function getHomework(
 export async function createHomework(
   schoolId: string,
   data: CreateHomeworkRequest,
-  _files?: File[],
 ): Promise<ApiResponse<HomeworkDetail>> {
   // Backend expects plain JSON @RequestBody (not multipart).
   // The backend entity maps attachment_urls to a JSONB column; omitting the

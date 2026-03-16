@@ -398,6 +398,7 @@ export default function AllSchoolsPage() {
                             variant="ghost"
                             size="icon"
                             onClick={() => openAdminDialog(school)}
+                            aria-label="Add school admin"
                             title="Add school admin"
                           >
                             <UserPlus className="h-4 w-4" />
@@ -406,6 +407,7 @@ export default function AllSchoolsPage() {
                             variant="ghost"
                             size="icon"
                             onClick={() => openEditDialog(school)}
+                            aria-label="Edit school"
                             title="Edit school"
                           >
                             <Pencil className="h-4 w-4" />
@@ -419,6 +421,7 @@ export default function AllSchoolsPage() {
                                 school,
                               })
                             }
+                            aria-label={school.isActive ? 'Deactivate school' : 'Activate school'}
                             title={school.isActive ? 'Deactivate school' : 'Activate school'}
                           >
                             {school.isActive ? (
@@ -433,6 +436,7 @@ export default function AllSchoolsPage() {
                             onClick={() =>
                               setConfirmAction({ type: 'delete', school })
                             }
+                            aria-label="Delete school"
                             title="Delete school"
                           >
                             <Trash2 className="h-4 w-4 text-destructive" />

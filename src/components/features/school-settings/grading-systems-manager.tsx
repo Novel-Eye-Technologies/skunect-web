@@ -235,6 +235,7 @@ export function GradingSystemsManager() {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8"
+                        aria-label="Set as default"
                         title="Set as default"
                         onClick={() => handleSetDefault(system)}
                       >
@@ -245,6 +246,7 @@ export function GradingSystemsManager() {
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8"
+                      aria-label="Edit grading system"
                       onClick={() => openEdit(system)}
                     >
                       <Pencil className="h-4 w-4" />
@@ -253,6 +255,7 @@ export function GradingSystemsManager() {
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 text-destructive"
+                      aria-label="Delete grading system"
                       onClick={() => setDeleteSystemId(system.id)}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -434,6 +437,7 @@ export function GradingSystemsManager() {
                         variant="ghost"
                         size="icon"
                         className="h-9 w-8 text-muted-foreground hover:text-destructive"
+                        aria-label="Remove grade level"
                         disabled={fields.length <= 1}
                         onClick={() => remove(index)}
                       >

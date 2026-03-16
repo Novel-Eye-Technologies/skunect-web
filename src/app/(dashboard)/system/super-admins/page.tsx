@@ -276,6 +276,7 @@ export default function SuperAdminsPage() {
                               variant="ghost"
                               size="icon"
                               onClick={() => openEditDialog(admin)}
+                              aria-label="Edit name"
                               title="Edit name"
                             >
                               <Pencil className="h-4 w-4" />
@@ -289,6 +290,7 @@ export default function SuperAdminsPage() {
                                   admin,
                                 })
                               }
+                              aria-label={roleActive ? 'Deactivate' : 'Activate'}
                               title={roleActive ? 'Deactivate' : 'Activate'}
                             >
                               {roleActive ? (
@@ -303,6 +305,7 @@ export default function SuperAdminsPage() {
                               onClick={() =>
                                 setConfirmAction({ type: 'delete', admin })
                               }
+                              aria-label="Remove super admin role"
                               title="Remove super admin role"
                             >
                               <Trash2 className="h-4 w-4 text-destructive" />

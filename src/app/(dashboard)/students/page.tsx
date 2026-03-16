@@ -31,6 +31,7 @@ import { useStudents, useDeleteStudent } from '@/lib/hooks/use-students';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useQuery } from '@tanstack/react-query';
 import { getClasses } from '@/lib/api/school-settings';
+import { QueryErrorBanner } from '@/components/shared/query-error-banner';
 import type { StudentListItem } from '@/lib/types/student';
 
 export default function StudentsPage() {
@@ -55,7 +56,7 @@ export default function StudentsPage() {
   // ---------------------------------------------------------------------------
   // Data fetching
   // ---------------------------------------------------------------------------
-  const { data: response, isLoading } = useStudents({
+  const { data: response, isLoading, isError, refetch } = useStudents({
     page: pagination.pageIndex,
     size: pagination.pageSize,
     classId: classFilter || undefined,
@@ -65,7 +66,7 @@ export default function StudentsPage() {
   const deleteStudent = useDeleteStudent();
 
   const { data: classesResponse } = useQuery({
-    queryKey: ['classes', schoolId],
+    queryKey: ['classes', schoolId ?? ''],
     queryFn: () => getClasses(schoolId!),
     enabled: !!schoolId,
     select: (res) => res.data,
@@ -202,6 +203,7 @@ export default function StudentsPage() {
         }
       />
 
+      {isError && <QueryErrorBanner onRetry={refetch} />}
       <DataTable
         columns={columns}
         data={students}

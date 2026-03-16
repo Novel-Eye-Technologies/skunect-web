@@ -30,7 +30,7 @@ export default function WelfarePage() {
   const [formOpen, setFormOpen] = useState(false);
 
   const { data: classesRes } = useQuery({
-    queryKey: ['classes', schoolId],
+    queryKey: ['classes', schoolId ?? ''],
     queryFn: () => getClasses(schoolId!),
     enabled: !!schoolId,
   });

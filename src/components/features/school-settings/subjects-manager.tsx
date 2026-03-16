@@ -201,6 +201,7 @@ export function SubjectsManager() {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8"
+                          aria-label="Edit subject"
                           onClick={() => openEdit(subject)}
                         >
                           <Pencil className="h-4 w-4" />
@@ -209,6 +210,7 @@ export function SubjectsManager() {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8 text-destructive"
+                          aria-label="Delete subject"
                           onClick={() => setDeleteSubjectId(subject.id)}
                         >
                           <Trash2 className="h-4 w-4" />

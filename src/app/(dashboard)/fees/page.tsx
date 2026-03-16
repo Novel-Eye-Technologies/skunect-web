@@ -43,6 +43,7 @@ import { useAuthStore } from '@/lib/stores/auth-store';
 import { useQuery } from '@tanstack/react-query';
 import { getClasses } from '@/lib/api/school-settings';
 import { formatCurrency } from '@/lib/utils/format-currency';
+import { QueryErrorBanner } from '@/components/shared/query-error-banner';
 import type { FeeStructure } from '@/lib/types/fees';
 import type { Invoice } from '@/lib/types/fees';
 
@@ -75,14 +76,14 @@ export default function FeesPage() {
   // ---------------------------------------------------------------------------
   // Data fetching
   // ---------------------------------------------------------------------------
-  const { data: structuresResponse, isLoading: structuresLoading } =
+  const { data: structuresResponse, isLoading: structuresLoading, isError: isStructuresError, refetch: refetchStructures } =
     useFeeStructures({
       page: structurePagination.pageIndex,
       size: structurePagination.pageSize,
     });
   const deleteFeeStructure = useDeleteFeeStructure();
 
-  const { data: invoicesResponse, isLoading: invoicesLoading } = useInvoices({
+  const { data: invoicesResponse, isLoading: invoicesLoading, isError: isInvoicesError, refetch: refetchInvoices } = useInvoices({
     page: invoicePagination.pageIndex,
     size: invoicePagination.pageSize,
     status: statusFilter || undefined,
@@ -90,7 +91,7 @@ export default function FeesPage() {
   });
 
   const { data: classesResponse } = useQuery({
-    queryKey: ['classes', schoolId],
+    queryKey: ['classes', schoolId ?? ''],
     queryFn: () => getClasses(schoolId!),
     enabled: !!schoolId,
     select: (res) => res.data,
@@ -319,6 +320,7 @@ export default function FeesPage() {
         {/* Fee Structures Tab                                                  */}
         {/* ----------------------------------------------------------------- */}
         <TabsContent value="structures" className="space-y-4">
+          {isStructuresError && <QueryErrorBanner onRetry={refetchStructures} />}
           <DataTable
             columns={structureColumns}
             data={structures}
@@ -344,6 +346,7 @@ export default function FeesPage() {
         {/* Invoices Tab                                                        */}
         {/* ----------------------------------------------------------------- */}
         <TabsContent value="invoices" className="space-y-4">
+          {isInvoicesError && <QueryErrorBanner onRetry={refetchInvoices} />}
           <DataTable
             columns={invoiceColumns}
             data={invoices}

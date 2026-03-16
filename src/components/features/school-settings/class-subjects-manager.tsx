@@ -217,6 +217,7 @@ export function ClassSubjectsManager({
                               variant="ghost"
                               size="icon"
                               className="h-8 w-8"
+                              aria-label="Change teacher"
                               title="Change teacher"
                               onClick={() => {
                                 setChangeTeacherSubject(cs);
@@ -233,6 +234,7 @@ export function ClassSubjectsManager({
                               variant="ghost"
                               size="icon"
                               className="h-8 w-8 text-destructive"
+                              aria-label="Remove subject"
                               title="Remove subject"
                               onClick={() => setRemoveSubjectId(cs.subjectId)}
                             >
