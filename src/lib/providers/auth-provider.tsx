@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore, useAuthHydrated } from '@/lib/stores/auth-store';
 import { getCurrentUser } from '@/lib/api/auth';
-import { ADMIN_ONLY_ROUTES, SUPER_ADMIN_ONLY_ROUTES } from '@/lib/utils/constants';
+import { ADMIN_ONLY_ROUTES, SUPER_ADMIN_ONLY_ROUTES, TEACHER_BLOCKED_ROUTES } from '@/lib/utils/constants';
 
 /** Routes that should be accessible without authentication. */
 const PUBLIC_ROUTES = ['/login', '/register', '/verify-otp', '/forgot-password'];
@@ -105,6 +105,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
 
     if (isAdminRoute && currentRole !== 'ADMIN') {
+      router.replace('/dashboard');
+      return;
+    }
+
+    // Teachers can't access certain routes that are shared between ADMIN and PARENT
+    const isTeacherBlocked = TEACHER_BLOCKED_ROUTES.some(
+      (route) => pathname === route || pathname.startsWith(`${route}/`)
+    );
+    if (isTeacherBlocked && currentRole === 'TEACHER') {
       router.replace('/dashboard');
       return;
     }
