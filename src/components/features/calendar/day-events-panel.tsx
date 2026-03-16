@@ -107,6 +107,7 @@ export function DayEventsPanel({
                       variant="ghost"
                       size="icon"
                       className="h-7 w-7"
+                      aria-label="Edit event"
                       onClick={() => onEdit(evt)}
                     >
                       <Pencil className="h-3.5 w-3.5" />
@@ -115,6 +116,7 @@ export function DayEventsPanel({
                       variant="ghost"
                       size="icon"
                       className="h-7 w-7 text-destructive"
+                      aria-label="Delete event"
                       onClick={() => onDelete(evt.id)}
                     >
                       <Trash2 className="h-3.5 w-3.5" />

@@ -233,6 +233,7 @@ export function ClassesManager() {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8"
+                          aria-label="Manage subjects"
                           title="Manage subjects"
                           onClick={() => setSubjectsClass(cls)}
                         >
@@ -242,6 +243,7 @@ export function ClassesManager() {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8"
+                          aria-label="Edit class"
                           title="Edit class"
                           onClick={() => openEdit(cls)}
                         >
@@ -251,6 +253,7 @@ export function ClassesManager() {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8 text-destructive"
+                          aria-label="Delete class"
                           title="Delete class"
                           onClick={() => setDeleteClassId(cls.id)}
                         >

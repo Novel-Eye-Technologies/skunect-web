@@ -592,6 +592,7 @@ export function StudentFormDialog({
                         variant="ghost"
                         size="icon"
                         className="h-6 w-6 text-destructive"
+                        aria-label={`Remove guardian ${index + 1}`}
                         onClick={() => remove(index)}
                       >
                         <Trash2 className="h-3.5 w-3.5" />

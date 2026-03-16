@@ -34,7 +34,7 @@ export default function MyClassesPage() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   const { data: response, isLoading } = useQuery({
-    queryKey: ['classes', schoolId],
+    queryKey: ['classes', schoolId ?? ''],
     queryFn: () => getClasses(schoolId!),
     enabled: !!schoolId,
   });

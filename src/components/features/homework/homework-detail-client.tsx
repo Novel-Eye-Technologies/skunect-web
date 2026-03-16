@@ -292,6 +292,7 @@ export function HomeworkDetailClient() {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8"
+                          aria-label="Download attachment"
                           asChild
                         >
                           <a

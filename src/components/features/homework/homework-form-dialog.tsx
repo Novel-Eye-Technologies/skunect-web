@@ -169,7 +169,7 @@ export function HomeworkFormDialog({
       );
     } else {
       createHomework.mutate(
-        { data: values, files: files.length > 0 ? files : undefined },
+        { data: values },
         {
           onSuccess: () => {
             form.reset();
@@ -383,6 +383,7 @@ export function HomeworkFormDialog({
                           variant="ghost"
                           size="icon"
                           className="h-6 w-6"
+                          aria-label="Remove file"
                           onClick={() => removeFile(index)}
                         >
                           <X className="h-4 w-4" />

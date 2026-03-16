@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
+import { QueryErrorBanner } from '@/components/shared/query-error-banner';
 import type { AttendanceRecord } from '@/lib/types/attendance';
 
 export default function AttendancePage() {
@@ -44,7 +45,7 @@ export default function AttendancePage() {
   // ---------------------------------------------------------------------------
   // Data fetching
   // ---------------------------------------------------------------------------
-  const { data: response, isLoading } = useAttendanceRecords({
+  const { data: response, isLoading, isError, refetch } = useAttendanceRecords({
     page: pagination.pageIndex,
     size: pagination.pageSize,
     classId: classFilter || undefined,
@@ -52,14 +53,14 @@ export default function AttendancePage() {
   });
 
   const { data: classesResponse } = useQuery({
-    queryKey: ['classes', schoolId],
+    queryKey: ['classes', schoolId ?? ''],
     queryFn: () => getClasses(schoolId!),
     enabled: !!schoolId,
     select: (res) => res.data,
   });
 
   const { data: overview, isLoading: isLoadingOverview } = useQuery({
-    queryKey: ['attendance', 'overview', schoolId, dateFilter],
+    queryKey: ['attendance', 'overview', schoolId ?? '', dateFilter],
     queryFn: () => getAttendanceOverview(schoolId!, dateFilter),
     enabled: !!schoolId && !!dateFilter,
     select: (res) => res.data,
@@ -267,6 +268,7 @@ export default function AttendancePage() {
 
         {/* Records Tab */}
         <TabsContent value="records" className="space-y-6">
+          {isError && <QueryErrorBanner onRetry={refetch} />}
           <DataTable
             columns={columns}
             data={records}

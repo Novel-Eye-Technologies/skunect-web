@@ -81,11 +81,9 @@ export function useCreateHomework() {
   return useMutation({
     mutationFn: ({
       data,
-      files,
     }: {
       data: CreateHomeworkRequest;
-      files?: File[];
-    }) => createHomework(schoolId!, data, files),
+    }) => createHomework(schoolId!, data),
     onSuccess: () => {
       toast.success('Homework created successfully');
       queryClient.invalidateQueries({ queryKey: homeworkKeys.all });

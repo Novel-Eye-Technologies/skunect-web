@@ -45,6 +45,7 @@ import {
   useDownloadReportCardPdf,
 } from '@/lib/hooks/use-academics';
 import { formatDate } from '@/lib/utils/format-date';
+import { QueryErrorBanner } from '@/components/shared/query-error-banner';
 import type { Assessment, ReportCard } from '@/lib/types/academics';
 
 export default function AcademicsPage() {
@@ -57,21 +58,21 @@ export default function AcademicsPage() {
   const currentSessionId = settings?.currentSessionId ?? '';
 
   const { data: classesResponse } = useQuery({
-    queryKey: ['classes', schoolId],
+    queryKey: ['classes', schoolId ?? ''],
     queryFn: () => getClasses(schoolId!),
     enabled: !!schoolId,
     select: (res) => res.data,
   });
 
   const { data: subjectsResponse } = useQuery({
-    queryKey: ['subjects', schoolId],
+    queryKey: ['subjects', schoolId ?? ''],
     queryFn: () => getSubjects(schoolId!),
     enabled: !!schoolId,
     select: (res) => res.data,
   });
 
   const { data: termsResponse } = useQuery({
-    queryKey: ['terms', schoolId, currentSessionId],
+    queryKey: ['terms', schoolId ?? '', currentSessionId],
     queryFn: () => getTerms(schoolId!, currentSessionId),
     enabled: !!schoolId && !!currentSessionId,
     select: (res) => res.data,
@@ -93,7 +94,7 @@ export default function AcademicsPage() {
   const [editTarget, setEditTarget] = useState<Assessment | undefined>();
   const [deleteTarget, setDeleteTarget] = useState<Assessment | null>(null);
 
-  const { data: assessmentsResponse, isLoading: isLoadingAssessments } =
+  const { data: assessmentsResponse, isLoading: isLoadingAssessments, isError: isAssessmentsError, refetch: refetchAssessments } =
     useAssessments({
       page: assessmentPagination.pageIndex,
       size: assessmentPagination.pageSize,
@@ -129,7 +130,7 @@ export default function AcademicsPage() {
   const [rcTermFilter, setRcTermFilter] = useState('');
   const [generateDialogOpen, setGenerateDialogOpen] = useState(false);
 
-  const { data: reportCardsResponse, isLoading: isLoadingReportCards } =
+  const { data: reportCardsResponse, isLoading: isLoadingReportCards, isError: isReportCardsError, refetch: refetchReportCards } =
     useReportCards({
       classId: rcClassFilter || undefined,
       termId: rcTermFilter || undefined,
@@ -310,6 +311,7 @@ export default function AcademicsPage() {
               size="sm"
               onClick={() => downloadReportCardPdf.mutate(card.id)}
               disabled={downloadReportCardPdf.isPending}
+              aria-label="Download PDF"
               title="Download PDF"
             >
               <Download className="h-4 w-4" />
@@ -341,6 +343,7 @@ export default function AcademicsPage() {
         {/* Assessments Tab                                                    */}
         {/* ----------------------------------------------------------------- */}
         <TabsContent value="assessments" className="space-y-6">
+          {isAssessmentsError && <QueryErrorBanner onRetry={refetchAssessments} />}
           <DataTable
             columns={assessmentColumns}
             data={assessments}
@@ -443,6 +446,7 @@ export default function AcademicsPage() {
         {/* Report Cards Tab                                                   */}
         {/* ----------------------------------------------------------------- */}
         <TabsContent value="report-cards" className="space-y-6">
+          {isReportCardsError && <QueryErrorBanner onRetry={refetchReportCards} />}
           <DataTable
             columns={reportCardColumns}
             data={reportCards}

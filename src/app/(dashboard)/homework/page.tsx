@@ -29,6 +29,7 @@ import { useAuthStore } from '@/lib/stores/auth-store';
 import { useQuery } from '@tanstack/react-query';
 import { getClasses, getSubjects } from '@/lib/api/school-settings';
 import { formatDate } from '@/lib/utils/format-date';
+import { QueryErrorBanner } from '@/components/shared/query-error-banner';
 import type { HomeworkListItem } from '@/lib/types/homework';
 
 export default function HomeworkPage() {
@@ -56,7 +57,7 @@ export default function HomeworkPage() {
   // ---------------------------------------------------------------------------
   // Data fetching
   // ---------------------------------------------------------------------------
-  const { data: response, isLoading } = useHomeworkList({
+  const { data: response, isLoading, isError, refetch } = useHomeworkList({
     page: pagination.pageIndex,
     size: pagination.pageSize,
     classId: classFilter || undefined,
@@ -66,14 +67,14 @@ export default function HomeworkPage() {
   const deleteHomework = useDeleteHomework();
 
   const { data: classesResponse } = useQuery({
-    queryKey: ['classes', schoolId],
+    queryKey: ['classes', schoolId ?? ''],
     queryFn: () => getClasses(schoolId!),
     enabled: !!schoolId,
     select: (res) => res.data,
   });
 
   const { data: subjectsResponse } = useQuery({
-    queryKey: ['subjects', schoolId],
+    queryKey: ['subjects', schoolId ?? ''],
     queryFn: () => getSubjects(schoolId!),
     enabled: !!schoolId,
     select: (res) => res.data,
@@ -208,6 +209,7 @@ export default function HomeworkPage() {
         }
       />
 
+      {isError && <QueryErrorBanner onRetry={refetch} />}
       <DataTable
         columns={columns}
         data={homeworkList}

@@ -46,14 +46,14 @@ export default function TimetablePage() {
   const deleteSlot = useDeleteTimetableSlot();
 
   const { data: sessionsResponse } = useQuery({
-    queryKey: ['sessions', schoolId],
+    queryKey: ['sessions', schoolId ?? ''],
     queryFn: () => getSessions(schoolId!),
     enabled: !!schoolId,
     select: (res) => res.data,
   });
 
   const { data: classesResponse } = useQuery({
-    queryKey: ['classes', schoolId],
+    queryKey: ['classes', schoolId ?? ''],
     queryFn: () => getClasses(schoolId!),
     enabled: !!schoolId,
     select: (res) => res.data,

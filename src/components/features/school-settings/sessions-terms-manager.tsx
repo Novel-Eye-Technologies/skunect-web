@@ -332,6 +332,7 @@ export function SessionsTermsManager() {
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8"
+                            aria-label="Set as current session"
                             title="Set as current"
                             onClick={(e) => {
                               e.stopPropagation();
@@ -345,6 +346,7 @@ export function SessionsTermsManager() {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8"
+                          aria-label="Edit session"
                           onClick={(e) => {
                             e.stopPropagation();
                             openEditSession(session);
@@ -356,6 +358,7 @@ export function SessionsTermsManager() {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8 text-destructive"
+                          aria-label="Delete session"
                           onClick={(e) => {
                             e.stopPropagation();
                             setDeleteSessionId(session.id);
@@ -452,6 +455,7 @@ export function SessionsTermsManager() {
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8 text-orange-500"
+                            aria-label="Close term"
                             title="Close term"
                             onClick={() =>
                               closeTermMutation.mutate({
@@ -467,6 +471,7 @@ export function SessionsTermsManager() {
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8"
+                            aria-label="Set as current term"
                             title="Set as current"
                             onClick={() =>
                               setCurrentTerm.mutate({
@@ -484,6 +489,7 @@ export function SessionsTermsManager() {
                               variant="ghost"
                               size="icon"
                               className="h-8 w-8"
+                              aria-label="Edit term"
                               onClick={() => openEditTerm(term)}
                             >
                               <Pencil className="h-4 w-4" />
@@ -492,6 +498,7 @@ export function SessionsTermsManager() {
                               variant="ghost"
                               size="icon"
                               className="h-8 w-8 text-destructive"
+                              aria-label="Delete term"
                               onClick={() => setDeleteTermId(term.id)}
                             >
                               <Trash2 className="h-4 w-4" />
