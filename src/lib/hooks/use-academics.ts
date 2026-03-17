@@ -50,7 +50,7 @@ export function useAssessments(params?: AssessmentListParams) {
   return useQuery({
     queryKey: academicsKeys.assessments(schoolId ?? '', params),
     queryFn: () => getAssessments(schoolId!, params),
-    enabled: !!schoolId,
+    enabled: !!schoolId ,
   });
 }
 

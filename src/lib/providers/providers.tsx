@@ -3,6 +3,7 @@
 import { ThemeProvider } from "next-themes";
 import { QueryProvider } from "@/lib/providers/query-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Toaster } from "@/components/ui/sonner";
 
 interface ProvidersProps {
@@ -20,6 +21,7 @@ export function Providers({ children }: ProvidersProps) {
       <QueryProvider>
         <TooltipProvider>
           {children}
+          <ReactQueryDevtools initialIsOpen={false} />
           <Toaster position="top-right" richColors closeButton />
         </TooltipProvider>
       </QueryProvider>
