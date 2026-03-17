@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { getApiErrorMessage } from '@/lib/utils/get-error-message';
@@ -24,6 +24,7 @@ import type {
   BulkScoreRequest,
   GenerateReportCardsRequest,
 } from '@/lib/types/academics';
+import { queryClient } from '@/lib/query-client';
 
 // ---------------------------------------------------------------------------
 // Query keys
@@ -70,9 +71,7 @@ export function useAssessmentScores(assessmentId: string) {
 
 export function useCreateAssessment() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (data: CreateAssessmentRequest) =>
       createAssessment(schoolId!, data),
     onSuccess: () => {
@@ -87,9 +86,7 @@ export function useCreateAssessment() {
 
 export function useUpdateAssessment() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: ({
       assessmentId,
       data,
@@ -109,9 +106,7 @@ export function useUpdateAssessment() {
 
 export function useDeleteAssessment() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (assessmentId: string) =>
       deleteAssessment(schoolId!, assessmentId),
     onSuccess: () => {
@@ -130,9 +125,7 @@ export function useDeleteAssessment() {
 
 export function useSubmitBulkScores() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: ({
       assessmentId,
       data,
@@ -166,9 +159,7 @@ export function useReportCards(params?: ReportCardListParams) {
 
 export function useGenerateReportCards() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (data: GenerateReportCardsRequest) =>
       generateReportCards(schoolId!, data),
     onSuccess: () => {
@@ -183,9 +174,7 @@ export function useGenerateReportCards() {
 
 export function usePublishReportCard() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (reportCardId: string) =>
       publishReportCard(schoolId!, reportCardId),
     onSuccess: () => {

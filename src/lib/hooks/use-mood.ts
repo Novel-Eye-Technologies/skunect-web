@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { getApiErrorMessage } from '@/lib/utils/get-error-message';
@@ -10,6 +10,7 @@ import {
   type MoodListParams,
 } from '@/lib/api/mood';
 import type { CreateMoodEntryRequest } from '@/lib/types/mood';
+import { queryClient } from '@/lib/query-client';
 
 const moodKeys = {
   all: ['mood'] as const,
@@ -29,9 +30,7 @@ export function useMoodEntries(params?: MoodListParams) {
 
 export function useCreateMoodEntry() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (data: CreateMoodEntryRequest) =>
       createMoodEntry(schoolId!, data),
     onSuccess: () => {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { getApiErrorMessage } from '@/lib/utils/get-error-message';
@@ -20,6 +20,7 @@ import type {
   GradeSubmissionRequest,
 } from '@/lib/types/homework';
 import type { PaginatedParams } from '@/lib/api/types';
+import { queryClient } from '@/lib/query-client';
 
 // ---------------------------------------------------------------------------
 // Query keys
@@ -76,9 +77,7 @@ export function useSubmissions(homeworkId: string, params?: PaginatedParams) {
 
 export function useCreateHomework() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: ({
       data,
     }: {
@@ -96,9 +95,7 @@ export function useCreateHomework() {
 
 export function useUpdateHomework() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: ({
       homeworkId,
       data,
@@ -118,9 +115,7 @@ export function useUpdateHomework() {
 
 export function useDeleteHomework() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (homeworkId: string) => deleteHomework(schoolId!, homeworkId),
     onSuccess: () => {
       toast.success('Homework deleted');
@@ -134,9 +129,7 @@ export function useDeleteHomework() {
 
 export function useGradeSubmission() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: ({
       homeworkId,
       submissionId,

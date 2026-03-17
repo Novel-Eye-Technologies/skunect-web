@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { getApiErrorMessage } from '@/lib/utils/get-error-message';
@@ -51,6 +51,7 @@ import type {
   CreateGradingSystemRequest,
   UpdateGradingSystemRequest,
 } from '@/lib/types/school';
+import { queryClient } from '@/lib/query-client';
 
 // ---------------------------------------------------------------------------
 // Query keys
@@ -93,9 +94,7 @@ export function useSchoolSettings() {
 
 export function useUpdateSchoolSettings() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (data: UpdateSchoolSettingsRequest) =>
       updateSchoolSettings(schoolId!, data),
     onSuccess: () => {
@@ -127,9 +126,7 @@ export function useSessions() {
 
 export function useCreateSession() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (data: CreateSessionRequest) =>
       createSession(schoolId!, data),
     onSuccess: () => {
@@ -146,9 +143,7 @@ export function useCreateSession() {
 
 export function useUpdateSession() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: ({
       sessionId,
       data,
@@ -170,9 +165,7 @@ export function useUpdateSession() {
 
 export function useDeleteSession() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (sessionId: string) => deleteSession(schoolId!, sessionId),
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -188,9 +181,7 @@ export function useDeleteSession() {
 
 export function useSetCurrentSession() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (sessionId: string) => setCurrentSession(schoolId!, sessionId),
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -224,9 +215,7 @@ export function useTerms(sessionId: string) {
 
 export function useCreateTerm() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (data: CreateTermRequest) => createTerm(schoolId!, data),
     onSuccess: (_response, variables) => {
       queryClient.invalidateQueries({
@@ -242,9 +231,7 @@ export function useCreateTerm() {
 
 export function useUpdateTerm() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: ({
       termId,
       data,
@@ -269,9 +256,7 @@ export function useUpdateTerm() {
 
 export function useDeleteTerm() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: ({
       termId,
     }: {
@@ -292,9 +277,7 @@ export function useDeleteTerm() {
 
 export function useSetCurrentTerm() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: ({
       termId,
     }: {
@@ -318,9 +301,7 @@ export function useSetCurrentTerm() {
 
 export function useCloseTerm() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: ({
       termId,
     }: {
@@ -359,9 +340,7 @@ export function useClasses() {
 
 export function useCreateClass() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (data: CreateClassRequest) => createClass(schoolId!, data),
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -377,9 +356,7 @@ export function useCreateClass() {
 
 export function useUpdateClass() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: ({
       classId,
       data,
@@ -401,9 +378,7 @@ export function useUpdateClass() {
 
 export function useDeleteClass() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (classId: string) => deleteClass(schoolId!, classId),
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -434,9 +409,7 @@ export function useSubjects() {
 
 export function useCreateSubject() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (data: CreateSubjectRequest) =>
       createSubject(schoolId!, data),
     onSuccess: () => {
@@ -453,9 +426,7 @@ export function useCreateSubject() {
 
 export function useUpdateSubject() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: ({
       subjectId,
       data,
@@ -477,9 +448,7 @@ export function useUpdateSubject() {
 
 export function useDeleteSubject() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (subjectId: string) => deleteSubject(schoolId!, subjectId),
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -510,9 +479,7 @@ export function useClassSubjects(classId: string) {
 
 export function useAssignSubjectsToClass() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: ({
       classId,
       data,
@@ -534,9 +501,7 @@ export function useAssignSubjectsToClass() {
 
 export function useRemoveSubjectFromClass() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: ({
       classId,
       subjectId,
@@ -558,9 +523,7 @@ export function useRemoveSubjectFromClass() {
 
 export function useAssignTeacherToSubject() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: ({
       classId,
       subjectId,
@@ -611,9 +574,7 @@ export function useGradingSystems() {
 
 export function useCreateGradingSystem() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (data: CreateGradingSystemRequest) =>
       createGradingSystem(schoolId!, data),
     onSuccess: () => {
@@ -630,9 +591,7 @@ export function useCreateGradingSystem() {
 
 export function useUpdateGradingSystem() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: ({
       id,
       data,
@@ -654,9 +613,7 @@ export function useUpdateGradingSystem() {
 
 export function useDeleteGradingSystem() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (id: string) => deleteGradingSystem(schoolId!, id),
     onSuccess: () => {
       queryClient.invalidateQueries({

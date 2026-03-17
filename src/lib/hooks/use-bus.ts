@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { getApiErrorMessage } from '@/lib/utils/get-error-message';
@@ -27,6 +27,7 @@ import type {
   UpdateTripStudentRequest,
 } from '@/lib/types/bus';
 import type { PaginatedParams } from '@/lib/api/types';
+import { queryClient } from '@/lib/query-client';
 
 // ---------------------------------------------------------------------------
 // Query keys
@@ -106,8 +107,6 @@ export function useBusTracking(studentId: string) {
 
 export function useCreateBusRoute() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (data: CreateBusRouteRequest) =>
       createBusRoute(schoolId!, data),
@@ -123,8 +122,6 @@ export function useCreateBusRoute() {
 
 export function useDeleteBusRoute() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (routeId: string) => deleteBusRoute(schoolId!, routeId),
     onSuccess: () => {
@@ -139,8 +136,6 @@ export function useDeleteBusRoute() {
 
 export function useCreateBus() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (data: CreateBusRequest) => createBus(schoolId!, data),
     onSuccess: () => {
@@ -155,8 +150,6 @@ export function useCreateBus() {
 
 export function useDeleteBus() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (busId: string) => deleteBus(schoolId!, busId),
     onSuccess: () => {
@@ -171,8 +164,6 @@ export function useDeleteBus() {
 
 export function useEnrollStudent() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (data: EnrollStudentRequest) =>
       enrollStudent(schoolId!, data),
@@ -188,8 +179,6 @@ export function useEnrollStudent() {
 
 export function useUnenrollStudent() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (enrollmentId: string) =>
       unenrollStudent(schoolId!, enrollmentId),
@@ -205,8 +194,6 @@ export function useUnenrollStudent() {
 
 export function useCreateBusTrip() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (data: CreateBusTripRequest) =>
       createBusTrip(schoolId!, data),
@@ -222,8 +209,6 @@ export function useCreateBusTrip() {
 
 export function useUpdateTripStudentStatus() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: ({
       tripId,

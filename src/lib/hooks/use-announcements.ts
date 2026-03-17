@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { getApiErrorMessage } from '@/lib/utils/get-error-message';
@@ -18,6 +18,7 @@ import type {
   CreateAnnouncementRequest,
   UpdateAnnouncementRequest,
 } from '@/lib/types/announcements';
+import { queryClient } from '@/lib/query-client';
 
 // ---------------------------------------------------------------------------
 // Query keys
@@ -62,9 +63,7 @@ export function useAnnouncement(announcementId: string) {
 
 export function useCreateAnnouncement() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (data: CreateAnnouncementRequest) =>
       createAnnouncement(schoolId!, data),
     onSuccess: () => {
@@ -79,9 +78,7 @@ export function useCreateAnnouncement() {
 
 export function useUpdateAnnouncement() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: ({
       announcementId,
       data,
@@ -101,9 +98,7 @@ export function useUpdateAnnouncement() {
 
 export function useDeleteAnnouncement() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (announcementId: string) =>
       deleteAnnouncement(schoolId!, announcementId),
     onSuccess: () => {
@@ -118,9 +113,7 @@ export function useDeleteAnnouncement() {
 
 export function usePublishAnnouncement() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (announcementId: string) =>
       publishAnnouncement(schoolId!, announcementId),
     onSuccess: () => {
@@ -135,9 +128,7 @@ export function usePublishAnnouncement() {
 
 export function useUnpublishAnnouncement() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (announcementId: string) =>
       unpublishAnnouncement(schoolId!, announcementId),
     onSuccess: () => {

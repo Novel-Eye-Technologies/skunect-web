@@ -29,17 +29,16 @@ import {
   disconnectStomp,
   subscribeToMessages,
 } from '@/lib/websocket/stomp-client';
-import { useQueryClient } from '@tanstack/react-query';
+
 import { formatRelative } from '@/lib/utils/format-date';
 import { cn } from '@/lib/utils';
 import type { Conversation, Message } from '@/lib/types/messaging';
+import { queryClient } from '@/lib/query-client';
 
 export default function MessagesPage() {
   const userId = useAuthStore((s) => s.user?.id);
   const accessToken = useAuthStore((s) => s.accessToken);
-  const queryClient = useQueryClient();
-
-  const [activeConversationId, setActiveConversationId] = useState<
+const [activeConversationId, setActiveConversationId] = useState<
     string | null
   >(null);
   const [newDialogOpen, setNewDialogOpen] = useState(false);
