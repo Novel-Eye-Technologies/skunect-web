@@ -41,7 +41,17 @@ export function HomeworkDetailClient() {
   // ---------------------------------------------------------------------------
   // Data fetching
   // ---------------------------------------------------------------------------
-  const { data: homework, isLoading } = useHomework(homeworkId);
+  const { data: rawHomework, isLoading } = useHomework(homeworkId);
+
+  // Normalize: backend may not return all fields the type expects.
+  // Guard against null/undefined attachments to prevent render crashes.
+  const homework = rawHomework
+    ? {
+        ...rawHomework,
+        attachments: rawHomework.attachments ?? [],
+        maxScore: rawHomework.maxScore ?? 0,
+      }
+    : undefined;
 
   const [submissionPagination, setSubmissionPagination] =
     useState<PaginationState>({
