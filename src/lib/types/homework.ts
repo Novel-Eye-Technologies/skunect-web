@@ -20,16 +20,9 @@ export interface HomeworkListItem {
 
 export interface HomeworkDetail extends HomeworkListItem {
   description: string;
-  attachments: HomeworkAttachment[];
-  maxScore: number;
-}
-
-export interface HomeworkAttachment {
-  id: string;
-  name: string;
-  url: string;
-  type: string;
-  size: number;
+  /** Backend returns plain URL strings in `attachmentUrls`, not structured objects. */
+  attachmentUrls?: string[];
+  maxScore?: number;
 }
 
 export interface CreateHomeworkRequest {
@@ -53,7 +46,10 @@ export interface Submission {
   studentName: string;
   admissionNumber: string;
   submittedAt: string;
-  attachments: HomeworkAttachment[];
+  /** Backend returns plain URL strings, not structured objects. */
+  attachmentUrls?: string[];
+  /** @deprecated Frontend-only field kept for backwards compatibility. */
+  attachments?: { id: string; name: string; url: string; type: string; size: number }[];
   score: number | null;
   feedback: string | null;
   status: 'SUBMITTED' | 'GRADED' | 'LATE';

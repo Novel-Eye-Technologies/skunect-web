@@ -80,7 +80,7 @@ export function GradeSubmissionDialog({
     gradeSubmission.mutate(
       {
         homeworkId,
-        submissionId: submission.id,
+        submissionId: submission.studentId,
         data: {
           score: values.score,
           feedback: values.feedback || undefined,
@@ -119,9 +119,9 @@ export function GradeSubmissionDialog({
             <div className="text-xs text-muted-foreground">
               Submitted: {formatDateTime(submission.submittedAt)}
             </div>
-            {submission.attachments.length > 0 && (
+            {(submission.attachmentUrls?.length ?? submission.attachments?.length ?? 0) > 0 && (
               <div className="text-xs text-muted-foreground">
-                {submission.attachments.length} attachment(s)
+                {submission.attachmentUrls?.length ?? submission.attachments?.length ?? 0} attachment(s)
               </div>
             )}
           </div>
