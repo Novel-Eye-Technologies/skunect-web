@@ -41,17 +41,7 @@ export function HomeworkDetailClient() {
   // ---------------------------------------------------------------------------
   // Data fetching
   // ---------------------------------------------------------------------------
-  const { data: rawHomework, isLoading } = useHomework(homeworkId);
-
-  // Normalize: backend may not return all fields the type expects.
-  // Guard against null/undefined attachments to prevent render crashes.
-  const homework = rawHomework
-    ? {
-        ...rawHomework,
-        attachments: rawHomework.attachments ?? [],
-        maxScore: rawHomework.maxScore ?? 0,
-      }
-    : undefined;
+  const { data: homework, isLoading } = useHomework(homeworkId);
 
   const [submissionPagination, setSubmissionPagination] =
     useState<PaginationState>({
@@ -84,10 +74,15 @@ export function HomeworkDetailClient() {
     [],
   );
 
-  function formatFileSize(bytes: number): string {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  /** Extract a display name from a file URL. */
+  function getFileNameFromUrl(url: string): string {
+    try {
+      const pathname = new URL(url, 'https://placeholder').pathname;
+      const segments = pathname.split('/').filter(Boolean);
+      return segments[segments.length - 1] ?? 'Attachment';
+    } catch {
+      return 'Attachment';
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -113,9 +108,10 @@ export function HomeworkDetailClient() {
     {
       id: 'attachments',
       header: 'Attachments',
-      cell: ({ row }) => (
-        <span>{row.original.attachments.length} file(s)</span>
-      ),
+      cell: ({ row }) => {
+        const count = row.original.attachmentUrls?.length ?? row.original.attachments?.length ?? 0;
+        return <span>{count} file(s)</span>;
+      },
     },
     {
       accessorKey: 'score',
@@ -239,7 +235,7 @@ export function HomeworkDetailClient() {
                   <InfoRow label="Subject" value={homework.subjectName ?? null} />
                   <InfoRow
                     label="Max Score"
-                    value={String(homework.maxScore)}
+                    value={String(homework.maxScore ?? '-')}
                   />
                   <InfoRow
                     label="Assigned Date"
@@ -269,19 +265,19 @@ export function HomeworkDetailClient() {
             <Card>
               <CardHeader>
                 <CardTitle>
-                  Attachments ({homework.attachments.length})
+                  Attachments ({homework.attachmentUrls?.length ?? 0})
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {homework.attachments.length === 0 ? (
+                {!homework.attachmentUrls?.length ? (
                   <p className="text-sm text-muted-foreground">
                     No attachments.
                   </p>
                 ) : (
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {homework.attachments.map((attachment) => (
+                    {homework.attachmentUrls.map((url, index) => (
                       <div
-                        key={attachment.id}
+                        key={`${url}-${index}`}
                         className="flex items-start justify-between rounded-md border p-3"
                       >
                         <div className="flex items-start gap-3">
@@ -289,12 +285,8 @@ export function HomeworkDetailClient() {
                             <FileText className="h-5 w-5 text-muted-foreground" />
                           </div>
                           <div>
-                            <p className="text-sm font-medium">
-                              {attachment.name}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {attachment.type} &middot;{' '}
-                              {formatFileSize(attachment.size)}
+                            <p className="text-sm font-medium truncate max-w-[160px]">
+                              {getFileNameFromUrl(url)}
                             </p>
                           </div>
                         </div>
@@ -306,7 +298,7 @@ export function HomeworkDetailClient() {
                           asChild
                         >
                           <a
-                            href={attachment.url}
+                            href={url}
                             target="_blank"
                             rel="noopener noreferrer"
                           >
@@ -351,7 +343,7 @@ export function HomeworkDetailClient() {
         }}
         submission={gradeTarget ?? undefined}
         homeworkId={homeworkId}
-        maxScore={homework.maxScore}
+        maxScore={homework.maxScore ?? 100}
       />
     </div>
   );
