@@ -80,7 +80,7 @@ export function GradeSubmissionDialog({
     gradeSubmission.mutate(
       {
         homeworkId,
-        submissionId: submission.id,
+        submissionId: submission.studentId,
         data: {
           score: values.score,
           feedback: values.feedback || undefined,
