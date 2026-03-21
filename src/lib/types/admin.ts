@@ -13,14 +13,61 @@ export interface SchoolSummary {
 }
 
 export interface SystemDashboardResponse {
+  // Scale
   totalSchools: number;
+  activeSchools: number;
   totalStudents: number;
   totalTeachers: number;
   totalParents: number;
-  totalAdmins: number;
   totalUsers: number;
-  activeAcademicSessions: number;
-  schoolSummaries: SchoolSummary[];
+
+  // Revenue
+  mrr: number;
+  totalRevenue: number;
+  totalOutstanding: number;
+  revenuePerStudent: number;
+  activeSubscriptions: number;
+  gracePeriodSubscriptions: number;
+  expiredSubscriptions: number;
+
+  // Engagement
+  teacherAttendanceRate: number;
+  parentActivationRate: number;
+  weeklyActiveParentRate: number;
+  homeworkCompletionRate: number;
+  messagesToday: number;
+
+  // Schools
+  schoolSummaries: SchoolHealthSummary[];
+
+  // Alerts
+  alerts: DashboardAlert[];
+}
+
+export interface SchoolHealthSummary {
+  id: string;
+  name: string;
+  code: string;
+  city: string;
+  state: string;
+  subscriptionTier: string;
+  isActive: boolean;
+  studentCount: number;
+  teacherCount: number;
+  parentCount: number;
+  todayAttendanceRate: number;
+  feeCollectionRate: number;
+  subscriptionStatus: string | null;
+  daysUntilExpiry: number | null;
+  createdAt: string;
+  lastActivityAt: string | null;
+}
+
+export interface DashboardAlert {
+  severity: 'warning' | 'danger' | 'info';
+  title: string;
+  message: string;
+  schoolId: string | null;
 }
 
 export interface SchoolDetail {
