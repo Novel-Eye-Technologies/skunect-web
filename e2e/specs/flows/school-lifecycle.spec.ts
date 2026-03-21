@@ -372,17 +372,11 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await dashboard.expectVisible();
     await dashboard.expectSuperAdminDashboard();
 
-    // Verify dashboard metrics are visible (supports both old and new dashboard layouts)
+    // Verify dashboard hero metrics are visible
     const main = page.getByRole('main');
-    // Both layouts show school/student counts — look for text that exists in both
-    const hasNewDashboard = await main.getByText('MRR').first().isVisible().catch(() => false);
-    if (hasNewDashboard) {
-      await expect(main.getByText('Schools').first()).toBeVisible({ timeout: 15_000 });
-      await expect(main.getByText('Students').first()).toBeVisible();
-    } else {
-      await expect(main.getByText('Total Schools')).toBeVisible({ timeout: 15_000 });
-      await expect(main.getByText('Total Students')).toBeVisible();
-    }
+    await expect(main.getByText('Schools').first()).toBeVisible({ timeout: 15_000 });
+    await expect(main.getByText('Students').first()).toBeVisible();
+    await expect(main.getByText('MRR').first()).toBeVisible();
   });
 
   test('1.1b — Super Admin: Dashboard shows all system stat cards', async ({ page }) => {
@@ -391,23 +385,16 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await dashboard.expectVisible();
 
     const main = page.getByRole('main');
-    const hasNewDashboard = await main.getByText('MRR').first().isVisible().catch(() => false);
-    if (hasNewDashboard) {
-      // New dashboard layout
-      await expect(main.getByText('Schools').first()).toBeVisible({ timeout: 15_000 });
-      await expect(main.getByText('Students').first()).toBeVisible();
-      await expect(main.getByText('MRR').first()).toBeVisible();
-      await expect(main.getByText('Teacher Attendance Today')).toBeVisible();
-      await expect(main.getByText('Weekly Active Parents')).toBeVisible();
-      await expect(main.getByText('Fully Set Up')).toBeVisible();
-      await expect(main.getByText('Net Student Growth')).toBeVisible();
-    } else {
-      // Old dashboard layout
-      await expect(main.getByText('Total Schools')).toBeVisible({ timeout: 15_000 });
-      await expect(main.getByText('Total Students')).toBeVisible();
-      await expect(main.getByText('Total Teachers')).toBeVisible();
-      await expect(main.getByText('Total Parents')).toBeVisible();
-    }
+    // Hero metrics
+    await expect(main.getByText('Schools').first()).toBeVisible({ timeout: 15_000 });
+    await expect(main.getByText('Students').first()).toBeVisible();
+    await expect(main.getByText('MRR').first()).toBeVisible();
+    // Health gauges
+    await expect(main.getByText('Teacher Attendance Today')).toBeVisible();
+    await expect(main.getByText('Weekly Active Parents')).toBeVisible();
+    // Growth metrics
+    await expect(main.getByText('Fully Set Up')).toBeVisible();
+    await expect(main.getByText('Net Student Growth')).toBeVisible();
   });
 
   test('1.1c — Super Admin: Sidebar shows correct nav items', async ({ page }) => {
