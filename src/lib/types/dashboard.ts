@@ -269,3 +269,74 @@ export interface AdminDashboardAlert {
   title: string;
   message: string;
 }
+
+// ── Enhanced Teacher Dashboard ──
+
+export interface EnhancedTeacherDashboard {
+  // Schedule
+  todaySchedule: TeacherScheduleSlot[];
+
+  // Quick Stats
+  myClassesCount: number;
+  totalStudentsCount: number;
+  todayAttendanceRate: number;
+  todayPresentCount: number;
+  todayAbsentCount: number;
+  todayLateCount: number;
+  pendingHomeworkToGrade: number;
+  overdueHomeworkCount: number;
+  unansweredParentMessages: number;
+
+  // At-Risk
+  atRiskStudents: AtRiskStudentItem[];
+
+  // Homework
+  pendingGrading: TeacherHomeworkItem[];
+  recentAssignments: TeacherHomeworkItem[];
+
+  // Class Performance
+  classPerformance: TeacherClassPerformance[];
+}
+
+export interface TeacherScheduleSlot {
+  periodNumber: number;
+  className: string;
+  subjectName: string;
+  isHomeroom: boolean;
+  attendanceMarked: boolean;
+}
+
+export interface AtRiskStudentItem {
+  studentId: string;
+  studentName: string;
+  className: string;
+  attendanceRate: number;
+  homeworkCompletionRate: number;
+  avgScore: number | null;
+  scoreTrend: number | null;
+  riskScore: number;
+  riskFactors: string[];
+}
+
+export interface TeacherHomeworkItem {
+  homeworkId: string;
+  title: string;
+  className: string;
+  subjectName: string;
+  dueDate: string;
+  totalStudents: number;
+  submittedCount: number;
+  gradedCount: number;
+  status: string;
+}
+
+export interface TeacherClassPerformance {
+  classId: string;
+  className: string;
+  isHomeroom: boolean;
+  studentCount: number;
+  attendanceRate: number;
+  homeworkSubmissionRate: number;
+  avgScore: number | null;
+  atRiskCount: number;
+}
