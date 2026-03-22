@@ -57,6 +57,7 @@ export function useAssessments(params?: AssessmentListParams) {
 export function useAssessmentScores(assessmentId: string) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
+
   return useQuery({
     queryKey: academicsKeys.scores(schoolId ?? '', assessmentId),
     queryFn: () => getAssessmentScores(schoolId!, assessmentId),
@@ -149,11 +150,11 @@ return useMutation({
 
 export function useReportCards(params?: ReportCardListParams) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-
+  const { classId, termId } = params || {};
   return useQuery({
     queryKey: academicsKeys.reportCards(schoolId ?? '', params),
     queryFn: () => getReportCards(schoolId!, params),
-    enabled: !!schoolId,
+    enabled: !!schoolId && !!classId && !!termId,
   });
 }
 
