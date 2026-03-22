@@ -6,6 +6,7 @@ import type {
   FeeSummaryData,
   TeacherDashboardData,
   ParentDashboardData,
+  EnhancedAdminDashboard,
 } from '@/lib/types/dashboard';
 
 export async function getAdminDashboard(
@@ -53,6 +54,17 @@ export async function getParentDashboard(
   const response = await apiClient.get<ApiResponse<ParentDashboardData>>(
     '/parents/me/dashboard',
     { params: { schoolId } },
+  );
+  return response.data;
+}
+
+export async function getEnhancedAdminDashboard(
+  schoolId: string,
+  phase: string = 'MID_TERM',
+): Promise<ApiResponse<EnhancedAdminDashboard>> {
+  const response = await apiClient.get<ApiResponse<EnhancedAdminDashboard>>(
+    `/schools/${schoolId}/analytics/enhanced-dashboard`,
+    { params: { phase } },
   );
   return response.data;
 }

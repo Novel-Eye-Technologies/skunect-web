@@ -165,3 +165,107 @@ export interface SubjectPerformance {
   grade: string;
   assessmentCount: number;
 }
+
+// ─── Enhanced Admin Dashboard ─────────────────────────────────────
+
+export interface EnhancedAdminDashboard {
+  // Hero
+  todayAttendanceRate: number;
+  todayPresentCount: number;
+  todayAbsentCount: number;
+  todayLateCount: number;
+  teachersMarkedAttendance: number;
+  totalTeachersWithClasses: number;
+  unansweredParentMessages: number;
+  feeCollectionRate: number;
+  totalFeesBilled: number;
+  totalFeesCollected: number;
+  totalFeesOutstanding: number;
+
+  // Scale
+  totalStudents: number;
+  activeStudents: number;
+  totalTeachers: number;
+  totalClasses: number;
+  totalParents: number;
+
+  // Engagement
+  parentEngagementRate: number;
+  homeworkAssignedThisWeek: number;
+  announcementsSentToday: number;
+
+  // Phase
+  currentPhase: string;
+  phaseMetrics: PhaseMetrics | null;
+
+  // Worst 5
+  worstTeachers: TeacherActivityItem[];
+  worstClassesAttendance: AdminClassAttendanceItem[];
+  worstStudentsAttendance: StudentAttendanceItem[];
+  classesNoHomework: ClassHomeworkItem[];
+  unansweredThreads: UnansweredThreadItem[];
+
+  // Alerts
+  alerts: AdminDashboardAlert[];
+}
+
+export interface TeacherActivityItem {
+  teacherId: string;
+  teacherName: string;
+  daysAttendanceMarked: number;
+  homeworkAssigned: number;
+  unansweredMessages: number;
+  activityScore: number;
+}
+
+export interface AdminClassAttendanceItem {
+  classId: string;
+  className: string;
+  attendanceRate: number;
+  studentCount: number;
+}
+
+export interface StudentAttendanceItem {
+  studentId: string;
+  studentName: string;
+  className: string;
+  attendanceRate: number;
+  daysAbsent: number;
+}
+
+export interface ClassHomeworkItem {
+  classId: string;
+  className: string;
+  classTeacherName: string | null;
+  daysSinceLastHomework: number;
+}
+
+export interface UnansweredThreadItem {
+  conversationId: string;
+  parentName: string;
+  lastMessage: string;
+  sentAt: string;
+  hoursUnanswered: number;
+  teacherName: string | null;
+}
+
+export interface PhaseMetrics {
+  newStudentsThisTerm: number | null;
+  incompleteRegistrations: number | null;
+  unpaidFeesCount: number | null;
+  termAttendanceTrend: number | null;
+  homeworkCompletionRate: number | null;
+  parentWeeklyEngagement: number | null;
+  assessmentsCreated: number | null;
+  assessmentsGraded: number | null;
+  assessmentCoverage: number | null;
+  termFeeCollectionRate: number | null;
+  reportCardsGenerated: number | null;
+  avgTermScore: number | null;
+}
+
+export interface AdminDashboardAlert {
+  severity: 'warning' | 'danger' | 'info';
+  title: string;
+  message: string;
+}
