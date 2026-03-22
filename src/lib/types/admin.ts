@@ -30,6 +30,13 @@ export interface SystemDashboardResponse {
   gracePeriodSubscriptions: number;
   expiredSubscriptions: number;
 
+  // Growth
+  fullySetUpSchools: number;
+  avgDaysToFirstAttendance: number | null;
+  studentsAddedThisMonth: number;
+  studentsRemovedThisMonth: number;
+  netStudentGrowth: number;
+
   // Engagement
   teacherAttendanceRate: number;
   parentActivationRate: number;
@@ -57,6 +64,9 @@ export interface SchoolHealthSummary {
   parentCount: number;
   todayAttendanceRate: number;
   feeCollectionRate: number;
+  messagesThisWeek: number;
+  parentActivationRate: number;
+  isFullySetUp: boolean;
   subscriptionStatus: string | null;
   daysUntilExpiry: number | null;
   createdAt: string;

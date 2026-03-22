@@ -146,6 +146,44 @@ export function SuperAdminDashboard() {
         </Card>
       </div>
 
+      {/* ── Growth Metrics ── */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardContent className="pt-6">
+            <Building2 className="h-4 w-4 text-muted-foreground mb-2" />
+            <p className="text-sm text-muted-foreground">Fully Set Up</p>
+            <p className="text-2xl font-bold">{data.fullySetUpSchools} <span className="text-sm font-normal text-muted-foreground">/ {data.activeSchools}</span></p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <Clock className="h-4 w-4 text-muted-foreground mb-2" />
+            <p className="text-sm text-muted-foreground">Avg Days to First Attendance</p>
+            <p className="text-2xl font-bold">{data.avgDaysToFirstAttendance != null ? `${data.avgDaysToFirstAttendance}d` : '—'}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <TrendingUp className="h-4 w-4 text-muted-foreground mb-2" />
+            <p className="text-sm text-muted-foreground">Net Student Growth</p>
+            <p className={`text-2xl font-bold ${data.netStudentGrowth >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+              {data.netStudentGrowth >= 0 ? '+' : ''}{data.netStudentGrowth}
+            </p>
+            <p className="text-xs text-muted-foreground">+{data.studentsAddedThisMonth} / -{data.studentsRemovedThisMonth} this month</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <UserCheck className="h-4 w-4 text-muted-foreground mb-2" />
+            <p className="text-sm text-muted-foreground">Parent Activation</p>
+            <p className={`text-2xl font-bold ${rateColor(data.parentActivationRate, 60)}`}>
+              {formatRate(data.parentActivationRate)}
+            </p>
+            <p className="text-xs text-muted-foreground">Target: 60% within 30 days</p>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* ── Health Gauges ── */}
       <div className="grid gap-4 sm:grid-cols-2">
         <Card className={`border ${rateBg(data.teacherAttendanceRate, 80)}`}>
@@ -289,7 +327,9 @@ export function SuperAdminDashboard() {
                   <th className="pb-3 font-medium text-right">Students</th>
                   <th className="pb-3 font-medium text-right">Attendance</th>
                   <th className="pb-3 font-medium text-right">Fee Collection</th>
-                  <th className="pb-3 font-medium text-center">Subscription</th>
+                  <th className="pb-3 font-medium text-right">Msgs/wk</th>
+                  <th className="pb-3 font-medium text-right">Parent Act.</th>
+                  <th className="pb-3 font-medium text-center">Status</th>
                   <th className="pb-3 font-medium text-right">Last Activity</th>
                 </tr>
               </thead>
@@ -312,6 +352,14 @@ export function SuperAdminDashboard() {
                     <td className="py-3 text-right">
                       <p className={`font-medium ${rateColor(school.feeCollectionRate, 70)}`}>
                         {school.feeCollectionRate > 0 ? formatRate(school.feeCollectionRate) : '—'}
+                      </p>
+                    </td>
+                    <td className="py-3 text-right">
+                      <p className="font-medium">{school.messagesThisWeek}</p>
+                    </td>
+                    <td className="py-3 text-right">
+                      <p className={`font-medium ${rateColor(school.parentActivationRate, 60)}`}>
+                        {school.parentActivationRate > 0 ? formatRate(school.parentActivationRate) : '—'}
                       </p>
                     </td>
                     <td className="py-3 text-center">
@@ -341,7 +389,7 @@ export function SuperAdminDashboard() {
                 ))}
                 {data.schoolSummaries.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="py-8 text-center text-muted-foreground">
+                    <td colSpan={8} className="py-8 text-center text-muted-foreground">
                       No schools registered yet
                     </td>
                   </tr>

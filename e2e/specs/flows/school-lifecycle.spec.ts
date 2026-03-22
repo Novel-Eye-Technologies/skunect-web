@@ -372,10 +372,11 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await dashboard.expectVisible();
     await dashboard.expectSuperAdminDashboard();
 
-    // Verify dashboard stats are visible
+    // Verify dashboard hero metrics are visible
     const main = page.getByRole('main');
-    await expect(main.getByText('Total Schools')).toBeVisible({ timeout: 15_000 });
-    await expect(main.getByText('Total Users')).toBeVisible();
+    await expect(main.getByText('Schools').first()).toBeVisible({ timeout: 15_000 });
+    await expect(main.getByText('Students').first()).toBeVisible();
+    await expect(main.getByText('MRR').first()).toBeVisible();
   });
 
   test('1.1b — Super Admin: Dashboard shows all system stat cards', async ({ page }) => {
@@ -384,13 +385,16 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await dashboard.expectVisible();
 
     const main = page.getByRole('main');
-    await expect(main.getByText('Total Schools')).toBeVisible({ timeout: 15_000 });
-    await expect(main.getByText('Total Students')).toBeVisible();
-    await expect(main.getByText('Total Teachers')).toBeVisible();
-    await expect(main.getByText('Total Parents')).toBeVisible();
-    await expect(main.getByText('Total Users')).toBeVisible();
-    await expect(main.getByText('School Admins')).toBeVisible();
-    await expect(main.getByText('Active Sessions')).toBeVisible();
+    // Hero metrics
+    await expect(main.getByText('Schools').first()).toBeVisible({ timeout: 15_000 });
+    await expect(main.getByText('Students').first()).toBeVisible();
+    await expect(main.getByText('MRR').first()).toBeVisible();
+    // Health gauges
+    await expect(main.getByText('Teacher Attendance Today')).toBeVisible();
+    await expect(main.getByText('Weekly Active Parents')).toBeVisible();
+    // Growth metrics
+    await expect(main.getByText('Fully Set Up')).toBeVisible();
+    await expect(main.getByText('Net Student Growth')).toBeVisible();
   });
 
   test('1.1c — Super Admin: Sidebar shows correct nav items', async ({ page }) => {
