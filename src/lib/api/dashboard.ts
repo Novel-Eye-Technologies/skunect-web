@@ -7,6 +7,7 @@ import type {
   TeacherDashboardData,
   ParentDashboardData,
   EnhancedAdminDashboard,
+  EnhancedTeacherDashboard,
 } from '@/lib/types/dashboard';
 
 export async function getAdminDashboard(
@@ -56,6 +57,15 @@ export async function getParentDashboard(
     { params: { schoolId } },
   );
   return response.data;
+}
+
+export async function getEnhancedTeacherDashboard(
+  schoolId: string,
+): Promise<ApiResponse<EnhancedTeacherDashboard>> {
+  const { data } = await apiClient.get(
+    `/schools/${schoolId}/analytics/enhanced-teacher-dashboard`,
+  );
+  return data;
 }
 
 export async function getEnhancedAdminDashboard(

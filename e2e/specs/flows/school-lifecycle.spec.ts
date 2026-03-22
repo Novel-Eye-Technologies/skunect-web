@@ -1568,22 +1568,17 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await dashboard.expectTeacherDashboard();
     await dashboard.expectGreeting();
 
-    // Verify stat cards (scope to main content to avoid sidebar collisions)
+    // Verify stat cards on enhanced teacher dashboard
     const main = page.getByRole('main');
-    await expect(main.getByText('My Classes')).toBeVisible({ timeout: 15_000 });
-    await expect(main.getByText('Total Students')).toBeVisible();
-    await expect(main.getByText("Today's Attendance")).toBeVisible();
-    await expect(main.getByText('Pending Homework')).toBeVisible();
+    await expect(main.getByText("Today's Attendance").first()).toBeVisible({ timeout: 15_000 });
+    await expect(main.getByText('Homework to Grade').first()).toBeVisible();
+    await expect(main.getByText('My Students').first()).toBeVisible();
 
-    // Verify Quick Actions section
-    await expect(page.getByText('Quick Actions')).toBeVisible();
-    await expect(page.getByText('Take Attendance')).toBeVisible();
-    await expect(page.getByText('Enter Grade')).toBeVisible();
-    await expect(page.getByText('Create Homework')).toBeVisible();
-    await expect(page.getByText('Send Message')).toBeVisible();
+    // Verify Today's Schedule section
+    await expect(main.getByText("Today's Schedule").first()).toBeVisible();
 
-    // Verify Today's Schedule card
-    await expect(page.getByText("Today's Schedule")).toBeVisible();
+    // Verify Class Performance section
+    await expect(main.getByText('Class Performance')).toBeVisible();
 
     // Verify key navigation items
     const sidebar = new SidebarPage(page);
@@ -1593,26 +1588,23 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await sidebar.expectNavItem('Academics');
   });
 
-  test('3.1b — Teacher: Dashboard shows all stat cards and quick actions', async ({ page }) => {
+  test('3.1b — Teacher: Dashboard shows all stat cards and sections', async ({ page }) => {
     await loginViaUI(page, TEACHER1_EMAIL);
     await waitForDashboard(page);
 
     const main = page.getByRole('main');
-    // All four stat cards
-    await expect(main.getByText('My Classes')).toBeVisible({ timeout: 15_000 });
-    await expect(main.getByText('Total Students')).toBeVisible();
-    await expect(main.getByText("Today's Attendance")).toBeVisible();
-    await expect(main.getByText('Pending Homework')).toBeVisible();
+    // Stat cards
+    await expect(main.getByText("Today's Attendance").first()).toBeVisible({ timeout: 15_000 });
+    await expect(main.getByText('Homework to Grade').first()).toBeVisible();
+    await expect(main.getByText('Parent Messages').first()).toBeVisible();
+    await expect(main.getByText('My Students').first()).toBeVisible();
 
-    // Quick Actions
-    await expect(page.getByText('Quick Actions')).toBeVisible();
-    await expect(page.getByText('Take Attendance')).toBeVisible();
-    await expect(page.getByText('Enter Grade')).toBeVisible();
-    await expect(page.getByText('Create Homework')).toBeVisible();
-    await expect(page.getByText('Send Message')).toBeVisible();
+    // Schedule
+    await expect(main.getByText("Today's Schedule").first()).toBeVisible();
 
-    // Today's Schedule
-    await expect(page.getByText("Today's Schedule")).toBeVisible();
+    // At-risk and class performance sections
+    await expect(main.getByText('Students Needing Attention')).toBeVisible();
+    await expect(main.getByText('Class Performance')).toBeVisible();
   });
 
   test('3.1c — Teacher: Quick action navigates to attendance page', async ({ page }) => {
@@ -1745,10 +1737,10 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     const scheduleCard = page.locator('text=Today\'s Schedule').locator('..');
     await expect(scheduleCard).toBeVisible({ timeout: 15_000 });
 
-    // Check for schedule content — should show classes or "No schedule for today"
+    // Check for schedule content — should show periods or "No schedule for today"
     const scheduleSection = scheduleCard.locator('..');
-    const hasSchedule = await scheduleSection.getByText(/P\d/).first().isVisible().catch(() => false);
-    const hasNoSchedule = await scheduleSection.getByText('No schedule for today').isVisible().catch(() => false);
+    const hasSchedule = await scheduleSection.getByText(/Period \d/).first().isVisible().catch(() => false);
+    const hasNoSchedule = await scheduleSection.getByText(/No (classes |schedule )?/i).first().isVisible().catch(() => false);
 
     // One of these must be true
     expect(hasSchedule || hasNoSchedule).toBeTruthy();
