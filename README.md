@@ -333,15 +333,39 @@ aws cloudfront create-invalidation --distribution-id EUW2XYFIEOP1A --paths "/*"
 
 ### CI/CD
 
-Five GitHub Actions workflows:
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| `ci.yml` | PR to `develop` or `main` | Lint + typecheck |
+| `e2e-tests.yml` | PR to `develop`/`main`, push to `develop` | E2E tests (sharded, against dev) |
+| `e2e-full.yml` | PR to `develop`/`main`, push to `develop` | Full E2E with Docker backend |
+| `deploy-dev.yml` | Push to `develop` | Build + deploy to dev environment |
+| `deploy-prod.yml` | Push to `main` | E2E tests + deploy to production |
 
-| Workflow | File | Trigger | Description |
-|----------|------|---------|-------------|
-| **CI** | `ci.yml` | PR to `main` | Lint + typecheck |
-| **E2E Tests** | `e2e-tests.yml` | PR + push to `main` | Sharded Playwright E2E tests (4 shards) |
-| **E2E Full CRUD** | `e2e-full.yml` | PR + push to `main` | Full school lifecycle E2E tests (4 shards) |
-| **Deploy Dev** | `deploy-dev.yml` | Push to `main` | Build + deploy to S3/CloudFront (dev) |
-| **Deploy Prod** | `deploy-prod.yml` | Manual dispatch | Build + deploy to S3/CloudFront (prod) |
+### Release Process
+
+1. **Development**: Feature branches → PR to `develop` → auto-deploys to dev after merge
+2. **Version tag**: When dev is stable, tag the release:
+   ```bash
+   git checkout develop
+   git tag v1.1.0
+   git push origin v1.1.0
+   ```
+3. **Promote to prod**: Create PR from `develop` → `main`, include the version in PR title
+4. **Production deploy**: Merging to `main` runs E2E tests, then auto-deploys to production
+5. **Rollback**: Redeploy a previous git tag:
+   ```bash
+   git checkout v1.0.0
+   npm run build
+   aws s3 sync out/ s3://skunect-web-dev --delete
+   aws cloudfront create-invalidation --distribution-id EUW2XYFIEOP1A --paths "/*"
+   ```
+
+### Version Convention
+
+- Format: `v{major}.{minor}.{patch}` (e.g., `v1.2.0`)
+- **Patch**: bug fixes, no UI changes
+- **Minor**: new features, backwards-compatible
+- **Major**: breaking changes, major UI overhaul
 
 ---
 

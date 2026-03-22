@@ -1,7 +1,8 @@
 name: Deploy to Production
 
 on:
-  workflow_dispatch:
+  push:
+    branches: [main]
 
 env:
   NODE_VERSION: '20'
