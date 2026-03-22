@@ -1107,10 +1107,10 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await dashboard.expectGreeting();
     await dashboard.expectAdminDashboard();
 
-    // Verify stat cards show expected counts
-    // We created 10 students (5 per class) and 3 teachers
-    await expect(page.getByText('Total Students')).toBeVisible();
-    await expect(page.getByText('Total Teachers')).toBeVisible();
+    // Verify hero metrics are visible on the enhanced dashboard
+    await expect(page.getByText("Today's Attendance").first()).toBeVisible();
+    await expect(page.getByText('Teacher Accountability').first()).toBeVisible();
+    await expect(page.getByText('Fee Collection').first()).toBeVisible();
   });
 
   test('2.18 — School Admin: Validate People section pages', async ({ page }) => {
