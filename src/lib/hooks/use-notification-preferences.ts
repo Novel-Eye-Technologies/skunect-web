@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { getApiErrorMessage } from '@/lib/utils/get-error-message';
 import {
@@ -9,6 +9,7 @@ import {
   getUnreadCount,
 } from '@/lib/api/notification-preferences';
 import type { UpdatePreferenceRequest } from '@/lib/types/notification-preference';
+import { queryClient } from '@/lib/query-client';
 
 // ---------------------------------------------------------------------------
 // Query keys
@@ -44,9 +45,7 @@ export function useUnreadNotificationCount() {
 // ---------------------------------------------------------------------------
 
 export function useUpdateNotificationPreference() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (data: UpdatePreferenceRequest) =>
       updateNotificationPreference(data),
     onSuccess: () => {

@@ -39,6 +39,7 @@ export default function StudentsPage() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
   const role = useAuthStore((s) => s.currentRole);
   const isParent = role === 'PARENT';
+  const isTeacher = role === 'TEACHER';
 
   // ---------------------------------------------------------------------------
   // Pagination, filter, and search state
@@ -163,7 +164,7 @@ export default function StudentsPage() {
                 <Eye className="mr-2 h-4 w-4" />
                 View Details
               </DropdownMenuItem>
-              {!isParent && (
+              {(!isParent && !isTeacher) && (
                 <>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
@@ -195,7 +196,7 @@ export default function StudentsPage() {
             : 'Manage student records and information.'
         }
         actions={
-          !isParent ? (
+          (!isParent && !isTeacher) ? (
             <Button onClick={() => setCreateDialogOpen(true)}>
               Add Student
             </Button>

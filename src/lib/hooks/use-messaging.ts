@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { getApiErrorMessage } from '@/lib/utils/get-error-message';
@@ -15,6 +15,7 @@ import type {
   SendMessageRequest,
 } from '@/lib/types/messaging';
 import type { PaginatedParams } from '@/lib/api/types';
+import { queryClient } from '@/lib/query-client';
 
 // ---------------------------------------------------------------------------
 // Query keys
@@ -58,9 +59,7 @@ export function useMessages(conversationId: string, params?: PaginatedParams) {
 
 export function useCreateConversation() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (data: CreateConversationRequest) =>
       createConversation(schoolId!, data),
     onSuccess: () => {
@@ -87,9 +86,7 @@ export function useUnreadMessageCount() {
 
 export function useSendMessage() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: ({
       conversationId,
       data,

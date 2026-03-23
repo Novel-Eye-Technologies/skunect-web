@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { getApiErrorMessage } from '@/lib/utils/get-error-message';
@@ -13,6 +13,7 @@ import {
   type UserListParams,
 } from '@/lib/api/users';
 import type { InviteUserRequest, UpdateUserStatusRequest, UpdateSchoolUserRequest } from '@/lib/types/user';
+import { queryClient } from '@/lib/query-client';
 
 // ---------------------------------------------------------------------------
 // Query keys
@@ -44,9 +45,7 @@ export function useUsers(params?: UserListParams) {
 
 export function useInviteUser() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (data: InviteUserRequest) => inviteUser(schoolId!, data),
     onSuccess: () => {
       toast.success('User invited successfully');
@@ -60,9 +59,7 @@ export function useInviteUser() {
 
 export function useUpdateUserStatus() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: ({
       userId,
       data,
@@ -82,9 +79,7 @@ export function useUpdateUserStatus() {
 
 export function useUpdateSchoolUser() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: ({
       userId,
       data,
@@ -105,9 +100,7 @@ export function useUpdateSchoolUser() {
 
 export function useRemoveUser() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (userId: string) => removeUser(schoolId!, userId),
     onSuccess: () => {
       toast.success('User removed from school');

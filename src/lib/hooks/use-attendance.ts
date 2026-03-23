@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { getApiErrorMessage } from '@/lib/utils/get-error-message';
@@ -12,6 +12,7 @@ import {
   type AttendanceSummaryParams,
 } from '@/lib/api/attendance';
 import type { BulkAttendanceRequest } from '@/lib/types/attendance';
+import { queryClient } from '@/lib/query-client';
 
 // ---------------------------------------------------------------------------
 // Query keys
@@ -55,9 +56,7 @@ export function useAttendanceSummary(params?: AttendanceSummaryParams) {
 
 export function useSubmitBulkAttendance() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (data: BulkAttendanceRequest) =>
       submitBulkAttendance(schoolId!, data),
     onSuccess: () => {

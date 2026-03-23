@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { getApiErrorMessage } from '@/lib/utils/get-error-message';
@@ -22,6 +22,7 @@ import type {
   CreatePickupAuthorizationRequest,
 } from '@/lib/types/safety';
 import type { PaginatedParams } from '@/lib/api/types';
+import { queryClient } from '@/lib/query-client';
 
 // ---------------------------------------------------------------------------
 // Query keys
@@ -67,9 +68,7 @@ export function usePickupLogs(params?: PickupLogListParams) {
 
 export function useCreateEmergencyAlert() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (data: CreateEmergencyAlertRequest) =>
       createEmergencyAlert(schoolId!, data),
     onSuccess: () => {
@@ -84,9 +83,7 @@ export function useCreateEmergencyAlert() {
 
 export function useResolveEmergencyAlert() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (alertId: string) =>
       resolveEmergencyAlert(schoolId!, alertId),
     onSuccess: () => {
@@ -101,9 +98,7 @@ export function useResolveEmergencyAlert() {
 
 export function useCreatePickupLog() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (data: CreatePickupLogRequest) =>
       createPickupLog(schoolId!, data),
     onSuccess: () => {
@@ -118,9 +113,7 @@ export function useCreatePickupLog() {
 
 export function useVerifyPickupLog() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (pickupLogId: string) =>
       verifyPickupLog(schoolId!, pickupLogId),
     onSuccess: () => {
@@ -152,9 +145,7 @@ export function usePickupAuthorizations(studentId?: string) {
 
 export function useCreatePickupAuthorization() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (data: CreatePickupAuthorizationRequest) =>
       createPickupAuthorization(schoolId!, data),
     onSuccess: () => {
@@ -169,9 +160,7 @@ export function useCreatePickupAuthorization() {
 
 export function useRevokePickupAuthorization() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (authorizationId: string) =>
       revokePickupAuthorization(schoolId!, authorizationId),
     onSuccess: () => {

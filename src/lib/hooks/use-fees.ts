@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { getApiErrorMessage } from '@/lib/utils/get-error-message';
@@ -22,6 +22,7 @@ import type {
   RecordPaymentRequest,
 } from '@/lib/types/fees';
 import type { PaginatedParams } from '@/lib/api/types';
+import { queryClient } from '@/lib/query-client';
 
 // ---------------------------------------------------------------------------
 // Query keys
@@ -78,8 +79,6 @@ export function useInvoice(invoiceId: string) {
 
 export function useCreateFeeStructure() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (data: CreateFeeStructureRequest) =>
       createFeeStructure(schoolId!, data),
@@ -95,8 +94,6 @@ export function useCreateFeeStructure() {
 
 export function useUpdateFeeStructure() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: ({
       feeStructureId,
@@ -117,8 +114,6 @@ export function useUpdateFeeStructure() {
 
 export function useDeleteFeeStructure() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (feeStructureId: string) =>
       deleteFeeStructure(schoolId!, feeStructureId),
@@ -134,8 +129,6 @@ export function useDeleteFeeStructure() {
 
 export function useGenerateInvoices() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (data: GenerateInvoicesRequest) =>
       generateInvoices(schoolId!, data),
@@ -151,8 +144,6 @@ export function useGenerateInvoices() {
 
 export function useRecordPayment() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: ({
       invoiceId,

@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { getApiErrorMessage } from '@/lib/utils/get-error-message';
@@ -15,6 +15,7 @@ import type {
   CreateHealthRecordRequest,
   UpdateHealthRecordRequest,
 } from '@/lib/types/health-record';
+import { queryClient } from '@/lib/query-client';
 
 const healthRecordKeys = {
   all: ['health-records'] as const,
@@ -34,9 +35,7 @@ export function useHealthRecords(params?: HealthRecordListParams) {
 
 export function useCreateHealthRecord() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (data: CreateHealthRecordRequest) =>
       createHealthRecord(schoolId!, data),
     onSuccess: () => {
@@ -51,9 +50,7 @@ export function useCreateHealthRecord() {
 
 export function useUpdateHealthRecord() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: ({
       recordId,
       data,
@@ -73,9 +70,7 @@ export function useUpdateHealthRecord() {
 
 export function useDeleteHealthRecord() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (recordId: string) => deleteHealthRecord(schoolId!, recordId),
     onSuccess: () => {
       toast.success('Health record deleted successfully');

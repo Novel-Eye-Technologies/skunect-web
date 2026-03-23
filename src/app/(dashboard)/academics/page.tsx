@@ -126,7 +126,7 @@ export default function AcademicsPage() {
   // ---------------------------------------------------------------------------
   const [reportCardPagination, setReportCardPagination] =
     useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
-  const [rcClassFilter, setRcClassFilter] = useState('');
+  const [rcClassFilter, setRcClassFilter] = useState(classes.length > 0 ? classes[0].id : '');
   const [rcTermFilter, setRcTermFilter] = useState('');
   const [generateDialogOpen, setGenerateDialogOpen] = useState(false);
 
@@ -344,7 +344,7 @@ export default function AcademicsPage() {
         {/* ----------------------------------------------------------------- */}
         <TabsContent value="assessments" className="space-y-6">
           {isAssessmentsError && <QueryErrorBanner onRetry={refetchAssessments} />}
-          <DataTable
+          {  <DataTable
             columns={assessmentColumns}
             data={assessments}
             isLoading={isLoadingAssessments}
@@ -432,7 +432,7 @@ export default function AcademicsPage() {
                 </Button>
               </div>
             }
-          />
+          />}
         </TabsContent>
 
         {/* ----------------------------------------------------------------- */}
@@ -467,11 +467,11 @@ export default function AcademicsPage() {
                     }));
                   }}
                 >
-                  <SelectTrigger className="h-8 w-[140px]">
-                    <SelectValue placeholder="All Classes" />
+                  <SelectTrigger className="h-8 w-35">
+                    <SelectValue/>
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="ALL">All Classes</SelectItem>
+                    {/* <SelectItem value="ALL">All Classes</SelectItem> */}
                     {classes.map((cls) => (
                       <SelectItem key={cls.id} value={cls.id}>
                         {cls.name}

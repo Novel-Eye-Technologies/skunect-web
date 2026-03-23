@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { getApiErrorMessage } from '@/lib/utils/get-error-message';
@@ -12,6 +12,7 @@ import {
   getUnreadCount,
   type NotificationListParams,
 } from '@/lib/api/notifications';
+import { queryClient } from '@/lib/query-client';
 
 // ---------------------------------------------------------------------------
 // Query keys
@@ -61,8 +62,7 @@ export function useUnreadCount() {
 
 export function useMarkAsRead() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-  const decrementUnread = useNotificationStore((s) => s.decrementUnread);
+const decrementUnread = useNotificationStore((s) => s.decrementUnread);
 
   return useMutation({
     mutationFn: (notificationId: string) =>
@@ -79,8 +79,7 @@ export function useMarkAsRead() {
 
 export function useMarkAllAsRead() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-  const setUnreadCount = useNotificationStore((s) => s.setUnreadCount);
+const setUnreadCount = useNotificationStore((s) => s.setUnreadCount);
 
   return useMutation({
     mutationFn: () => markAllNotificationsAsRead(schoolId!),
