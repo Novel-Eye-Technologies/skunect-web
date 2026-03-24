@@ -15,7 +15,7 @@ export async function getNotifications(
   params?: NotificationListParams,
 ): Promise<ApiResponse<NotificationItem[]>> {
   const response = await apiClient.get<ApiResponse<NotificationItem[]>>(
-    `/schools/${schoolId}/notifications`,
+    `/notifications`,
     { params },
   );
   return response.data;
@@ -40,11 +40,9 @@ export async function markAllNotificationsAsRead(
   return response.data;
 }
 
-export async function getUnreadCount(
-  schoolId: string,
-): Promise<ApiResponse<{ count: number }>> {
+export async function getUnreadCount() : Promise<ApiResponse<{ count: number }>> {
   const response = await apiClient.get<ApiResponse<{ count: number }>>(
-    `/schools/${schoolId}/notifications/unread-count`,
+    `/notifications/unread-count`,
   );
   return response.data;
 }
