@@ -2,14 +2,17 @@
 
 import {
   GraduationCap,
-  ClipboardCheck,
-  DollarSign,
-  BookOpen,
   TrendingUp,
-  Award,
-  Clock,
-  BarChart3,
+  TrendingDown,
+  ClipboardCheck,
+  BookOpen,
+  MessageSquare,
+  CreditCard,
   Calendar,
+  Megaphone,
+  AlertTriangle,
+  CheckCircle,
+  RefreshCw,
 } from 'lucide-react';
 import {
   Card,
@@ -20,16 +23,24 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
 import { StatCard } from '@/components/shared/stat-card';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { useChildStore } from '@/lib/stores/child-store';
 import { useParentDashboard } from '@/lib/hooks/use-dashboard';
 import type {
-  AcademicPerformance,
-  AttendanceMetrics,
-  RecentAssessment,
-  SubjectPerformance,
+  ParentAcademicOverview,
+  ParentAttendanceOverview,
+  ParentSubjectItem,
+  ParentAssessmentItem,
+  ParentAnnouncementItem,
+  ParentEventItem,
+  ParentChildSummary,
+  UpcomingFee,
+  RecentHomeworkItem,
 } from '@/lib/types/dashboard';
+
+// ─── Color maps ────────────────────────────────────────────────────
 
 const feeStatusColors: Record<string, string> = {
   PAID: 'bg-emerald-100 text-emerald-700',
@@ -41,6 +52,7 @@ const homeworkStatusColors: Record<string, string> = {
   SUBMITTED: 'bg-emerald-100 text-emerald-700',
   PENDING: 'bg-amber-100 text-amber-700',
   GRADED: 'bg-blue-100 text-blue-700',
+  OVERDUE: 'bg-red-100 text-red-700',
 };
 
 const assessmentTypeColors: Record<string, string> = {
@@ -50,22 +62,7 @@ const assessmentTypeColors: Record<string, string> = {
   EXAM: 'bg-purple-100 text-purple-700',
 };
 
-function DashboardSkeleton() {
-  return (
-    <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} className="h-[120px] rounded-lg" />
-        ))}
-      </div>
-      <Skeleton className="h-[200px] rounded-lg" />
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Skeleton className="h-[200px] rounded-lg" />
-        <Skeleton className="h-[200px] rounded-lg" />
-      </div>
-    </div>
-  );
-}
+// ─── Helpers ───────────────────────────────────────────────────────
 
 function getAttendanceRateColor(rate: number): string {
   if (rate >= 90) return 'text-emerald-600';
@@ -73,130 +70,421 @@ function getAttendanceRateColor(rate: number): string {
   return 'text-red-600';
 }
 
-function getGradeLetter(score: number): string {
-  if (score >= 70) return 'A';
-  if (score >= 60) return 'B';
-  if (score >= 50) return 'C';
-  if (score >= 40) return 'D';
-  return 'F';
+function getAttendanceBgColor(rate: number): string {
+  if (rate >= 90) return 'bg-emerald-50';
+  if (rate >= 75) return 'bg-amber-50';
+  return 'bg-red-50';
 }
 
-// ─── Academic Performance Section ──────────────────────────────────
+function formatNaira(amount: number): string {
+  if (amount >= 1_000_000) {
+    return `\u20A6${(amount / 1_000_000).toFixed(1)}M`;
+  }
+  if (amount >= 1_000) {
+    return `\u20A6${(amount / 1_000).toFixed(0)}K`;
+  }
+  return `\u20A6${amount.toLocaleString()}`;
+}
 
-function AcademicPerformanceCard({
+function formatOrdinal(n: number): string {
+  const s = ['th', 'st', 'nd', 'rd'];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
+function formatDate(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString('en-NG', {
+    day: 'numeric',
+    month: 'short',
+  });
+}
+
+function formatDateFull(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString('en-NG', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+}
+
+function isPresent(status: string | null | undefined): boolean {
+  if (!status) return false;
+  return status.toLowerCase().includes('present');
+}
+
+// ─── Skeleton ──────────────────────────────────────────────────────
+
+function DashboardSkeleton() {
+  return (
+    <div className="space-y-6">
+      {/* Child info + academic snapshot */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Skeleton className="h-[100px] rounded-lg" />
+        <Skeleton className="h-[100px] rounded-lg" />
+      </div>
+      {/* Stat cards */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Skeleton key={i} className="h-[120px] rounded-lg" />
+        ))}
+      </div>
+      {/* Subjects needing attention */}
+      <Skeleton className="h-[80px] rounded-lg" />
+      {/* Table */}
+      <Skeleton className="h-[300px] rounded-lg" />
+      {/* Two columns */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Skeleton className="h-[250px] rounded-lg" />
+        <Skeleton className="h-[250px] rounded-lg" />
+      </div>
+    </div>
+  );
+}
+
+// ─── Row 1: Child Info + Academic Snapshot ──────────────────────────
+
+function ChildInfoCard({ child }: { child: ParentChildSummary }) {
+  const present = isPresent(child.attendance);
+  return (
+    <Card>
+      <CardContent className="flex items-center gap-4 p-5">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10">
+          <GraduationCap className="h-6 w-6 text-primary" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-lg font-semibold">{child.name}</p>
+          <p className="text-sm text-muted-foreground">{child.className}</p>
+        </div>
+        <Badge
+          variant="secondary"
+          className={
+            present
+              ? 'bg-emerald-100 text-emerald-700'
+              : 'bg-red-100 text-red-700'
+          }
+        >
+          {child.attendance || 'N/A'}
+        </Badge>
+      </CardContent>
+    </Card>
+  );
+}
+
+function AcademicSnapshotCard({
   data,
 }: {
-  data: AcademicPerformance;
+  data: ParentAcademicOverview | null;
 }) {
+  if (!data) {
+    return (
+      <Card>
+        <CardContent className="flex h-full items-center justify-center p-5">
+          <p className="text-sm text-muted-foreground">
+            Academic data not yet available.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const hasPosition = data.classPosition != null && data.classSize != null;
+  const attentionCount = data.subjectsNeedingAttention?.length ?? 0;
+
   return (
-    <Card data-testid="academic-performance-card">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Award className="h-5 w-5 text-primary" />
-          Academic Performance
-        </CardTitle>
-        <CardDescription>Current term academic summary</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="rounded-lg border p-4 text-center">
-            <p className="text-sm text-muted-foreground">Overall Average</p>
-            <p className="text-3xl font-bold text-primary" data-testid="overall-average">
-              {data.overallAverage.toFixed(1)}%
-            </p>
-            <Badge variant="secondary" className="mt-1">
-              Grade {getGradeLetter(data.overallAverage)}
-            </Badge>
-          </div>
-          <div className="rounded-lg border p-4 text-center">
-            <p className="text-sm text-muted-foreground">Class Position</p>
-            <p className="text-3xl font-bold" data-testid="class-position">
-              {data.classPosition}
+    <Card>
+      <CardContent className="flex items-center gap-6 p-5">
+        {/* Rank */}
+        <div className="text-center">
+          <p className="text-sm text-muted-foreground">Rank</p>
+          {hasPosition ? (
+            <p className="text-2xl font-bold text-primary">
+              {formatOrdinal(data.classPosition!)}
               <span className="text-base font-normal text-muted-foreground">
-                /{data.totalStudents}
+                {' '}
+                / {data.classSize}
               </span>
             </p>
-            <p className="mt-1 text-xs text-muted-foreground">students</p>
-          </div>
-          <div className="rounded-lg border p-4 text-center sm:col-span-2 lg:col-span-1">
-            <p className="text-sm text-muted-foreground">Subjects</p>
-            <div className="mt-2 flex items-center justify-center gap-3">
-              <div>
-                <p className="text-2xl font-bold" data-testid="core-subjects">
-                  {data.coreSubjects}
-                </p>
-                <p className="text-xs text-muted-foreground">Core</p>
-              </div>
-              <div className="h-8 w-px bg-border" />
-              <div>
-                <p className="text-2xl font-bold" data-testid="elective-subjects">
-                  {data.electiveSubjects}
-                </p>
-                <p className="text-xs text-muted-foreground">Elective</p>
-              </div>
-            </div>
-            {data.pendingAssignments > 0 && (
-              <Badge variant="secondary" className="mt-2 bg-amber-100 text-amber-700">
-                {data.pendingAssignments} pending assignment{data.pendingAssignments > 1 ? 's' : ''}
-              </Badge>
-            )}
-          </div>
+          ) : (
+            <p className="text-lg text-muted-foreground">--</p>
+          )}
+        </div>
+
+        <div className="h-10 w-px bg-border" />
+
+        {/* Grade */}
+        <div className="text-center">
+          <p className="text-sm text-muted-foreground">Grade</p>
+          {data.grade ? (
+            <Badge variant="secondary" className="mt-1 text-lg font-bold">
+              {data.grade}
+            </Badge>
+          ) : data.overallAverage != null ? (
+            <p className="text-2xl font-bold">{data.overallAverage.toFixed(1)}%</p>
+          ) : (
+            <p className="text-lg text-muted-foreground">--</p>
+          )}
+        </div>
+
+        <div className="h-10 w-px bg-border" />
+
+        {/* Subjects needing attention */}
+        <div className="text-center">
+          <p className="text-sm text-muted-foreground">Needs Attention</p>
+          <p
+            className={`text-2xl font-bold ${attentionCount > 0 ? 'text-red-600' : 'text-emerald-600'}`}
+          >
+            {attentionCount}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            subject{attentionCount !== 1 ? 's' : ''}
+          </p>
         </div>
       </CardContent>
     </Card>
   );
 }
 
-// ─── Subject Performance Section ───────────────────────────────────
+// ─── Row 3: Subjects Needing Attention ─────────────────────────────
 
-function SubjectPerformanceCard({
+function SubjectsNeedingAttentionSection({
+  academic,
   subjects,
 }: {
-  subjects: SubjectPerformance[];
+  academic: ParentAcademicOverview | null;
+  subjects: ParentSubjectItem[] | null;
 }) {
+  const attentionNames = academic?.subjectsNeedingAttention ?? [];
+
+  if (attentionNames.length === 0) {
+    return (
+      <Card className="border-emerald-200 bg-emerald-50/50">
+        <CardContent className="flex items-center gap-3 p-4">
+          <CheckCircle className="h-5 w-5 text-emerald-600" />
+          <p className="text-sm font-medium text-emerald-700">
+            All subjects on track -- no immediate concerns.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Try to find matching subject items for richer data
+  const subjectMap = new Map(
+    (subjects ?? []).map((s) => [s.subjectName.toLowerCase(), s]),
+  );
+
   return (
-    <Card data-testid="subject-performance-card">
+    <Card className="border-amber-200 bg-amber-50/30">
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-base">
+          <AlertTriangle className="h-5 w-5 text-amber-600" />
+          Subjects Needing Attention
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {attentionNames.map((name) => {
+            const item = subjectMap.get(name.toLowerCase());
+            return (
+              <div
+                key={name}
+                className="rounded-lg border border-amber-200 bg-white p-3"
+              >
+                <p className="font-medium">{name}</p>
+                {item && (
+                  <div className="mt-1 flex items-center gap-3 text-sm">
+                    <span>
+                      Child:{' '}
+                      <span className="font-semibold">
+                        {item.studentAvg != null
+                          ? `${item.studentAvg.toFixed(1)}%`
+                          : '--'}
+                      </span>
+                    </span>
+                    <span className="text-muted-foreground">vs</span>
+                    <span>
+                      Class:{' '}
+                      <span className="font-semibold">
+                        {item.classAvg != null
+                          ? `${item.classAvg.toFixed(1)}%`
+                          : '--'}
+                      </span>
+                    </span>
+                    {item.trend != null && (
+                      <span
+                        className={`flex items-center gap-0.5 ${item.trend >= 0 ? 'text-emerald-600' : 'text-red-600'}`}
+                      >
+                        {item.trend >= 0 ? (
+                          <TrendingUp className="h-3 w-3" />
+                        ) : (
+                          <TrendingDown className="h-3 w-3" />
+                        )}
+                        {Math.abs(item.trend).toFixed(1)}%
+                      </span>
+                    )}
+                  </div>
+                )}
+                <div className="mt-2 flex gap-1.5">
+                  {item?.belowClassAvg && (
+                    <Badge
+                      variant="secondary"
+                      className="bg-red-100 text-red-700 text-[10px]"
+                    >
+                      Below average
+                    </Badge>
+                  )}
+                  {item?.declining && (
+                    <Badge
+                      variant="secondary"
+                      className="bg-amber-100 text-amber-700 text-[10px]"
+                    >
+                      Declining
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ─── Row 4: Subject Performance Table ──────────────────────────────
+
+function SubjectPerformanceTable({
+  subjects,
+}: {
+  subjects: ParentSubjectItem[];
+}) {
+  // Sort: worst performing first (below avg and declining first, then by studentAvg ascending)
+  const sorted = [...subjects].sort((a, b) => {
+    const aRisk = (a.belowClassAvg ? 2 : 0) + (a.declining ? 1 : 0);
+    const bRisk = (b.belowClassAvg ? 2 : 0) + (b.declining ? 1 : 0);
+    if (aRisk !== bRisk) return bRisk - aRisk;
+    return (a.studentAvg ?? 0) - (b.studentAvg ?? 0);
+  });
+
+  return (
+    <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <BarChart3 className="h-5 w-5 text-primary" />
-          Subject Performance Overview
+          <BookOpen className="h-5 w-5 text-primary" />
+          Subject Performance
         </CardTitle>
         <CardDescription>
-          Current term progress across all subjects
+          Detailed breakdown across all subjects
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {subjects.length === 0 ? (
+        {sorted.length === 0 ? (
           <p className="text-sm text-muted-foreground">
             No subject performance data available yet.
           </p>
         ) : (
-          <div className="space-y-4">
-            {subjects.map((subject) => {
-              const percentage =
-                subject.maxPossible > 0
-                  ? (subject.currentScore / subject.maxPossible) * 100
-                  : 0;
-              return (
-                <div key={subject.subjectName} className="space-y-1.5">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="font-medium">{subject.subjectName}</span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-muted-foreground">
-                        {subject.currentScore}/{subject.maxPossible}
-                      </span>
-                      <Badge variant="outline" className="text-xs">
-                        {subject.grade}
-                      </Badge>
-                    </div>
-                  </div>
-                  <Progress value={percentage} className="h-2" />
-                  <p className="text-xs text-muted-foreground">
-                    {subject.assessmentCount} assessment{subject.assessmentCount !== 1 ? 's' : ''} completed
-                  </p>
-                </div>
-              );
-            })}
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b text-left text-muted-foreground">
+                  <th className="pb-3 pr-4 font-medium">Subject</th>
+                  <th className="pb-3 pr-4 font-medium">Child Avg</th>
+                  <th className="pb-3 pr-4 font-medium">Class Avg</th>
+                  <th className="pb-3 pr-4 font-medium">Grade</th>
+                  <th className="pb-3 pr-4 font-medium">Trend</th>
+                  <th className="pb-3 font-medium">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sorted.map((subject) => {
+                  const aboveAvg =
+                    subject.studentAvg != null &&
+                    subject.classAvg != null &&
+                    subject.studentAvg >= subject.classAvg;
+                  return (
+                    <tr
+                      key={subject.subjectName}
+                      className="border-b last:border-0"
+                    >
+                      <td className="py-3 pr-4 font-medium">
+                        {subject.subjectName}
+                      </td>
+                      <td
+                        className={`py-3 pr-4 font-semibold ${
+                          subject.belowClassAvg
+                            ? 'text-red-600'
+                            : aboveAvg
+                              ? 'text-emerald-600'
+                              : ''
+                        }`}
+                      >
+                        {subject.studentAvg != null
+                          ? `${subject.studentAvg.toFixed(1)}%`
+                          : '--'}
+                      </td>
+                      <td className="py-3 pr-4 text-muted-foreground">
+                        {subject.classAvg != null
+                          ? `${subject.classAvg.toFixed(1)}%`
+                          : '--'}
+                      </td>
+                      <td className="py-3 pr-4">
+                        {subject.grade ? (
+                          <Badge variant="outline">{subject.grade}</Badge>
+                        ) : (
+                          '--'
+                        )}
+                      </td>
+                      <td className="py-3 pr-4">
+                        {subject.trend != null ? (
+                          <span
+                            className={`flex items-center gap-1 ${
+                              subject.declining
+                                ? 'text-amber-600'
+                                : subject.trend >= 0
+                                  ? 'text-emerald-600'
+                                  : 'text-red-600'
+                            }`}
+                          >
+                            {subject.trend >= 0 ? (
+                              <TrendingUp className="h-3.5 w-3.5" />
+                            ) : (
+                              <TrendingDown className="h-3.5 w-3.5" />
+                            )}
+                            {Math.abs(subject.trend).toFixed(1)}%
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground">--</span>
+                        )}
+                      </td>
+                      <td className="py-3">
+                        {subject.belowClassAvg ? (
+                          <Badge
+                            variant="secondary"
+                            className="bg-red-100 text-red-700 text-[10px]"
+                          >
+                            Below avg
+                          </Badge>
+                        ) : subject.declining ? (
+                          <Badge
+                            variant="secondary"
+                            className="bg-amber-100 text-amber-700 text-[10px]"
+                          >
+                            Declining
+                          </Badge>
+                        ) : (
+                          <Badge
+                            variant="secondary"
+                            className="bg-emerald-100 text-emerald-700 text-[10px]"
+                          >
+                            On track
+                          </Badge>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         )}
       </CardContent>
@@ -204,21 +492,21 @@ function SubjectPerformanceCard({
   );
 }
 
-// ─── Recent Assessments Section ────────────────────────────────────
+// ─── Row 5 Left: Recent Assessments ────────────────────────────────
 
 function RecentAssessmentsCard({
   assessments,
 }: {
-  assessments: RecentAssessment[];
+  assessments: ParentAssessmentItem[];
 }) {
   return (
-    <Card data-testid="recent-assessments-card">
+    <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <BookOpen className="h-5 w-5 text-primary" />
+          <ClipboardCheck className="h-5 w-5 text-primary" />
           Recent Assessments
         </CardTitle>
-        <CardDescription>Latest assessment scores</CardDescription>
+        <CardDescription>Latest scores and grades</CardDescription>
       </CardHeader>
       <CardContent>
         {assessments.length === 0 ? (
@@ -227,35 +515,42 @@ function RecentAssessmentsCard({
           </p>
         ) : (
           <div className="space-y-3">
-            {assessments.map((assessment, index) => (
+            {assessments.slice(0, 5).map((a, i) => (
               <div
-                key={`${assessment.childName}-${assessment.title}-${index}`}
+                key={a.assessmentId ?? `${a.title}-${i}`}
                 className="flex items-center justify-between rounded-lg border p-3"
               >
-                <div>
-                  <p className="text-sm font-medium">{assessment.title}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium">{a.title}</p>
                   <p className="text-xs text-muted-foreground">
-                    {assessment.childName} &middot; {assessment.subjectName}
-                    {assessment.date && (
-                      <>
-                        {' '}&middot;{' '}
-                        {new Date(assessment.date).toLocaleDateString('en-NG', {
-                          day: 'numeric',
-                          month: 'short',
-                        })}
-                      </>
-                    )}
+                    {a.subjectName}
+                    {a.date && <> &middot; {formatDate(a.date)}</>}
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold" data-testid="assessment-score">
-                    {assessment.score}/{assessment.maxScore}
-                  </span>
+                <div className="flex items-center gap-2 pl-3">
+                  <div className="text-right">
+                    <span className="text-sm font-semibold">
+                      {a.score != null && a.maxScore != null
+                        ? `${a.score}/${a.maxScore}`
+                        : '--'}
+                    </span>
+                    {a.classAverage != null && a.percentage != null && (
+                      <p
+                        className={`text-[10px] ${
+                          a.percentage >= a.classAverage
+                            ? 'text-emerald-600'
+                            : 'text-red-600'
+                        }`}
+                      >
+                        vs class {a.classAverage.toFixed(0)}%
+                      </p>
+                    )}
+                  </div>
                   <Badge
                     variant="secondary"
-                    className={`text-[10px] uppercase ${assessmentTypeColors[assessment.type] ?? 'bg-gray-100 text-gray-700'}`}
+                    className={`text-[10px] uppercase ${assessmentTypeColors[a.type?.toUpperCase()] ?? 'bg-gray-100 text-gray-700'}`}
                   >
-                    {assessment.type}
+                    {a.type}
                   </Badge>
                 </div>
               </div>
@@ -267,81 +562,193 @@ function RecentAssessmentsCard({
   );
 }
 
-// ─── Attendance Metrics Section ────────────────────────────────────
+// ─── Row 5 Right: Recent Homework ──────────────────────────────────
 
-function AttendanceMetricsCard({
-  data,
+function RecentHomeworkCard({
+  homework,
 }: {
-  data: AttendanceMetrics;
+  homework: RecentHomeworkItem[];
 }) {
   return (
-    <Card data-testid="attendance-metrics-card">
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <BookOpen className="h-5 w-5 text-primary" />
+          Recent Homework
+        </CardTitle>
+        <CardDescription>Latest assignments</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {homework.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            No recent homework at this school.
+          </p>
+        ) : (
+          <div className="space-y-3">
+            {homework.slice(0, 5).map((hw, i) => (
+              <div
+                key={`${hw.childName}-${hw.title}-${i}`}
+                className="flex items-start justify-between rounded-lg border p-3"
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium">{hw.title}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {hw.subject} &middot; Due {formatDateFull(hw.dueDate)}
+                  </p>
+                </div>
+                <Badge
+                  variant="secondary"
+                  className={`ml-2 shrink-0 text-[10px] uppercase ${homeworkStatusColors[hw.status?.toUpperCase()] ?? ''}`}
+                >
+                  {hw.status}
+                </Badge>
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// ─── Row 6 Left: Announcements ─────────────────────────────────────
+
+function AnnouncementsCard({
+  announcements,
+}: {
+  announcements: ParentAnnouncementItem[];
+}) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Megaphone className="h-5 w-5 text-primary" />
+          Announcements
+        </CardTitle>
+        <CardDescription>Latest school announcements</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {announcements.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            No recent announcements.
+          </p>
+        ) : (
+          <div className="space-y-3">
+            {announcements.slice(0, 5).map((a) => (
+              <div key={a.id} className="rounded-lg border p-3">
+                <div className="flex items-start justify-between gap-2">
+                  <p className="text-sm font-medium">{a.title}</p>
+                  <span className="shrink-0 text-[10px] text-muted-foreground">
+                    {formatDate(a.publishedAt)}
+                  </span>
+                </div>
+                <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                  {a.content}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// ─── Row 6 Right: Upcoming Events ──────────────────────────────────
+
+function UpcomingEventsCard({
+  events,
+}: {
+  events: ParentEventItem[];
+}) {
+  return (
+    <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Calendar className="h-5 w-5 text-primary" />
-          Attendance Metrics
+          Upcoming Events
         </CardTitle>
-        <CardDescription>Current term attendance summary</CardDescription>
+        <CardDescription>School events and activities</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid gap-4 sm:grid-cols-2">
-          {/* Present Days */}
-          <div className="rounded-lg border p-4">
-            <div className="flex items-center gap-2">
-              <ClipboardCheck className="h-4 w-4 text-emerald-600" />
-              <p className="text-sm text-muted-foreground">Present Days</p>
-            </div>
-            <p className="mt-1 text-2xl font-bold" data-testid="present-days">
-              {data.presentDays}
-              <span className="text-base font-normal text-muted-foreground">
-                /{data.schoolDays}
-              </span>
-            </p>
-            <p className="text-xs text-muted-foreground">school days</p>
+        {events.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            No upcoming events.
+          </p>
+        ) : (
+          <div className="space-y-3">
+            {events.slice(0, 5).map((e) => (
+              <div key={e.id} className="rounded-lg border p-3">
+                <p className="text-sm font-medium">{e.title}</p>
+                <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                  <span>{formatDateFull(e.startDate)}</span>
+                  {e.location && (
+                    <>
+                      <span>&middot;</span>
+                      <span>{e.location}</span>
+                    </>
+                  )}
+                </div>
+                {e.description && (
+                  <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">
+                    {e.description}
+                  </p>
+                )}
+              </div>
+            ))}
           </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
 
-          {/* Late Days */}
-          <div className="rounded-lg border p-4">
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-amber-600" />
-              <p className="text-sm text-muted-foreground">Late Days</p>
-            </div>
-            <p className="mt-1 text-2xl font-bold text-amber-600" data-testid="late-days">
-              {data.lateDays}
-            </p>
-            <p className="text-xs text-muted-foreground">times arrived late</p>
-          </div>
+// ─── Row 7: Upcoming Fees ──────────────────────────────────────────
 
-          {/* Absent Days */}
-          <div className="rounded-lg border p-4">
-            <div className="flex items-center gap-2">
-              <ClipboardCheck className="h-4 w-4 text-red-600" />
-              <p className="text-sm text-muted-foreground">Absent Days</p>
-            </div>
-            <p className="mt-1 text-2xl font-bold text-red-600" data-testid="absent-days">
-              {data.absentDays}
-            </p>
-            <p className="text-xs text-muted-foreground">days missed</p>
+function UpcomingFeesCard({ fees }: { fees: UpcomingFee[] }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <CreditCard className="h-5 w-5 text-primary" />
+          Upcoming Fees
+        </CardTitle>
+        <CardDescription>Fee payments due</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {fees.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            No pending fees -- all clear.
+          </p>
+        ) : (
+          <div className="space-y-3">
+            {fees.map((fee, index) => (
+              <div
+                key={`${fee.childName}-${fee.description}-${index}`}
+                className="flex items-start justify-between rounded-lg border p-3"
+              >
+                <div>
+                  <p className="text-sm font-medium">{fee.description}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {fee.childName} &middot; Due {formatDateFull(fee.dueDate)}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-semibold">
+                    {'\u20A6'}
+                    {fee.amount.toLocaleString()}
+                  </p>
+                  <Badge
+                    variant="secondary"
+                    className={`text-[10px] uppercase ${feeStatusColors[fee.status?.toUpperCase()] ?? ''}`}
+                  >
+                    {fee.status}
+                  </Badge>
+                </div>
+              </div>
+            ))}
           </div>
-
-          {/* Attendance Rate */}
-          <div className="rounded-lg border p-4">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-primary" />
-              <p className="text-sm text-muted-foreground">Attendance Rate</p>
-            </div>
-            <p
-              className={`mt-1 text-2xl font-bold ${getAttendanceRateColor(data.attendanceRate)}`}
-              data-testid="attendance-rate"
-            >
-              {data.attendanceRate.toFixed(1)}%
-            </p>
-            <Progress
-              value={data.attendanceRate}
-              className="mt-2 h-2"
-            />
-          </div>
-        </div>
+        )}
       </CardContent>
     </Card>
   );
@@ -350,9 +757,10 @@ function AttendanceMetricsCard({
 // ─── Main Parent Dashboard ─────────────────────────────────────────
 
 export function ParentDashboard() {
-  const user = useAuthStore((s) => s.user);
   const currentSchoolId = useAuthStore((s) => s.currentSchoolId);
-  const { data: response, isLoading } = useParentDashboard();
+  const user = useAuthStore((s) => s.user);
+  const selectedChildId = useChildStore((s) => s.selectedChildId);
+  const { data: response, isLoading, isError, refetch } = useParentDashboard();
 
   const currentSchool = user?.roles.find(
     (r) => r.schoolId === currentSchoolId,
@@ -361,230 +769,147 @@ export function ParentDashboard() {
 
   if (isLoading) return <DashboardSkeleton />;
 
-  const data = response?.data;
-
-  if (!data) {
+  if (isError || !response?.data) {
     return (
-      <div className="flex h-64 items-center justify-center text-muted-foreground">
-        Unable to load dashboard data. Please try again.
+      <div className="flex h-64 flex-col items-center justify-center gap-4 text-muted-foreground">
+        <p>Unable to load dashboard data.</p>
+        <Button variant="outline" size="sm" onClick={() => refetch()}>
+          <RefreshCw className="mr-2 h-4 w-4" />
+          Retry
+        </Button>
       </div>
     );
   }
 
+  const data = response.data;
   const {
     children,
     upcomingFees,
     recentHomework,
     academicPerformance,
     attendanceMetrics,
-    recentAssessments,
     subjectPerformance,
+    recentAssessments,
+    recentAnnouncements,
+    upcomingEvents,
+    unreadMessages,
   } = data;
+
+  // Find the selected child (from child-store) or default to first
+  const activeChild =
+    children.find((c) => c.studentId === selectedChildId) ?? children[0];
+
+  // Compute homework stats
+  const overdueHomework = recentHomework.filter(
+    (hw) => hw.status?.toUpperCase() === 'OVERDUE',
+  ).length;
 
   return (
     <div className="space-y-6">
-      {/* Stat Cards */}
+      {/* ── Row 1: Child Info + Academic Snapshot ── */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        {activeChild ? (
+          <ChildInfoCard child={activeChild} />
+        ) : (
+          <Card>
+            <CardContent className="flex items-center justify-center p-5">
+              <p className="text-sm text-muted-foreground">
+                No children enrolled at {schoolName}.
+              </p>
+            </CardContent>
+          </Card>
+        )}
+        <AcademicSnapshotCard data={academicPerformance ?? null} />
+      </div>
+
+      {/* ── Row 2: 4 Stat Cards ── */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Attendance */}
         <StatCard
-          title="My Children"
-          value={data.childrenCount}
-          description={`at ${schoolName}`}
-          icon={GraduationCap}
-        />
-        <StatCard
-          title="Today's Attendance"
-          value={data.todayAttendance}
-          description="attendance status"
-          icon={ClipboardCheck}
-        />
-        <StatCard
-          title="Pending Fees"
+          title="Attendance"
           value={
-            data.pendingFees > 0
-              ? `\u20A6${(data.pendingFees / 1_000).toFixed(0)}K`
-              : '\u20A60'
+            attendanceMetrics
+              ? `${attendanceMetrics.attendanceRate.toFixed(0)}%`
+              : data.todayAttendance
           }
-          description="awaiting payment"
-          icon={DollarSign}
+          description={
+            attendanceMetrics ? (
+              <span>
+                {attendanceMetrics.presentDays}P / {attendanceMetrics.absentDays}
+                A / {attendanceMetrics.lateDays}L
+              </span>
+            ) : (
+              'attendance status'
+            )
+          }
+          icon={ClipboardCheck}
+          className={
+            attendanceMetrics
+              ? getAttendanceBgColor(attendanceMetrics.attendanceRate)
+              : undefined
+          }
         />
+
+        {/* Homework */}
         <StatCard
-          title="Pending Homework"
+          title="Homework"
           value={data.pendingHomework}
-          description="assignments due"
+          description={
+            overdueHomework > 0 ? (
+              <span className="text-red-600">
+                {overdueHomework} overdue
+              </span>
+            ) : (
+              'assignments due'
+            )
+          }
           icon={BookOpen}
         />
+
+        {/* Messages */}
+        <StatCard
+          title="Messages"
+          value={unreadMessages ?? 0}
+          description="unread"
+          icon={MessageSquare}
+        />
+
+        {/* Fees */}
+        <StatCard
+          title="Fees Owing"
+          value={data.pendingFees > 0 ? formatNaira(data.pendingFees) : '\u20A60'}
+          description="balance"
+          icon={CreditCard}
+        />
       </div>
 
-      {/* Children Overview */}
-      <Card>
-        <CardHeader>
-          <CardTitle>My Children</CardTitle>
-          <CardDescription>
-            Children enrolled at {schoolName}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {children.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              No children enrolled at this school.
-            </p>
-          ) : (
-            <div className="space-y-3">
-              {children.map((child) => (
-                <div
-                  key={child.studentId}
-                  className="flex items-center justify-between rounded-lg border p-4 transition-colors hover:bg-muted/50"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                      <GraduationCap className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <p className="font-medium">{child.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {child.className}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4 text-sm">
-                    <Badge
-                      variant="secondary"
-                      className={
-                        child.attendance?.toLowerCase().includes('present')
-                          ? 'bg-emerald-100 text-emerald-700'
-                          : 'bg-red-100 text-red-700'
-                      }
-                    >
-                      {child.attendance || 'N/A'}
-                    </Badge>
-                    <span className="text-muted-foreground">
-                      {child.recentGrade || 'No grades'}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {/* ── Row 3: Subjects Needing Attention ── */}
+      <SubjectsNeedingAttentionSection
+        academic={academicPerformance ?? null}
+        subjects={subjectPerformance ?? null}
+      />
 
-      {/* Academic Performance */}
-      {academicPerformance && (
-        <AcademicPerformanceCard data={academicPerformance} />
-      )}
+      {/* ── Deep Dive Section ── */}
 
-      {/* Subject Performance Overview */}
+      {/* ── Row 4: Subject Performance Table ── */}
       {subjectPerformance && subjectPerformance.length > 0 && (
-        <SubjectPerformanceCard subjects={subjectPerformance} />
+        <SubjectPerformanceTable subjects={subjectPerformance} />
       )}
 
-      {/* Two-column: Recent Assessments & Attendance Metrics */}
+      {/* ── Row 5: Recent Assessments + Recent Homework ── */}
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Recent Assessments */}
-        {recentAssessments && (
-          <RecentAssessmentsCard assessments={recentAssessments} />
-        )}
-
-        {/* Attendance Metrics */}
-        {attendanceMetrics && (
-          <AttendanceMetricsCard data={attendanceMetrics} />
-        )}
+        <RecentAssessmentsCard assessments={recentAssessments ?? []} />
+        <RecentHomeworkCard homework={recentHomework} />
       </div>
 
-      {/* Two-column layout: Fees & Homework */}
+      {/* ── Row 6: Announcements + Upcoming Events ── */}
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Upcoming Fees */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Upcoming Fees</CardTitle>
-            <CardDescription>Fee payments due soon</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {upcomingFees.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No pending fees at this school.
-              </p>
-            ) : (
-              <div className="space-y-3">
-                {upcomingFees.map((fee, index) => (
-                  <div
-                    key={`${fee.childName}-${fee.description}-${index}`}
-                    className="flex items-start justify-between rounded-lg border p-3"
-                  >
-                    <div>
-                      <p className="text-sm font-medium">{fee.description}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {fee.childName} &middot; Due{' '}
-                        {new Date(fee.dueDate).toLocaleDateString('en-NG', {
-                          day: 'numeric',
-                          month: 'short',
-                          year: 'numeric',
-                        })}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-semibold">
-                        {'\u20A6'}
-                        {fee.amount.toLocaleString()}
-                      </p>
-                      <Badge
-                        variant="secondary"
-                        className={`text-[10px] uppercase ${feeStatusColors[fee.status?.toUpperCase()] ?? ''}`}
-                      >
-                        {fee.status}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Recent Homework */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Homework</CardTitle>
-            <CardDescription>
-              Latest assignments for your children
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {recentHomework.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No recent homework at this school.
-              </p>
-            ) : (
-              <div className="space-y-3">
-                {recentHomework.map((hw, index) => (
-                  <div
-                    key={`${hw.childName}-${hw.title}-${index}`}
-                    className="flex items-start justify-between rounded-lg border p-3"
-                  >
-                    <div>
-                      <p className="text-sm font-medium">{hw.title}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {hw.childName} &middot; {hw.subject} &middot; Due{' '}
-                        {new Date(hw.dueDate).toLocaleDateString('en-NG', {
-                          day: 'numeric',
-                          month: 'short',
-                          year: 'numeric',
-                        })}
-                      </p>
-                    </div>
-                    <Badge
-                      variant="secondary"
-                      className={`text-[10px] uppercase ${homeworkStatusColors[hw.status?.toUpperCase()] ?? ''}`}
-                    >
-                      {hw.status}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <AnnouncementsCard announcements={recentAnnouncements ?? []} />
+        <UpcomingEventsCard events={upcomingEvents ?? []} />
       </div>
+
+      {/* ── Row 7: Upcoming Fees ── */}
+      <UpcomingFeesCard fees={upcomingFees} />
     </div>
   );
 }

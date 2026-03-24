@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { getApiErrorMessage } from '@/lib/utils/get-error-message';
@@ -13,6 +13,7 @@ import {
   deleteTimetableSlot,
 } from '@/lib/api/timetable';
 import type { CreateTimetableSlotRequest, TimetableConfigRequest } from '@/lib/types/timetable';
+import { queryClient } from '@/lib/query-client';
 
 // ---------------------------------------------------------------------------
 // Query keys
@@ -56,8 +57,7 @@ export function useTimetableSlots(sessionId?: string, classId?: string) {
 
 export function useSaveTimetableConfig() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-  return useMutation({
+return useMutation({
     mutationFn: (data: TimetableConfigRequest) => saveTimetableConfig(schoolId!, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: timetableKeys.all });
@@ -69,8 +69,7 @@ export function useSaveTimetableConfig() {
 
 export function useCreateTimetableSlot() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-  return useMutation({
+return useMutation({
     mutationFn: (data: CreateTimetableSlotRequest) => createTimetableSlot(schoolId!, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: timetableKeys.all });
@@ -82,8 +81,7 @@ export function useCreateTimetableSlot() {
 
 export function useUpdateTimetableSlot() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-  return useMutation({
+return useMutation({
     mutationFn: ({ slotId, data }: { slotId: string; data: CreateTimetableSlotRequest }) =>
       updateTimetableSlot(schoolId!, slotId, data),
     onSuccess: () => {
@@ -96,8 +94,7 @@ export function useUpdateTimetableSlot() {
 
 export function useDeleteTimetableSlot() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-  return useMutation({
+return useMutation({
     mutationFn: (slotId: string) => deleteTimetableSlot(schoolId!, slotId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: timetableKeys.all });

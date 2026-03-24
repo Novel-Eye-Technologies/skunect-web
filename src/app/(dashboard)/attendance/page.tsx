@@ -178,6 +178,38 @@ export default function AttendancePage() {
         </div>
       ) : (
         <div className="space-y-4">
+          {/* Filters - below overview, above tabs */}
+          {/* <div className="flex flex-wrap items-center gap-3">
+            <Select
+              value={classFilter || 'ALL'}
+              onValueChange={(value) => {
+                setClassFilter(value === 'ALL' ? '' : value);
+                setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+              }}
+            >
+              <SelectTrigger className="h-9 w-[180px]">
+                <SelectValue placeholder="All Classes" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">All Classes</SelectItem>
+                {classes.map((cls) => (
+                  <SelectItem key={cls.id} value={cls.id}>
+                    {cls.name}
+                    {cls.section ? ` (${cls.section})` : ''}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Input
+              type="date"
+              value={dateFilter}
+              onChange={(e) => {
+                setDateFilter(e.target.value);
+                setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+              }}
+              className="h-9 w-45"
+            />
+          </div> */}
           <div className="grid gap-4 md:grid-cols-4">
             {overviewStats.map((stat) => (
               <Card key={stat.label}>
@@ -221,38 +253,7 @@ export default function AttendancePage() {
         </div>
       )}
 
-      {/* Filters - below overview, above tabs */}
-      <div className="flex flex-wrap items-center gap-3">
-        <Select
-          value={classFilter || 'ALL'}
-          onValueChange={(value) => {
-            setClassFilter(value === 'ALL' ? '' : value);
-            setPagination((prev) => ({ ...prev, pageIndex: 0 }));
-          }}
-        >
-          <SelectTrigger className="h-9 w-[180px]">
-            <SelectValue placeholder="All Classes" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="ALL">All Classes</SelectItem>
-            {classes.map((cls) => (
-              <SelectItem key={cls.id} value={cls.id}>
-                {cls.name}
-                {cls.section ? ` (${cls.section})` : ''}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Input
-          type="date"
-          value={dateFilter}
-          onChange={(e) => {
-            setDateFilter(e.target.value);
-            setPagination((prev) => ({ ...prev, pageIndex: 0 }));
-          }}
-          className="h-9 w-[180px]"
-        />
-      </div>
+
 
       {/* Two tabs only: Mark Attendance and Records */}
       <Tabs defaultValue="mark" className="space-y-6">

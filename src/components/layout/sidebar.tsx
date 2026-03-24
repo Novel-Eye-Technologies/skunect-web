@@ -37,8 +37,8 @@ export function Sidebar() {
     <TooltipProvider delayDuration={100}>
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-30 flex flex-col border-r border-white/10 bg-[#1B2A4A] transition-all duration-300',
-          collapsed ? 'w-[68px]' : 'w-64',
+          'fixed inset-y-0 left-0 z-30 flex flex-col border-r border-white/10 bg-navy transition-all duration-300',
+          collapsed ? 'w-17' : 'w-64',
         )}
       >
         {/* ---------------------------------------------------------------- */}
@@ -50,7 +50,7 @@ export function Sidebar() {
             collapsed ? 'justify-center' : 'gap-3',
           )}
         >
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#2A9D8F] text-sm font-bold text-white overflow-hidden">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-teal text-sm font-bold text-white overflow-hidden">
             {schoolSettings?.logo ? (
               <img src={schoolSettings.logo} alt="" className="h-full w-full object-cover" />
             ) : (

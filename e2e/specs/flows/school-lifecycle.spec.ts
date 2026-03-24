@@ -2405,10 +2405,10 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
 
     const main = page.getByRole('main');
     // Parent stat cards
-    await expect(main.getByText('My Children').first()).toBeVisible({ timeout: 15_000 });
-    await expect(main.getByText("Today's Attendance")).toBeVisible();
-    await expect(main.getByText('Pending Fees', { exact: true })).toBeVisible();
-    await expect(main.getByText('Pending Homework', { exact: true })).toBeVisible();
+    await expect(main.getByText('Attendance').first()).toBeVisible({ timeout: 15_000 });
+    await expect(main.getByText('Homework').first()).toBeVisible();
+    await expect(main.getByText('Fees').first()).toBeVisible();
+    await expect(main.getByText('Messages').first()).toBeVisible();
   });
 
   test('4.2c — Parent: Sidebar shows correct nav items', async ({ page }) => {

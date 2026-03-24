@@ -88,24 +88,29 @@ export interface ParentDashboardData {
   todayAttendance: string;
   pendingFees: number;
   pendingHomework: number;
-  children: ChildSummary[];
+  children: ParentChildSummary[];
   upcomingFees: UpcomingFee[];
   recentHomework: RecentHomeworkItem[];
-  // Enhanced fields (optional for backward compat with backend)
-  academicPerformance?: AcademicPerformance;
-  attendanceMetrics?: AttendanceMetrics;
-  recentAssessments?: RecentAssessment[];
-  subjectPerformance?: SubjectPerformance[];
-  unreadMessages?: number;
+  // Enhanced fields (nullable — backend may not populate yet)
+  academicPerformance: ParentAcademicOverview | null;
+  attendanceMetrics: ParentAttendanceOverview | null;
+  subjectPerformance: ParentSubjectItem[] | null;
+  recentAssessments: ParentAssessmentItem[] | null;
+  recentAnnouncements: ParentAnnouncementItem[] | null;
+  upcomingEvents: ParentEventItem[] | null;
+  unreadMessages: number;
 }
 
-export interface ChildSummary {
+export interface ParentChildSummary {
   studentId: string;
   name: string;
   className: string;
   attendance: string;
   recentGrade: string;
 }
+
+/** @deprecated Use ParentChildSummary instead */
+export type ChildSummary = ParentChildSummary;
 
 export interface UpcomingFee {
   childName: string;
@@ -123,47 +128,87 @@ export interface RecentHomeworkItem {
   status: string;
 }
 
-// ─── Academic Performance ──────────────────────────────────────────
+// ─── Parent Academic Overview ─────────────────────────────────────
 
-export interface AcademicPerformance {
-  overallAverage: number;
-  classPosition: number;
-  totalStudents: number;
-  coreSubjects: number;
-  electiveSubjects: number;
-  pendingAssignments: number;
+export interface ParentAcademicOverview {
+  overallAverage: number | null;
+  grade: string | null;
+  classPosition: number | null;
+  classSize: number | null;
+  subjectsAboveAvg: number;
+  subjectsBelowAvg: number;
+  subjectsDeclining: number;
+  subjectsNeedingAttention: string[];
 }
 
-// ─── Attendance Metrics ────────────────────────────────────────────
+/** @deprecated Use ParentAcademicOverview instead */
+export type AcademicPerformance = ParentAcademicOverview;
 
-export interface AttendanceMetrics {
+// ─── Parent Attendance Overview ───────────────────────────────────
+
+export interface ParentAttendanceOverview {
   presentDays: number;
-  schoolDays: number;
-  lateDays: number;
   absentDays: number;
+  lateDays: number;
+  totalSchoolDays: number;
   attendanceRate: number;
+  todayStatus: string | null;
 }
 
-// ─── Recent Assessments ────────────────────────────────────────────
+/** @deprecated Use ParentAttendanceOverview instead */
+export type AttendanceMetrics = ParentAttendanceOverview;
 
-export interface RecentAssessment {
+// ─── Parent Subject Performance ───────────────────────────────────
+
+export interface ParentSubjectItem {
   subjectName: string;
-  title: string;
-  score: number;
-  maxScore: number;
-  type: string;
-  date: string;
-  childName: string;
-}
-
-// ─── Subject Performance ───────────────────────────────────────────
-
-export interface SubjectPerformance {
-  subjectName: string;
-  currentScore: number;
-  maxPossible: number;
-  grade: string;
+  studentAvg: number | null;
+  classAvg: number | null;
+  grade: string | null;
   assessmentCount: number;
+  belowClassAvg: boolean;
+  declining: boolean;
+  trend: number | null;
+}
+
+/** @deprecated Use ParentSubjectItem instead */
+export type SubjectPerformance = ParentSubjectItem;
+
+// ─── Parent Assessment Item ───────────────────────────────────────
+
+export interface ParentAssessmentItem {
+  assessmentId: string;
+  title: string;
+  subjectName: string;
+  type: string;
+  score: number | null;
+  maxScore: number | null;
+  percentage: number | null;
+  classAverage: number | null;
+  date: string;
+}
+
+/** @deprecated Use ParentAssessmentItem instead */
+export type RecentAssessment = ParentAssessmentItem;
+
+// ─── Parent Announcement Item ─────────────────────────────────────
+
+export interface ParentAnnouncementItem {
+  id: string;
+  title: string;
+  content: string;
+  publishedAt: string;
+}
+
+// ─── Parent Event Item ────────────────────────────────────────────
+
+export interface ParentEventItem {
+  id: string;
+  title: string;
+  description: string | null;
+  startDate: string;
+  endDate: string | null;
+  location: string | null;
 }
 
 // ─── Enhanced Admin Dashboard ─────────────────────────────────────

@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import {
   getCurrentUser,
@@ -21,6 +21,7 @@ import type {
   GoogleOAuthRequest,
   RefreshTokenRequest,
 } from '@/lib/types/auth';
+import { queryClient } from '@/lib/query-client';
 
 // ---------------------------------------------------------------------------
 // Query keys
@@ -75,8 +76,6 @@ export function useRegister() {
 export function useVerifyOtp() {
   const setTokens = useAuthStore((s) => s.setTokens);
   const setUser = useAuthStore((s) => s.setUser);
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (data: VerifyOtpRequest) => verifyOtp(data),
     onSuccess: (response) => {
@@ -94,7 +93,6 @@ export function useVerifyOtp() {
 export function useGoogleOAuth() {
   const setTokens = useAuthStore((s) => s.setTokens);
   const setUser = useAuthStore((s) => s.setUser);
-  const queryClient = useQueryClient();
   const router = useRouter();
 
   return useMutation({
@@ -128,7 +126,6 @@ export function useRefreshToken() {
 
 /** Log the user out and redirect to login. */
 export function useLogout() {
-  const queryClient = useQueryClient();
   const router = useRouter();
 
   return useMutation({

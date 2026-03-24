@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { Bell, CheckCheck, ExternalLink } from 'lucide-react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,15 +23,14 @@ import {
   getUnreadCount,
 } from '@/lib/api/notifications';
 import type { NotificationItem } from '@/lib/types/notifications';
+import { queryClient } from '@/lib/query-client';
 
 export function NotificationBell() {
   const router = useRouter();
   const schoolId = useAuthStore((s) => s.currentSchoolId);
   const unreadCount = useNotificationStore((s) => s.unreadCount);
   const setUnreadCount = useNotificationStore((s) => s.setUnreadCount);
-  const queryClient = useQueryClient();
-
-  // Fetch unread count on interval
+// Fetch unread count on interval
   useQuery({
     queryKey: ['notifications', 'unread-count', schoolId],
     queryFn: async () => {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { getApiErrorMessage } from '@/lib/utils/get-error-message';
@@ -27,6 +27,7 @@ import type {
   UpdateStudentRequest,
   LinkParentRequest,
 } from '@/lib/types/student';
+import { queryClient } from '@/lib/query-client';
 
 // ---------------------------------------------------------------------------
 // Query keys
@@ -75,9 +76,7 @@ export function useStudent(studentId: string) {
 
 export function useCreateStudent() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (data: CreateStudentRequest) => createStudent(schoolId!, data),
     onSuccess: () => {
       toast.success('Student created successfully');
@@ -91,9 +90,7 @@ export function useCreateStudent() {
 
 export function useUpdateStudent() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: ({
       studentId,
       data,
@@ -113,9 +110,7 @@ export function useUpdateStudent() {
 
 export function useDeleteStudent() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (studentId: string) => deleteStudent(schoolId!, studentId),
     onSuccess: () => {
       toast.success('Student deleted');
@@ -133,9 +128,7 @@ export function useDeleteStudent() {
 
 export function useLinkParent() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: ({
       studentId,
       data,
@@ -155,9 +148,7 @@ export function useLinkParent() {
 
 export function useUnlinkParent() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: ({
       studentId,
       parentId,
@@ -181,9 +172,7 @@ export function useUnlinkParent() {
 
 export function useUploadDocument() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: ({
       studentId,
       file,
@@ -203,9 +192,7 @@ export function useUploadDocument() {
 
 export function useDeleteDocument() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: ({
       studentId,
       documentId,
@@ -276,9 +263,7 @@ export function useDeactivateStudent() {
 // ---------------------------------------------------------------------------
 
 export function useUpdateProfile() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (data: UpdateProfileRequest) => updateProfile(data),
     onSuccess: () => {
       toast.success('Profile updated successfully');
