@@ -31,4 +31,4 @@ jobs:
             - Consistency with existing patterns in the codebase
             Post concise, actionable review comments on specific lines where issues are found.
             Do not comment on style preferences or nitpicks.
-          claude_args: "--max-turns 5"
+          max_turns: 15
