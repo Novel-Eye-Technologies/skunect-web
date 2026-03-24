@@ -208,3 +208,47 @@ export async function updateProfile(
   );
   return response.data;
 }
+
+// ---------------------------------------------------------------------------
+// Student Usage
+// ---------------------------------------------------------------------------
+
+export interface StudentUsageResponse {
+  activeStudents: number;
+  studentLimit: number;
+  usagePercent: number;
+  hasSubscription: boolean;
+}
+
+export async function getStudentUsage(
+  schoolId: string,
+): Promise<ApiResponse<StudentUsageResponse>> {
+  const response = await apiClient.get<ApiResponse<StudentUsageResponse>>(
+    `/schools/${schoolId}/student-usage`,
+  );
+  return response.data;
+}
+
+// ---------------------------------------------------------------------------
+// Student Activation
+// ---------------------------------------------------------------------------
+
+export async function activateStudent(
+  schoolId: string,
+  studentId: string,
+): Promise<ApiResponse<StudentDetail>> {
+  const response = await apiClient.post<ApiResponse<StudentDetail>>(
+    `/schools/${schoolId}/students/${studentId}/activate`,
+  );
+  return response.data;
+}
+
+export async function deactivateStudent(
+  schoolId: string,
+  studentId: string,
+): Promise<ApiResponse<StudentDetail>> {
+  const response = await apiClient.post<ApiResponse<StudentDetail>>(
+    `/schools/${schoolId}/students/${studentId}/deactivate`,
+  );
+  return response.data;
+}

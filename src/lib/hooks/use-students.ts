@@ -16,6 +16,9 @@ import {
   uploadDocument,
   deleteDocument,
   updateProfile,
+  getStudentUsage,
+  activateStudent,
+  deactivateStudent,
   type StudentListParams,
   type UpdateProfileRequest,
 } from '@/lib/api/students';
@@ -216,6 +219,54 @@ export function useDeleteDocument() {
     },
     onError: (error) => {
       toast.error(getApiErrorMessage(error, 'Failed to delete document'));
+    },
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Student Usage
+// ---------------------------------------------------------------------------
+
+export function useStudentUsage() {
+  const schoolId = useAuthStore((s) => s.currentSchoolId);
+  const role = useAuthStore((s) => s.currentRole);
+
+  return useQuery({
+    queryKey: [...studentKeys.all, 'usage', schoolId],
+    queryFn: () => getStudentUsage(schoolId!),
+    enabled: !!schoolId && role === 'ADMIN',
+    select: (response) => response.data,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Activation mutations
+// ---------------------------------------------------------------------------
+
+export function useActivateStudent() {
+  const schoolId = useAuthStore((s) => s.currentSchoolId);
+  return useMutation({
+    mutationFn: (studentId: string) => activateStudent(schoolId!, studentId),
+    onSuccess: () => {
+      toast.success('Student activated successfully');
+      queryClient.invalidateQueries({ queryKey: studentKeys.all });
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to activate student'));
+    },
+  });
+}
+
+export function useDeactivateStudent() {
+  const schoolId = useAuthStore((s) => s.currentSchoolId);
+  return useMutation({
+    mutationFn: (studentId: string) => deactivateStudent(schoolId!, studentId),
+    onSuccess: () => {
+      toast.success('Student deactivated successfully');
+      queryClient.invalidateQueries({ queryKey: studentKeys.all });
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to deactivate student'));
     },
   });
 }

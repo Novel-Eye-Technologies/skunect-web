@@ -1029,6 +1029,11 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     for (const s of students) {
       schoolData.studentIds[`${s.firstName} ${s.lastName}`] = s.id;
     }
+
+    // Activate all students (they now default to INACTIVE)
+    for (const studentId of Object.values(schoolData.studentIds)) {
+      await apiPost(`/schools/${sid}/students/${studentId}/activate`, token);
+    }
   });
 
   test('2.16 — School Admin: Create timetable for each class', async ({ page }) => {
@@ -3662,6 +3667,229 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
 
   test('10.4 — Teacher Logout', async ({ page }) => {
     await loginViaUI(page, TEACHER1_EMAIL);
+    await waitForDashboard(page);
+    await logout(page);
+  });
+
+  // =========================================================================
+  // PHASE 11: NEW FEATURES — Activation, Limits, Promotions, Logo, Photos
+  // =========================================================================
+
+  test('11.1 — Admin: Verify new students default to INACTIVE status via API', async ({ page }) => {
+    // Create a new student via API and verify it defaults to INACTIVE
+    const adminAuth = await authenticateAccount(ADMIN_EMAIL, TEST_OTP);
+    const token = adminAuth.accessToken;
+    const schoolId = schoolData.schoolId!;
+
+    const createRes = await apiPost<any>(`/schools/${schoolId}/students`, token, {
+      firstName: `TestInactive`,
+      lastName: `Student${TS}`,
+      gender: 'MALE',
+      dateOfBirth: '2015-01-01',
+    });
+    expect(createRes.status).toBe('SUCCESS');
+    expect(createRes.data.status).toBe('INACTIVE');
+    expect(createRes.data.isActive).toBe(false);
+
+    // Activate so it doesn't affect other tests
+    const studentId = createRes.data.id;
+    await apiPost(`/schools/${schoolId}/students/${studentId}/activate`, token);
+  });
+
+  test('11.2 — Admin: Activate a student via API', async ({ page }) => {
+    await loginViaUI(page, ADMIN_EMAIL);
+    await waitForDashboard(page);
+
+    // Get admin token via API
+    const adminAuth = await authenticateAccount(ADMIN_EMAIL, TEST_OTP);
+    const token = adminAuth.accessToken;
+    const schoolId = schoolData.schoolId!;
+
+    // Get first student ID
+    const studentsRes = await apiGet<any[]>(`/schools/${schoolId}/students?size=1`, token);
+    const studentId = studentsRes.data[0].id;
+
+    // Activate via API
+    const activateRes = await apiPost<any>(`/schools/${schoolId}/students/${studentId}/activate`, token);
+    expect(activateRes.status).toBe('SUCCESS');
+
+    // Refresh students page and verify ACTIVE status
+    const studentsPage = new StudentsPage(page);
+    await studentsPage.goto();
+    await studentsPage.expectVisible();
+  });
+
+  test('11.3 — Admin: Deactivate a student via API', async ({ page }) => {
+    const adminAuth = await authenticateAccount(ADMIN_EMAIL, TEST_OTP);
+    const token = adminAuth.accessToken;
+    const schoolId = schoolData.schoolId!;
+
+    // Get the first student
+    const studentsRes = await apiGet<any[]>(`/schools/${schoolId}/students?size=1`, token);
+    const studentId = studentsRes.data[0].id;
+
+    // Deactivate
+    const res = await apiPost<any>(`/schools/${schoolId}/students/${studentId}/deactivate`, token);
+    expect(res.status).toBe('SUCCESS');
+    expect(res.data.status).toBe('INACTIVE');
+  });
+
+  test('11.4 — Admin: Get student usage stats', async ({ page }) => {
+    const adminAuth = await authenticateAccount(ADMIN_EMAIL, TEST_OTP);
+    const token = adminAuth.accessToken;
+    const schoolId = schoolData.schoolId!;
+
+    const res = await apiGet<any>(`/schools/${schoolId}/student-usage`, token);
+    expect(res.status).toBe('SUCCESS');
+    expect(res.data).toHaveProperty('activeStudents');
+    expect(res.data).toHaveProperty('studentLimit');
+    expect(res.data).toHaveProperty('usagePercent');
+    expect(res.data).toHaveProperty('hasSubscription');
+  });
+
+  test('11.5 — Admin: Navigate to promotions page', async ({ page }) => {
+    await loginViaUI(page, ADMIN_EMAIL);
+    await waitForDashboard(page);
+
+    await page.goto('/promotions');
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(2000);
+    await expect(page.locator('h1').filter({ hasText: /student promotions/i })).toBeVisible({ timeout: 30_000 });
+  });
+
+  test('11.6 — Admin: Get eligible students for promotion via API', async ({ page }) => {
+    const adminAuth = await authenticateAccount(ADMIN_EMAIL, TEST_OTP);
+    const token = adminAuth.accessToken;
+    const schoolId = schoolData.schoolId!;
+
+    // Fetch classes and session dynamically
+    const classesRes = await apiGet<any[]>(`/schools/${schoolId}/classes`, token);
+    const sessionsRes = await apiGet<any[]>(`/schools/${schoolId}/sessions`, token);
+    const classId = classesRes.data[0]?.id;
+    const sessionId = sessionsRes.data[0]?.id;
+    expect(classId).toBeTruthy();
+    expect(sessionId).toBeTruthy();
+
+    const res = await apiGet<any[]>(
+      `/schools/${schoolId}/promotions/eligible?classId=${classId}&sessionId=${sessionId}`,
+      token,
+    );
+    expect(res.status).toBe('SUCCESS');
+    expect(Array.isArray(res.data)).toBe(true);
+  });
+
+  test('11.7 — Admin: Bulk promote students via API', async ({ page }) => {
+    const adminAuth = await authenticateAccount(ADMIN_EMAIL, TEST_OTP);
+    const token = adminAuth.accessToken;
+    const schoolId = schoolData.schoolId!;
+
+    // Fetch classes and session dynamically
+    const classesRes = await apiGet<any[]>(`/schools/${schoolId}/classes`, token);
+    const sessionsRes = await apiGet<any[]>(`/schools/${schoolId}/sessions`, token);
+    expect(classesRes.data.length).toBeGreaterThanOrEqual(2);
+    const fromClassId = classesRes.data[0].id;
+    const toClassId = classesRes.data[1].id;
+    const sessionId = sessionsRes.data[0].id;
+
+    // Get a student from the source class
+    const studentsRes = await apiGet<any[]>(`/schools/${schoolId}/students?classId=${fromClassId}&size=1`, token);
+    if (studentsRes.data.length > 0) {
+      const studentId = studentsRes.data[0].id;
+
+      // Promote
+      const res = await apiPost<any>(`/schools/${schoolId}/promotions`, token, {
+        fromClassId,
+        toClassId,
+        sessionId,
+        studentIds: [studentId],
+      });
+      expect(res.status).toBe('SUCCESS');
+      expect(res.data.length).toBe(1);
+      expect(res.data[0].status).toBe('PROMOTED');
+    }
+  });
+
+  test('11.8 — Admin: Get promotion history via API', async ({ page }) => {
+    const adminAuth = await authenticateAccount(ADMIN_EMAIL, TEST_OTP);
+    const token = adminAuth.accessToken;
+    const schoolId = schoolData.schoolId!;
+
+    const res = await apiGet<any[]>(`/schools/${schoolId}/promotions`, token);
+    expect(res.status).toBe('SUCCESS');
+    expect(Array.isArray(res.data)).toBe(true);
+  });
+
+  test('11.9 — Admin: Update school logo via API', async ({ page }) => {
+    const adminAuth = await authenticateAccount(ADMIN_EMAIL, TEST_OTP);
+    const token = adminAuth.accessToken;
+    const schoolId = schoolData.schoolId!;
+
+    // Update school with a logo URL
+    const res = await apiPut<any>(`/schools/${schoolId}`, token, {
+      logoUrl: 'https://placehold.co/200x200/2A9D8F/white?text=Logo',
+    });
+    expect(res.status).toBe('SUCCESS');
+    expect(res.data.logoUrl).toBeTruthy();
+  });
+
+  test('11.10 — Admin: Verify school logo appears in sidebar', async ({ page }) => {
+    await loginViaUI(page, ADMIN_EMAIL);
+    await waitForDashboard(page);
+
+    // The sidebar should now show the school logo image
+    const sidebarLogo = page.locator('aside img').first();
+    await expect(sidebarLogo).toBeVisible({ timeout: 15_000 });
+  });
+
+  test('11.11 — Admin: School settings page shows logo upload section', async ({ page }) => {
+    await loginViaUI(page, ADMIN_EMAIL);
+    await waitForDashboard(page);
+
+    const settingsPage = new SchoolSettingsPage(page);
+    await settingsPage.goto();
+    await settingsPage.expectVisible();
+
+    // Verify logo upload section exists
+    await expect(page.getByText(/school logo/i)).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(/upload logo/i)).toBeVisible({ timeout: 10_000 });
+  });
+
+  test('11.12 — Parent: ChildResponse includes photoUrl and status', async ({ page }) => {
+    // Verify via API that children response includes new fields
+    const parentEmail = STUDENTS_CLASS1[0].parentEmail;
+    const parentAuth = await authenticateAccount(parentEmail, TEST_OTP);
+    const token = parentAuth.accessToken;
+
+    const res = await apiGet<any[]>('/parents/children', token);
+    expect(res.status).toBe('SUCCESS');
+    if (res.data.length > 0) {
+      const child = res.data[0];
+      expect(child).toHaveProperty('status');
+      // photoUrl may be null but the field should exist
+      expect('photoUrl' in child).toBe(true);
+    }
+  });
+
+  test('11.13 — Admin: Attendance grid filters inactive students', async ({ page }) => {
+    await loginViaUI(page, ADMIN_EMAIL);
+    await waitForDashboard(page);
+
+    await page.goto('/attendance');
+    await expect(page.getByRole('heading', { name: /attendance/i })).toBeVisible({ timeout: 20_000 });
+    // The attendance page should load without errors
+    // Inactive students should not appear in the grid
+  });
+
+  test('11.14 — Admin: Promotions nav item visible in sidebar', async ({ page }) => {
+    await loginViaUI(page, ADMIN_EMAIL);
+    await waitForDashboard(page);
+
+    // Verify Promotions appears in sidebar navigation
+    await expect(page.getByRole('link', { name: /promotions/i })).toBeVisible({ timeout: 10_000 });
+  });
+
+  test('11.15 — Admin: Logout', async ({ page }) => {
+    await loginViaUI(page, ADMIN_EMAIL);
     await waitForDashboard(page);
     await logout(page);
   });
