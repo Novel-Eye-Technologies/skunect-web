@@ -32,9 +32,9 @@ export function NotificationBell() {
   const setUnreadCount = useNotificationStore((s) => s.setUnreadCount);
 // Fetch unread count on interval
   useQuery({
-    queryKey: ['notifications', 'unread-count', schoolId],
+    queryKey: ['notifications', 'unread-count'],
     queryFn: async () => {
-      const res = await getUnreadCount(schoolId!);
+      const res = await getUnreadCount();
       setUnreadCount(res.data?.count ?? 0);
       return res;
     },

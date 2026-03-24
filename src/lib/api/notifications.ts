@@ -40,9 +40,7 @@ export async function markAllNotificationsAsRead(
   return response.data;
 }
 
-export async function getUnreadCount(
-  _schoolId: string,
-): Promise<ApiResponse<{ count: number }>> {
+export async function getUnreadCount() : Promise<ApiResponse<{ count: number }>> {
   const response = await apiClient.get<ApiResponse<{ count: number }>>(
     `/notifications/unread-count`,
   );
