@@ -29,6 +29,7 @@ import {
   CreditCard,
   Tag,
   Layers,
+  ArrowUpDown,
 } from 'lucide-react';
 
 export type NavItem = {
@@ -138,6 +139,12 @@ export const navigationConfig: NavItem[] = [
       { title: 'Attendance', href: '/attendance', icon: ClipboardCheck, roles: ['ADMIN', 'TEACHER'] },
       { title: 'Homework', href: '/homework', icon: FileText, roles: ['ADMIN', 'TEACHER'] },
     ],
+  },
+  {
+    title: 'Promotions',
+    href: '/promotions',
+    icon: ArrowUpDown,
+    roles: ['ADMIN'],
   },
   {
     title: 'Homework',

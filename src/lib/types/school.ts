@@ -157,4 +157,5 @@ export interface UpdateSchoolSettingsRequest {
   country?: string;
   currentSessionId?: string;
   currentTermId?: string;
+  logoUrl?: string;
 }

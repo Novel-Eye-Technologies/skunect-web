@@ -6,6 +6,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useUIStore } from '@/lib/stores/ui-store';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { useSchoolSettings } from '@/lib/hooks/use-school-settings';
 import { navigationConfig } from '@/lib/utils/navigation';
 import { SidebarNavItem } from '@/components/layout/sidebar-nav-item';
 import { cn } from '@/lib/utils';
@@ -17,6 +18,7 @@ export function Sidebar() {
   const user = useAuthStore((s) => s.user);
 
   const isSuperAdmin = useAuthStore((s) => s.isSuperAdmin);
+  const { data: schoolSettings } = useSchoolSettings();
 
   // Filter nav items by the user's current role
   const filteredNav = navigationConfig.filter((item) =>
@@ -48,8 +50,12 @@ export function Sidebar() {
             collapsed ? 'justify-center' : 'gap-3',
           )}
         >
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-teal text-sm font-bold text-white">
-            S
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-teal text-sm font-bold text-white overflow-hidden">
+            {schoolSettings?.logo ? (
+              <img src={schoolSettings.logo} alt="" className="h-full w-full object-cover" />
+            ) : (
+              'S'
+            )}
           </div>
           {!collapsed && (
             <div className="min-w-0 flex-1">

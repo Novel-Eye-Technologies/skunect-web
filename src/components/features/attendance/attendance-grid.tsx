@@ -69,17 +69,19 @@ export function AttendanceGrid() {
     enabled: !!schoolId && !!selectedClassId,
   });
 
-  // Build rows when students load
+  // Build rows when students load — only include active students
   useEffect(() => {
     const students = studentsResponse?.data ?? [];
     setRows(
-      students.map((s) => ({
-        studentId: s.id,
-        studentName: `${s.firstName} ${s.lastName}`,
-        admissionNumber: s.admissionNumber,
-        status: 'PRESENT' as AttendanceStatus,
-        note: '',
-      })),
+      students
+        .filter((s) => s.status === 'ACTIVE')
+        .map((s) => ({
+          studentId: s.id,
+          studentName: `${s.firstName} ${s.lastName}`,
+          admissionNumber: s.admissionNumber,
+          status: 'PRESENT' as AttendanceStatus,
+          note: '',
+        })),
     );
   }, [studentsResponse]);
 
