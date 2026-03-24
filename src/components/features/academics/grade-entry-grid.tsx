@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,6 +27,7 @@ import {
   useAssessmentScores,
   useSubmitBulkScores,
 } from '@/lib/hooks/use-academics';
+import { useStudents } from '@/lib/hooks/use-students';
 import type { BulkScoreEntry } from '@/lib/types/academics';
 
 interface ScoreRow {
@@ -49,6 +50,10 @@ export function GradeEntryGrid() {
     (a) => a.id === selectedAssessmentId,
   );
 
+  // Load students for the selected assessment's class
+  const { data: studentsResponse } = useStudents({ classId: selectedAssessment?.classId });
+  const students = useMemo(() => studentsResponse?.data ?? [], [studentsResponse]);
+
   // Load scores for selected assessment
   const { data: scores, isLoading: isLoadingScores } =
     useAssessmentScores(selectedAssessmentId);
@@ -59,15 +64,18 @@ export function GradeEntryGrid() {
   useEffect(() => {
     if (scores) {
       setRows(
-        scores.map((s) => ({
-          studentId: s.studentId,
-          studentName: s.studentName,
-          admissionNumber: s.admissionNumber,
-          score: s.score,
-        })),
+        scores.map((s) => {
+          const student = students.find((st) => st.id === s.studentId);
+          return {
+            studentId: s.studentId,
+            studentName: s.studentName,
+            admissionNumber: s.admissionNumber || student?.admissionNumber || 'N/A',
+            score: s.score,
+          };
+        }),
       );
     }
-  }, [scores]);
+  }, [scores, students]);
 
   // ---------------------------------------------------------------------------
   // Handlers
