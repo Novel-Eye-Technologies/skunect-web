@@ -18,7 +18,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { useClasses, useUpdateClass } from '@/lib/hooks/use-school-settings';
+import { useClasses, useUpdateClass, useSessions } from '@/lib/hooks/use-school-settings';
 import type { UserListItem } from '@/lib/types/user';
 
 interface AssignClassDialogProps {
@@ -34,7 +34,9 @@ export function AssignClassDialog({
 }: AssignClassDialogProps) {
   const [selectedClassId, setSelectedClassId] = useState<string>('');
   const { data: classes, isLoading: classesLoading } = useClasses();
+  const { data: sessions } = useSessions();
   const updateClass = useUpdateClass();
+  const currentSessionId = sessions?.find((s) => s.isCurrent)?.id ?? sessions?.[0]?.id;
 
   useEffect(() => {
     if (!open) {
@@ -43,7 +45,7 @@ export function AssignClassDialog({
   }, [open]);
 
   function handleAssign() {
-    if (!selectedClassId || !teacher) return;
+    if (!selectedClassId || !teacher || !currentSessionId) return;
     const cls = classes?.find((c) => c.id === selectedClassId);
     if (!cls) return;
 
@@ -52,7 +54,7 @@ export function AssignClassDialog({
         classId: selectedClassId,
         data: {
           name: cls.name,
-          section: cls.section ?? undefined,
+          sessionId: currentSessionId,
           capacity: cls.capacity,
           classTeacherId: teacher.id,
         },

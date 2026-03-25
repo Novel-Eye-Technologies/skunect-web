@@ -12,9 +12,8 @@ export interface EmergencyAlert {
 }
 
 export interface CreateEmergencyAlertRequest {
-  type: 'LOCKDOWN' | 'EVACUATION' | 'MEDICAL' | 'WEATHER' | 'OTHER';
   title: string;
-  description: string;
+  message: string;
   severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 }
 
@@ -33,7 +32,7 @@ export interface PickupLog {
 
 export interface CreatePickupLogRequest {
   studentId: string;
-  pickupPersonName: string;
+  pickedUpByName: string;
   relationship: string;
   authorizationId?: string;
   notes?: string;

@@ -15,16 +15,15 @@ export interface FeeStructure {
 
 export interface CreateFeeStructureRequest {
   name: string;
-  description?: string;
   amount: number;
-  classId?: string;
   termId?: string;
-  sessionId?: string;
+  classId?: string;
+  isMandatory?: boolean;
+  deadline?: string;
+  breakdown?: string;
 }
 
-export interface UpdateFeeStructureRequest extends Partial<CreateFeeStructureRequest> {
-  isActive?: boolean;
-}
+export interface UpdateFeeStructureRequest extends Partial<CreateFeeStructureRequest> {}
 
 export interface Invoice {
   id: string;

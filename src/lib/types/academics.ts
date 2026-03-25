@@ -20,9 +20,8 @@ export interface CreateAssessmentRequest {
   subjectId: string;
   termId: string;
   type: 'CA1' | 'CA2' | 'CA3' | 'EXAM';
-  title: string;
   maxScore: number;
-  date: string;
+  title?: string;
 }
 
 export interface UpdateAssessmentRequest extends Partial<CreateAssessmentRequest> {}

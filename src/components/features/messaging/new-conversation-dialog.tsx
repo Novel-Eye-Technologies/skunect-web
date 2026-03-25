@@ -51,6 +51,7 @@ export function NewConversationDialog({
 }: NewConversationDialogProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const userId = useAuthStore((s) => s.user?.id);
+  const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   const { data: usersResponse, isLoading: usersLoading } = useUsers({
     size: 50,
@@ -86,7 +87,11 @@ export function NewConversationDialog({
 
   function onSubmit(values: NewConversationValues) {
     createConversation.mutate(
-      { recipientId: values.recipientId, message: values.message },
+      {
+        type: 'DIRECT',
+        schoolId: schoolId!,
+        participantIds: [values.recipientId],
+      },
       {
         onSuccess: (response) => {
           form.reset();

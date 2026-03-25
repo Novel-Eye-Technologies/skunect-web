@@ -40,11 +40,12 @@ import type { FeeStructure } from '@/lib/types/fees';
 
 const feeStructureFormSchema = z.object({
   name: z.string().min(1, { message: 'Name is required' }),
-  description: z.string().optional(),
   amount: z.number().min(1, { message: 'Amount must be at least 1' }),
   classId: z.string().optional(),
   termId: z.string().optional(),
-  sessionId: z.string().optional(),
+  isMandatory: z.boolean().optional(),
+  deadline: z.string().optional(),
+  breakdown: z.string().optional(),
 });
 
 type FeeStructureFormValues = z.infer<typeof feeStructureFormSchema>;
@@ -87,20 +88,22 @@ export function FeeStructureFormDialog({
     resolver: zodResolver(feeStructureFormSchema),
     defaultValues: {
       name: '',
-      description: '',
       amount: 0,
       classId: '',
       termId: '',
-      sessionId: '',
+      isMandatory: false,
+      deadline: '',
+      breakdown: '',
     },
   });
 
-  const selectedSessionId = form.watch('sessionId');
+  // Load terms for all sessions (use first session as default)
+  const currentSessionId = sessions?.find((s) => s.isCurrent)?.id ?? sessions?.[0]?.id;
 
   const { data: termsResponse } = useQuery({
-    queryKey: ['terms', schoolId, selectedSessionId],
-    queryFn: () => getTerms(schoolId!, selectedSessionId!),
-    enabled: !!schoolId && !!selectedSessionId,
+    queryKey: ['terms', schoolId, currentSessionId],
+    queryFn: () => getTerms(schoolId!, currentSessionId!),
+    enabled: !!schoolId && !!currentSessionId,
     select: (res) => res.data,
   });
 
@@ -111,20 +114,22 @@ export function FeeStructureFormDialog({
     if (feeStructure && open) {
       form.reset({
         name: feeStructure.name,
-        description: feeStructure.description ?? '',
         amount: feeStructure.amount,
         classId: feeStructure.classId ?? '',
         termId: feeStructure.termId ?? '',
-        sessionId: feeStructure.sessionId ?? '',
+        isMandatory: false,
+        deadline: '',
+        breakdown: '',
       });
     } else if (!open) {
       form.reset({
         name: '',
-        description: '',
         amount: 0,
         classId: '',
         termId: '',
-        sessionId: '',
+        isMandatory: false,
+        deadline: '',
+        breakdown: '',
       });
     }
   }, [feeStructure, open, form]);
@@ -133,11 +138,12 @@ export function FeeStructureFormDialog({
     // Clean up empty strings to undefined
     const payload = {
       name: values.name,
-      description: values.description || undefined,
       amount: values.amount,
       classId: values.classId || undefined,
       termId: values.termId || undefined,
-      sessionId: values.sessionId || undefined,
+      isMandatory: values.isMandatory,
+      deadline: values.deadline || undefined,
+      breakdown: values.breakdown || undefined,
     };
 
     if (isEdit) {
@@ -186,25 +192,6 @@ export function FeeStructureFormDialog({
                   <FormLabel>Name</FormLabel>
                   <FormControl>
                     <Input placeholder="e.g. Tuition Fee" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Description */}
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description (Optional)</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Brief description of this fee..."
-                      className="min-h-[80px] resize-none"
-                      {...field}
-                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -266,40 +253,6 @@ export function FeeStructureFormDialog({
               )}
             />
 
-            {/* Session */}
-            <FormField
-              control={form.control}
-              name="sessionId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Session (Optional)</FormLabel>
-                  <Select
-                    onValueChange={(value) => {
-                      field.onChange(value === 'NONE' ? '' : value);
-                      // Reset term when session changes
-                      form.setValue('termId', '');
-                    }}
-                    value={field.value || 'NONE'}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="All Sessions" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="NONE">All Sessions</SelectItem>
-                      {sessions.map((session) => (
-                        <SelectItem key={session.id} value={session.id}>
-                          {session.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             {/* Term */}
             <FormField
               control={form.control}
@@ -312,7 +265,6 @@ export function FeeStructureFormDialog({
                       field.onChange(value === 'NONE' ? '' : value)
                     }
                     value={field.value || 'NONE'}
-                    disabled={!selectedSessionId}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -328,6 +280,40 @@ export function FeeStructureFormDialog({
                       ))}
                     </SelectContent>
                   </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Deadline */}
+            <FormField
+              control={form.control}
+              name="deadline"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Deadline (Optional)</FormLabel>
+                  <FormControl>
+                    <Input type="date" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Breakdown */}
+            <FormField
+              control={form.control}
+              name="breakdown"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Breakdown (Optional)</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Fee breakdown details..."
+                      className="min-h-[80px] resize-none"
+                      {...field}
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
