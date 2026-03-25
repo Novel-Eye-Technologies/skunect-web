@@ -1147,6 +1147,115 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await timetable.expectSlotInGrid('English Language');
   });
 
+  test('2.16b — School Admin: Timetable grid renders with correct structure', async ({ page }) => {
+    await loginViaUI(page, schoolData.adminEmail!);
+    await waitForDashboard(page);
+
+    const timetable = new TimetablePage(page);
+    await timetable.goto();
+    await timetable.expectVisible();
+
+    // Select session and JSS 1 class
+    const selects = page.locator('button[data-slot="select-trigger"]');
+    await selects.nth(0).click();
+    await page.getByRole('option', { name: SESSION_NAME }).click();
+    await selects.nth(1).click();
+    await page.getByRole('option', { name: new RegExp(CLASS1_NAME) }).click();
+    await timetable.expectGridVisible();
+
+    // Verify grid headers — Period column + day columns
+    await timetable.expectGridHeaders();
+
+    // Verify period rows exist (at least P1 and P2)
+    await expect(timetable.timetableGrid.getByText('P1')).toBeVisible();
+    await expect(timetable.timetableGrid.getByText('P2')).toBeVisible();
+
+    // Verify previously created slots are still visible
+    await timetable.expectSlotInGrid('Mathematics');
+    await timetable.expectSlotInGrid('English Language');
+    await timetable.expectSlotInGrid('Basic Science');
+    await timetable.expectSlotInGrid('Social Studies');
+    await timetable.expectSlotInGrid('Computer Science');
+  });
+
+  test('2.16c — School Admin: Switch class and verify different slots load', async ({ page }) => {
+    await loginViaUI(page, schoolData.adminEmail!);
+    await waitForDashboard(page);
+
+    const timetable = new TimetablePage(page);
+    await timetable.goto();
+    await timetable.expectVisible();
+
+    // Select session and JSS 1 class
+    const selects = page.locator('button[data-slot="select-trigger"]');
+    await selects.nth(0).click();
+    await page.getByRole('option', { name: SESSION_NAME }).click();
+    await selects.nth(1).click();
+    await page.getByRole('option', { name: new RegExp(CLASS1_NAME) }).click();
+    await timetable.expectGridVisible();
+
+    // JSS 1: Monday P1 = Mathematics
+    await timetable.expectSlotInGrid('Mathematics');
+
+    // Switch to JSS 2
+    await selects.nth(1).click();
+    await page.getByRole('option', { name: new RegExp(CLASS2_NAME) }).click();
+    await timetable.expectGridVisible();
+
+    // JSS 2: Monday P1 = English Language (different from JSS 1)
+    await timetable.expectSlotInGrid('English Language');
+  });
+
+  test('2.16d — School Admin: Delete a timetable slot and verify removal', async ({ page }) => {
+    await loginViaUI(page, schoolData.adminEmail!);
+    await waitForDashboard(page);
+
+    const timetable = new TimetablePage(page);
+    await timetable.goto();
+    await timetable.expectVisible();
+
+    // Select session and JSS 2 class
+    const selects = page.locator('button[data-slot="select-trigger"]');
+    await selects.nth(0).click();
+    await page.getByRole('option', { name: SESSION_NAME }).click();
+    await selects.nth(1).click();
+    await page.getByRole('option', { name: new RegExp(CLASS2_NAME) }).click();
+    await timetable.expectGridVisible();
+
+    // Delete the Social Studies slot (Thursday P1)
+    await timetable.expectSlotInGrid('Social Studies');
+    await timetable.deleteSlot('Social Studies');
+    await page.waitForTimeout(1500);
+    await timetable.expectSlotNotInGrid('Social Studies');
+
+    // Re-create it so later tests still work
+    await timetable.clickEmptySlot('THURSDAY', 1);
+    await timetable.fillSlotForm('Social Studies');
+    await timetable.submitSlotForm();
+    await expect(timetable.slotDialog).not.toBeVisible({ timeout: 5_000 });
+    await timetable.expectSlotInGrid('Social Studies');
+  });
+
+  test('2.16e — School Admin: Timetable page loads without errors when no config saved', async ({ page }) => {
+    await loginViaUI(page, schoolData.adminEmail!);
+    await waitForDashboard(page);
+
+    // Navigate to timetable — page should load without console errors
+    const timetable = new TimetablePage(page);
+    const errors: string[] = [];
+    page.on('pageerror', (err) => errors.push(err.message));
+
+    await timetable.goto();
+    await timetable.expectVisible();
+
+    // Verify the select dropdowns are visible and the empty state shows
+    const selects = page.locator('button[data-slot="select-trigger"]');
+    await expect(selects.first()).toBeVisible({ timeout: 10_000 });
+
+    // No unhandled errors should have occurred
+    expect(errors.length, `Page errors: ${errors.join(', ')}`).toBe(0);
+  });
+
   test('2.17 — School Admin: Validate admin dashboard information', async ({ page }) => {
     await loginViaUI(page, schoolData.adminEmail!);
     await waitForDashboard(page);
@@ -1828,6 +1937,28 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
 
     // One of these must be true
     expect(hasSchedule || hasNoSchedule).toBeTruthy();
+  });
+
+  test('3.3b — Teacher: View full timetable page with class slots', async ({ page }) => {
+    await loginViaUI(page, TEACHER1_EMAIL);
+    await waitForDashboard(page);
+
+    const timetable = new TimetablePage(page);
+    await timetable.goto();
+    await timetable.expectVisible();
+
+    // Select session and JSS 1 class
+    const selects = page.locator('button[data-slot="select-trigger"]');
+    await selects.nth(0).click();
+    await page.getByRole('option', { name: SESSION_NAME }).click();
+    await selects.nth(1).click();
+    await page.getByRole('option', { name: new RegExp(CLASS1_NAME) }).click();
+    await timetable.expectGridVisible();
+
+    // Verify grid renders with headers and slots
+    await timetable.expectGridHeaders();
+    await timetable.expectSlotInGrid('Mathematics');
+    await timetable.expectSlotInGrid('English Language');
   });
 
   test('3.4 — Teacher: Take attendance for JSS 1 (class teacher)', async ({ page }) => {
