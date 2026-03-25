@@ -109,7 +109,7 @@ export function GradeEntryGrid() {
 
     submitScores.mutate({
       assessmentId: selectedAssessmentId,
-      data: { scores: validScores },
+      data: { grades: validScores },
     });
   }
 

@@ -92,7 +92,7 @@ export async function submitBulkScores(
   assessmentId: string,
   data: BulkScoreRequest,
 ): Promise<ApiResponse<void>> {
-  const response = await apiClient.post<ApiResponse<void>>(
+  const response = await apiClient.put<ApiResponse<void>>(
     `/schools/${schoolId}/assessments/${assessmentId}/grades`,
     data,
   );

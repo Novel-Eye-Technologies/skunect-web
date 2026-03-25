@@ -34,8 +34,8 @@ export const academicsKeys = {
   all: ['academics'] as const,
   assessments: (schoolId: string, params?: AssessmentListParams) =>
     [...academicsKeys.all, 'assessments', schoolId, params] as const,
-  scores: (schoolId: string, assessmentId: string) =>
-    [...academicsKeys.all, 'scores', schoolId, assessmentId] as const,
+  grades: (schoolId: string, assessmentId: string) =>
+    [...academicsKeys.all, 'grades', schoolId, assessmentId] as const,
   reportCards: (schoolId: string, params?: ReportCardListParams) =>
     [...academicsKeys.all, 'report-cards', schoolId, params] as const,
 };
@@ -59,7 +59,7 @@ export function useAssessmentScores(assessmentId: string) {
 
 
   return useQuery({
-    queryKey: academicsKeys.scores(schoolId ?? '', assessmentId),
+    queryKey: academicsKeys.grades(schoolId ?? '', assessmentId),
     queryFn: () => getAssessmentScores(schoolId!, assessmentId),
     enabled: !!schoolId && !!assessmentId,
     select: (response) => response.data,

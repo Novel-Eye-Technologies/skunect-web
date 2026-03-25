@@ -40,7 +40,7 @@ export interface BulkScoreEntry {
 }
 
 export interface BulkScoreRequest {
-  scores: BulkScoreEntry[];
+  grades: BulkScoreEntry[];
 }
 
 export interface ReportCard {
