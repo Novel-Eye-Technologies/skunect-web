@@ -10,7 +10,6 @@ import {
   resolveEmergencyAlert,
   getPickupLogs,
   createPickupLog,
-  verifyPickupLog,
   getPickupAuthorizations,
   createPickupAuthorization,
   revokePickupAuthorization,
@@ -107,21 +106,6 @@ return useMutation({
     },
     onError: (error) => {
       toast.error(getApiErrorMessage(error, 'Failed to create pickup log'));
-    },
-  });
-}
-
-export function useVerifyPickupLog() {
-  const schoolId = useAuthStore((s) => s.currentSchoolId);
-return useMutation({
-    mutationFn: (pickupLogId: string) =>
-      verifyPickupLog(schoolId!, pickupLogId),
-    onSuccess: () => {
-      toast.success('Pickup verified');
-      queryClient.invalidateQueries({ queryKey: safetyKeys.all });
-    },
-    onError: (error) => {
-      toast.error(getApiErrorMessage(error, 'Failed to verify pickup'));
     },
   });
 }

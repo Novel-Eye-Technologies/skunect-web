@@ -35,7 +35,6 @@ import {
   useEmergencyAlerts,
   useResolveEmergencyAlert,
   usePickupLogs,
-  useVerifyPickupLog,
 } from '@/lib/hooks/use-safety';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { formatDateTime, formatRelative } from '@/lib/utils/format-date';
@@ -94,8 +93,6 @@ export default function SafetyPage() {
     size: pickupPagination.pageSize,
     date: dateFilter || undefined,
   });
-  const verifyPickup = useVerifyPickupLog();
-
   const alerts = alertsResponse?.data ?? [];
   const pickupLogs = pickupResponse?.data ?? [];
   const pickupPageCount = pickupResponse?.meta?.totalPages ?? 0;
@@ -162,25 +159,6 @@ export default function SafetyPage() {
       accessorKey: 'createdAt',
       header: 'Time',
       cell: ({ row }) => formatDateTime(row.original.createdAt),
-    },
-    {
-      id: 'actions',
-      cell: ({ row }) => {
-        const log = row.original;
-        if (log.status === 'VERIFIED') return null;
-        if (!isTeacher && !isAdmin) return null;
-        return (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => verifyPickup.mutate(log.id)}
-            disabled={verifyPickup.isPending}
-          >
-            <CheckCircle className="mr-1 h-4 w-4" />
-            Verify
-          </Button>
-        );
-      },
     },
   ];
 

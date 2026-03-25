@@ -12,9 +12,6 @@ import {
   updateStudent,
   deleteStudent,
   linkParent,
-  unlinkParent,
-  uploadDocument,
-  deleteDocument,
   updateProfile,
   getStudentUsage,
   activateStudent,
@@ -142,70 +139,6 @@ return useMutation({
     },
     onError: (error) => {
       toast.error(getApiErrorMessage(error, 'Failed to link parent'));
-    },
-  });
-}
-
-export function useUnlinkParent() {
-  const schoolId = useAuthStore((s) => s.currentSchoolId);
-return useMutation({
-    mutationFn: ({
-      studentId,
-      parentId,
-    }: {
-      studentId: string;
-      parentId: string;
-    }) => unlinkParent(schoolId!, studentId, parentId),
-    onSuccess: () => {
-      toast.success('Parent unlinked');
-      queryClient.invalidateQueries({ queryKey: studentKeys.all });
-    },
-    onError: (error) => {
-      toast.error(getApiErrorMessage(error, 'Failed to unlink parent'));
-    },
-  });
-}
-
-// ---------------------------------------------------------------------------
-// Document mutations
-// ---------------------------------------------------------------------------
-
-export function useUploadDocument() {
-  const schoolId = useAuthStore((s) => s.currentSchoolId);
-return useMutation({
-    mutationFn: ({
-      studentId,
-      file,
-    }: {
-      studentId: string;
-      file: File;
-    }) => uploadDocument(schoolId!, studentId, file),
-    onSuccess: () => {
-      toast.success('Document uploaded');
-      queryClient.invalidateQueries({ queryKey: studentKeys.all });
-    },
-    onError: (error) => {
-      toast.error(getApiErrorMessage(error, 'Failed to upload document'));
-    },
-  });
-}
-
-export function useDeleteDocument() {
-  const schoolId = useAuthStore((s) => s.currentSchoolId);
-return useMutation({
-    mutationFn: ({
-      studentId,
-      documentId,
-    }: {
-      studentId: string;
-      documentId: string;
-    }) => deleteDocument(schoolId!, studentId, documentId),
-    onSuccess: () => {
-      toast.success('Document deleted');
-      queryClient.invalidateQueries({ queryKey: studentKeys.all });
-    },
-    onError: (error) => {
-      toast.error(getApiErrorMessage(error, 'Failed to delete document'));
     },
   });
 }

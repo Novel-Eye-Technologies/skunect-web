@@ -6,7 +6,6 @@ import type {
   CreateStudentRequest,
   UpdateStudentRequest,
   LinkParentRequest,
-  StudentDocument,
   FileUploadResponse,
 } from '@/lib/types/student';
 
@@ -151,44 +150,6 @@ export async function linkParent(
   return response.data;
 }
 
-export async function unlinkParent(
-  schoolId: string,
-  studentId: string,
-  parentId: string,
-): Promise<ApiResponse<null>> {
-  const response = await apiClient.delete<ApiResponse<null>>(
-    `/schools/${schoolId}/students/${studentId}/parents/${parentId}`,
-  );
-  return response.data;
-}
-
-export async function uploadDocument(
-  schoolId: string,
-  studentId: string,
-  file: File,
-): Promise<ApiResponse<StudentDocument>> {
-  const formData = new FormData();
-  formData.append('file', file);
-
-  const response = await apiClient.post<ApiResponse<StudentDocument>>(
-    `/schools/${schoolId}/students/${studentId}/documents`,
-    formData,
-    { headers: { 'Content-Type': 'multipart/form-data' } },
-  );
-  return response.data;
-}
-
-export async function deleteDocument(
-  schoolId: string,
-  studentId: string,
-  documentId: string,
-): Promise<ApiResponse<null>> {
-  const response = await apiClient.delete<ApiResponse<null>>(
-    `/schools/${schoolId}/students/${studentId}/documents/${documentId}`,
-  );
-  return response.data;
-}
-
 // ---------------------------------------------------------------------------
 // Profile API
 // ---------------------------------------------------------------------------
@@ -203,7 +164,7 @@ export async function updateProfile(
   data: UpdateProfileRequest,
 ): Promise<ApiResponse<null>> {
   const response = await apiClient.put<ApiResponse<null>>(
-    '/users/profile',
+    '/users/me',
     data,
   );
   return response.data;

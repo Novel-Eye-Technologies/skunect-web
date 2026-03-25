@@ -4,10 +4,8 @@ import { useState, useCallback } from 'react';
 import { type ColumnDef, type PaginationState } from '@tanstack/react-table';
 import {
   MoreHorizontal,
-  Trash2,
   Pencil,
   Plus,
-  CreditCard,
   Receipt,
   DollarSign,
 } from 'lucide-react';
@@ -16,7 +14,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
@@ -30,13 +27,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PageHeader } from '@/components/shared/page-header';
 import { DataTable } from '@/components/shared/data-table';
 import { StatusBadge } from '@/components/shared/status-badge';
-import { ConfirmDialog } from '@/components/shared/confirm-dialog';
 import { FeeStructureFormDialog } from '@/components/features/fees/fee-structure-form-dialog';
 import { GenerateInvoicesDialog } from '@/components/features/fees/generate-invoices-dialog';
-import { RecordPaymentDialog } from '@/components/features/fees/record-payment-dialog';
 import {
   useFeeStructures,
-  useDeleteFeeStructure,
   useInvoices,
 } from '@/lib/hooks/use-fees';
 import { useAuthStore } from '@/lib/stores/auth-store';
@@ -58,8 +52,6 @@ export default function FeesPage() {
   const [createStructureOpen, setCreateStructureOpen] = useState(false);
   const [editStructureTarget, setEditStructureTarget] =
     useState<FeeStructure | null>(null);
-  const [deleteStructureTarget, setDeleteStructureTarget] =
-    useState<FeeStructure | null>(null);
 
   // ---------------------------------------------------------------------------
   // Invoices state
@@ -71,7 +63,6 @@ export default function FeesPage() {
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [classFilter, setClassFilter] = useState<string>('');
   const [generateDialogOpen, setGenerateDialogOpen] = useState(false);
-  const [paymentTarget, setPaymentTarget] = useState<Invoice | null>(null);
 
   // ---------------------------------------------------------------------------
   // Data fetching
@@ -81,7 +72,6 @@ export default function FeesPage() {
       page: structurePagination.pageIndex,
       size: structurePagination.pageSize,
     });
-  const deleteFeeStructure = useDeleteFeeStructure();
 
   const { data: invoicesResponse, isLoading: invoicesLoading, isError: isInvoicesError, refetch: refetchInvoices } = useInvoices({
     page: invoicePagination.pageIndex,
@@ -119,13 +109,6 @@ export default function FeesPage() {
     },
     [],
   );
-
-  function confirmDeleteStructure() {
-    if (!deleteStructureTarget) return;
-    deleteFeeStructure.mutate(deleteStructureTarget.id, {
-      onSuccess: () => setDeleteStructureTarget(null),
-    });
-  }
 
   // ---------------------------------------------------------------------------
   // Fee Structure columns
@@ -187,14 +170,6 @@ export default function FeesPage() {
               >
                 <Pencil className="mr-2 h-4 w-4" />
                 Edit
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => setDeleteStructureTarget(structure)}
-                className="text-destructive focus:text-destructive"
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -265,32 +240,6 @@ export default function FeesPage() {
       accessorKey: 'status',
       header: 'Status',
       cell: ({ row }) => <StatusBadge status={row.original.status} />,
-    },
-    {
-      id: 'actions',
-      cell: ({ row }) => {
-        const invoice = row.original;
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {invoice.balance > 0 && (
-                <DropdownMenuItem
-                  onClick={() => setPaymentTarget(invoice)}
-                >
-                  <CreditCard className="mr-2 h-4 w-4" />
-                  Record Payment
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      },
     },
   ];
 
@@ -429,35 +378,11 @@ export default function FeesPage() {
         feeStructure={editStructureTarget ?? undefined}
       />
 
-      <ConfirmDialog
-        open={!!deleteStructureTarget}
-        onOpenChange={(open) => {
-          if (!open) setDeleteStructureTarget(null);
-        }}
-        title="Delete Fee Structure"
-        description={
-          deleteStructureTarget
-            ? `Are you sure you want to delete "${deleteStructureTarget.name}"? This action cannot be undone.`
-            : ''
-        }
-        confirmLabel="Delete"
-        onConfirm={confirmDeleteStructure}
-        isLoading={deleteFeeStructure.isPending}
-        variant="destructive"
-      />
-
       <GenerateInvoicesDialog
         open={generateDialogOpen}
         onOpenChange={setGenerateDialogOpen}
       />
 
-      <RecordPaymentDialog
-        open={!!paymentTarget}
-        onOpenChange={(open) => {
-          if (!open) setPaymentTarget(null);
-        }}
-        invoice={paymentTarget}
-      />
     </div>
   );
 }

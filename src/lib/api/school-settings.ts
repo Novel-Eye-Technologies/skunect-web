@@ -426,12 +426,3 @@ export async function updateGradingSystem(
   return response.data;
 }
 
-export async function deleteGradingSystem(
-  schoolId: string,
-  id: string,
-): Promise<ApiResponse<void>> {
-  const response = await apiClient.delete<ApiResponse<void>>(
-    `/schools/${schoolId}/grading-systems/${id}`,
-  );
-  return response.data;
-}

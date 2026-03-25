@@ -3,7 +3,6 @@ import type { ApiResponse, PaginatedParams } from '@/lib/api/types';
 import type {
   UserListItem,
   InviteUserRequest,
-  UpdateUserStatusRequest,
   UpdateSchoolUserRequest,
 } from '@/lib/types/user';
 
@@ -33,18 +32,6 @@ export async function inviteUser(
 ): Promise<ApiResponse<UserListItem>> {
   const response = await apiClient.post<ApiResponse<UserListItem>>(
     `/schools/${schoolId}/users/invite`,
-    data,
-  );
-  return response.data;
-}
-
-export async function updateUserStatus(
-  schoolId: string,
-  userId: string,
-  data: UpdateUserStatusRequest,
-): Promise<ApiResponse<UserListItem>> {
-  const response = await apiClient.put<ApiResponse<UserListItem>>(
-    `/schools/${schoolId}/users/${userId}/status`,
     data,
   );
   return response.data;

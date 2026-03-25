@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -8,17 +7,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import { StatusBadge } from '@/components/shared/status-badge';
-import { useUpdateUserStatus } from '@/lib/hooks/use-users';
+import { useRemoveUser } from '@/lib/hooks/use-users';
 import type { UserListItem } from '@/lib/types/user';
 
 interface UserStatusDialogProps {
@@ -27,75 +18,44 @@ interface UserStatusDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const statusOptions = ['ACTIVE', 'INACTIVE', 'SUSPENDED'] as const;
-
 export function UserStatusDialog({
   user,
   open,
   onOpenChange,
 }: UserStatusDialogProps) {
-  const [selectedStatus, setSelectedStatus] = useState<string>('');
-  const updateStatus = useUpdateUserStatus();
+  const removeUser = useRemoveUser();
 
-  // Reset selected status when dialog opens with a new user
-  function handleOpenChange(value: boolean) {
-    if (value && user) {
-      setSelectedStatus(user.status);
-    }
-    onOpenChange(value);
-  }
+  function handleDeactivate() {
+    if (!user) return;
 
-  function handleConfirm() {
-    if (!user || !selectedStatus) return;
-
-    updateStatus.mutate(
-      {
-        userId: user.id,
-        data: { status: selectedStatus as 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' },
+    removeUser.mutate(user.id, {
+      onSuccess: () => {
+        onOpenChange(false);
       },
-      {
-        onSuccess: () => {
-          onOpenChange(false);
-        },
-      },
-    );
+    });
   }
 
   if (!user) return null;
 
+  const isActive = user.status === 'ACTIVE';
+
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[400px]">
         <DialogHeader>
-          <DialogTitle>Change User Status</DialogTitle>
+          <DialogTitle>Deactivate User</DialogTitle>
           <DialogDescription>
-            Update the status for {user.firstName} {user.lastName}.
+            {isActive
+              ? `Deactivate ${user.firstName} ${user.lastName} from this school.`
+              : `${user.firstName} ${user.lastName} is already inactive.`}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label>Current Status</Label>
+            <span className="text-sm font-medium">Current Status</span>
             <div>
               <StatusBadge status={user.status} />
             </div>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="new-status">New Status</Label>
-            <Select
-              value={selectedStatus}
-              onValueChange={setSelectedStatus}
-            >
-              <SelectTrigger id="new-status">
-                <SelectValue placeholder="Select new status" />
-              </SelectTrigger>
-              <SelectContent>
-                {statusOptions.map((status) => (
-                  <SelectItem key={status} value={status}>
-                    {status.charAt(0) + status.slice(1).toLowerCase()}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
         </div>
         <div className="flex justify-end gap-2">
@@ -105,16 +65,15 @@ export function UserStatusDialog({
           >
             Cancel
           </Button>
-          <Button
-            onClick={handleConfirm}
-            disabled={
-              updateStatus.isPending ||
-              selectedStatus === user.status ||
-              !selectedStatus
-            }
-          >
-            {updateStatus.isPending ? 'Updating...' : 'Update Status'}
-          </Button>
+          {isActive && (
+            <Button
+              variant="destructive"
+              onClick={handleDeactivate}
+              disabled={removeUser.isPending}
+            >
+              {removeUser.isPending ? 'Deactivating...' : 'Deactivate User'}
+            </Button>
+          )}
         </div>
       </DialogContent>
     </Dialog>

@@ -7,12 +7,11 @@ import { getApiErrorMessage } from '@/lib/utils/get-error-message';
 import {
   getUsers,
   inviteUser,
-  updateUserStatus,
   updateSchoolUser,
   removeUser,
   type UserListParams,
 } from '@/lib/api/users';
-import type { InviteUserRequest, UpdateUserStatusRequest, UpdateSchoolUserRequest } from '@/lib/types/user';
+import type { InviteUserRequest, UpdateSchoolUserRequest } from '@/lib/types/user';
 import { queryClient } from '@/lib/query-client';
 
 // ---------------------------------------------------------------------------
@@ -53,26 +52,6 @@ return useMutation({
     },
     onError: (error) => {
       toast.error(getApiErrorMessage(error, 'Failed to invite user'));
-    },
-  });
-}
-
-export function useUpdateUserStatus() {
-  const schoolId = useAuthStore((s) => s.currentSchoolId);
-return useMutation({
-    mutationFn: ({
-      userId,
-      data,
-    }: {
-      userId: string;
-      data: UpdateUserStatusRequest;
-    }) => updateUserStatus(schoolId!, userId, data),
-    onSuccess: () => {
-      toast.success('User status updated');
-      queryClient.invalidateQueries({ queryKey: userKeys.all });
-    },
-    onError: (error) => {
-      toast.error(getApiErrorMessage(error, 'Failed to update user status'));
     },
   });
 }

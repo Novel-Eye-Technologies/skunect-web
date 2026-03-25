@@ -5,8 +5,6 @@ import type {
   CreateFeeStructureRequest,
   UpdateFeeStructureRequest,
   Invoice,
-  GenerateInvoicesRequest,
-  RecordPaymentRequest,
 } from '@/lib/types/fees';
 
 // ---------------------------------------------------------------------------
@@ -47,16 +45,6 @@ export async function updateFeeStructure(
   return response.data;
 }
 
-export async function deleteFeeStructure(
-  schoolId: string,
-  feeStructureId: string,
-): Promise<ApiResponse<null>> {
-  const response = await apiClient.delete<ApiResponse<null>>(
-    `/schools/${schoolId}/fees/structures/${feeStructureId}`,
-  );
-  return response.data;
-}
-
 // ---------------------------------------------------------------------------
 // Invoices
 // ---------------------------------------------------------------------------
@@ -78,35 +66,15 @@ export async function getInvoices(
   return response.data;
 }
 
-export async function getInvoice(
-  schoolId: string,
-  invoiceId: string,
-): Promise<ApiResponse<Invoice>> {
-  const response = await apiClient.get<ApiResponse<Invoice>>(
-    `/schools/${schoolId}/fees/invoices/${invoiceId}`,
-  );
-  return response.data;
-}
-
 export async function generateInvoices(
   schoolId: string,
-  data: GenerateInvoicesRequest,
+  termId: string,
+  classId?: string,
 ): Promise<ApiResponse<Invoice[]>> {
   const response = await apiClient.post<ApiResponse<Invoice[]>>(
     `/schools/${schoolId}/fees/invoices/generate`,
-    data,
-  );
-  return response.data;
-}
-
-export async function recordPayment(
-  schoolId: string,
-  invoiceId: string,
-  data: RecordPaymentRequest,
-): Promise<ApiResponse<Invoice>> {
-  const response = await apiClient.post<ApiResponse<Invoice>>(
-    `/schools/${schoolId}/fees/invoices/${invoiceId}/record-payment`,
-    data,
+    null,
+    { params: { termId, ...(classId ? { classId } : {}) } },
   );
   return response.data;
 }

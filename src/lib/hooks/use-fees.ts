@@ -8,18 +8,13 @@ import {
   getFeeStructures,
   createFeeStructure,
   updateFeeStructure,
-  deleteFeeStructure,
   getInvoices,
-  getInvoice,
   generateInvoices,
-  recordPayment,
   type InvoiceListParams,
 } from '@/lib/api/fees';
 import type {
   CreateFeeStructureRequest,
   UpdateFeeStructureRequest,
-  GenerateInvoicesRequest,
-  RecordPaymentRequest,
 } from '@/lib/types/fees';
 import type { PaginatedParams } from '@/lib/api/types';
 import { queryClient } from '@/lib/query-client';
@@ -34,8 +29,6 @@ const feesKeys = {
     [...feesKeys.all, 'structures', schoolId, params] as const,
   invoices: (schoolId: string, params?: InvoiceListParams) =>
     [...feesKeys.all, 'invoices', schoolId, params] as const,
-  invoice: (schoolId: string, invoiceId: string) =>
-    [...feesKeys.all, 'invoice', schoolId, invoiceId] as const,
 };
 
 // ---------------------------------------------------------------------------
@@ -59,17 +52,6 @@ export function useInvoices(params?: InvoiceListParams) {
     queryKey: feesKeys.invoices(schoolId ?? '', params),
     queryFn: () => getInvoices(schoolId!, params),
     enabled: !!schoolId,
-  });
-}
-
-export function useInvoice(invoiceId: string) {
-  const schoolId = useAuthStore((s) => s.currentSchoolId);
-
-  return useQuery({
-    queryKey: feesKeys.invoice(schoolId ?? '', invoiceId),
-    queryFn: () => getInvoice(schoolId!, invoiceId),
-    enabled: !!schoolId && !!invoiceId,
-    select: (response) => response.data,
   });
 }
 
@@ -112,52 +94,17 @@ export function useUpdateFeeStructure() {
   });
 }
 
-export function useDeleteFeeStructure() {
-  const schoolId = useAuthStore((s) => s.currentSchoolId);
-  return useMutation({
-    mutationFn: (feeStructureId: string) =>
-      deleteFeeStructure(schoolId!, feeStructureId),
-    onSuccess: () => {
-      toast.success('Fee structure deleted');
-      queryClient.invalidateQueries({ queryKey: feesKeys.all });
-    },
-    onError: (error) => {
-      toast.error(getApiErrorMessage(error, 'Failed to delete fee structure'));
-    },
-  });
-}
-
 export function useGenerateInvoices() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
   return useMutation({
-    mutationFn: (data: GenerateInvoicesRequest) =>
-      generateInvoices(schoolId!, data),
+    mutationFn: ({ termId, classId }: { termId: string; classId?: string }) =>
+      generateInvoices(schoolId!, termId, classId),
     onSuccess: () => {
       toast.success('Invoices generated successfully');
       queryClient.invalidateQueries({ queryKey: feesKeys.all });
     },
     onError: (error) => {
       toast.error(getApiErrorMessage(error, 'Failed to generate invoices'));
-    },
-  });
-}
-
-export function useRecordPayment() {
-  const schoolId = useAuthStore((s) => s.currentSchoolId);
-  return useMutation({
-    mutationFn: ({
-      invoiceId,
-      data,
-    }: {
-      invoiceId: string;
-      data: RecordPaymentRequest;
-    }) => recordPayment(schoolId!, invoiceId, data),
-    onSuccess: () => {
-      toast.success('Payment recorded successfully');
-      queryClient.invalidateQueries({ queryKey: feesKeys.all });
-    },
-    onError: (error) => {
-      toast.error(getApiErrorMessage(error, 'Failed to record payment'));
     },
   });
 }
