@@ -10,9 +10,9 @@ import type {
 // Params
 // ---------------------------------------------------------------------------
 
-export interface AttendanceListParams extends PaginatedParams {
-  classId?: string;
+export interface AttendanceListParams {
   date?: string;
+  classId?: string;
 }
 
 export interface AttendanceSummaryParams {
