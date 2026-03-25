@@ -1232,17 +1232,13 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await loginViaUI(page, schoolData.adminEmail!);
     await waitForDashboard(page);
 
-    const usersPage = new UsersPage(page);
-    await usersPage.goto();
-    await usersPage.expectVisible();
-
-    // Filter by teacher role to find Teacher Three (may be on page 2 with default sort)
-    await usersPage.roleFilter.click();
-    await page.getByRole('option', { name: /teacher/i }).click();
-    await page.waitForTimeout(1000);
+    const teachersPage = new TeachersPage(page);
+    await teachersPage.goto();
+    await teachersPage.expectVisible();
+    await teachersPage.expectTeacherInTable('Teacher Three');
 
     // Open the Change User Status dialog for Teacher Three
-    await usersPage.clickChangeStatus('Teacher Three');
+    await teachersPage.clickChangeStatus('Teacher Three');
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
 
@@ -2508,7 +2504,9 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
 
     await page.goto('/homework');
     await expect(page).toHaveURL(/\/homework\/?/);
-    await expect(page.getByRole('heading', { name: /homework/i })).toBeVisible({ timeout: 20_000 });
+    await expect(
+      page.getByRole('heading', { name: 'Homework', exact: true, level: 1 })
+    ).toBeVisible({ timeout: 20_000 });
   });
 
   test('4.3 — Parent: Switch child profile', async ({ page }) => {
