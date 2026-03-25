@@ -105,6 +105,7 @@ const audienceLabels: Record<string, string> = {
 export default function AnnouncementsPage() {
   const currentRole = useAuthStore((s) => s.currentRole);
   const isAdmin = currentRole === 'ADMIN';
+  const isTeacher = currentRole === 'TEACHER';
 
   // ---------------------------------------------------------------------------
   // State
@@ -263,7 +264,7 @@ export default function AnnouncementsPage() {
         title="Announcements"
         description="Create and manage school-wide announcements."
         actions={
-          isAdmin ? (
+          isTeacher || isAdmin ? (
             <Button onClick={() => setCreateDialogOpen(true)}>
               <Plus className="mr-2 h-4 w-4" />
               Create Announcement
