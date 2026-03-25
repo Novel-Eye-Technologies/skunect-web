@@ -132,7 +132,7 @@ export const navigationConfig: NavItem[] = [
     title: 'Academics',
     href: '/academics',
     icon: BookOpen,
-    roles: ['ADMIN', 'TEACHER'],
+    roles: ['ADMIN', 'TEACHER',],
     children: [
       { title: 'Overview', href: '/academics', icon: BookOpen, roles: ['ADMIN', 'TEACHER'] },
       { title: 'Timetable', href: '/timetable', icon: Calendar, roles: ['ADMIN'] },
@@ -141,16 +141,20 @@ export const navigationConfig: NavItem[] = [
     ],
   },
   {
+    title: 'Academics',
+    href: '/academics',
+    icon: BookOpen,
+    roles: ['PARENT',],
+    children: [
+      { title: 'Attendance', href: '/attendance', icon: ClipboardCheck, roles: ['PARENT'] },
+      { title: 'Homework', href: '/homework', icon: FileText, roles: ['PARENT'] },
+    ],
+  },
+  {
     title: 'Promotions',
     href: '/promotions',
     icon: ArrowUpDown,
     roles: ['ADMIN'],
-  },
-  {
-    title: 'Homework',
-    href: '/homework',
-    icon: FileText,
-    roles: ['PARENT'],
   },
   {
     title: 'Calendar',
