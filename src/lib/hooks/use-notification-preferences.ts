@@ -46,8 +46,8 @@ export function useUnreadNotificationCount() {
 
 export function useUpdateNotificationPreference() {
 return useMutation({
-    mutationFn: (data: UpdatePreferenceRequest) =>
-      updateNotificationPreference(data),
+    mutationFn: ({ type, data }: { type: string; data: UpdatePreferenceRequest }) =>
+      updateNotificationPreference(type, data),
     onSuccess: () => {
       toast.success('Preference updated');
       queryClient.invalidateQueries({ queryKey: prefKeys.all });

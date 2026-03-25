@@ -10,15 +10,15 @@ import type {
 // Params
 // ---------------------------------------------------------------------------
 
-export interface AttendanceListParams extends PaginatedParams {
-  classId?: string;
+export interface AttendanceListParams {
   date?: string;
+  classId?: string;
 }
 
 export interface AttendanceSummaryParams {
-  classId: string;
-  startDate: string;
-  endDate: string;
+  classId?: string;
+  from: string;
+  to: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -52,7 +52,7 @@ export async function getAttendanceSummary(
   params: AttendanceSummaryParams,
 ): Promise<ApiResponse<AttendanceSummaryResponse>> {
   const response = await apiClient.get<ApiResponse<AttendanceSummaryResponse>>(
-    `/schools/${schoolId}/attendance/summary`,
+    `/schools/${schoolId}/analytics/attendance`,
     { params },
   );
   return response.data;

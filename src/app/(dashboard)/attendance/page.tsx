@@ -46,8 +46,6 @@ export default function AttendancePage() {
   // Data fetching
   // ---------------------------------------------------------------------------
   const { data: response, isLoading, isError, refetch } = useAttendanceRecords({
-    page: pagination.pageIndex,
-    size: pagination.pageSize,
     classId: classFilter || undefined,
     date: dateFilter || undefined,
   });

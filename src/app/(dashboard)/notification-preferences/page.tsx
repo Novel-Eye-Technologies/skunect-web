@@ -108,7 +108,7 @@ export default function NotificationPreferencesPage() {
   const preferences = response?.data ?? [];
 
   function handleToggle(type: string, channel: 'email' | 'push' | 'sms', value: boolean) {
-    updatePref.mutate({ type, [channel]: value });
+    updatePref.mutate({ type, data: { [channel]: value } });
   }
 
   return (

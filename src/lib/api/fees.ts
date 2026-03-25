@@ -94,7 +94,8 @@ export async function generateInvoices(
 ): Promise<ApiResponse<Invoice[]>> {
   const response = await apiClient.post<ApiResponse<Invoice[]>>(
     `/schools/${schoolId}/fees/invoices/generate`,
-    data,
+    null,
+    { params: { termId: data.termId, classId: data.classId } },
   );
   return response.data;
 }

@@ -55,8 +55,8 @@ export interface Payment {
 }
 
 export interface GenerateInvoicesRequest {
-  feeStructureId: string;
-  classId: string;
+  termId: string;
+  classId?: string;
 }
 
 export interface RecordPaymentRequest {

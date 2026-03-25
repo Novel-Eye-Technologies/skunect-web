@@ -97,11 +97,11 @@ export async function getSubmissions(
 export async function gradeSubmission(
   schoolId: string,
   homeworkId: string,
-  submissionId: string,
+  studentId: string,
   data: GradeSubmissionRequest,
 ): Promise<ApiResponse<Submission>> {
   const response = await apiClient.put<ApiResponse<Submission>>(
-    `/schools/${schoolId}/homework/${homeworkId}/submissions/${submissionId}`,
+    `/schools/${schoolId}/homework/${homeworkId}/submissions/${studentId}`,
     data,
   );
   return response.data;

@@ -101,10 +101,7 @@ function DataMigrationContent() {
     pageSize: 10,
   });
 
-  const { data: response, isLoading } = useMigrationJobs({
-    page: pagination.pageIndex,
-    size: pagination.pageSize,
-  });
+  const { data: response, isLoading } = useMigrationJobs();
 
   const jobs = response?.data ?? [];
   const pageCount = response?.meta?.totalPages ?? 0;

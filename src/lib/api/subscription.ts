@@ -209,9 +209,11 @@ export async function deactivateDiscount(discountId: string): Promise<ApiRespons
 export async function validateDiscount(
   data: ValidateDiscountRequest,
 ): Promise<ApiResponse<DiscountCalculation>> {
+  const { code, amount, tier, studentCount } = data;
   const response = await apiClient.post<ApiResponse<DiscountCalculation>>(
     '/admin/subscription-discounts/validate',
-    data,
+    { code },
+    { params: { amount, tier, studentCount } },
   );
   return response.data;
 }
