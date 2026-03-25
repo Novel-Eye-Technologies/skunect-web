@@ -33,6 +33,7 @@ import { ConfirmDialog } from '@/components/shared/confirm-dialog';
 import { AssessmentFormDialog } from '@/components/features/academics/assessment-form-dialog';
 import { GradeEntryGrid } from '@/components/features/academics/grade-entry-grid';
 import { ReportCardDialog } from '@/components/features/academics/report-card-dialog';
+import { useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useQuery } from '@tanstack/react-query';
 import { getClasses, getSubjects, getTerms } from '@/lib/api/school-settings';
@@ -49,7 +50,11 @@ import { QueryErrorBanner } from '@/components/shared/query-error-banner';
 import type { Assessment, ReportCard } from '@/lib/types/academics';
 
 export default function AcademicsPage() {
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get('tab');
   const schoolId = useAuthStore((s) => s.currentSchoolId);
+  const currentRole = useAuthStore((s) => s.currentRole);
+  const isParent = currentRole === 'PARENT';
 
   // ---------------------------------------------------------------------------
   // Shared data
@@ -206,6 +211,7 @@ export default function AcademicsPage() {
       id: 'actions',
       cell: ({ row }) => {
         const assessment = row.original;
+        if (isParent) return null;
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -291,7 +297,7 @@ export default function AcademicsPage() {
         const card = row.original;
         return (
           <div className="flex items-center gap-1">
-            {card.status === 'DRAFT' ? (
+            {!isParent && card.status === 'DRAFT' ? (
               <Button
                 variant="outline"
                 size="sm"
@@ -301,7 +307,7 @@ export default function AcademicsPage() {
                 <Send className="mr-1 h-3 w-3" />
                 Publish
               </Button>
-            ) : (
+            ) : !isParent && (
               <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
                 Published
               </Badge>
@@ -325,17 +331,23 @@ export default function AcademicsPage() {
   // ---------------------------------------------------------------------------
   // Render
   // ---------------------------------------------------------------------------
+  const activeTab = tabParam || 'assessments';
+
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Academics"
-        description="Manage assessments, grades, and report cards."
+        title={isParent ? 'My Children\'s Academics' : 'Academics'}
+        description={isParent 
+          ? 'View your children\'s assessments and report cards.' 
+          : 'Manage assessments, grades, and report cards.'}
       />
 
-      <Tabs defaultValue="assessments" className="space-y-6">
+      <Tabs defaultValue={activeTab} key={activeTab} className="space-y-6">
         <TabsList>
-          <TabsTrigger value="assessments">Assessments</TabsTrigger>
-          <TabsTrigger value="grades">Grade Entry</TabsTrigger>
+          <TabsTrigger value="assessments">
+            {isParent ? 'Exam Results' : 'Assessments'}
+          </TabsTrigger>
+          {!isParent && <TabsTrigger value="grades">Grade Entry</TabsTrigger>}
           <TabsTrigger value="report-cards">Report Cards</TabsTrigger>
         </TabsList>
 
@@ -421,15 +433,17 @@ export default function AcademicsPage() {
                     ))}
                   </SelectContent>
                 </Select>
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    setEditTarget(undefined);
-                    setCreateDialogOpen(true);
-                  }}
-                >
-                  Create Assessment
-                </Button>
+                {!isParent && (
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      setEditTarget(undefined);
+                      setCreateDialogOpen(true);
+                    }}
+                  >
+                    Create Assessment
+                  </Button>
+                )}
               </div>
             }
           />}
@@ -502,12 +516,14 @@ export default function AcademicsPage() {
                     ))}
                   </SelectContent>
                 </Select>
-                <Button
-                  size="sm"
-                  onClick={() => setGenerateDialogOpen(true)}
-                >
-                  Generate Report Cards
-                </Button>
+                {!isParent && (
+                  <Button
+                    size="sm"
+                    onClick={() => setGenerateDialogOpen(true)}
+                  >
+                    Generate Report Cards
+                  </Button>
+                )}
               </div>
             }
           />

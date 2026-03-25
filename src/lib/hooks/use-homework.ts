@@ -63,11 +63,12 @@ export function useHomework(homeworkId: string) {
 
 export function useSubmissions(homeworkId: string, params?: PaginatedParams) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
+  const currentRole = useAuthStore((s) => s.currentRole);
 
   return useQuery({
     queryKey: homeworkKeys.submissions(schoolId ?? '', homeworkId, params),
     queryFn: () => getSubmissions(schoolId!, homeworkId, params),
-    enabled: !!schoolId && !!homeworkId,
+    enabled: !!schoolId && !!homeworkId && currentRole !== 'PARENT',
   });
 }
 
