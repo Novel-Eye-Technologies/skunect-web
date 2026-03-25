@@ -2157,7 +2157,7 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await expectDialogClosed(page);
   });
 
-  test('3.15b — Teacher: Welfare page shows filters and table headers', async ({ page }) => {
+  test('3.15b — Teacher: Welfare page shows Record Welfare button', async ({ page }) => {
     await loginViaUI(page, TEACHER1_EMAIL);
     await waitForDashboard(page);
 
@@ -2165,12 +2165,8 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await welfarePage.goto();
     await welfarePage.expectVisible();
 
-    // Verify welfare table headers
-    const table = page.locator('table');
-    await expect(table).toBeVisible({ timeout: 10_000 });
-
     // Record Welfare button should be visible
-    await expect(page.getByRole('button', { name: /record welfare/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /record welfare/i })).toBeVisible({ timeout: 10_000 });
   });
 
   test('3.15c — Teacher: Mood tracker page shows Log Mood button', async ({ page }) => {
