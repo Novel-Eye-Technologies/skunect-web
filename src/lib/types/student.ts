@@ -87,6 +87,10 @@ export interface FileUploadResponse {
 }
 
 export interface LinkParentRequest {
-  parentUserId: string;
+  parentUserId?: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
   relationship: string;
 }
