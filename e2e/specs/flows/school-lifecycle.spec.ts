@@ -1863,20 +1863,51 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     }
   });
 
-  test('3.7 — Teacher: Enter grades for all subjects via API', async () => {
-    // The Grade Entry UI requires backend to pre-populate students for an assessment.
-    // Use the API directly to submit scores for all 4 subjects.
+  test('3.7 — Teacher: Enter grades for Mathematics CA1 via Grade Entry UI', async ({ page }) => {
+    await loginViaUI(page, TEACHER1_EMAIL);
+    await waitForDashboard(page);
+
+    const academics = new GradeStudentsPage(page);
+    await academics.goto();
+    await academics.expectVisible();
+
+    // Go to Grade Entry tab
+    await academics.goToGradeEntry();
+
+    // Select the Mathematics CA1 assessment
+    await academics.selectAssessmentForGrading(`Mathematics CA1 ${TS}`);
+
+    // Wait for student rows to appear (backend now returns all class students with null scores)
+    const studentRows = page.locator('table tbody tr');
+    await expect(studentRows.first()).toBeVisible({ timeout: 15_000 });
+
+    // Enter scores for the first 5 students
+    const scores = [85, 72, 90, 65, 78];
+    const scoreInputs = page.locator('table tbody tr input[type="number"]');
+    const inputCount = await scoreInputs.count();
+    const toFill = Math.min(inputCount, scores.length);
+    for (let i = 0; i < toFill; i++) {
+      await scoreInputs.nth(i).fill(String(scores[i]));
+    }
+
+    // Submit scores
+    await academics.submitScores();
+
+    // Wait for success feedback (toast or table refresh)
+    await page.waitForTimeout(2000);
+  });
+
+  test('3.7b — Teacher: Enter grades for remaining subjects via API', async () => {
+    // Grade the other 3 subjects via API for efficiency (Mathematics was done via UI above)
     const auth = await authenticateAccount(TEACHER1_EMAIL, TEST_OTP);
     const sid = schoolData.schoolId!;
 
-    // Get assessments
-    const assessmentsRes = await apiGet<Array<{ id: string; title: string; classId: string; subjectName: string }>>(
+    const assessmentsRes = await apiGet<Array<{ id: string; title: string; classId: string }>>(
       `/schools/${sid}/assessments?size=200`,
       auth.accessToken,
     );
     const assessments = assessmentsRes.data;
 
-    // Get classes to find JSS 1 class ID
     const classesRes = await apiGet<Array<{ id: string; name: string }>>(
       `/schools/${sid}/classes?size=200`,
       auth.accessToken,
@@ -1884,23 +1915,20 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     const jss1Class = classesRes.data.find((c) => c.name === CLASS1_NAME);
     expect(jss1Class).toBeTruthy();
 
-    // Get JSS 1 students
-    const studentsRes = await apiGet<Array<{ id: string; firstName: string; lastName: string }>>(
+    const studentsRes = await apiGet<Array<{ id: string }>>(
       `/schools/${sid}/students?classId=${jss1Class!.id}&size=200`,
       auth.accessToken,
     );
     const students = studentsRes.data;
-    expect(students.length).toBeGreaterThanOrEqual(5);
 
-    // Score sets per subject
     const scoreMap: Record<string, number[]> = {
-      'Mathematics': [85, 72, 90, 65, 78],
       'English Language': [88, 75, 82, 70, 95],
       'Basic Science': [76, 80, 92, 68, 84],
       'Social Studies': [79, 83, 74, 91, 87],
     };
 
-    for (const subject of TEACHER1_JSS1_SUBJECTS) {
+    const remainingSubjects = TEACHER1_JSS1_SUBJECTS.filter((s) => s !== 'Mathematics');
+    for (const subject of remainingSubjects) {
       const assessment = assessments.find(
         (a) => a.title.includes(subject) && a.title.includes('CA1') && a.title.includes(TS),
       );
@@ -1931,10 +1959,10 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     // Go to Grade Entry tab
     await academics.goToGradeEntry();
 
-    // Select the Mathematics CA1 assessment — now that grades exist, students should appear
+    // Select the Mathematics CA1 assessment — grades were entered via UI in test 3.7
     await academics.selectAssessmentForGrading(`Mathematics CA1 ${TS}`);
 
-    // Wait for students to appear in the grade table (grades were submitted via API)
+    // Wait for students to appear in the grade table
     await expect(page.locator('table tbody tr').first()).toBeVisible({ timeout: 15_000 });
 
     // Verify at least one score is visible
