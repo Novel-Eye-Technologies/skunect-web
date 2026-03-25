@@ -45,7 +45,7 @@ export function NotificationBell() {
   // Fetch recent notifications for dropdown
   const { data: notifRes, isLoading } = useQuery({
     queryKey: ['notifications', 'recent', schoolId],
-    queryFn: () => getNotifications(schoolId!, { size: 8, page: 0 }),
+    queryFn: () => getNotifications({ size: 8, page: 0 }),
     enabled: !!schoolId,
     refetchInterval: 30_000,
   });
@@ -54,14 +54,14 @@ export function NotificationBell() {
 
   const markRead = useMutation({
     mutationFn: (notificationId: string) =>
-      markNotificationAsRead(schoolId!, notificationId),
+      markNotificationAsRead(notificationId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
     },
   });
 
   const markAllRead = useMutation({
-    mutationFn: () => markAllNotificationsAsRead(schoolId!),
+    mutationFn: () => markAllNotificationsAsRead(),
     onSuccess: () => {
       setUnreadCount(0);
       queryClient.invalidateQueries({ queryKey: ['notifications'] });

@@ -35,7 +35,7 @@ export function useNotifications(params?: NotificationListParams) {
 
   return useQuery({
     queryKey: notificationKeys.list(schoolId ?? '', params),
-    queryFn: () => getNotifications(schoolId!, params),
+    queryFn: () => getNotifications(params),
     enabled: !!schoolId,
   });
 }
@@ -47,7 +47,7 @@ export function useUnreadCount() {
   return useQuery({
     queryKey: notificationKeys.unreadCount(schoolId ?? ''),
     queryFn: async () => {
-      const response = await getUnreadCount(schoolId!);
+      const response = await getUnreadCount();
       setUnreadCount(response.data.count);
       return response;
     },
@@ -66,7 +66,7 @@ const decrementUnread = useNotificationStore((s) => s.decrementUnread);
 
   return useMutation({
     mutationFn: (notificationId: string) =>
-      markNotificationAsRead(schoolId!, notificationId),
+      markNotificationAsRead(notificationId),
     onSuccess: () => {
       decrementUnread();
       queryClient.invalidateQueries({ queryKey: notificationKeys.all });
@@ -82,7 +82,7 @@ export function useMarkAllAsRead() {
 const setUnreadCount = useNotificationStore((s) => s.setUnreadCount);
 
   return useMutation({
-    mutationFn: () => markAllNotificationsAsRead(schoolId!),
+    mutationFn: () => markAllNotificationsAsRead(),
     onSuccess: () => {
       setUnreadCount(0);
       toast.success('All notifications marked as read');
