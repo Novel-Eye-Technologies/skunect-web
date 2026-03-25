@@ -1241,7 +1241,7 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await expect(dialog).toBeVisible();
 
     // Verify the dialog shows the correct content
-    await expect(dialog.getByText('Deactivate User')).toBeVisible();
+    await expect(dialog.getByRole('heading', { name: 'Deactivate User' })).toBeVisible();
     await expect(dialog.getByText('Teacher Three')).toBeVisible();
     await expect(dialog.getByText('Active')).toBeVisible(); // Current status badge
 
