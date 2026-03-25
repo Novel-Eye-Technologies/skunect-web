@@ -7,7 +7,6 @@ export interface NotificationPreference {
 }
 
 export interface UpdatePreferenceRequest {
-  type: string;
   email?: boolean;
   push?: boolean;
   sms?: boolean;

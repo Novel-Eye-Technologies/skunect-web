@@ -46,7 +46,7 @@ export function useAttendanceSummary(params?: AttendanceSummaryParams) {
   return useQuery({
     queryKey: attendanceKeys.summary(schoolId ?? '', params),
     queryFn: () => getAttendanceSummary(schoolId!, params!),
-    enabled: !!schoolId && !!params?.classId && !!params?.startDate && !!params?.endDate,
+    enabled: !!schoolId && !!params?.from && !!params?.to,
   });
 }
 

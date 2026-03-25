@@ -19,11 +19,13 @@ export async function getNotificationPreferences(): Promise<
 }
 
 export async function updateNotificationPreference(
+  type: string,
   data: UpdatePreferenceRequest,
 ): Promise<ApiResponse<NotificationPreference>> {
   const response = await apiClient.put<ApiResponse<NotificationPreference>>(
     '/notifications/preferences',
     data,
+    { params: { type } },
   );
   return response.data;
 }

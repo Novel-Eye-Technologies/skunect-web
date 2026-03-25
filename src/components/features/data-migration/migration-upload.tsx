@@ -33,10 +33,13 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import {
+  useUploadMigration,
   useValidateMigration,
   useImportMigration,
 } from '@/lib/hooks/use-data-migration';
-import type { MigrationDataType, ValidationResult } from '@/lib/types/data-migration';
+import { uploadFile } from '@/lib/api/files';
+import { toast } from 'sonner';
+import type { MigrationDataType, MigrationJob } from '@/lib/types/data-migration';
 
 const DATA_TYPES: { value: MigrationDataType; label: string }[] = [
   { value: 'STUDENTS', label: 'Students' },
@@ -59,10 +62,11 @@ export function MigrationUpload() {
 
   const [dataType, setDataType] = useState<MigrationDataType | ''>('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [validationResult, setValidationResult] =
-    useState<ValidationResult | null>(null);
+  const [migrationJob, setMigrationJob] = useState<MigrationJob | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
+  const uploadMigration = useUploadMigration();
   const validateMutation = useValidateMigration();
   const importMutation = useImportMigration();
 
@@ -75,7 +79,7 @@ export function MigrationUpload() {
         return;
       }
       setSelectedFile(file);
-      setValidationResult(null);
+      setMigrationJob(null);
     },
     [],
   );
@@ -101,51 +105,68 @@ export function MigrationUpload() {
 
   const removeFile = useCallback(() => {
     setSelectedFile(null);
-    setValidationResult(null);
+    setMigrationJob(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
   }, []);
 
   // ---------------------------------------------------------------------------
-  // Validate
+  // Upload file, then create migration job, then validate
   // ---------------------------------------------------------------------------
-  const handleValidate = useCallback(() => {
+  const handleValidate = useCallback(async () => {
     if (!selectedFile || !dataType) return;
 
-    validateMutation.mutate(
-      { file: selectedFile, type: dataType },
-      {
-        onSuccess: (response) => {
-          setValidationResult(response.data);
+    try {
+      // Step 1: Upload the file to get a URL
+      setIsUploading(true);
+      const fileUrl = await uploadFile(selectedFile, 'migrations');
+      setIsUploading(false);
+
+      // Step 2: Create migration job with type + fileUrl
+      uploadMigration.mutate(
+        { type: dataType, fileUrl },
+        {
+          onSuccess: (response) => {
+            const job = response.data;
+            // Step 3: Validate the migration job
+            validateMutation.mutate(job.id, {
+              onSuccess: (validateResponse) => {
+                setMigrationJob(validateResponse.data);
+              },
+            });
+          },
         },
-      },
-    );
-  }, [selectedFile, dataType, validateMutation]);
+      );
+    } catch {
+      setIsUploading(false);
+      toast.error('Failed to upload file. Please try again.');
+    }
+  }, [selectedFile, dataType, uploadMigration, validateMutation]);
 
   // ---------------------------------------------------------------------------
   // Import
   // ---------------------------------------------------------------------------
   const handleImport = useCallback(() => {
-    if (!selectedFile || !dataType) return;
+    if (!migrationJob) return;
 
-    importMutation.mutate(
-      { file: selectedFile, type: dataType },
-      {
-        onSuccess: () => {
-          setSelectedFile(null);
-          setValidationResult(null);
-          setDataType('');
-          if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-          }
-        },
+    importMutation.mutate(migrationJob.id, {
+      onSuccess: () => {
+        setSelectedFile(null);
+        setMigrationJob(null);
+        setDataType('');
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
       },
-    );
-  }, [selectedFile, dataType, importMutation]);
+    });
+  }, [migrationJob, importMutation]);
 
+  const isValidating =
+    isUploading || uploadMigration.isPending || validateMutation.isPending;
   const canValidate = !!selectedFile && !!dataType;
-  const canImport = validationResult?.valid === true;
+  const canImport =
+    migrationJob?.status === 'VALIDATED' && migrationJob.errorCount === 0;
 
   return (
     <div className="space-y-6">
@@ -161,7 +182,7 @@ export function MigrationUpload() {
               value={dataType}
               onValueChange={(v) => {
                 setDataType(v as MigrationDataType);
-                setValidationResult(null);
+                setMigrationJob(null);
               }}
             >
               <SelectTrigger className="w-[240px]">
@@ -262,9 +283,9 @@ export function MigrationUpload() {
       <div className="flex gap-3">
         <Button
           onClick={handleValidate}
-          disabled={!canValidate || validateMutation.isPending}
+          disabled={!canValidate || isValidating}
         >
-          {validateMutation.isPending ? 'Validating...' : 'Validate'}
+          {isValidating ? 'Validating...' : 'Validate'}
         </Button>
         <Button
           onClick={handleImport}
@@ -276,11 +297,11 @@ export function MigrationUpload() {
       </div>
 
       {/* Validation Results */}
-      {validationResult && (
+      {migrationJob && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
-              {validationResult.valid ? (
+              {migrationJob.errorCount === 0 ? (
                 <>
                   <CheckCircle2 className="h-5 w-5 text-[#2A9D8F]" />
                   Validation Passed
@@ -296,33 +317,33 @@ export function MigrationUpload() {
           <CardContent className="space-y-4">
             <div className="flex gap-4">
               <Badge variant="outline">
-                Total Records: {validationResult.totalRecords}
+                Total Records: {migrationJob.totalRecords}
               </Badge>
               <Badge
                 variant="outline"
                 className="border-[#2A9D8F] text-[#2A9D8F]"
               >
-                Valid: {validationResult.validRecords}
+                Valid: {migrationJob.successCount}
               </Badge>
-              {validationResult.errors.length > 0 && (
+              {migrationJob.errorCount > 0 && (
                 <Badge variant="destructive">
-                  Errors: {validationResult.errors.length}
+                  Errors: {migrationJob.errorCount}
                 </Badge>
               )}
             </div>
 
-            {validationResult.valid && (
+            {migrationJob.errorCount === 0 && (
               <Alert>
                 <CheckCircle2 className="h-4 w-4" />
                 <AlertTitle>Ready to import</AlertTitle>
                 <AlertDescription>
-                  All {validationResult.validRecords} records are valid.
+                  All {migrationJob.totalRecords} records are valid.
                   Click the &quot;Import&quot; button to proceed.
                 </AlertDescription>
               </Alert>
             )}
 
-            {validationResult.errors.length > 0 && (
+            {migrationJob.errors.length > 0 && (
               <>
                 <Alert variant="destructive">
                   <AlertTriangle className="h-4 w-4" />
@@ -342,7 +363,7 @@ export function MigrationUpload() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {validationResult.errors.map((error, index) => (
+                      {migrationJob.errors.map((error, index) => (
                         <TableRow key={`error-${index}`}>
                           <TableCell className="font-mono text-xs">
                             {error.row}

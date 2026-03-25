@@ -16,7 +16,7 @@ export async function getConversations(
   params?: PaginatedParams,
 ): Promise<ApiResponse<Conversation[]>> {
   const response = await apiClient.get<ApiResponse<Conversation[]>>(
-    `/schools/${schoolId}/messaging/conversations`,
+    `/messaging/conversations`,
     { params },
   );
   return response.data;
@@ -27,7 +27,7 @@ export async function createConversation(
   data: CreateConversationRequest,
 ): Promise<ApiResponse<Conversation>> {
   const response = await apiClient.post<ApiResponse<Conversation>>(
-    `/schools/${schoolId}/messaging/conversations`,
+    `/messaging/conversations`,
     data,
   );
   return response.data;
@@ -39,7 +39,7 @@ export async function getMessages(
   params?: PaginatedParams,
 ): Promise<ApiResponse<Message[]>> {
   const response = await apiClient.get<ApiResponse<Message[]>>(
-    `/schools/${schoolId}/messaging/conversations/${conversationId}/messages`,
+    `/messaging/conversations/${conversationId}/messages`,
     { params },
   );
   return response.data;
@@ -51,7 +51,7 @@ export async function sendMessage(
   data: SendMessageRequest,
 ): Promise<ApiResponse<Message>> {
   const response = await apiClient.post<ApiResponse<Message>>(
-    `/schools/${schoolId}/messaging/conversations/${conversationId}/messages`,
+    `/messaging/conversations/${conversationId}/messages`,
     data,
   );
   return response.data;

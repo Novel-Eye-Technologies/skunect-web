@@ -203,7 +203,7 @@ export async function updateProfile(
   data: UpdateProfileRequest,
 ): Promise<ApiResponse<null>> {
   const response = await apiClient.put<ApiResponse<null>>(
-    '/users/profile',
+    '/users/me',
     data,
   );
   return response.data;

@@ -125,7 +125,7 @@ export default function AnnouncementsPage() {
   const { data: response, isLoading } = useAnnouncements({
     page: pagination.pageIndex,
     size: pagination.pageSize,
-    status: statusFilter || undefined,
+    published: statusFilter === 'PUBLISHED' ? true : statusFilter === 'DRAFT' ? false : undefined,
   });
 
   const deleteAnnouncement = useDeleteAnnouncement();

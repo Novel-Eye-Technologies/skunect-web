@@ -1,55 +1,52 @@
 import apiClient from '@/lib/api/client';
-import type { ApiResponse, PaginatedParams } from '@/lib/api/types';
-import type {
-  MigrationJob,
-  ValidationResult,
-} from '@/lib/types/data-migration';
+import type { ApiResponse } from '@/lib/api/types';
+import type { MigrationJob } from '@/lib/types/data-migration';
 
 // ---------------------------------------------------------------------------
 // Data Migration API functions
+//
+// Backend flow: upload file first → then validate job → then import job.
+// Base path: /schools/{schoolId}/migrations
 // ---------------------------------------------------------------------------
 
-export async function validateMigrationFile(
+export async function uploadMigrationFile(
   schoolId: string,
-  file: File,
   type: string,
-): Promise<ApiResponse<ValidationResult>> {
-  const formData = new FormData();
-  formData.append('file', file);
-  formData.append('type', type);
-
-  const response = await apiClient.post<ApiResponse<ValidationResult>>(
-    `/schools/${schoolId}/data-migration/validate`,
-    formData,
-    { headers: { 'Content-Type': 'multipart/form-data' } },
+  fileUrl: string,
+): Promise<ApiResponse<MigrationJob>> {
+  const response = await apiClient.post<ApiResponse<MigrationJob>>(
+    `/schools/${schoolId}/migrations/upload`,
+    null,
+    { params: { type, fileUrl } },
   );
   return response.data;
 }
 
-export async function importMigrationFile(
+export async function validateMigrationJob(
   schoolId: string,
-  file: File,
-  type: string,
+  jobId: string,
 ): Promise<ApiResponse<MigrationJob>> {
-  const formData = new FormData();
-  formData.append('file', file);
-  formData.append('type', type);
-
   const response = await apiClient.post<ApiResponse<MigrationJob>>(
-    `/schools/${schoolId}/data-migration/import`,
-    formData,
-    { headers: { 'Content-Type': 'multipart/form-data' } },
+    `/schools/${schoolId}/migrations/${jobId}/validate`,
+  );
+  return response.data;
+}
+
+export async function importMigrationJob(
+  schoolId: string,
+  jobId: string,
+): Promise<ApiResponse<MigrationJob>> {
+  const response = await apiClient.post<ApiResponse<MigrationJob>>(
+    `/schools/${schoolId}/migrations/${jobId}/import`,
   );
   return response.data;
 }
 
 export async function getMigrationJobs(
   schoolId: string,
-  params?: PaginatedParams,
 ): Promise<ApiResponse<MigrationJob[]>> {
   const response = await apiClient.get<ApiResponse<MigrationJob[]>>(
-    `/schools/${schoolId}/data-migration/jobs`,
-    { params },
+    `/schools/${schoolId}/migrations`,
   );
   return response.data;
 }
@@ -59,7 +56,7 @@ export async function getMigrationJob(
   jobId: string,
 ): Promise<ApiResponse<MigrationJob>> {
   const response = await apiClient.get<ApiResponse<MigrationJob>>(
-    `/schools/${schoolId}/data-migration/jobs/${jobId}`,
+    `/schools/${schoolId}/migrations/${jobId}`,
   );
   return response.data;
 }
