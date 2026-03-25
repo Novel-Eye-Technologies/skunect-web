@@ -1054,10 +1054,9 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
 
     if (hasActivateUI) {
       // Filter by Inactive status to see all inactive students
-      const statusSelects = page.locator('button[data-slot="select-trigger"]');
-      // Find the status filter (last select)
-      await statusSelects.last().click();
-      await page.getByRole('option', { name: /inactive/i }).click();
+      const statusFilter = page.locator('button[data-slot="select-trigger"]').filter({ hasText: /all statuses|inactive|active/i });
+      await statusFilter.click();
+      await page.getByRole('option', { name: /^Inactive$/i }).click();
       await page.waitForTimeout(1500);
 
       // Activate each student by opening its actions menu
