@@ -69,7 +69,7 @@ export function NotificationBell() {
   });
 
   function handleNotificationClick(notification: NotificationItem) {
-    if (!notification.read) {
+    if (!notification.isRead) {
       markRead.mutate(notification.id);
     }
     if (notification.actionUrl) {
@@ -138,11 +138,11 @@ export function NotificationBell() {
                   onClick={() => handleNotificationClick(notification)}
                   className={cn(
                     'flex w-full gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/50',
-                    !notification.read && 'bg-muted/30',
+                    !notification.isRead && 'bg-muted/30',
                   )}
                 >
                   <div className="mt-1.5 shrink-0">
-                    {!notification.read ? (
+                    {!notification.isRead ? (
                       <div className="h-2 w-2 rounded-full bg-blue-500" />
                     ) : (
                       <div className="h-2 w-2" />
@@ -153,7 +153,7 @@ export function NotificationBell() {
                       {notification.title}
                     </p>
                     <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2">
-                      {notification.message}
+                      {notification.body}
                     </p>
                     <p className="mt-1 text-[10px] text-muted-foreground/70">
                       {formatDistanceToNow(new Date(notification.createdAt), {

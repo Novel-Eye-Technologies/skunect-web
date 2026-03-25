@@ -1,14 +1,14 @@
 export interface EmergencyAlert {
   id: string;
-  type: 'LOCKDOWN' | 'EVACUATION' | 'MEDICAL' | 'WEATHER' | 'OTHER';
+  schoolId: string;
   title: string;
-  description: string;
-  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-  status: 'ACTIVE' | 'RESOLVED';
-  createdBy: string;
-  createdAt: string;
+  message: string;
+  severity: string;
+  initiatedBy: string;
+  isActive: boolean;
   resolvedAt: string | null;
-  resolvedBy: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateEmergencyAlertRequest {

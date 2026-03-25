@@ -1,16 +1,14 @@
 export interface FeeStructure {
   id: string;
-  name: string;
-  description: string | null;
-  amount: number;
+  schoolId: string;
   classId: string | null;
-  className: string | null;
   termId: string | null;
-  termName: string | null;
-  sessionId: string | null;
-  sessionName: string | null;
-  isActive: boolean;
-  createdAt: string;
+  name: string;
+  amount: number;
+  isMandatory: boolean;
+  deadline: string | null;
+  breakdown: string | null;
+  amountInWords: string | null;
 }
 
 export interface CreateFeeStructureRequest {

@@ -117,9 +117,9 @@ export function FeeStructureFormDialog({
         amount: feeStructure.amount,
         classId: feeStructure.classId ?? '',
         termId: feeStructure.termId ?? '',
-        isMandatory: false,
-        deadline: '',
-        breakdown: '',
+        isMandatory: feeStructure.isMandatory ?? false,
+        deadline: feeStructure.deadline ?? '',
+        breakdown: feeStructure.breakdown ?? '',
       });
     } else if (!open) {
       form.reset({

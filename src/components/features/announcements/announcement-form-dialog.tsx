@@ -43,11 +43,8 @@ const MAX_FILES = 5;
 const announcementFormSchema = z.object({
   title: z.string().min(1, { message: 'Title is required' }),
   content: z.string().min(1, { message: 'Content is required' }),
-  targetAudience: z.enum(['ALL', 'TEACHERS', 'PARENTS', 'STUDENTS'], {
+  targetAudience: z.enum(['ALL', 'TEACHERS', 'PARENTS', 'CLASS_SPECIFIC'], {
     message: 'Please select a target audience',
-  }),
-  priority: z.enum(['LOW', 'NORMAL', 'HIGH', 'URGENT'], {
-    message: 'Please select a priority',
   }),
   expiresAt: z.string().optional(),
 });
@@ -98,7 +95,6 @@ export function AnnouncementFormDialog({
       title: '',
       content: '',
       targetAudience: 'ALL',
-      priority: 'NORMAL',
       expiresAt: '',
     },
   });
@@ -109,7 +105,6 @@ export function AnnouncementFormDialog({
         title: announcement.title,
         content: announcement.content,
         targetAudience: announcement.targetAudience,
-        priority: announcement.priority,
         expiresAt: announcement.expiresAt
           ? announcement.expiresAt.split('T')[0]
           : '',
@@ -131,7 +126,6 @@ export function AnnouncementFormDialog({
         title: '',
         content: '',
         targetAudience: 'ALL',
-        priority: 'NORMAL',
         expiresAt: '',
       });
       setAttachments([]);
@@ -261,54 +255,29 @@ export function AnnouncementFormDialog({
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="targetAudience"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Target Audience</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select audience" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="ALL">All</SelectItem>
-                        <SelectItem value="TEACHERS">Teachers</SelectItem>
-                        <SelectItem value="PARENTS">Parents</SelectItem>
-                        <SelectItem value="STUDENTS">Students</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="priority"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Priority</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select priority" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="LOW">Low</SelectItem>
-                        <SelectItem value="NORMAL">Normal</SelectItem>
-                        <SelectItem value="HIGH">High</SelectItem>
-                        <SelectItem value="URGENT">Urgent</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <FormField
+              control={form.control}
+              name="targetAudience"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Target Audience</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select audience" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="ALL">All</SelectItem>
+                      <SelectItem value="TEACHERS">Teachers</SelectItem>
+                      <SelectItem value="PARENTS">Parents</SelectItem>
+                      <SelectItem value="CLASS_SPECIFIC">Class Specific</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}
