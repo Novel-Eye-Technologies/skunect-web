@@ -1,10 +1,9 @@
 import apiClient from '@/lib/api/client';
 import type { ApiResponse } from '@/lib/api/types';
-import type { RecordWelfareRequest } from '@/lib/types/welfare';
+import type { RecordWelfareRequest, WelfareRecord } from '@/lib/types/welfare';
 
 // ---------------------------------------------------------------------------
 // Welfare/Behavior Log API functions
-// Backend only supports recording welfare (POST). No GET/list endpoint exists.
 // ---------------------------------------------------------------------------
 
 export async function recordWelfare(
@@ -14,6 +13,23 @@ export async function recordWelfare(
   const response = await apiClient.post<ApiResponse<null>>(
     `/schools/${schoolId}/welfare`,
     data,
+  );
+  return response.data;
+}
+
+export interface WelfareListParams {
+  classId?: string;
+  date?: string;
+  studentId?: string;
+}
+
+export async function getWelfareRecords(
+  schoolId: string,
+  params?: WelfareListParams,
+): Promise<ApiResponse<WelfareRecord[]>> {
+  const response = await apiClient.get<ApiResponse<WelfareRecord[]>>(
+    `/schools/${schoolId}/welfare`,
+    { params },
   );
   return response.data;
 }

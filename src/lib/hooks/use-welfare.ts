@@ -1,10 +1,14 @@
 'use client';
 
-import { useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { getApiErrorMessage } from '@/lib/utils/get-error-message';
-import { recordWelfare } from '@/lib/api/welfare';
+import {
+  recordWelfare,
+  getWelfareRecords,
+  type WelfareListParams,
+} from '@/lib/api/welfare';
 import type { RecordWelfareRequest } from '@/lib/types/welfare';
 import { queryClient } from '@/lib/query-client';
 
@@ -14,7 +18,23 @@ import { queryClient } from '@/lib/query-client';
 
 const welfareKeys = {
   all: ['welfare'] as const,
+  list: (schoolId: string, params?: WelfareListParams) =>
+    [...welfareKeys.all, 'list', schoolId, params] as const,
 };
+
+// ---------------------------------------------------------------------------
+// Queries
+// ---------------------------------------------------------------------------
+
+export function useWelfareRecords(params?: WelfareListParams) {
+  const schoolId = useAuthStore((s) => s.currentSchoolId);
+
+  return useQuery({
+    queryKey: welfareKeys.list(schoolId ?? '', params),
+    queryFn: () => getWelfareRecords(schoolId!, params),
+    enabled: !!schoolId,
+  });
+}
 
 // ---------------------------------------------------------------------------
 // Mutations
