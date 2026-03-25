@@ -29,8 +29,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-// TODO: useRecordPayment hook was removed — re-add when backend endpoint is available
-// import { useRecordPayment } from '@/lib/hooks/use-fees';
+import { useRecordPayment } from '@/lib/hooks/use-fees';
 import { formatCurrency } from '@/lib/utils/format-currency';
 import type { Invoice } from '@/lib/types/fees';
 
@@ -45,8 +44,7 @@ export function RecordPaymentDialog({
   onOpenChange,
   invoice,
 }: RecordPaymentDialogProps) {
-  // TODO: useRecordPayment hook was removed — replace when backend endpoint is available
-  const recordPayment = { mutate: (..._args: unknown[]) => {}, isPending: false };
+  const recordPayment = useRecordPayment();
 
   const paymentFormSchema = z.object({
     amount: z

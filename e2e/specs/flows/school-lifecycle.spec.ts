@@ -1222,7 +1222,7 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await expect(page.getByText('General Information')).toBeVisible({ timeout: 10_000 });
   });
 
-  test('2.24 — School Admin: Verify deactivate user dialog for Teacher Three', async ({ page }) => {
+  test('2.24 — School Admin: Verify change status dialog for Teacher Three', async ({ page }) => {
     await loginViaUI(page, schoolData.adminEmail!);
     await waitForDashboard(page);
 
@@ -1235,17 +1235,23 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await page.getByRole('option', { name: /teacher/i }).click();
     await page.waitForTimeout(1000);
 
-    // Open the Deactivate User dialog for Teacher Three
+    // Open the Change User Status dialog for Teacher Three
     await usersPage.clickChangeStatus('Teacher Three');
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
 
     // Verify the dialog shows the correct content
-    await expect(dialog.getByRole('heading', { name: 'Deactivate User' })).toBeVisible();
+    await expect(dialog.getByText('Change User Status')).toBeVisible();
     await expect(dialog.getByText('Teacher Three')).toBeVisible();
     await expect(dialog.getByText('Active')).toBeVisible(); // Current status badge
 
-    // Cancel
+    // Verify the status dropdown has the expected options
+    await dialog.getByRole('combobox').click();
+    await expect(page.getByRole('option', { name: 'Inactive' })).toBeVisible();
+    await expect(page.getByRole('option', { name: 'Suspended' })).toBeVisible();
+
+    // Close the dropdown and cancel
+    await page.keyboard.press('Escape');
     await dialog.getByRole('button', { name: /cancel/i }).click();
     await expect(dialog).not.toBeVisible({ timeout: 5_000 });
   });

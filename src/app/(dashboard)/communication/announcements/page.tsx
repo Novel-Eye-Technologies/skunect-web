@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import { type ColumnDef, type PaginationState } from '@tanstack/react-table';
 import {
   MoreHorizontal,
+  Trash2,
   Eye,
   Pencil,
   Plus,
@@ -17,6 +18,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
@@ -36,9 +38,11 @@ import {
 import { PageHeader } from '@/components/shared/page-header';
 import { DataTable } from '@/components/shared/data-table';
 import { StatusBadge } from '@/components/shared/status-badge';
+import { ConfirmDialog } from '@/components/shared/confirm-dialog';
 import { AnnouncementFormDialog } from '@/components/features/announcements/announcement-form-dialog';
 import {
   useAnnouncements,
+  useDeleteAnnouncement,
   usePublishAnnouncement,
   useUnpublishAnnouncement,
 } from '@/lib/hooks/use-announcements';
@@ -112,6 +116,7 @@ export default function AnnouncementsPage() {
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<Announcement | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Announcement | null>(null);
   const [viewTarget, setViewTarget] = useState<Announcement | null>(null);
 
   // ---------------------------------------------------------------------------
@@ -120,9 +125,10 @@ export default function AnnouncementsPage() {
   const { data: response, isLoading } = useAnnouncements({
     page: pagination.pageIndex,
     size: pagination.pageSize,
-    published: statusFilter === 'PUBLISHED' ? true : statusFilter === 'DRAFT' ? false : undefined,
+    status: statusFilter || undefined,
   });
 
+  const deleteAnnouncement = useDeleteAnnouncement();
   const publishAnnouncement = usePublishAnnouncement();
   const unpublishAnnouncement = useUnpublishAnnouncement();
 
@@ -138,6 +144,13 @@ export default function AnnouncementsPage() {
     },
     [],
   );
+
+  function confirmDelete() {
+    if (!deleteTarget) return;
+    deleteAnnouncement.mutate(deleteTarget.id, {
+      onSuccess: () => setDeleteTarget(null),
+    });
+  }
 
   // ---------------------------------------------------------------------------
   // Columns
@@ -224,6 +237,14 @@ export default function AnnouncementsPage() {
                       Unpublish
                     </DropdownMenuItem>
                   )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => setDeleteTarget(announcement)}
+                    className="text-destructive focus:text-destructive"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete
+                  </DropdownMenuItem>
                 </>
               )}
             </DropdownMenuContent>
@@ -368,6 +389,23 @@ export default function AnnouncementsPage() {
         </DialogContent>
       </Dialog>
 
+      {/* Delete Confirmation */}
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
+        title="Delete Announcement"
+        description={
+          deleteTarget
+            ? `Are you sure you want to delete "${deleteTarget.title}"? This action cannot be undone.`
+            : ''
+        }
+        confirmLabel="Delete"
+        onConfirm={confirmDelete}
+        isLoading={deleteAnnouncement.isPending}
+        variant="destructive"
+      />
     </div>
   );
 }

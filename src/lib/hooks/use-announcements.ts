@@ -9,6 +9,7 @@ import {
   getAnnouncement,
   createAnnouncement,
   updateAnnouncement,
+  deleteAnnouncement,
   publishAnnouncement,
   unpublishAnnouncement,
   type AnnouncementListParams,
@@ -91,6 +92,21 @@ return useMutation({
     },
     onError: (error) => {
       toast.error(getApiErrorMessage(error, 'Failed to update announcement'));
+    },
+  });
+}
+
+export function useDeleteAnnouncement() {
+  const schoolId = useAuthStore((s) => s.currentSchoolId);
+return useMutation({
+    mutationFn: (announcementId: string) =>
+      deleteAnnouncement(schoolId!, announcementId),
+    onSuccess: () => {
+      toast.success('Announcement deleted');
+      queryClient.invalidateQueries({ queryKey: announcementKeys.all });
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to delete announcement'));
     },
   });
 }

@@ -11,7 +11,7 @@ import type {
 // ---------------------------------------------------------------------------
 
 export interface AnnouncementListParams extends PaginatedParams {
-  published?: boolean;
+  status?: string;
 }
 
 export async function getAnnouncements(
@@ -54,6 +54,16 @@ export async function updateAnnouncement(
   const response = await apiClient.put<ApiResponse<Announcement>>(
     `/schools/${schoolId}/announcements/${announcementId}`,
     data,
+  );
+  return response.data;
+}
+
+export async function deleteAnnouncement(
+  schoolId: string,
+  announcementId: string,
+): Promise<ApiResponse<null>> {
+  const response = await apiClient.delete<ApiResponse<null>>(
+    `/schools/${schoolId}/announcements/${announcementId}`,
   );
   return response.data;
 }

@@ -29,12 +29,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useAuthStore } from '@/lib/stores/auth-store';
-import { getClasses, getTerms, getSessions } from '@/lib/api/school-settings';
+import { getClasses } from '@/lib/api/school-settings';
+import { getFeeStructures } from '@/lib/api/fees';
 import { useGenerateInvoices } from '@/lib/hooks/use-fees';
 
 const generateInvoicesSchema = z.object({
-  termId: z.string().min(1, { message: 'Please select a term' }),
-  classId: z.string().optional(),
+  feeStructureId: z.string().min(1, { message: 'Please select a fee structure' }),
+  classId: z.string().min(1, { message: 'Please select a class' }),
 });
 
 type GenerateInvoicesFormValues = z.infer<typeof generateInvoicesSchema>;
@@ -58,29 +59,20 @@ export function GenerateInvoicesDialog({
     select: (res) => res.data,
   });
 
-  const { data: sessionsResponse } = useQuery({
-    queryKey: ['sessions', schoolId],
-    queryFn: () => getSessions(schoolId!),
+  const { data: feeStructuresResponse } = useQuery({
+    queryKey: ['fee-structures-select', schoolId],
+    queryFn: () => getFeeStructures(schoolId!),
     enabled: !!schoolId,
     select: (res) => res.data,
   });
 
-  const currentSession = (sessionsResponse ?? []).find((s) => s.isCurrent);
-
-  const { data: termsResponse } = useQuery({
-    queryKey: ['terms', schoolId, currentSession?.id],
-    queryFn: () => getTerms(schoolId!, currentSession!.id),
-    enabled: !!schoolId && !!currentSession?.id,
-    select: (res) => res.data,
-  });
-
   const classes = classesResponse ?? [];
-  const terms = termsResponse ?? [];
+  const feeStructures = (feeStructuresResponse ?? []).filter((fs) => fs.isActive);
 
   const form = useForm<GenerateInvoicesFormValues>({
     resolver: zodResolver(generateInvoicesSchema),
     defaultValues: {
-      termId: '',
+      feeStructureId: '',
       classId: '',
     },
   });
@@ -92,15 +84,12 @@ export function GenerateInvoicesDialog({
   }, [open, form]);
 
   function onSubmit(values: GenerateInvoicesFormValues) {
-    generateInvoices.mutate(
-      { termId: values.termId, classId: values.classId || undefined },
-      {
-        onSuccess: () => {
-          form.reset();
-          onOpenChange(false);
-        },
+    generateInvoices.mutate(values, {
+      onSuccess: () => {
+        form.reset();
+        onOpenChange(false);
       },
-    );
+    });
   }
 
   return (
@@ -115,26 +104,26 @@ export function GenerateInvoicesDialog({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {/* Term */}
+            {/* Fee Structure */}
             <FormField
               control={form.control}
-              name="termId"
+              name="feeStructureId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Term</FormLabel>
+                  <FormLabel>Fee Structure</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     value={field.value}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select term" />
+                        <SelectValue placeholder="Select fee structure" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {terms.map((term) => (
-                        <SelectItem key={term.id} value={term.id}>
-                          {term.name}
+                      {feeStructures.map((fs) => (
+                        <SelectItem key={fs.id} value={fs.id}>
+                          {fs.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -144,7 +133,7 @@ export function GenerateInvoicesDialog({
               )}
             />
 
-            {/* Class (optional) */}
+            {/* Class */}
             <FormField
               control={form.control}
               name="classId"

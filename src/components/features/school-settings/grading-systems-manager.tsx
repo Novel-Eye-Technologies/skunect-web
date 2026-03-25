@@ -9,6 +9,7 @@ import {
   Loader2,
   Plus,
   Pencil,
+  Trash2,
   Star,
   X,
 } from 'lucide-react';
@@ -39,11 +40,13 @@ import {
 } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ConfirmDialog } from '@/components/shared/confirm-dialog';
 import { EmptyState } from '@/components/shared/empty-state';
 import {
   useGradingSystems,
   useCreateGradingSystem,
   useUpdateGradingSystem,
+  useDeleteGradingSystem,
 } from '@/lib/hooks/use-school-settings';
 import type { GradingSystem } from '@/lib/types/school';
 
@@ -76,10 +79,13 @@ export function GradingSystemsManager() {
   const { data: gradingSystems, isLoading } = useGradingSystems();
   const createGradingSystem = useCreateGradingSystem();
   const updateGradingSystem = useUpdateGradingSystem();
+  const deleteGradingSystem = useDeleteGradingSystem();
+
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingSystem, setEditingSystem] = useState<GradingSystem | null>(
     null,
   );
+  const [deleteSystemId, setDeleteSystemId] = useState<string | null>(null);
 
   const form = useForm<GradingSystemFormValues>({
     resolver: zodResolver(gradingSystemSchema),
@@ -149,6 +155,13 @@ export function GradingSystemsManager() {
         scales: (system.scales ?? []).map(({ gradeLabel, minScore, maxScore, remark }) => ({ gradeLabel, minScore, maxScore, remark })),
         isDefault: true,
       },
+    });
+  }
+
+  function confirmDelete() {
+    if (!deleteSystemId) return;
+    deleteGradingSystem.mutate(deleteSystemId, {
+      onSuccess: () => setDeleteSystemId(null),
     });
   }
 
@@ -237,6 +250,15 @@ export function GradingSystemsManager() {
                       onClick={() => openEdit(system)}
                     >
                       <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-destructive"
+                      aria-label="Delete grading system"
+                      onClick={() => setDeleteSystemId(system.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </CardHeader>
@@ -453,6 +475,17 @@ export function GradingSystemsManager() {
         </DialogContent>
       </Dialog>
 
+      {/* ---- Delete Confirmation ---- */}
+      <ConfirmDialog
+        open={!!deleteSystemId}
+        onOpenChange={(open) => !open && setDeleteSystemId(null)}
+        title="Delete Grading System"
+        description="Are you sure you want to delete this grading system? This action cannot be undone."
+        confirmLabel="Delete"
+        variant="destructive"
+        onConfirm={confirmDelete}
+        isLoading={deleteGradingSystem.isPending}
+      />
     </>
   );
 }

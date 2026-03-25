@@ -81,6 +81,16 @@ export async function createPickupLog(
   return response.data;
 }
 
+export async function verifyPickupLog(
+  schoolId: string,
+  pickupLogId: string,
+): Promise<ApiResponse<PickupLog>> {
+  const response = await apiClient.post<ApiResponse<PickupLog>>(
+    `/schools/${schoolId}/pickup-logs/${pickupLogId}/verify`,
+  );
+  return response.data;
+}
+
 // ---------------------------------------------------------------------------
 // Pickup Authorizations
 // ---------------------------------------------------------------------------

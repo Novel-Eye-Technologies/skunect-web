@@ -34,6 +34,7 @@ import {
   getGradingSystems,
   createGradingSystem,
   updateGradingSystem,
+  deleteGradingSystem,
 } from '@/lib/api/school-settings';
 import type {
   UpdateSchoolSettingsRequest,
@@ -610,3 +611,18 @@ return useMutation({
   });
 }
 
+export function useDeleteGradingSystem() {
+  const schoolId = useAuthStore((s) => s.currentSchoolId);
+return useMutation({
+    mutationFn: (id: string) => deleteGradingSystem(schoolId!, id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: schoolSettingsKeys.gradingSystems(schoolId ?? ''),
+      });
+      toast.success('Grading system deleted successfully');
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to delete grading system'));
+    },
+  });
+}
