@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { type ColumnDef, type PaginationState } from '@tanstack/react-table';
-import { MoreHorizontal, Trash2, Eye } from 'lucide-react';
+import { MoreHorizontal, Trash2, Eye, CheckCircle, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -27,7 +27,7 @@ import { DataTable } from '@/components/shared/data-table';
 import { StatusBadge } from '@/components/shared/status-badge';
 import { ConfirmDialog } from '@/components/shared/confirm-dialog';
 import { StudentFormDialog } from '@/components/features/students/student-form-dialog';
-import { useStudents, useDeleteStudent } from '@/lib/hooks/use-students';
+import { useStudents, useDeleteStudent, useActivateStudent, useDeactivateStudent } from '@/lib/hooks/use-students';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useQuery } from '@tanstack/react-query';
 import { getClasses } from '@/lib/api/school-settings';
@@ -65,6 +65,8 @@ export default function StudentsPage() {
     search: searchQuery || undefined,
   });
   const deleteStudent = useDeleteStudent();
+  const activateStudent = useActivateStudent();
+  const deactivateStudent = useDeactivateStudent();
 
   const { data: classesResponse } = useQuery({
     queryKey: ['classes', schoolId ?? ''],
@@ -166,6 +168,22 @@ export default function StudentsPage() {
               </DropdownMenuItem>
               {(!isParent && !isTeacher) && (
                 <>
+                  <DropdownMenuSeparator />
+                  {student.status === 'INACTIVE' ? (
+                    <DropdownMenuItem
+                      onClick={() => activateStudent.mutate(student.id)}
+                    >
+                      <CheckCircle className="mr-2 h-4 w-4" />
+                      Activate
+                    </DropdownMenuItem>
+                  ) : student.status === 'ACTIVE' ? (
+                    <DropdownMenuItem
+                      onClick={() => deactivateStudent.mutate(student.id)}
+                    >
+                      <XCircle className="mr-2 h-4 w-4" />
+                      Deactivate
+                    </DropdownMenuItem>
+                  ) : null}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={() => setDeleteTarget(student)}

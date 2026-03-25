@@ -28,17 +28,31 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search, Loader2 } from 'lucide-react';
 import { useUsers } from '@/lib/hooks/use-users';
 import { useLinkParent } from '@/lib/hooks/use-students';
 import type { UserListItem } from '@/lib/types/user';
 
-const linkParentSchema = z.object({
+// ---------------------------------------------------------------------------
+// Schemas
+// ---------------------------------------------------------------------------
+
+const linkExistingSchema = z.object({
   parentUserId: z.string().min(1, 'Please select a parent'),
   relationship: z.string().min(1, 'Please select a relationship'),
 });
 
-type LinkParentFormValues = z.infer<typeof linkParentSchema>;
+const createNewSchema = z.object({
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
+  email: z.string().email('Valid email is required'),
+  phone: z.string().optional(),
+  relationship: z.string().min(1, 'Please select a relationship'),
+});
+
+type LinkExistingFormValues = z.infer<typeof linkExistingSchema>;
+type CreateNewFormValues = z.infer<typeof createNewSchema>;
 
 interface LinkParentDialogProps {
   studentId: string;
@@ -53,6 +67,7 @@ export function LinkParentDialog({
   open,
   onOpenChange,
 }: LinkParentDialogProps) {
+  const [tab, setTab] = useState<string>('existing');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUser, setSelectedUser] = useState<UserListItem | null>(null);
 
@@ -64,12 +79,14 @@ export function LinkParentDialog({
 
   const linkParent = useLinkParent();
 
-  const form = useForm<LinkParentFormValues>({
-    resolver: zodResolver(linkParentSchema),
-    defaultValues: {
-      parentUserId: '',
-      relationship: '',
-    },
+  const existingForm = useForm<LinkExistingFormValues>({
+    resolver: zodResolver(linkExistingSchema),
+    defaultValues: { parentUserId: '', relationship: '' },
+  });
+
+  const createForm = useForm<CreateNewFormValues>({
+    resolver: zodResolver(createNewSchema),
+    defaultValues: { firstName: '', lastName: '', email: '', phone: '', relationship: '' },
   });
 
   // Filter users by search term on the client
@@ -83,10 +100,10 @@ export function LinkParentDialog({
 
   function handleSelectUser(user: UserListItem) {
     setSelectedUser(user);
-    form.setValue('parentUserId', user.id);
+    existingForm.setValue('parentUserId', user.id);
   }
 
-  function onSubmit(values: LinkParentFormValues) {
+  function onSubmitExisting(values: LinkExistingFormValues) {
     linkParent.mutate(
       {
         studentId,
@@ -95,147 +112,250 @@ export function LinkParentDialog({
           relationship: values.relationship,
         },
       },
-      {
-        onSuccess: () => {
-          form.reset();
-          setSelectedUser(null);
-          setSearchTerm('');
-          onOpenChange(false);
-        },
-      },
+      { onSuccess: handleClose },
     );
   }
 
+  function onSubmitNew(values: CreateNewFormValues) {
+    linkParent.mutate(
+      {
+        studentId,
+        data: {
+          firstName: values.firstName,
+          lastName: values.lastName,
+          email: values.email,
+          phone: values.phone,
+          relationship: values.relationship,
+        },
+      },
+      { onSuccess: handleClose },
+    );
+  }
+
+  function handleClose() {
+    existingForm.reset();
+    createForm.reset();
+    setSelectedUser(null);
+    setSearchTerm('');
+    setTab('existing');
+    onOpenChange(false);
+  }
+
   function handleOpenChange(value: boolean) {
-    if (!value) {
-      form.reset();
-      setSelectedUser(null);
-      setSearchTerm('');
-    }
-    onOpenChange(value);
+    if (!value) handleClose();
+    else onOpenChange(value);
   }
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[450px]">
+      <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
           <DialogTitle>Link Parent</DialogTitle>
           <DialogDescription>
-            Search for an existing user to link as a parent or guardian.
+            Link an existing user or create a new parent account.
           </DialogDescription>
         </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {/* Search */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Search User</label>
-              <div className="relative">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search by name or email..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-8"
-                />
-              </div>
-            </div>
+        <Tabs value={tab} onValueChange={setTab}>
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="existing">Search Existing</TabsTrigger>
+            <TabsTrigger value="new">Create New</TabsTrigger>
+          </TabsList>
 
-            {/* User list */}
-            <div className="max-h-[200px] space-y-1 overflow-y-auto rounded-md border p-2">
-              {isSearching ? (
-                <div className="flex items-center justify-center py-4">
-                  <Loader2 className="h-4 w-4 animate-spin" />
+          {/* --- Link Existing Tab --- */}
+          <TabsContent value="existing">
+            <Form {...existingForm}>
+              <form onSubmit={existingForm.handleSubmit(onSubmitExisting)} className="space-y-4">
+                {/* Search */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Search User</label>
+                  <div className="relative">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search by name or email..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-8"
+                    />
+                  </div>
                 </div>
-              ) : users.length === 0 ? (
-                <p className="py-4 text-center text-sm text-muted-foreground">
-                  No users found.
-                </p>
-              ) : (
-                users.map((user) => (
-                  <button
-                    key={user.id}
-                    type="button"
-                    onClick={() => handleSelectUser(user)}
-                    className={`w-full rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-accent ${
-                      selectedUser?.id === user.id
-                        ? 'bg-accent'
-                        : ''
-                    }`}
-                  >
-                    <p className="font-medium">
-                      {user.firstName} {user.lastName}
+
+                {/* User list */}
+                <div className="max-h-[200px] space-y-1 overflow-y-auto rounded-md border p-2">
+                  {isSearching ? (
+                    <div className="flex items-center justify-center py-4">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    </div>
+                  ) : users.length === 0 ? (
+                    <p className="py-4 text-center text-sm text-muted-foreground">
+                      No users found.
                     </p>
-                    <p className="text-xs text-muted-foreground">
-                      {user.email}
-                    </p>
-                  </button>
-                ))
-              )}
-            </div>
+                  ) : (
+                    users.map((user) => (
+                      <button
+                        key={user.id}
+                        type="button"
+                        onClick={() => handleSelectUser(user)}
+                        className={`w-full rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-accent ${
+                          selectedUser?.id === user.id ? 'bg-accent' : ''
+                        }`}
+                      >
+                        <p className="font-medium">
+                          {user.firstName} {user.lastName}
+                        </p>
+                        <p className="text-xs text-muted-foreground">{user.email}</p>
+                      </button>
+                    ))
+                  )}
+                </div>
 
-            <FormField
-              control={form.control}
-              name="parentUserId"
-              render={() => (
-                <FormItem className="hidden">
-                  <FormControl>
-                    <Input type="hidden" {...form.register('parentUserId')} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                <FormField
+                  control={existingForm.control}
+                  name="parentUserId"
+                  render={() => (
+                    <FormItem className="hidden">
+                      <FormControl>
+                        <Input type="hidden" {...existingForm.register('parentUserId')} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            {selectedUser && (
-              <p className="text-sm text-muted-foreground">
-                Selected: <span className="font-medium text-foreground">{selectedUser.firstName} {selectedUser.lastName}</span>
-              </p>
-            )}
+                {selectedUser && (
+                  <p className="text-sm text-muted-foreground">
+                    Selected: <span className="font-medium text-foreground">{selectedUser.firstName} {selectedUser.lastName}</span>
+                  </p>
+                )}
 
-            {/* Relationship */}
-            <FormField
-              control={form.control}
-              name="relationship"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Relationship</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select relationship" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {relationships.map((rel) => (
-                        <SelectItem key={rel} value={rel}>
-                          {rel}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                {/* Relationship */}
+                <FormField
+                  control={existingForm.control}
+                  name="relationship"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Relationship</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select relationship" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {relationships.map((rel) => (
+                            <SelectItem key={rel} value={rel}>{rel}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            {/* Actions */}
-            <div className="flex justify-end gap-2 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => handleOpenChange(false)}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={linkParent.isPending}>
-                {linkParent.isPending ? 'Linking...' : 'Link Parent'}
-              </Button>
-            </div>
-          </form>
-        </Form>
+                <div className="flex justify-end gap-2 pt-4">
+                  <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={linkParent.isPending}>
+                    {linkParent.isPending ? 'Linking...' : 'Link Parent'}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </TabsContent>
+
+          {/* --- Create New Tab --- */}
+          <TabsContent value="new">
+            <Form {...createForm}>
+              <form onSubmit={createForm.handleSubmit(onSubmitNew)} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={createForm.control}
+                    name="firstName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>First Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="John" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={createForm.control}
+                    name="lastName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Last Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Doe" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <FormField
+                  control={createForm.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input type="email" placeholder="parent@example.com" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={createForm.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Phone (Optional)</FormLabel>
+                      <FormControl>
+                        <Input type="tel" placeholder="+234 800 000 0000" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={createForm.control}
+                  name="relationship"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Relationship</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select relationship" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {relationships.map((rel) => (
+                            <SelectItem key={rel} value={rel}>{rel}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="flex justify-end gap-2 pt-4">
+                  <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={linkParent.isPending}>
+                    {linkParent.isPending ? 'Creating...' : 'Create & Link Parent'}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );
