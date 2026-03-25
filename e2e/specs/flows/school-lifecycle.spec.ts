@@ -609,7 +609,7 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     schoolData.admin2Email = ADMIN2_EMAIL;
   });
 
-  test('2.3 — School Admin: Create 3 teachers', async ({ page }) => {
+  test('2.3 — School Admin: Create 3 teachers via invite dialog', async ({ page }) => {
     await loginViaUI(page, schoolData.adminEmail!);
     await waitForDashboard(page);
 
@@ -619,25 +619,41 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
       { first: 'Teacher', last: 'Three', email: TEACHER3_EMAIL },
     ];
 
-    // Use API to invite teachers (InviteUserDialog uses DialogTrigger which
-    // can have timing issues with controlled open/close state).
-    const auth = await authenticateAccount(schoolData.adminEmail!, TEST_OTP);
-    const sid = schoolData.schoolId!;
-
-    for (const info of teacherInfos) {
-      await apiPost(`/schools/${sid}/users/invite`, auth.accessToken, {
-        email: info.email,
-        firstName: info.first,
-        lastName: info.last,
-        role: 'TEACHER',
-      });
-    }
-
-    // Verify all teachers appear on the Teachers page
+    // Navigate to Teachers page and invite each teacher via UI
     const teachersPage = new TeachersPage(page);
     await teachersPage.goto();
     await teachersPage.expectVisible();
 
+    for (const info of teacherInfos) {
+      await teachersPage.inviteTeacherButton.click();
+      const dialog = page.getByRole('dialog');
+      await expect(dialog).toBeVisible({ timeout: 10_000 });
+
+      // The invite dialog on Teachers page has email, first name, last name fields
+      await dialog.getByPlaceholder('user@example.com').fill(info.email);
+      await dialog.getByPlaceholder('John').fill(info.first);
+      await dialog.getByPlaceholder('Doe').fill(info.last);
+
+      // Role may be pre-selected as Teacher on the Teachers page
+      // If a role combobox is visible, select Teacher
+      const roleSelect = dialog.getByRole('combobox');
+      if (await roleSelect.isVisible({ timeout: 2_000 }).catch(() => false)) {
+        await roleSelect.click();
+        await page.getByRole('option', { name: /teacher/i }).click();
+      }
+
+      await dialog.getByRole('button', { name: /send invitation|invite|add/i }).click();
+      await expect(dialog).not.toBeVisible({ timeout: 10_000 });
+
+      // Wait for mutation to settle
+      await page.waitForTimeout(1500);
+    }
+
+    // Reload to ensure fresh data
+    await teachersPage.goto();
+    await teachersPage.expectVisible();
+
+    // Verify all teachers appear
     for (const info of teacherInfos) {
       await teachersPage.expectTeacherInTable(info.email);
     }
@@ -1036,63 +1052,15 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     }
   });
 
-  test('2.16 — School Admin: Create timetable for each class', async ({ page }) => {
-    // Create timetable slots via API (more reliable than UI dialog interaction)
-    const authData = await authenticateAccount(schoolData.adminEmail!, TEST_OTP);
-    const token = authData.accessToken;
-    const sid = schoolData.schoolId!;
-
-    // Fetch session and class IDs from API
-    const sessionsRes = await apiGet<Array<{ id: string; name: string }>>(`/schools/${sid}/sessions`, token);
-    const session = sessionsRes.data.find((s) => s.name === SESSION_NAME);
-    expect(session).toBeTruthy();
-    const sessionId = session!.id;
-
-    const classesRes = await apiGet<Array<{ id: string; name: string }>>(`/schools/${sid}/classes`, token);
-    const class1 = classesRes.data.find((c) => c.name.includes(CLASS1_NAME));
-    const class2 = classesRes.data.find((c) => c.name.includes(CLASS2_NAME));
-    expect(class1).toBeTruthy();
-    expect(class2).toBeTruthy();
-
-    const slotsClass1 = [
-      { dayOfWeek: 'MONDAY', periodNumber: 1, label: 'Mathematics' },
-      { dayOfWeek: 'MONDAY', periodNumber: 2, label: 'English Language' },
-      { dayOfWeek: 'TUESDAY', periodNumber: 1, label: 'Basic Science' },
-      { dayOfWeek: 'WEDNESDAY', periodNumber: 1, label: 'Social Studies' },
-      { dayOfWeek: 'THURSDAY', periodNumber: 1, label: 'Computer Science' },
-    ];
-
-    const slotsClass2 = [
-      { dayOfWeek: 'MONDAY', periodNumber: 1, label: 'English Language' },
-      { dayOfWeek: 'MONDAY', periodNumber: 2, label: 'Mathematics' },
-      { dayOfWeek: 'TUESDAY', periodNumber: 1, label: 'Computer Science' },
-      { dayOfWeek: 'WEDNESDAY', periodNumber: 1, label: 'Basic Science' },
-      { dayOfWeek: 'THURSDAY', periodNumber: 1, label: 'Social Studies' },
-    ];
-
-    for (const slot of slotsClass1) {
-      await apiPost(`/schools/${sid}/timetable/slots`, token, {
-        classId: class1!.id,
-        sessionId,
-        ...slot,
-      });
-    }
-
-    for (const slot of slotsClass2) {
-      await apiPost(`/schools/${sid}/timetable/slots`, token, {
-        classId: class2!.id,
-        sessionId,
-        ...slot,
-      });
-    }
-
-    // Verify timetable page renders with slots
+  test('2.16 — School Admin: Create timetable via UI', async ({ page }) => {
     await loginViaUI(page, schoolData.adminEmail!);
     await waitForDashboard(page);
 
-    await page.goto('/timetable');
-    await expect(page.getByRole('heading', { name: /timetable/i })).toBeVisible({ timeout: 15_000 });
+    const timetable = new TimetablePage(page);
+    await timetable.goto();
+    await timetable.expectVisible();
 
+    // Select session and JSS 1 class
     const selects = page.locator('button[data-slot="select-trigger"]');
     await selects.nth(0).click();
     await page.getByRole('option', { name: SESSION_NAME }).click();
@@ -1100,8 +1068,46 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await page.getByRole('option', { name: new RegExp(CLASS1_NAME) }).click();
     await expect(page.locator('table')).toBeVisible({ timeout: 15_000 });
 
-    // Verify at least one slot appears in the grid
-    await expect(page.getByText('Mathematics')).toBeVisible({ timeout: 10_000 });
+    // Create timetable slots for JSS 1 via UI
+    const slotsClass1 = [
+      { day: 'MONDAY', period: 1, label: 'Mathematics' },
+      { day: 'MONDAY', period: 2, label: 'English Language' },
+      { day: 'TUESDAY', period: 1, label: 'Basic Science' },
+      { day: 'WEDNESDAY', period: 1, label: 'Social Studies' },
+      { day: 'THURSDAY', period: 1, label: 'Computer Science' },
+    ];
+
+    for (const slot of slotsClass1) {
+      await timetable.clickEmptySlot(slot.day, slot.period);
+      await timetable.fillSlotForm(slot.label);
+      await timetable.submitSlotForm();
+      await expect(timetable.slotDialog).not.toBeVisible({ timeout: 5_000 });
+    }
+
+    // Verify Mathematics slot appears
+    await timetable.expectSlotInGrid('Mathematics');
+
+    // Switch to JSS 2 class and create slots
+    await selects.nth(1).click();
+    await page.getByRole('option', { name: new RegExp(CLASS2_NAME) }).click();
+    await expect(page.locator('table')).toBeVisible({ timeout: 15_000 });
+
+    const slotsClass2 = [
+      { day: 'MONDAY', period: 1, label: 'English Language' },
+      { day: 'MONDAY', period: 2, label: 'Mathematics' },
+      { day: 'TUESDAY', period: 1, label: 'Computer Science' },
+      { day: 'WEDNESDAY', period: 1, label: 'Basic Science' },
+      { day: 'THURSDAY', period: 1, label: 'Social Studies' },
+    ];
+
+    for (const slot of slotsClass2) {
+      await timetable.clickEmptySlot(slot.day, slot.period);
+      await timetable.fillSlotForm(slot.label);
+      await timetable.submitSlotForm();
+      await expect(timetable.slotDialog).not.toBeVisible({ timeout: 5_000 });
+    }
+
+    await timetable.expectSlotInGrid('English Language');
   });
 
   test('2.17 — School Admin: Validate admin dashboard information', async ({ page }) => {
@@ -1491,6 +1497,9 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
   });
 
   test('2.27 — School Admin: Add second parent to students via API', async () => {
+    // Parent linking via API creates the parent user if needed.
+    // The UI link-parent dialog only searches existing users, so API is required
+    // when the parent doesn't exist yet.
     const auth = await authenticateAccount(schoolData.adminEmail!, TEST_OTP);
     const sid = schoolData.schoolId!;
     const token = auth.accessToken;
@@ -2350,32 +2359,58 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     // If no new message button, just verify the page loaded — messaging UI varies
   });
 
-  test('3.17 — Teacher: Publish announcement', async ({ page }) => {
-    // Only admins can create announcements via UI. Create one via API as admin,
-    // then verify the teacher can see it on the announcements page.
-    const adminAuth = await authenticateAccount(schoolData.adminEmail!, TEST_OTP);
-    const sid = schoolData.schoolId!;
-    await apiPost(`/schools/${sid}/announcements`, adminAuth.accessToken, {
-      title: ANNOUNCEMENT_TITLE,
-      content: 'Dear parents, please note that the term exams will begin next week. Ensure your children are well prepared.',
-      targetAudience: 'ALL',
-      priority: 'NORMAL',
-    });
+  test('3.17 — Admin creates and publishes announcement via UI, teacher verifies', async ({ page }) => {
+    // Admin creates the announcement via UI
+    await loginViaUI(page, schoolData.adminEmail!);
+    await waitForDashboard(page);
 
-    // Now publish it
-    const announcementsRes = await apiGet<Array<{ id: string; title: string }>>(
-      `/schools/${sid}/announcements?page=0&size=10`,
-      adminAuth.accessToken,
+    const announcementsPage = new AnnouncementsPage(page);
+    await announcementsPage.goto();
+    await announcementsPage.expectVisible();
+
+    // Click Create Announcement
+    await announcementsPage.createButton.click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible({ timeout: 10_000 });
+
+    // Fill in the form
+    await dialog.getByPlaceholder('e.g. School Closure Notice').fill(ANNOUNCEMENT_TITLE);
+
+    // Select target audience
+    const selects = dialog.getByRole('combobox');
+    await selects.nth(0).click();
+    await page.getByRole('option', { name: 'All' }).click();
+
+    // Select priority
+    await selects.nth(1).click();
+    await page.getByRole('option', { name: 'Normal' }).click();
+
+    // Fill content
+    await dialog.getByPlaceholder('Write the announcement content...').fill(
+      'Dear parents, please note that the term exams will begin next week. Ensure your children are well prepared.',
     );
-    const announcement = announcementsRes.data.find((a) => a.title === ANNOUNCEMENT_TITLE);
-    expect(announcement).toBeTruthy();
-    await apiPut(`/schools/${sid}/announcements/${announcement!.id}/publish`, adminAuth.accessToken, {});
+
+    // Submit
+    await dialog.getByRole('button', { name: /create announcement/i }).click();
+    await expect(dialog).not.toBeVisible({ timeout: 10_000 });
+
+    // Publish the announcement via the actions menu
+    await page.waitForTimeout(1000);
+    const row = page.locator('table tbody tr', { hasText: ANNOUNCEMENT_TITLE });
+    await row.getByRole('button').last().click();
+    const publishItem = page.getByRole('menuitem', { name: /publish/i });
+    await expect(publishItem).toBeVisible({ timeout: 5_000 });
+    await publishItem.click();
+    await page.waitForTimeout(1000);
+
+    // Logout admin
+    await page.goto('/login');
+    await page.waitForTimeout(1000);
 
     // Teacher verifies the announcement is visible
     await loginViaUI(page, TEACHER1_EMAIL);
     await waitForDashboard(page);
 
-    const announcementsPage = new AnnouncementsPage(page);
     await announcementsPage.goto();
     await announcementsPage.expectVisible();
 
