@@ -609,7 +609,7 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     schoolData.admin2Email = ADMIN2_EMAIL;
   });
 
-  test('2.3 — School Admin: Create 3 teachers', async ({ page }) => {
+  test('2.3 — School Admin: Create 3 teachers via invite dialog', async ({ page }) => {
     await loginViaUI(page, schoolData.adminEmail!);
     await waitForDashboard(page);
 
@@ -619,25 +619,41 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
       { first: 'Teacher', last: 'Three', email: TEACHER3_EMAIL },
     ];
 
-    // Use API to invite teachers (InviteUserDialog uses DialogTrigger which
-    // can have timing issues with controlled open/close state).
-    const auth = await authenticateAccount(schoolData.adminEmail!, TEST_OTP);
-    const sid = schoolData.schoolId!;
-
-    for (const info of teacherInfos) {
-      await apiPost(`/schools/${sid}/users/invite`, auth.accessToken, {
-        email: info.email,
-        firstName: info.first,
-        lastName: info.last,
-        role: 'TEACHER',
-      });
-    }
-
-    // Verify all teachers appear on the Teachers page
+    // Navigate to Teachers page and invite each teacher via UI
     const teachersPage = new TeachersPage(page);
     await teachersPage.goto();
     await teachersPage.expectVisible();
 
+    for (const info of teacherInfos) {
+      await teachersPage.inviteTeacherButton.click();
+      const dialog = page.getByRole('dialog');
+      await expect(dialog).toBeVisible({ timeout: 10_000 });
+
+      // The invite dialog on Teachers page has email, first name, last name fields
+      await dialog.getByPlaceholder('user@example.com').fill(info.email);
+      await dialog.getByPlaceholder('John').fill(info.first);
+      await dialog.getByPlaceholder('Doe').fill(info.last);
+
+      // Role may be pre-selected as Teacher on the Teachers page
+      // If a role combobox is visible, select Teacher
+      const roleSelect = dialog.getByRole('combobox');
+      if (await roleSelect.isVisible({ timeout: 2_000 }).catch(() => false)) {
+        await roleSelect.click();
+        await page.getByRole('option', { name: /teacher/i }).click();
+      }
+
+      await dialog.getByRole('button', { name: /send invitation|invite|add/i }).click();
+      await expect(dialog).not.toBeVisible({ timeout: 10_000 });
+
+      // Wait for mutation to settle
+      await page.waitForTimeout(1500);
+    }
+
+    // Reload to ensure fresh data
+    await teachersPage.goto();
+    await teachersPage.expectVisible();
+
+    // Verify all teachers appear
     for (const info of teacherInfos) {
       await teachersPage.expectTeacherInTable(info.email);
     }
@@ -1036,63 +1052,15 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     }
   });
 
-  test('2.16 — School Admin: Create timetable for each class', async ({ page }) => {
-    // Create timetable slots via API (more reliable than UI dialog interaction)
-    const authData = await authenticateAccount(schoolData.adminEmail!, TEST_OTP);
-    const token = authData.accessToken;
-    const sid = schoolData.schoolId!;
-
-    // Fetch session and class IDs from API
-    const sessionsRes = await apiGet<Array<{ id: string; name: string }>>(`/schools/${sid}/sessions`, token);
-    const session = sessionsRes.data.find((s) => s.name === SESSION_NAME);
-    expect(session).toBeTruthy();
-    const sessionId = session!.id;
-
-    const classesRes = await apiGet<Array<{ id: string; name: string }>>(`/schools/${sid}/classes`, token);
-    const class1 = classesRes.data.find((c) => c.name.includes(CLASS1_NAME));
-    const class2 = classesRes.data.find((c) => c.name.includes(CLASS2_NAME));
-    expect(class1).toBeTruthy();
-    expect(class2).toBeTruthy();
-
-    const slotsClass1 = [
-      { dayOfWeek: 'MONDAY', periodNumber: 1, label: 'Mathematics' },
-      { dayOfWeek: 'MONDAY', periodNumber: 2, label: 'English Language' },
-      { dayOfWeek: 'TUESDAY', periodNumber: 1, label: 'Basic Science' },
-      { dayOfWeek: 'WEDNESDAY', periodNumber: 1, label: 'Social Studies' },
-      { dayOfWeek: 'THURSDAY', periodNumber: 1, label: 'Computer Science' },
-    ];
-
-    const slotsClass2 = [
-      { dayOfWeek: 'MONDAY', periodNumber: 1, label: 'English Language' },
-      { dayOfWeek: 'MONDAY', periodNumber: 2, label: 'Mathematics' },
-      { dayOfWeek: 'TUESDAY', periodNumber: 1, label: 'Computer Science' },
-      { dayOfWeek: 'WEDNESDAY', periodNumber: 1, label: 'Basic Science' },
-      { dayOfWeek: 'THURSDAY', periodNumber: 1, label: 'Social Studies' },
-    ];
-
-    for (const slot of slotsClass1) {
-      await apiPost(`/schools/${sid}/timetable/slots`, token, {
-        classId: class1!.id,
-        sessionId,
-        ...slot,
-      });
-    }
-
-    for (const slot of slotsClass2) {
-      await apiPost(`/schools/${sid}/timetable/slots`, token, {
-        classId: class2!.id,
-        sessionId,
-        ...slot,
-      });
-    }
-
-    // Verify timetable page renders with slots
+  test('2.16 — School Admin: Create timetable via UI', async ({ page }) => {
     await loginViaUI(page, schoolData.adminEmail!);
     await waitForDashboard(page);
 
-    await page.goto('/timetable');
-    await expect(page.getByRole('heading', { name: /timetable/i })).toBeVisible({ timeout: 15_000 });
+    const timetable = new TimetablePage(page);
+    await timetable.goto();
+    await timetable.expectVisible();
 
+    // Select session and JSS 1 class
     const selects = page.locator('button[data-slot="select-trigger"]');
     await selects.nth(0).click();
     await page.getByRole('option', { name: SESSION_NAME }).click();
@@ -1100,8 +1068,46 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await page.getByRole('option', { name: new RegExp(CLASS1_NAME) }).click();
     await expect(page.locator('table')).toBeVisible({ timeout: 15_000 });
 
-    // Verify at least one slot appears in the grid
-    await expect(page.getByText('Mathematics')).toBeVisible({ timeout: 10_000 });
+    // Create timetable slots for JSS 1 via UI
+    const slotsClass1 = [
+      { day: 'MONDAY', period: 1, label: 'Mathematics' },
+      { day: 'MONDAY', period: 2, label: 'English Language' },
+      { day: 'TUESDAY', period: 1, label: 'Basic Science' },
+      { day: 'WEDNESDAY', period: 1, label: 'Social Studies' },
+      { day: 'THURSDAY', period: 1, label: 'Computer Science' },
+    ];
+
+    for (const slot of slotsClass1) {
+      await timetable.clickEmptySlot(slot.day, slot.period);
+      await timetable.fillSlotForm(slot.label);
+      await timetable.submitSlotForm();
+      await expect(timetable.slotDialog).not.toBeVisible({ timeout: 5_000 });
+    }
+
+    // Verify Mathematics slot appears
+    await timetable.expectSlotInGrid('Mathematics');
+
+    // Switch to JSS 2 class and create slots
+    await selects.nth(1).click();
+    await page.getByRole('option', { name: new RegExp(CLASS2_NAME) }).click();
+    await expect(page.locator('table')).toBeVisible({ timeout: 15_000 });
+
+    const slotsClass2 = [
+      { day: 'MONDAY', period: 1, label: 'English Language' },
+      { day: 'MONDAY', period: 2, label: 'Mathematics' },
+      { day: 'TUESDAY', period: 1, label: 'Computer Science' },
+      { day: 'WEDNESDAY', period: 1, label: 'Basic Science' },
+      { day: 'THURSDAY', period: 1, label: 'Social Studies' },
+    ];
+
+    for (const slot of slotsClass2) {
+      await timetable.clickEmptySlot(slot.day, slot.period);
+      await timetable.fillSlotForm(slot.label);
+      await timetable.submitSlotForm();
+      await expect(timetable.slotDialog).not.toBeVisible({ timeout: 5_000 });
+    }
+
+    await timetable.expectSlotInGrid('English Language');
   });
 
   test('2.17 — School Admin: Validate admin dashboard information', async ({ page }) => {
@@ -1491,6 +1497,9 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
   });
 
   test('2.27 — School Admin: Add second parent to students via API', async () => {
+    // Parent linking via API creates the parent user if needed.
+    // The UI link-parent dialog only searches existing users, so API is required
+    // when the parent doesn't exist yet.
     const auth = await authenticateAccount(schoolData.adminEmail!, TEST_OTP);
     const sid = schoolData.schoolId!;
     const token = auth.accessToken;
@@ -1863,20 +1872,51 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     }
   });
 
-  test('3.7 — Teacher: Enter grades for all subjects via API', async () => {
-    // The Grade Entry UI requires backend to pre-populate students for an assessment.
-    // Use the API directly to submit scores for all 4 subjects.
+  test('3.7 — Teacher: Enter grades for Mathematics CA1 via Grade Entry UI', async ({ page }) => {
+    await loginViaUI(page, TEACHER1_EMAIL);
+    await waitForDashboard(page);
+
+    const academics = new GradeStudentsPage(page);
+    await academics.goto();
+    await academics.expectVisible();
+
+    // Go to Grade Entry tab
+    await academics.goToGradeEntry();
+
+    // Select the Mathematics CA1 assessment
+    await academics.selectAssessmentForGrading(`Mathematics CA1 ${TS}`);
+
+    // Wait for student rows to appear (backend now returns all class students with null scores)
+    const studentRows = page.locator('table tbody tr');
+    await expect(studentRows.first()).toBeVisible({ timeout: 15_000 });
+
+    // Enter scores for the first 5 students
+    const scores = [85, 72, 90, 65, 78];
+    const scoreInputs = page.locator('table tbody tr input[type="number"]');
+    const inputCount = await scoreInputs.count();
+    const toFill = Math.min(inputCount, scores.length);
+    for (let i = 0; i < toFill; i++) {
+      await scoreInputs.nth(i).fill(String(scores[i]));
+    }
+
+    // Submit scores
+    await academics.submitScores();
+
+    // Wait for success feedback (toast or table refresh)
+    await page.waitForTimeout(2000);
+  });
+
+  test('3.7b — Teacher: Enter grades for remaining subjects via API', async () => {
+    // Grade the other 3 subjects via API for efficiency (Mathematics was done via UI above)
     const auth = await authenticateAccount(TEACHER1_EMAIL, TEST_OTP);
     const sid = schoolData.schoolId!;
 
-    // Get assessments
-    const assessmentsRes = await apiGet<Array<{ id: string; title: string; classId: string; subjectName: string }>>(
+    const assessmentsRes = await apiGet<Array<{ id: string; title: string; classId: string }>>(
       `/schools/${sid}/assessments?size=200`,
       auth.accessToken,
     );
     const assessments = assessmentsRes.data;
 
-    // Get classes to find JSS 1 class ID
     const classesRes = await apiGet<Array<{ id: string; name: string }>>(
       `/schools/${sid}/classes?size=200`,
       auth.accessToken,
@@ -1884,23 +1924,20 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     const jss1Class = classesRes.data.find((c) => c.name === CLASS1_NAME);
     expect(jss1Class).toBeTruthy();
 
-    // Get JSS 1 students
-    const studentsRes = await apiGet<Array<{ id: string; firstName: string; lastName: string }>>(
+    const studentsRes = await apiGet<Array<{ id: string }>>(
       `/schools/${sid}/students?classId=${jss1Class!.id}&size=200`,
       auth.accessToken,
     );
     const students = studentsRes.data;
-    expect(students.length).toBeGreaterThanOrEqual(5);
 
-    // Score sets per subject
     const scoreMap: Record<string, number[]> = {
-      'Mathematics': [85, 72, 90, 65, 78],
       'English Language': [88, 75, 82, 70, 95],
       'Basic Science': [76, 80, 92, 68, 84],
       'Social Studies': [79, 83, 74, 91, 87],
     };
 
-    for (const subject of TEACHER1_JSS1_SUBJECTS) {
+    const remainingSubjects = TEACHER1_JSS1_SUBJECTS.filter((s) => s !== 'Mathematics');
+    for (const subject of remainingSubjects) {
       const assessment = assessments.find(
         (a) => a.title.includes(subject) && a.title.includes('CA1') && a.title.includes(TS),
       );
@@ -1931,10 +1968,10 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     // Go to Grade Entry tab
     await academics.goToGradeEntry();
 
-    // Select the Mathematics CA1 assessment — now that grades exist, students should appear
+    // Select the Mathematics CA1 assessment — grades were entered via UI in test 3.7
     await academics.selectAssessmentForGrading(`Mathematics CA1 ${TS}`);
 
-    // Wait for students to appear in the grade table (grades were submitted via API)
+    // Wait for students to appear in the grade table
     await expect(page.locator('table tbody tr').first()).toBeVisible({ timeout: 15_000 });
 
     // Verify at least one score is visible
@@ -2322,32 +2359,58 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     // If no new message button, just verify the page loaded — messaging UI varies
   });
 
-  test('3.17 — Teacher: Publish announcement', async ({ page }) => {
-    // Only admins can create announcements via UI. Create one via API as admin,
-    // then verify the teacher can see it on the announcements page.
-    const adminAuth = await authenticateAccount(schoolData.adminEmail!, TEST_OTP);
-    const sid = schoolData.schoolId!;
-    await apiPost(`/schools/${sid}/announcements`, adminAuth.accessToken, {
-      title: ANNOUNCEMENT_TITLE,
-      content: 'Dear parents, please note that the term exams will begin next week. Ensure your children are well prepared.',
-      targetAudience: 'ALL',
-      priority: 'NORMAL',
-    });
+  test('3.17 — Admin creates and publishes announcement via UI, teacher verifies', async ({ page }) => {
+    // Admin creates the announcement via UI
+    await loginViaUI(page, schoolData.adminEmail!);
+    await waitForDashboard(page);
 
-    // Now publish it
-    const announcementsRes = await apiGet<Array<{ id: string; title: string }>>(
-      `/schools/${sid}/announcements?page=0&size=10`,
-      adminAuth.accessToken,
+    const announcementsPage = new AnnouncementsPage(page);
+    await announcementsPage.goto();
+    await announcementsPage.expectVisible();
+
+    // Click Create Announcement
+    await announcementsPage.createButton.click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible({ timeout: 10_000 });
+
+    // Fill in the form
+    await dialog.getByPlaceholder('e.g. School Closure Notice').fill(ANNOUNCEMENT_TITLE);
+
+    // Select target audience
+    const selects = dialog.getByRole('combobox');
+    await selects.nth(0).click();
+    await page.getByRole('option', { name: 'All' }).click();
+
+    // Select priority
+    await selects.nth(1).click();
+    await page.getByRole('option', { name: 'Normal' }).click();
+
+    // Fill content
+    await dialog.getByPlaceholder('Write the announcement content...').fill(
+      'Dear parents, please note that the term exams will begin next week. Ensure your children are well prepared.',
     );
-    const announcement = announcementsRes.data.find((a) => a.title === ANNOUNCEMENT_TITLE);
-    expect(announcement).toBeTruthy();
-    await apiPut(`/schools/${sid}/announcements/${announcement!.id}/publish`, adminAuth.accessToken, {});
+
+    // Submit
+    await dialog.getByRole('button', { name: /create announcement/i }).click();
+    await expect(dialog).not.toBeVisible({ timeout: 10_000 });
+
+    // Publish the announcement via the actions menu
+    await page.waitForTimeout(1000);
+    const row = page.locator('table tbody tr', { hasText: ANNOUNCEMENT_TITLE });
+    await row.getByRole('button').last().click();
+    const publishItem = page.getByRole('menuitem', { name: /publish/i });
+    await expect(publishItem).toBeVisible({ timeout: 5_000 });
+    await publishItem.click();
+    await page.waitForTimeout(1000);
+
+    // Logout admin
+    await page.goto('/login');
+    await page.waitForTimeout(1000);
 
     // Teacher verifies the announcement is visible
     await loginViaUI(page, TEACHER1_EMAIL);
     await waitForDashboard(page);
 
-    const announcementsPage = new AnnouncementsPage(page);
     await announcementsPage.goto();
     await announcementsPage.expectVisible();
 
