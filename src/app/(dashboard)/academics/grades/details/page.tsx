@@ -1,6 +1,6 @@
 'use client';
 
-import { useParams, useRouter } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { ArrowLeft, BookOpen, GraduationCap, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,9 +13,9 @@ import { useStudentSubjectGrades } from '@/lib/hooks/use-student-grades';
 import { GradeBadge } from '../grade-badge';
 
 export default function GradeDetailsPage() {
-  const params = useParams();
+  const searchParams = useSearchParams();
   const router = useRouter();
-  const subjectId = params.subjectId as string;
+  const subjectId = searchParams.get('subjectId');
 
   const currentRole = useAuthStore((s) => s.currentRole);
   const isParent = currentRole === 'PARENT';
@@ -28,7 +28,7 @@ export default function GradeDetailsPage() {
     selectedChild?.classId
   );
 
-  const subjectDetails = response.find((s) => s.subjectId === subjectId);
+  const subjectDetails = subjectId ? response.find((s) => s.subjectId === subjectId) : undefined;
 
   if (!isParent) {
     return (
@@ -83,7 +83,7 @@ export default function GradeDetailsPage() {
     );
   }
 
-  if (!subjectDetails) {
+  if (!subjectId || !subjectDetails) {
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-4">

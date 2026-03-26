@@ -46,7 +46,7 @@ export default function GradesPage() {
       cell: ({ row }) => (
         <button
           className="font-medium text-primary hover:underline text-left"
-          onClick={() => router.push(`/academics/grades/${row.original.subjectId}`)}
+          onClick={() => router.push(`/academics/grades/details?subjectId=${row.original.subjectId}`)}
         >
           {row.original.subjectName}
         </button>
@@ -85,7 +85,7 @@ export default function GradesPage() {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => router.push(`/academics/grades/${row.original.subjectId}?className=${encodeURIComponent(selectedChild?.className || '')}`)}
+          onClick={() => router.push(`/academics/grades/details?subjectId=${row.original.subjectId}`)}
         >
           <Eye className="mr-2 h-4 w-4" />
           View Details
