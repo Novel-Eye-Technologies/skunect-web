@@ -7,15 +7,15 @@ export type RecordPickupRequest = Api['RecordPickupRequest'];
 // Response types — generated schemas have all fields optional, keep hand-written
 export interface EmergencyAlert {
   id: string;
-  type: 'LOCKDOWN' | 'EVACUATION' | 'MEDICAL' | 'WEATHER' | 'OTHER';
+  schoolId: string;
   title: string;
-  description: string;
-  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-  status: 'ACTIVE' | 'RESOLVED';
-  createdBy: string;
-  createdAt: string;
+  message: string;
+  severity: string;
+  initiatedBy: string;
+  isActive: boolean;
   resolvedAt: string | null;
-  resolvedBy: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface PickupLog {
@@ -46,19 +46,17 @@ export interface PickupAuthorization {
   createdAt: string;
 }
 
-// Frontend uses 'description' but backend expects 'message' — API layer maps this.
-// Keep hand-written.
+// Keep hand-written — backend expects title + message + severity
 export interface CreateEmergencyAlertRequest {
-  type: 'LOCKDOWN' | 'EVACUATION' | 'MEDICAL' | 'WEATHER' | 'OTHER';
   title: string;
-  description: string;
+  message: string;
   severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 }
 
 // No generated schema — keep hand-written
 export interface CreatePickupLogRequest {
   studentId: string;
-  pickupPersonName: string;
+  pickedUpByName: string;
   relationship: string;
   authorizationId?: string;
   notes?: string;

@@ -10,10 +10,10 @@ export type BulkAssignSubjectsRequest = Api['BulkAssignSubjectsRequest'];
 // uses `section` + `sessionId?`. Incompatible; keep hand-written.
 export interface CreateClassRequest {
   name: string;
-  section?: string;
-  capacity: number;
-  classTeacherId: string;
-  sessionId?: string;
+  gradeLevel?: string;
+  sessionId: string;
+  capacity?: number;
+  classTeacherId?: string;
 }
 
 // AssignSubjectTeacherRequest — generated uses `teacherId?: string`, hand-written uses

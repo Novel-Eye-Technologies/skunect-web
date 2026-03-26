@@ -125,7 +125,7 @@ export function CreatePickupDialog({
   function onSubmit(values: PickupFormValues) {
     const payload = {
       studentId: values.studentId,
-      pickupPersonName: values.pickupPersonName,
+      pickedUpByName: values.pickupPersonName,
       relationship: values.relationship,
       authorizationId: values.authorizationId || undefined,
       notes: values.notes || undefined,

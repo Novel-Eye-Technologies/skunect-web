@@ -3,9 +3,9 @@ import type { Api } from '@/lib/api/schema';
 export interface NotificationPreference {
   id: string;
   type: string;
-  email: boolean;
-  push: boolean;
-  sms: boolean;
+  emailEnabled: boolean;
+  pushEnabled: boolean;
+  smsEnabled: boolean;
 }
 
 // Request types from generated OpenAPI schemas
