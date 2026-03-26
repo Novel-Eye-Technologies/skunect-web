@@ -3141,41 +3141,41 @@ export interface components {
             meta?: components["schemas"]["PageMeta"];
         };
         ErrorDetail: {
-            code?: string;
-            field?: string;
-            message?: string;
+            code: string;
+            field?: string | null;
+            message: string;
         };
         PageMeta: {
             /** Format: int32 */
-            page?: number;
+            page: number;
             /** Format: int32 */
-            size?: number;
+            size: number;
             /** Format: int64 */
-            totalElements?: number;
+            totalElements: number;
             /** Format: int32 */
-            totalPages?: number;
+            totalPages: number;
         };
         UserResponse: {
             /** Format: uuid */
-            id?: string;
-            email?: string;
-            phone?: string;
-            firstName?: string;
-            lastName?: string;
-            avatarUrl?: string;
-            status?: string;
+            id: string;
+            email: string;
+            phone?: string | null;
+            firstName: string;
+            lastName: string;
+            avatarUrl?: string | null;
+            status: string;
             /** Format: date-time */
-            lastLogin?: string;
+            lastLogin?: string | null;
             /** Format: date-time */
-            createdAt?: string;
-            roles?: components["schemas"]["UserRoleResponse"][];
-            isActive?: boolean;
+            createdAt: string;
+            roles: components["schemas"]["UserRoleResponse"][];
+            isActive: boolean;
         };
         UserRoleResponse: {
             /** Format: uuid */
-            schoolId?: string;
-            role?: string;
-            isActive?: boolean;
+            schoolId: string;
+            role: string;
+            isActive: boolean;
         };
         UpdateSchoolRequest: {
             name?: string;
@@ -3196,25 +3196,25 @@ export interface components {
         };
         SchoolResponse: {
             /** Format: uuid */
-            id?: string;
-            name?: string;
-            code?: string;
-            logoUrl?: string;
-            primaryColor?: string;
-            secondaryColor?: string;
-            address?: string;
-            city?: string;
-            state?: string;
-            phone?: string;
-            email?: string;
-            subscriptionTier?: string;
+            id: string;
+            name: string;
+            code: string;
+            logoUrl?: string | null;
+            primaryColor: string;
+            secondaryColor: string;
+            address: string;
+            city: string;
+            state?: string | null;
+            phone: string;
+            email: string;
+            subscriptionTier: string;
             /** Format: uuid */
-            currentTermId?: string;
+            currentTermId?: string | null;
             /** Format: date-time */
-            createdAt?: string;
+            createdAt: string;
             /** Format: date-time */
-            updatedAt?: string;
-            isActive?: boolean;
+            updatedAt: string;
+            isActive: boolean;
         };
         UpdateUserStatusRequest: {
             status: string;
@@ -3242,19 +3242,19 @@ export interface components {
         };
         TimetableSlotResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            classId?: string;
+            classId: string;
             /** Format: uuid */
-            subjectId?: string;
+            subjectId?: string | null;
             /** Format: uuid */
-            teacherId?: string;
+            teacherId?: string | null;
             /** Format: uuid */
-            sessionId?: string;
-            dayOfWeek?: string;
+            sessionId: string;
+            dayOfWeek: string;
             /** Format: int32 */
-            periodNumber?: number;
-            label?: string;
+            periodNumber: number;
+            label?: string | null;
         };
         CreateTermRequest: {
             name: string;
@@ -3274,18 +3274,18 @@ export interface components {
         };
         TermResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            schoolId?: string;
+            schoolId: string;
             /** Format: uuid */
-            sessionId?: string;
-            name?: string;
+            sessionId: string;
+            name: string;
             /** Format: date */
-            startDate?: string;
+            startDate: string;
             /** Format: date */
-            endDate?: string;
-            isCurrent?: boolean;
-            isClosed?: boolean;
+            endDate: string;
+            isCurrent: boolean;
+            isClosed: boolean;
         };
         CreateSubjectRequest: {
             name: string;
@@ -3300,11 +3300,11 @@ export interface components {
         };
         SubjectResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            schoolId?: string;
-            name?: string;
-            code?: string;
+            schoolId: string;
+            name: string;
+            code: string;
         };
         UpdateStudentRequest: {
             firstName?: string;
@@ -3334,52 +3334,52 @@ export interface components {
         };
         ParentLinkResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            parentId?: string;
-            parentName?: string;
-            parentEmail?: string;
-            parentPhone?: string;
-            relationship?: string;
-            isEmergencyContact?: boolean;
-            isApproved?: boolean;
-            firstName?: string;
-            lastName?: string;
-            email?: string;
-            phone?: string;
+            parentId: string;
+            parentName: string;
+            parentEmail?: string | null;
+            parentPhone?: string | null;
+            relationship: string;
+            isEmergencyContact: boolean;
+            isApproved: boolean;
+            phone: string;
+            email: string;
+            firstName: string;
+            lastName: string;
         };
         StudentResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            schoolId?: string;
+            schoolId: string;
             /** Format: uuid */
-            classId?: string;
-            admissionNumber?: string;
-            firstName?: string;
-            lastName?: string;
-            middleName?: string;
-            gender?: string;
-            photoUrl?: string;
-            bloodGroup?: string;
-            genotype?: string;
-            healthNotes?: string;
-            address?: string;
-            stateOfOrigin?: string;
-            lga?: string;
-            religion?: string;
-            allergies?: string;
-            medicalConditions?: string;
-            className?: string;
+            classId?: string | null;
+            admissionNumber: string;
+            firstName: string;
+            lastName: string;
+            middleName?: string | null;
+            gender: string;
+            photoUrl?: string | null;
+            bloodGroup?: string | null;
+            genotype?: string | null;
+            healthNotes?: string | null;
+            address?: string | null;
+            stateOfOrigin?: string | null;
+            lga?: string | null;
+            religion?: string | null;
+            allergies?: string | null;
+            medicalConditions?: string | null;
+            className?: string | null;
             /** Format: date */
-            dateOfBirth?: string;
+            dateOfBirth: string;
             /** Format: date */
-            enrolledDate?: string;
-            status?: string;
-            parents?: components["schemas"]["ParentLinkResponse"][];
-            isActive?: boolean;
-            otherName?: string;
-            photo?: string;
+            enrolledDate: string;
+            status: string;
+            parents: components["schemas"]["ParentLinkResponse"][];
+            isActive: boolean;
+            otherName: string;
+            photo: string;
         };
         CreateSessionRequest: {
             name: string;
@@ -3397,15 +3397,15 @@ export interface components {
         };
         SessionResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            schoolId?: string;
-            name?: string;
+            schoolId: string;
+            name: string;
             /** Format: date */
-            startDate?: string;
+            startDate: string;
             /** Format: date */
-            endDate?: string;
-            isCurrent?: boolean;
+            endDate: string;
+            isCurrent: boolean;
         };
         ApiResponseReportCardResponse: {
             status?: string;
@@ -3416,29 +3416,29 @@ export interface components {
         };
         ReportCardResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            studentId?: string;
+            studentId: string;
             /** Format: uuid */
-            termId?: string;
+            termId: string;
             /** Format: uuid */
-            classId?: string;
+            classId: string;
             /** Format: uuid */
-            schoolId?: string;
-            totalScore?: number;
-            averageScore?: number;
+            schoolId: string;
+            totalScore: number;
+            averageScore: number;
             /** Format: int32 */
-            positionInClass?: number;
+            positionInClass?: number | null;
             /** Format: int32 */
-            totalStudents?: number;
-            teacherComment?: string;
-            adminComment?: string;
-            studentName?: string;
+            totalStudents?: number | null;
+            teacherComment?: string | null;
+            adminComment?: string | null;
+            studentName: string;
             /** Format: date-time */
-            publishedAt?: string;
+            publishedAt?: string | null;
             /** Format: date-time */
-            generatedAt?: string;
-            isPublished?: boolean;
+            generatedAt: string;
+            isPublished: boolean;
         };
         ApiResponseMapStringInteger: {
             status?: string;
@@ -3458,24 +3458,24 @@ export interface components {
         };
         PickupAuthorizationResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            schoolId?: string;
+            schoolId: string;
             /** Format: uuid */
-            studentId?: string;
+            studentId: string;
             /** Format: uuid */
-            authorizedBy?: string;
-            pickupPersonName?: string;
-            pickupPersonPhone?: string;
-            pickupPersonRelationship?: string;
-            qrCode?: string;
+            authorizedBy: string;
+            pickupPersonName: string;
+            pickupPersonPhone?: string | null;
+            pickupPersonRelationship?: string | null;
+            qrCode: string;
             /** Format: date-time */
-            validFrom?: string;
+            validFrom?: string | null;
             /** Format: date-time */
-            validUntil?: string;
+            validUntil?: string | null;
             /** Format: date-time */
-            createdAt?: string;
-            isActive?: boolean;
+            createdAt: string;
+            isActive: boolean;
         };
         CreateHomeworkRequest: {
             /** Format: uuid */
@@ -3501,35 +3501,35 @@ export interface components {
         };
         HomeworkResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            schoolId?: string;
+            schoolId: string;
             /** Format: uuid */
-            classId?: string;
-            className?: string;
+            classId: string;
+            className: string;
             /** Format: uuid */
-            subjectId?: string;
-            subjectName?: string;
+            subjectId: string;
+            subjectName: string;
             /** Format: uuid */
-            teacherId?: string;
-            teacherName?: string;
-            title?: string;
-            description?: string;
+            teacherId: string;
+            teacherName: string;
+            title: string;
+            description?: string | null;
             /** Format: date */
-            dueDate?: string;
+            dueDate: string;
             /** Format: date */
-            assignedDate?: string;
+            assignedDate: string;
             /** Format: int32 */
-            maxScore?: number;
-            status?: string;
-            attachmentUrls?: string[];
+            maxScore?: number | null;
+            status: string;
+            attachmentUrls?: (string | null)[] | null;
             /** Format: int64 */
-            totalSubmissions?: number;
+            totalSubmissions?: number | null;
             /** Format: int64 */
-            totalStudents?: number;
-            createdBy?: string;
+            totalStudents?: number | null;
+            createdBy: string;
             /** Format: date-time */
-            createdAt?: string;
+            createdAt: string;
         };
         UpdateSubmissionRequest: {
             status?: string;
@@ -3547,19 +3547,19 @@ export interface components {
         };
         SubmissionResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            studentId?: string;
+            studentId: string;
             /** Format: uuid */
-            homeworkId?: string;
-            studentName?: string;
-            status?: string;
-            teacherNotes?: string;
+            homeworkId: string;
+            studentName: string;
+            status: string;
+            teacherNotes?: string | null;
             /** Format: int32 */
-            score?: number;
-            feedback?: string;
+            score?: number | null;
+            feedback?: string | null;
             /** Format: date-time */
-            submittedAt?: string;
+            submittedAt?: string | null;
         };
         UpdateHealthRecordRequest: {
             recordType?: string;
@@ -3577,31 +3577,31 @@ export interface components {
         };
         HealthRecordResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            studentId?: string;
-            studentName?: string;
-            recordType?: string;
-            title?: string;
-            description?: string;
-            severity?: string;
+            studentId: string;
+            studentName: string;
+            recordType: string;
+            title: string;
+            description?: string | null;
+            severity: string;
             /** Format: uuid */
-            recordedBy?: string;
-            recordedByName?: string;
+            recordedBy: string;
+            recordedByName: string;
             /** Format: date-time */
-            recordedAt?: string;
-            active?: boolean;
+            recordedAt: string;
+            isActive: boolean;
         };
         CreateGradingSystemRequest: {
             name: string;
             scales?: components["schemas"]["GradingScaleEntry"][];
-            default?: boolean;
+            isDefault?: boolean;
         };
         GradingScaleEntry: {
             gradeLabel: string;
             minScore: number;
             maxScore: number;
-            remark?: string;
+            remark?: string | null;
         };
         ApiResponseGradingSystemResponse: {
             status?: string;
@@ -3612,20 +3612,20 @@ export interface components {
         };
         GradingScaleResponse: {
             /** Format: uuid */
-            id?: string;
-            gradeLabel?: string;
-            minScore?: number;
-            maxScore?: number;
-            remark?: string;
+            id: string;
+            gradeLabel: string;
+            minScore: number;
+            maxScore: number;
+            remark?: string | null;
         };
         GradingSystemResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            schoolId?: string;
-            name?: string;
-            scales?: components["schemas"]["GradingScaleResponse"][];
-            isDefault?: boolean;
+            schoolId: string;
+            name: string;
+            scales: components["schemas"]["GradingScaleResponse"][];
+            isDefault: boolean;
         };
         CreateFeeStructureRequest: {
             /** Format: uuid */
@@ -3637,7 +3637,7 @@ export interface components {
             /** Format: date */
             deadline?: string;
             breakdown?: string;
-            mandatory?: boolean;
+            isMandatory?: boolean;
         };
         ApiResponseFeeStructureResponse: {
             status?: string;
@@ -3648,20 +3648,20 @@ export interface components {
         };
         FeeStructureResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            schoolId?: string;
+            schoolId: string;
             /** Format: uuid */
-            classId?: string;
+            classId?: string | null;
             /** Format: uuid */
-            termId?: string;
-            name?: string;
-            amount?: number;
+            termId?: string | null;
+            name: string;
+            amount: number;
             /** Format: date */
-            deadline?: string;
-            breakdown?: string;
-            amountInWords?: string;
-            isMandatory?: boolean;
+            deadline?: string | null;
+            breakdown?: string | null;
+            amountInWords?: string | null;
+            isMandatory: boolean;
         };
         UpdateInvoiceRequest: {
             amountPaid?: number;
@@ -3676,20 +3676,20 @@ export interface components {
         };
         FeeInvoiceResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            schoolId?: string;
+            schoolId: string;
             /** Format: uuid */
-            studentId?: string;
+            studentId: string;
             /** Format: uuid */
-            termId?: string;
-            invoiceNumber?: string;
-            status?: string;
-            totalAmount?: number;
-            amountPaid?: number;
-            balance?: number;
+            termId: string;
+            invoiceNumber: string;
+            status: string;
+            totalAmount: number;
+            amountPaid: number;
+            balance: number;
             /** Format: date */
-            dueDate?: string;
+            dueDate?: string | null;
         };
         UpdateEventRequest: {
             title?: string;
@@ -3716,37 +3716,37 @@ export interface components {
         };
         CoordinatorInfo: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            teacherId?: string;
-            teacherName?: string;
-            role?: string;
+            teacherId: string;
+            teacherName: string;
+            role: string;
         };
         EventResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            schoolId?: string;
-            title?: string;
-            description?: string;
+            schoolId: string;
+            title: string;
+            description?: string | null;
             /** Format: date-time */
-            startTime?: string;
+            startTime: string;
             /** Format: date-time */
-            endTime?: string;
-            location?: string;
+            endTime: string;
+            location?: string | null;
             /** Format: uuid */
-            classId?: string;
-            className?: string;
+            classId?: string | null;
+            className?: string | null;
             /** Format: int32 */
-            reminderMinutes?: number;
-            visibility?: string;
-            status?: string;
+            reminderMinutes?: number | null;
+            visibility: string;
+            status: string;
             /** Format: uuid */
-            createdBy?: string;
-            createdByName?: string;
-            coordinators?: components["schemas"]["CoordinatorInfo"][];
+            createdBy: string;
+            createdByName: string;
+            coordinators: components["schemas"]["CoordinatorInfo"][];
             /** Format: date-time */
-            createdAt?: string;
+            createdAt: string;
         };
         ApiResponseEmergencyAlertResponse: {
             status?: string;
@@ -3757,21 +3757,21 @@ export interface components {
         };
         EmergencyAlertResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            schoolId?: string;
-            title?: string;
-            message?: string;
-            severity?: string;
+            schoolId: string;
+            title: string;
+            message: string;
+            severity: string;
             /** Format: uuid */
-            initiatedBy?: string;
+            initiatedBy: string;
             /** Format: date-time */
-            resolvedAt?: string;
+            resolvedAt?: string | null;
             /** Format: date-time */
-            createdAt?: string;
+            createdAt: string;
             /** Format: date-time */
-            updatedAt?: string;
-            isActive?: boolean;
+            updatedAt: string;
+            isActive: boolean;
         };
         CreateClassRequest: {
             name: string;
@@ -3792,18 +3792,18 @@ export interface components {
         };
         ClassResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            schoolId?: string;
-            name?: string;
-            gradeLevel?: string;
+            schoolId: string;
+            name: string;
+            gradeLevel: string;
             /** Format: uuid */
-            sessionId?: string;
+            sessionId: string;
             /** Format: int32 */
-            capacity?: number;
+            capacity: number;
             /** Format: uuid */
-            classTeacherId?: string;
-            classTeacherName?: string;
+            classTeacherId?: string | null;
+            classTeacherName?: string | null;
         };
         AssignSubjectTeacherRequest: {
             /** Format: uuid */
@@ -3820,20 +3820,20 @@ export interface components {
         };
         ClassSubjectResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            classId?: string;
+            classId: string;
             /** Format: uuid */
-            subjectId?: string;
-            subjectName?: string;
-            subjectCode?: string;
+            subjectId: string;
+            subjectName: string;
+            subjectCode: string;
             /** Format: uuid */
-            teacherId?: string;
-            teacherName?: string;
+            teacherId?: string | null;
+            teacherName?: string | null;
             /** Format: uuid */
-            termId?: string;
-            termName?: string;
-            isClassTeacher?: boolean;
+            termId?: string | null;
+            termName?: string | null;
+            isClassTeacher: boolean;
         };
         UpdateTripStudentRequest: {
             /** @enum {string} */
@@ -3848,21 +3848,21 @@ export interface components {
         };
         BusTripStudentResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            tripId?: string;
+            tripId: string;
             /** Format: uuid */
-            studentId?: string;
+            studentId: string;
             /** @enum {string} */
-            status?: "PENDING" | "BOARDED" | "DROPPED_OFF" | "ABSENT";
+            status: "PENDING" | "BOARDED" | "DROPPED_OFF" | "ABSENT";
             /** Format: date-time */
-            boardedAt?: string;
+            boardedAt?: string | null;
             /** Format: date-time */
-            droppedOffAt?: string;
+            droppedOffAt?: string | null;
             /** Format: date-time */
-            createdAt?: string;
+            createdAt: string;
             /** Format: date-time */
-            updatedAt?: string;
+            updatedAt: string;
         };
         ApiResponseBusTripResponse: {
             status?: string;
@@ -3873,26 +3873,26 @@ export interface components {
         };
         BusTripResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            schoolId?: string;
+            schoolId: string;
             /** Format: uuid */
-            busId?: string;
+            busId: string;
             /** Format: date */
-            tripDate?: string;
+            tripDate: string;
             /** @enum {string} */
-            tripType?: "MORNING_PICKUP" | "AFTERNOON_DROP";
+            tripType: "MORNING_PICKUP" | "AFTERNOON_DROP";
             /** @enum {string} */
-            status?: "SCHEDULED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
+            status: "SCHEDULED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
             /** Format: date-time */
-            startedAt?: string;
+            startedAt?: string | null;
             /** Format: date-time */
-            completedAt?: string;
-            students?: components["schemas"]["BusTripStudentResponse"][];
+            completedAt?: string | null;
+            students: components["schemas"]["BusTripStudentResponse"][];
             /** Format: date-time */
-            createdAt?: string;
+            createdAt: string;
             /** Format: date-time */
-            updatedAt?: string;
+            updatedAt: string;
         };
         CreateBusRouteRequest: {
             routeName: string;
@@ -3908,17 +3908,17 @@ export interface components {
         };
         BusRouteResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            schoolId?: string;
-            routeName?: string;
-            description?: string;
-            pickupPoints?: string[];
+            schoolId: string;
+            routeName: string;
+            description?: string | null;
+            pickupPoints: string[];
             /** Format: date-time */
-            createdAt?: string;
+            createdAt: string;
             /** Format: date-time */
-            updatedAt?: string;
-            isActive?: boolean;
+            updatedAt: string;
+            isActive: boolean;
         };
         CreateBusRequest: {
             /** Format: uuid */
@@ -3938,22 +3938,22 @@ export interface components {
         };
         BusResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            schoolId?: string;
+            schoolId: string;
             /** Format: uuid */
-            routeId?: string;
-            routeName?: string;
-            plateNumber?: string;
+            routeId: string;
+            routeName: string;
+            plateNumber: string;
             /** Format: int32 */
-            capacity?: number;
-            driverName?: string;
-            driverPhone?: string;
+            capacity: number;
+            driverName: string;
+            driverPhone: string;
             /** Format: date-time */
-            createdAt?: string;
+            createdAt: string;
             /** Format: date-time */
-            updatedAt?: string;
-            isActive?: boolean;
+            updatedAt: string;
+            isActive: boolean;
         };
         CreateAssessmentRequest: {
             /** Format: uuid */
@@ -3975,20 +3975,20 @@ export interface components {
         };
         AssessmentResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            schoolId?: string;
+            schoolId: string;
             /** Format: uuid */
-            classId?: string;
+            classId: string;
             /** Format: uuid */
-            subjectId?: string;
+            subjectId: string;
             /** Format: uuid */
-            termId?: string;
+            termId: string;
             /** Format: uuid */
-            createdBy?: string;
-            type?: string;
-            title?: string;
-            maxScore?: number;
+            createdBy: string;
+            type: string;
+            title: string;
+            maxScore: number;
         };
         UpdateAnnouncementRequest: {
             title?: string;
@@ -4000,27 +4000,27 @@ export interface components {
         };
         AnnouncementResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            schoolId?: string;
-            title?: string;
-            content?: string;
-            attachmentUrls?: string[];
-            targetAudience?: string;
+            schoolId: string;
+            title: string;
+            content: string;
+            attachmentUrls?: (string | null)[] | null;
+            targetAudience: string;
             /** Format: uuid */
-            targetClassId?: string;
+            targetClassId?: string | null;
             /** Format: uuid */
-            publishedBy?: string;
-            publishedByName?: string;
+            publishedBy?: string | null;
+            publishedByName?: string | null;
             /** Format: date-time */
-            publishedAt?: string;
+            publishedAt?: string | null;
             /** Format: int64 */
-            readCount?: number;
+            readCount: number;
             /** Format: date-time */
-            createdAt?: string;
+            createdAt: string;
             /** Format: date-time */
-            updatedAt?: string;
-            isPublished?: boolean;
+            updatedAt: string;
+            isPublished: boolean;
         };
         ApiResponseAnnouncementResponse: {
             status?: string;
@@ -4038,17 +4038,17 @@ export interface components {
         };
         NotificationResponse: {
             /** Format: uuid */
-            id?: string;
-            type?: string;
-            title?: string;
-            body?: string;
-            channel?: string;
-            status?: string;
+            id: string;
+            type: string;
+            title: string;
+            body: string;
+            channel?: string | null;
+            status: string;
             /** Format: date-time */
-            sentAt?: string;
+            sentAt?: string | null;
             /** Format: date-time */
-            createdAt?: string;
-            isRead?: boolean;
+            createdAt: string;
+            isRead: boolean;
         };
         ApiResponseVoid: {
             status?: string;
@@ -4070,10 +4070,10 @@ export interface components {
             meta?: components["schemas"]["PageMeta"];
         };
         NotificationPreferenceResponse: {
-            notificationType?: string;
-            pushEnabled?: boolean;
-            smsEnabled?: boolean;
-            emailEnabled?: boolean;
+            notificationType: string;
+            pushEnabled: boolean;
+            smsEnabled: boolean;
+            emailEnabled: boolean;
         };
         UpdateSuperAdminRequest: {
             firstName: string;
@@ -4102,23 +4102,23 @@ export interface components {
         };
         SubscriptionPlanResponse: {
             /** Format: uuid */
-            id?: string;
-            name?: string;
-            tier?: string;
-            pricePerStudent?: number;
+            id: string;
+            name: string;
+            tier: string;
+            pricePerStudent: number;
             /** Format: int32 */
-            billingPeriodMonths?: number;
+            billingPeriodMonths: number;
             /** Format: int32 */
-            maxStudents?: number;
-            features?: string;
+            maxStudents?: number | null;
+            features?: string | null;
             /** Format: int32 */
-            trialDurationDays?: number;
+            trialDurationDays?: number | null;
             /** Format: date-time */
-            createdAt?: string;
+            createdAt: string;
             /** Format: date-time */
-            updatedAt?: string;
-            isTrial?: boolean;
-            isActive?: boolean;
+            updatedAt: string;
+            isTrial: boolean;
+            isActive: boolean;
         };
         UpdateSubscriptionDiscountRequest: {
             code?: string;
@@ -4147,31 +4147,31 @@ export interface components {
         };
         SubscriptionDiscountResponse: {
             /** Format: uuid */
-            id?: string;
-            code?: string;
-            name?: string;
-            description?: string;
+            id: string;
+            code: string;
+            name: string;
+            description?: string | null;
             /** @enum {string} */
-            discountType?: "PERCENTAGE" | "FIXED_AMOUNT";
-            discountValue?: number;
+            discountType: "PERCENTAGE" | "FIXED_AMOUNT";
+            discountValue: number;
             /** Format: int32 */
-            maxUses?: number;
+            maxUses?: number | null;
             /** Format: int32 */
-            currentUses?: number;
+            currentUses: number;
             /** Format: date */
-            validFrom?: string;
+            validFrom: string;
             /** Format: date */
-            validUntil?: string;
-            applicableTiers?: string[];
+            validUntil?: string | null;
+            applicableTiers?: (string | null)[] | null;
             /** Format: int32 */
-            minStudents?: number;
+            minStudents?: number | null;
             /** Format: uuid */
-            createdBy?: string;
+            createdBy: string;
             /** Format: date-time */
-            createdAt?: string;
+            createdAt: string;
             /** Format: date-time */
-            updatedAt?: string;
-            isActive?: boolean;
+            updatedAt: string;
+            isActive: boolean;
         };
         UpdateSchoolSubscriptionRequest: {
             /** Format: date */
@@ -4193,38 +4193,38 @@ export interface components {
         };
         SchoolSubscriptionResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            schoolId?: string;
-            schoolName?: string;
+            schoolId: string;
+            schoolName: string;
             /** Format: uuid */
-            planId?: string;
-            planName?: string;
-            planTier?: string;
-            status?: string;
+            planId: string;
+            planName: string;
+            planTier: string;
+            status: string;
             /** Format: date */
-            startDate?: string;
+            startDate: string;
             /** Format: date */
-            endDate?: string;
+            endDate: string;
             /** Format: int32 */
-            studentLimit?: number;
+            studentLimit: number;
             /** Format: int32 */
-            activeStudentCount?: number;
-            totalAmount?: number;
-            amountPaid?: number;
-            outstandingBalance?: number;
+            activeStudentCount: number;
+            totalAmount: number;
+            amountPaid: number;
+            outstandingBalance: number;
             /** Format: int32 */
-            gracePeriodDays?: number;
-            notes?: string;
+            gracePeriodDays: number;
+            notes?: string | null;
             /** Format: int32 */
-            daysUntilExpiry?: number;
+            daysUntilExpiry?: number | null;
             /** Format: double */
-            studentUsagePercent?: number;
+            studentUsagePercent?: number | null;
             /** Format: date-time */
-            createdAt?: string;
+            createdAt: string;
             /** Format: date-time */
-            updatedAt?: string;
-            isAutoRenew?: boolean;
+            updatedAt: string;
+            isAutoRenew: boolean;
         };
         UpdateSchoolAdminRequest: {
             firstName: string;
@@ -4250,7 +4250,7 @@ export interface components {
             /** Format: uuid */
             studentId: string;
             status: string;
-            notes?: string;
+            notes?: string | null;
         };
         InviteUserRequest: {
             email?: string;
@@ -4292,21 +4292,21 @@ export interface components {
         };
         TimetableConfigResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            schoolId?: string;
+            schoolId: string;
             /** Format: uuid */
-            sessionId?: string;
+            sessionId: string;
             /** Format: int32 */
-            periodsPerDay?: number;
+            periodsPerDay: number;
             /** Format: int32 */
-            periodDuration?: number;
-            startTime?: components["schemas"]["LocalTime"];
+            periodDuration: number;
+            startTime: components["schemas"]["LocalTime"];
             /** Format: int32 */
-            breakAfter?: number;
+            breakAfter?: number | null;
             /** Format: int32 */
-            breakDuration?: number;
-            days?: string[];
+            breakDuration?: number | null;
+            days: string[];
         };
         UpgradeRequest: {
             /** Format: int32 */
@@ -4336,12 +4336,12 @@ export interface components {
             guardians?: components["schemas"]["GuardianInfo"][];
         };
         GuardianInfo: {
-            firstName?: string;
-            lastName?: string;
-            email?: string;
-            phone?: string;
-            relationship?: string;
-            emergencyContact?: boolean;
+            firstName: string;
+            lastName: string;
+            email: string;
+            phone: string;
+            relationship: string;
+            isEmergencyContact: boolean;
         };
         LinkParentRequest: {
             parentUserId?: string;
@@ -4389,23 +4389,23 @@ export interface components {
         };
         PromotionResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            studentId?: string;
-            studentName?: string;
-            admissionNumber?: string;
+            studentId: string;
+            studentName: string;
+            admissionNumber: string;
             /** Format: uuid */
-            fromClassId?: string;
-            fromClassName?: string;
+            fromClassId: string;
+            fromClassName: string;
             /** Format: uuid */
-            toClassId?: string;
-            toClassName?: string;
+            toClassId?: string | null;
+            toClassName?: string | null;
             /** Format: uuid */
-            sessionId?: string;
-            status?: string;
-            remarks?: string;
+            sessionId: string;
+            status: string;
+            remarks?: string | null;
             /** Format: date-time */
-            createdAt?: string;
+            createdAt: string;
         };
         RecordPickupRequest: {
             /** Format: uuid */
@@ -4424,22 +4424,22 @@ export interface components {
         };
         PickupLogResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            schoolId?: string;
+            schoolId: string;
             /** Format: uuid */
-            studentId?: string;
+            studentId: string;
             /** Format: uuid */
-            authorizationId?: string;
-            pickedUpByName?: string;
+            authorizationId?: string | null;
+            pickedUpByName: string;
             /** Format: uuid */
-            verifiedBy?: string;
+            verifiedBy?: string | null;
             /** Format: date-time */
-            pickupTime?: string;
-            notes?: string;
-            status?: string;
+            pickupTime: string;
+            notes?: string | null;
+            status: string;
             /** Format: date-time */
-            createdAt?: string;
+            createdAt: string;
         };
         CreatePickupAuthorizationRequest: {
             /** Format: uuid */
@@ -4467,17 +4467,17 @@ export interface components {
         };
         MoodEntryResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            studentId?: string;
-            studentName?: string;
-            mood?: string;
-            note?: string;
+            studentId: string;
+            studentName: string;
+            mood: string;
+            note?: string | null;
             /** Format: date-time */
-            recordedAt?: string;
+            recordedAt: string;
             /** Format: uuid */
-            recordedBy?: string;
-            recordedByName?: string;
+            recordedBy: string;
+            recordedByName: string;
         };
         ApiResponseMigrationJobResponse: {
             status?: string;
@@ -4488,30 +4488,30 @@ export interface components {
         };
         MigrationJobResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            schoolId?: string;
-            type?: string;
-            fileUrl?: string;
-            status?: string;
+            schoolId: string;
+            type: string;
+            fileUrl: string;
+            status: string;
             /** Format: int32 */
-            totalRecords?: number;
+            totalRecords: number;
             /** Format: int32 */
-            processedRecords?: number;
+            processedRecords: number;
             /** Format: int32 */
-            failedRecords?: number;
-            errorReportUrl?: string;
-            fieldMapping?: string;
+            failedRecords: number;
+            errorReportUrl?: string | null;
+            fieldMapping?: string | null;
             /** Format: uuid */
-            initiatedBy?: string;
+            initiatedBy: string;
             /** Format: date-time */
-            startedAt?: string;
+            startedAt?: string | null;
             /** Format: date-time */
-            completedAt?: string;
+            completedAt?: string | null;
             /** Format: date-time */
-            createdAt?: string;
+            createdAt: string;
             /** Format: date-time */
-            updatedAt?: string;
+            updatedAt: string;
         };
         CreateHealthRecordRequest: {
             /** Format: uuid */
@@ -4590,24 +4590,24 @@ export interface components {
         };
         BusEnrollmentResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            schoolId?: string;
+            schoolId: string;
             /** Format: uuid */
-            busId?: string;
+            busId: string;
             /** Format: uuid */
-            studentId?: string;
-            studentName?: string;
-            busPlateNumber?: string;
-            routeName?: string;
-            pickupPoint?: string;
+            studentId: string;
+            studentName: string;
+            busPlateNumber: string;
+            routeName: string;
+            pickupPoint: string;
             /** Format: date-time */
-            enrolledAt?: string;
+            enrolledAt: string;
             /** Format: date-time */
-            createdAt?: string;
+            createdAt: string;
             /** Format: date-time */
-            updatedAt?: string;
-            isActive?: boolean;
+            updatedAt: string;
+            isActive: boolean;
         };
         AttendanceEntry: {
             /** Format: uuid */
@@ -4642,15 +4642,15 @@ export interface components {
         };
         AssessmentCommentResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            assessmentId?: string;
+            assessmentId: string;
             /** Format: uuid */
-            userId?: string;
-            userName?: string;
-            comment?: string;
+            userId: string;
+            userName: string;
+            comment: string;
             /** Format: date-time */
-            createdAt?: string;
+            createdAt: string;
         };
         CreateAnnouncementRequest: {
             title: string;
@@ -4679,36 +4679,36 @@ export interface components {
         };
         ConversationResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            schoolId?: string;
-            type?: string;
-            participants?: components["schemas"]["ParticipantInfo"][];
-            lastMessage?: components["schemas"]["MessageResponse"];
+            schoolId: string;
+            type: string;
+            participants: components["schemas"]["ParticipantInfo"][];
+            lastMessage: components["schemas"]["MessageResponse"];
             /** Format: date-time */
-            createdAt?: string;
+            createdAt: string;
             /** Format: date-time */
-            updatedAt?: string;
+            updatedAt: string;
         };
         MessageResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            conversationId?: string;
+            conversationId: string;
             /** Format: uuid */
-            senderId?: string;
-            senderName?: string;
-            content?: string;
-            attachmentUrls?: string[];
+            senderId: string;
+            senderName: string;
+            content: string;
+            attachmentUrls: string[];
             /** Format: date-time */
-            createdAt?: string;
-        };
+            createdAt: string;
+        } | null;
         ParticipantInfo: {
             /** Format: uuid */
-            userId?: string;
-            name?: string;
+            userId: string;
+            name: string;
             /** Format: date-time */
-            lastReadAt?: string;
+            lastReadAt?: string | null;
         };
         SendMessageRequest: {
             content: string;
@@ -4729,12 +4729,12 @@ export interface components {
             meta?: components["schemas"]["PageMeta"];
         };
         FileUploadResponse: {
-            fileId?: string;
-            fileName?: string;
-            fileUrl?: string;
-            contentType?: string;
+            fileId: string;
+            fileName: string;
+            fileUrl: string;
+            contentType: string;
             /** Format: int64 */
-            fileSize?: number;
+            fileSize: number;
         };
         VerifyOtpRequest: {
             otpReference: string;
@@ -4748,29 +4748,29 @@ export interface components {
             meta?: components["schemas"]["PageMeta"];
         };
         AuthResponse: {
-            accessToken?: string;
-            refreshToken?: string;
+            accessToken: string;
+            refreshToken: string;
             /** Format: int64 */
-            expiresIn?: number;
-            user?: components["schemas"]["UserInfo"];
+            expiresIn: number;
+            user: components["schemas"]["UserInfo"];
         };
         SchoolRoleInfo: {
             /** Format: uuid */
-            schoolId?: string;
-            schoolName?: string;
-            role?: string;
-            subscriptionStatus?: string;
-            isSchoolActive?: boolean;
+            schoolId: string;
+            schoolName: string;
+            role: string;
+            subscriptionStatus: string;
+            isSchoolActive: boolean;
         };
         UserInfo: {
             /** Format: uuid */
-            id?: string;
-            firstName?: string;
-            lastName?: string;
-            email?: string;
-            phone?: string;
-            avatarUrl?: string;
-            roles?: components["schemas"]["SchoolRoleInfo"][];
+            id: string;
+            firstName: string;
+            lastName: string;
+            email: string;
+            phone?: string | null;
+            avatarUrl?: string | null;
+            roles: components["schemas"]["SchoolRoleInfo"][];
         };
         RegisterRequest: {
             firstName: string;
@@ -4787,9 +4787,9 @@ export interface components {
             meta?: components["schemas"]["PageMeta"];
         };
         OtpResponse: {
-            otpReference?: string;
+            otpReference: string;
             /** Format: int32 */
-            expiresIn?: number;
+            expiresIn: number;
         };
         RefreshTokenRequest: {
             refreshToken: string;
@@ -4846,12 +4846,12 @@ export interface components {
         };
         BulkOperationResponse: {
             /** Format: int32 */
-            totalRequested?: number;
+            totalRequested: number;
             /** Format: int32 */
-            successCount?: number;
+            successCount: number;
             /** Format: int32 */
-            failureCount?: number;
-            results?: components["schemas"]["BulkOperationResult"][];
+            failureCount: number;
+            results: components["schemas"]["BulkOperationResult"][];
         };
         BulkOperationResult: {
             /** Format: uuid */
@@ -4910,11 +4910,11 @@ export interface components {
             meta?: components["schemas"]["PageMeta"];
         };
         ApplyDiscountResponse: {
-            originalAmount?: number;
-            discountAmount?: number;
-            finalAmount?: number;
-            discountName?: string;
-            discountCode?: string;
+            originalAmount: number;
+            discountAmount: number;
+            finalAmount: number;
+            discountName: string;
+            discountCode: string;
         };
         ApiResponseMapStringString: {
             status?: string;
@@ -4948,27 +4948,27 @@ export interface components {
         };
         SubscriptionPaymentResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            subscriptionId?: string;
+            subscriptionId: string;
             /** Format: uuid */
-            schoolId?: string;
-            amount?: number;
-            paymentType?: string;
-            paymentMethod?: string;
-            paymentReference?: string;
-            description?: string;
+            schoolId: string;
+            amount: number;
+            paymentType: string;
+            paymentMethod?: string | null;
+            paymentReference?: string | null;
+            description?: string | null;
             /** Format: date-time */
-            paidAt?: string;
+            paidAt?: string | null;
             /** Format: uuid */
-            recordedBy?: string;
-            recordedByName?: string;
+            recordedBy?: string | null;
+            recordedByName?: string | null;
             /** Format: int32 */
-            studentsAdded?: number;
+            studentsAdded: number;
             /** Format: int32 */
-            prorationMonths?: number;
+            prorationMonths?: number | null;
             /** Format: date-time */
-            createdAt?: string;
+            createdAt: string;
         };
         CreateSchoolAdminRequest: {
             email: string;
@@ -4992,18 +4992,18 @@ export interface components {
         };
         WelfareResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            studentId?: string;
-            studentName?: string;
-            status?: string;
-            notes?: string;
+            studentId: string;
+            studentName: string;
+            status: string;
+            notes?: string | null;
             /** Format: date */
-            date?: string;
+            date: string;
             /** Format: uuid */
-            recordedBy?: string;
+            recordedBy: string;
             /** Format: date-time */
-            createdAt?: string;
+            createdAt: string;
         };
         Pageable: {
             /** Format: int32 */
@@ -5042,15 +5042,15 @@ export interface components {
         };
         TeacherOverviewResponse: {
             /** Format: int64 */
-            totalTeachers?: number;
+            totalTeachers: number;
             /** Format: int64 */
-            activeTeachers?: number;
+            activeTeachers: number;
             /** Format: int64 */
-            inactiveTeachers?: number;
+            inactiveTeachers: number;
             /** Format: int64 */
-            suspendedTeachers?: number;
+            suspendedTeachers: number;
             /** Format: int64 */
-            classTeachers?: number;
+            classTeachers: number;
         };
         ApiResponseProrateCalculationResponse: {
             status?: string;
@@ -5061,15 +5061,15 @@ export interface components {
         };
         ProrateCalculationResponse: {
             /** Format: int32 */
-            additionalStudents?: number;
+            additionalStudents: number;
             /** Format: int32 */
-            remainingMonths?: number;
-            monthlyRatePerStudent?: number;
-            proratedAmount?: number;
+            remainingMonths: number;
+            monthlyRatePerStudent: number;
+            proratedAmount: number;
             /** Format: int32 */
-            newStudentLimit?: number;
-            newTotalAmount?: number;
-            breakdown?: string;
+            newStudentLimit: number;
+            newTotalAmount: number;
+            breakdown: string;
         };
         ApiResponsePageSubscriptionPaymentResponse: {
             status?: string;
@@ -5080,21 +5080,21 @@ export interface components {
         };
         PageSubscriptionPaymentResponse: {
             /** Format: int64 */
-            totalElements?: number;
+            totalElements: number;
             /** Format: int32 */
-            totalPages?: number;
-            first?: boolean;
+            totalPages: number;
+            first: boolean;
             /** Format: int32 */
-            numberOfElements?: number;
-            last?: boolean;
-            pageable?: components["schemas"]["PageableObject"];
+            numberOfElements: number;
+            last: boolean;
+            pageable: components["schemas"]["PageableObject"];
             /** Format: int32 */
-            size?: number;
-            content?: components["schemas"]["SubscriptionPaymentResponse"][];
+            size: number;
+            content: components["schemas"]["SubscriptionPaymentResponse"][];
             /** Format: int32 */
-            number?: number;
-            sort?: components["schemas"]["SortObject"][];
-            empty?: boolean;
+            number: number;
+            sort: components["schemas"]["SortObject"][];
+            empty: boolean;
         };
         PageableObject: {
             unpaged?: boolean;
@@ -5144,17 +5144,17 @@ export interface components {
         };
         AttendanceResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            studentId?: string;
+            studentId: string;
             /** Format: uuid */
-            classId?: string;
-            studentName?: string;
-            status?: string;
-            notes?: string;
+            classId: string;
+            studentName: string;
+            status: string;
+            notes?: string | null;
             /** Format: date */
-            date?: string;
-            syncedFromOffline?: boolean;
+            date: string;
+            syncedFromOffline: boolean;
         };
         ApiResponseStudentUsageResponse: {
             status?: string;
@@ -5165,12 +5165,12 @@ export interface components {
         };
         StudentUsageResponse: {
             /** Format: int64 */
-            activeStudents?: number;
+            activeStudents: number;
             /** Format: int32 */
-            studentLimit?: number;
+            studentLimit: number;
             /** Format: double */
-            usagePercent?: number;
-            hasSubscription?: boolean;
+            usagePercent: number;
+            hasSubscription: boolean;
         };
         ApiResponseListSessionResponse: {
             status?: string;
@@ -5188,12 +5188,12 @@ export interface components {
         };
         EligibleStudentResponse: {
             /** Format: uuid */
-            studentId?: string;
-            firstName?: string;
-            lastName?: string;
-            admissionNumber?: string;
-            averageScore?: number;
-            eligible?: boolean;
+            studentId: string;
+            firstName: string;
+            lastName: string;
+            admissionNumber: string;
+            averageScore?: number | null;
+            eligible: boolean;
         };
         ApiResponseListPickupAuthorizationResponse: {
             status?: string;
@@ -5259,17 +5259,17 @@ export interface components {
             meta?: components["schemas"]["PageMeta"];
         };
         FeeOverviewResponse: {
-            expectedAmount?: number;
-            realizedAmount?: number;
-            outstandingAmount?: number;
+            expectedAmount: number;
+            realizedAmount: number;
+            outstandingAmount: number;
             /** Format: int64 */
-            totalInvoices?: number;
+            totalInvoices: number;
             /** Format: int64 */
-            paidInvoices?: number;
+            paidInvoices: number;
             /** Format: int64 */
-            pendingInvoices?: number;
+            pendingInvoices: number;
             /** Format: int64 */
-            overdueInvoices?: number;
+            overdueInvoices: number;
         };
         ApiResponseListEventResponse: {
             status?: string;
@@ -5307,45 +5307,45 @@ export interface components {
             meta?: components["schemas"]["PageMeta"];
         };
         BusTrackingResponse: {
-            enrollment?: components["schemas"]["EnrollmentInfo"];
-            latestTrip?: components["schemas"]["TripInfo"];
-            studentTripStatus?: components["schemas"]["TripStudentInfo"];
+            enrollment: components["schemas"]["EnrollmentInfo"];
+            latestTrip: components["schemas"]["TripInfo"];
+            studentTripStatus: components["schemas"]["TripStudentInfo"];
         };
         EnrollmentInfo: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            busId?: string;
-            busPlateNumber?: string;
-            driverName?: string;
-            driverPhone?: string;
-            routeName?: string;
-            pickupPoint?: string;
+            busId: string;
+            busPlateNumber: string;
+            driverName: string;
+            driverPhone: string;
+            routeName: string;
+            pickupPoint: string;
         };
         TripInfo: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: date */
-            tripDate?: string;
+            tripDate: string;
             /** @enum {string} */
-            tripType?: "MORNING_PICKUP" | "AFTERNOON_DROP";
+            tripType: "MORNING_PICKUP" | "AFTERNOON_DROP";
             /** @enum {string} */
-            status?: "SCHEDULED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
-        };
+            status: "SCHEDULED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
+        } | null;
         TripStudentInfo: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            tripId?: string;
+            tripId: string;
             /** Format: uuid */
-            studentId?: string;
+            studentId: string;
             /** @enum {string} */
-            status?: "PENDING" | "BOARDED" | "DROPPED_OFF" | "ABSENT";
+            status: "PENDING" | "BOARDED" | "DROPPED_OFF" | "ABSENT";
             /** Format: date-time */
-            boardedAt?: string;
+            boardedAt?: string | null;
             /** Format: date-time */
-            droppedOffAt?: string;
-        };
+            droppedOffAt?: string | null;
+        } | null;
         ApiResponseListBusRouteResponse: {
             status?: string;
             message?: string;
@@ -5376,37 +5376,37 @@ export interface components {
         };
         AuditLogResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            schoolId?: string;
+            schoolId?: string | null;
             /** Format: uuid */
-            userId?: string;
-            userName?: string;
-            action?: string;
-            entityType?: string;
+            userId: string;
+            userName: string;
+            action: string;
+            entityType: string;
             /** Format: uuid */
-            entityId?: string;
-            details?: string;
+            entityId: string;
+            details?: string | null;
             /** Format: date-time */
-            createdAt?: string;
+            createdAt: string;
         };
         PageAuditLogResponse: {
             /** Format: int64 */
-            totalElements?: number;
+            totalElements: number;
             /** Format: int32 */
-            totalPages?: number;
-            first?: boolean;
+            totalPages: number;
+            first: boolean;
             /** Format: int32 */
-            numberOfElements?: number;
-            last?: boolean;
-            pageable?: components["schemas"]["PageableObject"];
+            numberOfElements: number;
+            last: boolean;
+            pageable: components["schemas"]["PageableObject"];
             /** Format: int32 */
-            size?: number;
-            content?: components["schemas"]["AuditLogResponse"][];
+            size: number;
+            content: components["schemas"]["AuditLogResponse"][];
             /** Format: int32 */
-            number?: number;
-            sort?: components["schemas"]["SortObject"][];
-            empty?: boolean;
+            number: number;
+            sort: components["schemas"]["SortObject"][];
+            empty: boolean;
         };
         ApiResponseAttendanceOverviewResponse: {
             status?: string;
@@ -5417,29 +5417,29 @@ export interface components {
         };
         AttendanceOverviewResponse: {
             /** Format: int64 */
-            totalStudents?: number;
+            totalStudents: number;
             /** Format: int64 */
-            presentCount?: number;
+            presentCount: number;
             /** Format: int64 */
-            absentCount?: number;
+            absentCount: number;
             /** Format: int64 */
-            lateCount?: number;
+            lateCount: number;
             /** Format: double */
-            attendanceRate?: number;
-            classSummaries?: components["schemas"]["ClassAttendanceSummary"][];
+            attendanceRate: number;
+            classSummaries: components["schemas"]["ClassAttendanceSummary"][];
         };
         ClassAttendanceSummary: {
             /** Format: uuid */
-            classId?: string;
-            className?: string;
+            classId: string;
+            className: string;
             /** Format: int64 */
-            present?: number;
+            present: number;
             /** Format: int64 */
-            absent?: number;
+            absent: number;
             /** Format: int64 */
-            late?: number;
+            late: number;
             /** Format: int64 */
-            total?: number;
+            total: number;
         };
         ApiResponseListAssessmentResponse: {
             status?: string;
@@ -5457,16 +5457,16 @@ export interface components {
         };
         GradeResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            studentId?: string;
+            studentId: string;
             /** Format: uuid */
-            assessmentId?: string;
-            studentName?: string;
-            admissionNumber?: string;
-            gradeLabel?: string;
-            remark?: string;
-            score?: number;
+            assessmentId: string;
+            studentName: string;
+            admissionNumber: string;
+            gradeLabel?: string | null;
+            remark?: string | null;
+            score: number;
         };
         ApiResponseListAssessmentCommentResponse: {
             status?: string;
@@ -5520,16 +5520,16 @@ export interface components {
         };
         TeacherDashboardResponse: {
             /** Format: int32 */
-            myClassesCount?: number;
+            myClassesCount: number;
             /** Format: int64 */
-            totalStudentsCount?: number;
+            totalStudentsCount: number;
             /** Format: double */
-            todayAttendanceRate?: number;
+            todayAttendanceRate: number;
             /** Format: int32 */
-            pendingHomeworkCount?: number;
-            classAttendance?: components["schemas"]["ClassAttendance"][];
-            upcomingAssignments?: components["schemas"]["UpcomingAssignment"][];
-            dailySchedule?: components["schemas"]["DailyScheduleItem"][];
+            pendingHomeworkCount: number;
+            classAttendance: components["schemas"]["ClassAttendance"][];
+            upcomingAssignments: components["schemas"]["UpcomingAssignment"][];
+            dailySchedule: components["schemas"]["DailyScheduleItem"][];
         };
         UpcomingAssignment: {
             id?: string;
@@ -5548,19 +5548,19 @@ export interface components {
             meta?: components["schemas"]["PageMeta"];
         };
         FeeSummary: {
-            totalBilled?: number;
-            totalCollected?: number;
-            totalOutstanding?: number;
+            totalBilled: number;
+            totalCollected: number;
+            totalOutstanding: number;
             /** Format: double */
-            collectionRate?: number;
+            collectionRate: number;
             /** Format: int64 */
-            totalInvoices?: number;
+            totalInvoices: number;
             /** Format: int64 */
-            paidInvoices?: number;
+            paidInvoices: number;
             /** Format: int64 */
-            pendingInvoices?: number;
+            pendingInvoices: number;
             /** Format: int64 */
-            overdueInvoices?: number;
+            overdueInvoices: number;
         };
         ApiResponseEnhancedTeacherDashboardResponse: {
             status?: string;
@@ -5579,9 +5579,9 @@ export interface components {
             /** Format: double */
             homeworkCompletionRate?: number;
             /** Format: double */
-            avgScore?: number;
+            avgScore?: number | null;
             /** Format: double */
-            scoreTrend?: number;
+            scoreTrend?: number | null;
             /** Format: double */
             riskScore?: number;
             riskFactors?: string[];
@@ -5597,35 +5597,35 @@ export interface components {
             /** Format: double */
             homeworkSubmissionRate?: number;
             /** Format: double */
-            avgScore?: number;
+            avgScore?: number | null;
             /** Format: int32 */
             atRiskCount?: number;
-            homeroom?: boolean;
+            isHomeroom?: boolean;
         };
         EnhancedTeacherDashboardResponse: {
-            todaySchedule?: components["schemas"]["ScheduleSlot"][];
+            todaySchedule: components["schemas"]["ScheduleSlot"][];
             /** Format: int32 */
-            myClassesCount?: number;
+            myClassesCount: number;
             /** Format: int64 */
-            totalStudentsCount?: number;
+            totalStudentsCount: number;
             /** Format: double */
-            todayAttendanceRate?: number;
+            todayAttendanceRate: number;
             /** Format: int32 */
-            todayPresentCount?: number;
+            todayPresentCount: number;
             /** Format: int32 */
-            todayAbsentCount?: number;
+            todayAbsentCount: number;
             /** Format: int32 */
-            todayLateCount?: number;
+            todayLateCount: number;
             /** Format: int32 */
-            pendingHomeworkToGrade?: number;
+            pendingHomeworkToGrade: number;
             /** Format: int32 */
-            overdueHomeworkCount?: number;
+            overdueHomeworkCount: number;
             /** Format: int32 */
-            unansweredParentMessages?: number;
-            atRiskStudents?: components["schemas"]["AtRiskStudent"][];
-            pendingGrading?: components["schemas"]["HomeworkItem"][];
-            recentAssignments?: components["schemas"]["HomeworkItem"][];
-            classPerformance?: components["schemas"]["ClassPerformance"][];
+            unansweredParentMessages: number;
+            atRiskStudents: components["schemas"]["AtRiskStudent"][];
+            pendingGrading: components["schemas"]["HomeworkItem"][];
+            recentAssignments: components["schemas"]["HomeworkItem"][];
+            classPerformance: components["schemas"]["ClassPerformance"][];
         };
         HomeworkItem: {
             /** Format: uuid */
@@ -5649,51 +5649,51 @@ export interface components {
             className?: string;
             subjectName?: string;
             attendanceMarked?: boolean;
-            homeroom?: boolean;
+            isHomeroom?: boolean;
         };
         AdminDashboardResponse: {
             /** Format: double */
-            todayAttendanceRate?: number;
+            todayAttendanceRate: number;
             /** Format: int64 */
-            todayPresentCount?: number;
+            todayPresentCount: number;
             /** Format: int64 */
-            todayAbsentCount?: number;
+            todayAbsentCount: number;
             /** Format: int64 */
-            todayLateCount?: number;
+            todayLateCount: number;
             /** Format: int64 */
-            teachersMarkedAttendance?: number;
+            teachersMarkedAttendance: number;
             /** Format: int64 */
-            totalTeachersWithClasses?: number;
+            totalTeachersWithClasses: number;
             /** Format: int64 */
-            unansweredParentMessages?: number;
-            feeCollectionRate?: number;
-            totalFeesBilled?: number;
-            totalFeesCollected?: number;
-            totalFeesOutstanding?: number;
+            unansweredParentMessages: number;
+            feeCollectionRate: number;
+            totalFeesBilled: number;
+            totalFeesCollected: number;
+            totalFeesOutstanding: number;
             /** Format: int64 */
-            totalStudents?: number;
+            totalStudents: number;
             /** Format: int64 */
-            activeStudents?: number;
+            activeStudents: number;
             /** Format: int64 */
-            totalTeachers?: number;
+            totalTeachers: number;
             /** Format: int64 */
-            totalClasses?: number;
+            totalClasses: number;
             /** Format: int64 */
-            totalParents?: number;
+            totalParents: number;
             /** Format: double */
-            parentEngagementRate?: number;
+            parentEngagementRate: number;
             /** Format: int64 */
-            homeworkAssignedThisWeek?: number;
+            homeworkAssignedThisWeek: number;
             /** Format: int64 */
-            announcementsSentToday?: number;
-            currentPhase?: string;
-            phaseMetrics?: components["schemas"]["PhaseMetrics"];
-            worstTeachers?: components["schemas"]["TeacherActivity"][];
-            worstClassesAttendance?: components["schemas"]["ClassAttendance"][];
-            worstStudentsAttendance?: components["schemas"]["StudentAttendance"][];
-            classesNoHomework?: components["schemas"]["ClassHomework"][];
-            unansweredThreads?: components["schemas"]["UnansweredThread"][];
-            alerts?: components["schemas"]["DashboardAlert"][];
+            announcementsSentToday: number;
+            currentPhase: string;
+            phaseMetrics: components["schemas"]["PhaseMetrics"];
+            worstTeachers: components["schemas"]["TeacherActivity"][];
+            worstClassesAttendance: components["schemas"]["ClassAttendance"][];
+            worstStudentsAttendance: components["schemas"]["StudentAttendance"][];
+            classesNoHomework: components["schemas"]["ClassHomework"][];
+            unansweredThreads: components["schemas"]["UnansweredThread"][];
+            alerts: components["schemas"]["DashboardAlert"][];
         };
         ApiResponseAdminDashboardResponse: {
             status?: string;
@@ -5711,34 +5711,34 @@ export interface components {
             daysSinceLastHomework?: number;
         };
         DashboardAlert: {
-            severity?: string;
-            title?: string;
-            message?: string;
+            severity: string;
+            title: string;
+            message: string;
         };
         PhaseMetrics: {
             /** Format: int64 */
-            newStudentsThisTerm?: number;
+            newStudentsThisTerm?: number | null;
             /** Format: int64 */
-            incompleteRegistrations?: number;
-            unpaidFeesCount?: number;
+            incompleteRegistrations?: number | null;
+            unpaidFeesCount?: number | null;
             /** Format: double */
-            termAttendanceTrend?: number;
+            termAttendanceTrend?: number | null;
             /** Format: double */
-            homeworkCompletionRate?: number;
+            homeworkCompletionRate?: number | null;
             /** Format: double */
-            parentWeeklyEngagement?: number;
+            parentWeeklyEngagement?: number | null;
             /** Format: int64 */
-            assessmentsCreated?: number;
+            assessmentsCreated?: number | null;
             /** Format: int64 */
-            assessmentsGraded?: number;
+            assessmentsGraded?: number | null;
             /** Format: double */
-            assessmentCoverage?: number;
-            termFeeCollectionRate?: number;
+            assessmentCoverage?: number | null;
+            termFeeCollectionRate?: number | null;
             /** Format: int64 */
-            reportCardsGenerated?: number;
+            reportCardsGenerated?: number | null;
             /** Format: double */
-            avgTermScore?: number;
-        };
+            avgTermScore?: number | null;
+        } | null;
         StudentAttendance: {
             /** Format: uuid */
             studentId?: string;
@@ -5782,26 +5782,26 @@ export interface components {
         };
         DashboardResponse: {
             /** Format: int64 */
-            totalStudents?: number;
+            totalStudents: number;
             /** Format: int64 */
-            activeStudents?: number;
+            activeStudents: number;
             /** Format: double */
-            todayAttendanceRate?: number;
+            todayAttendanceRate: number;
             /** Format: int64 */
-            todayPresentCount?: number;
+            todayPresentCount: number;
             /** Format: int64 */
-            todayAbsentCount?: number;
-            totalFeesBilled?: number;
-            totalFeesCollected?: number;
-            totalFeesOutstanding?: number;
+            todayAbsentCount: number;
+            totalFeesBilled: number;
+            totalFeesCollected: number;
+            totalFeesOutstanding: number;
             /** Format: double */
-            feeCollectionRate?: number;
+            feeCollectionRate: number;
             /** Format: int64 */
-            activeEmergencyAlerts?: number;
+            activeEmergencyAlerts: number;
             /** Format: int64 */
-            totalClasses?: number;
+            totalClasses: number;
             /** Format: int64 */
-            totalTeachers?: number;
+            totalTeachers: number;
         };
         ApiResponseAttendanceSummary: {
             status?: string;
@@ -5812,16 +5812,16 @@ export interface components {
         };
         AttendanceSummary: {
             /** Format: int64 */
-            totalRecords?: number;
+            totalRecords: number;
             /** Format: int64 */
-            presentCount?: number;
+            presentCount: number;
             /** Format: int64 */
-            absentCount?: number;
+            absentCount: number;
             /** Format: int64 */
-            lateCount?: number;
+            lateCount: number;
             /** Format: double */
-            attendanceRate?: number;
-            dailyBreakdown?: components["schemas"]["DailyAttendance"][];
+            attendanceRate: number;
+            dailyBreakdown: components["schemas"]["DailyAttendance"][];
         };
         DailyAttendance: {
             date?: string;
@@ -5836,13 +5836,13 @@ export interface components {
         };
         AcademicSummary: {
             /** Format: int32 */
-            totalAssessments?: number;
+            totalAssessments: number;
             /** Format: int32 */
-            totalGradesRecorded?: number;
-            averageScore?: number;
-            highestScore?: number;
-            lowestScore?: number;
-            subjectBreakdown?: components["schemas"]["SubjectPerformance"][];
+            totalGradesRecorded: number;
+            averageScore: number;
+            highestScore: number;
+            lowestScore: number;
+            subjectBreakdown: components["schemas"]["SubjectPerformance"][];
         };
         ApiResponseAcademicSummary: {
             status?: string;
@@ -5861,12 +5861,12 @@ export interface components {
             lowestScore?: number;
         };
         ActivityFeedResponse: {
-            type?: string;
-            title?: string;
-            description?: string;
-            actorName?: string;
+            type: string;
+            title: string;
+            description?: string | null;
+            actorName: string;
             /** Format: date-time */
-            timestamp?: string;
+            timestamp: string;
         };
         ApiResponseListActivityFeedResponse: {
             status?: string;
@@ -5877,12 +5877,12 @@ export interface components {
         };
         AcademicOverview: {
             /** Format: double */
-            overallAverage?: number;
-            grade?: string;
+            overallAverage?: number | null;
+            grade?: string | null;
             /** Format: int32 */
-            classPosition?: number;
+            classPosition?: number | null;
             /** Format: int32 */
-            classSize?: number;
+            classSize?: number | null;
             /** Format: int32 */
             subjectsAboveAvg?: number;
             /** Format: int32 */
@@ -5890,7 +5890,7 @@ export interface components {
             /** Format: int32 */
             subjectsDeclining?: number;
             subjectsNeedingAttention?: string[];
-        };
+        } | null;
         AnnouncementItem: {
             /** Format: uuid */
             id?: string;
@@ -5917,46 +5917,46 @@ export interface components {
             totalSchoolDays?: number;
             /** Format: double */
             attendanceRate?: number;
-            todayStatus?: string;
-        };
+            todayStatus?: string | null;
+        } | null;
         ChildSummary: {
             /** Format: uuid */
-            studentId?: string;
-            name?: string;
-            className?: string;
-            attendance?: string;
-            recentGrade?: string;
+            studentId: string;
+            name: string;
+            className: string;
+            attendance?: string | null;
+            recentGrade?: string | null;
         };
         EventItem: {
             /** Format: uuid */
             id?: string;
             title?: string;
-            description?: string;
+            description?: string | null;
             /** Format: date */
             startDate?: string;
             /** Format: date */
-            endDate?: string;
-            location?: string;
+            endDate?: string | null;
+            location?: string | null;
         };
         ParentDashboardResponse: {
             /** Format: int32 */
-            childrenCount?: number;
-            todayAttendance?: string;
+            childrenCount: number;
+            todayAttendance: string;
             /** Format: int32 */
-            pendingFees?: number;
+            pendingFees: number;
             /** Format: int32 */
-            pendingHomework?: number;
-            children?: components["schemas"]["ChildSummary"][];
-            upcomingFees?: components["schemas"]["UpcomingFee"][];
-            recentHomework?: components["schemas"]["RecentHomework"][];
-            academicPerformance?: components["schemas"]["AcademicOverview"];
-            attendanceMetrics?: components["schemas"]["AttendanceOverview"];
-            subjectPerformance?: components["schemas"]["SubjectPerformanceItem"][];
-            recentAssessments?: components["schemas"]["RecentAssessmentItem"][];
-            recentAnnouncements?: components["schemas"]["AnnouncementItem"][];
-            upcomingEvents?: components["schemas"]["EventItem"][];
+            pendingHomework: number;
+            children: components["schemas"]["ChildSummary"][];
+            upcomingFees: components["schemas"]["UpcomingFee"][];
+            recentHomework: components["schemas"]["RecentHomework"][];
+            academicPerformance: components["schemas"]["AcademicOverview"];
+            attendanceMetrics: components["schemas"]["AttendanceOverview"];
+            subjectPerformance: components["schemas"]["SubjectPerformanceItem"][];
+            recentAssessments: components["schemas"]["RecentAssessmentItem"][];
+            recentAnnouncements: components["schemas"]["AnnouncementItem"][];
+            upcomingEvents: components["schemas"]["EventItem"][];
             /** Format: int32 */
-            unreadMessages?: number;
+            unreadMessages: number;
         };
         RecentAssessmentItem: {
             /** Format: uuid */
@@ -5965,13 +5965,13 @@ export interface components {
             subjectName?: string;
             type?: string;
             /** Format: double */
-            score?: number;
+            score?: number | null;
             /** Format: double */
-            maxScore?: number;
+            maxScore?: number | null;
             /** Format: double */
-            percentage?: number;
+            percentage?: number | null;
             /** Format: double */
-            classAverage?: number;
+            classAverage?: number | null;
             /** Format: date */
             date?: string;
         };
@@ -5986,16 +5986,16 @@ export interface components {
         SubjectPerformanceItem: {
             subjectName?: string;
             /** Format: double */
-            studentAvg?: number;
+            studentAvg?: number | null;
             /** Format: double */
-            classAvg?: number;
-            grade?: string;
+            classAvg?: number | null;
+            grade?: string | null;
             /** Format: int32 */
             assessmentCount?: number;
             belowClassAvg?: boolean;
             declining?: boolean;
             /** Format: double */
-            trend?: number;
+            trend?: number | null;
         };
         UpcomingFee: {
             childName?: string;
@@ -6014,18 +6014,18 @@ export interface components {
         };
         ChildResponse: {
             /** Format: uuid */
-            studentId?: string;
+            studentId: string;
             /** Format: uuid */
-            schoolId?: string;
+            schoolId: string;
             /** Format: uuid */
-            classId?: string;
-            firstName?: string;
-            lastName?: string;
-            schoolName?: string;
-            className?: string;
-            admissionNumber?: string;
-            photoUrl?: string;
-            status?: string;
+            classId?: string | null;
+            firstName: string;
+            lastName: string;
+            schoolName: string;
+            className?: string | null;
+            admissionNumber: string;
+            photoUrl?: string | null;
+            status: string;
         };
         ApiResponseListNotificationResponse: {
             status?: string;
@@ -6078,17 +6078,17 @@ export interface components {
         };
         SubscriptionDashboardResponse: {
             /** Format: int64 */
-            totalActiveSubscriptions?: number;
+            totalActiveSubscriptions: number;
             /** Format: int64 */
-            totalGracePeriodSubscriptions?: number;
+            totalGracePeriodSubscriptions: number;
             /** Format: int64 */
-            totalExpiredSubscriptions?: number;
+            totalExpiredSubscriptions: number;
             /** Format: int64 */
-            totalPendingSubscriptions?: number;
-            totalRevenue?: number;
-            totalOutstanding?: number;
-            expiringWithin30Days?: components["schemas"]["SchoolSubscriptionResponse"][];
-            inGracePeriod?: components["schemas"]["SchoolSubscriptionResponse"][];
+            totalPendingSubscriptions: number;
+            totalRevenue: number;
+            totalOutstanding: number;
+            expiringWithin30Days: components["schemas"]["SchoolSubscriptionResponse"][];
+            inGracePeriod: components["schemas"]["SchoolSubscriptionResponse"][];
         };
         ApiResponseListSchoolSummary: {
             status?: string;
@@ -6099,21 +6099,21 @@ export interface components {
         };
         SchoolSummary: {
             /** Format: uuid */
-            id?: string;
-            name?: string;
-            code?: string;
-            city?: string;
-            state?: string;
-            subscriptionTier?: string;
+            id: string;
+            name: string;
+            code: string;
+            city?: string | null;
+            state?: string | null;
+            subscriptionTier?: string | null;
             /** Format: int64 */
-            studentCount?: number;
+            studentCount: number;
             /** Format: int64 */
-            teacherCount?: number;
+            teacherCount: number;
             /** Format: int64 */
-            adminCount?: number;
+            adminCount: number;
             /** Format: date-time */
-            createdAt?: string;
-            isActive?: boolean;
+            createdAt: string;
+            isActive: boolean;
         };
         ApiResponseSchoolDetailResponse: {
             status?: string;
@@ -6124,38 +6124,38 @@ export interface components {
         };
         SchoolDetailResponse: {
             /** Format: uuid */
-            id?: string;
-            name?: string;
-            code?: string;
-            logoUrl?: string;
-            primaryColor?: string;
-            secondaryColor?: string;
-            address?: string;
-            city?: string;
-            state?: string;
-            phone?: string;
-            email?: string;
-            subscriptionTier?: string;
+            id: string;
+            name: string;
+            code: string;
+            logoUrl?: string | null;
+            primaryColor?: string | null;
+            secondaryColor?: string | null;
+            address?: string | null;
+            city?: string | null;
+            state?: string | null;
+            phone?: string | null;
+            email?: string | null;
+            subscriptionTier?: string | null;
             /** Format: date-time */
-            createdAt?: string;
+            createdAt: string;
             /** Format: date-time */
-            updatedAt?: string;
+            updatedAt: string;
             /** Format: int64 */
-            studentCount?: number;
+            studentCount: number;
             /** Format: int64 */
-            teacherCount?: number;
+            teacherCount: number;
             /** Format: int64 */
-            adminCount?: number;
+            adminCount: number;
             /** Format: int64 */
-            parentCount?: number;
+            parentCount: number;
             /** Format: int64 */
-            classCount?: number;
+            classCount: number;
             /** Format: int64 */
-            subjectCount?: number;
+            subjectCount: number;
             /** Format: int64 */
-            activeSessionCount?: number;
-            admins?: components["schemas"]["UserResponse"][];
-            isActive?: boolean;
+            activeSessionCount: number;
+            admins: components["schemas"]["UserResponse"][];
+            isActive: boolean;
         };
         ApiResponseListSchoolResponse: {
             status?: string;
@@ -6173,81 +6173,81 @@ export interface components {
         };
         SchoolHealthSummary: {
             /** Format: uuid */
-            id?: string;
-            name?: string;
-            code?: string;
-            city?: string;
-            state?: string;
-            subscriptionTier?: string;
+            id: string;
+            name: string;
+            code: string;
+            city: string;
+            state: string;
+            subscriptionTier: string;
             /** Format: int64 */
-            studentCount?: number;
+            studentCount: number;
             /** Format: int64 */
-            teacherCount?: number;
+            teacherCount: number;
             /** Format: int64 */
-            parentCount?: number;
+            parentCount: number;
             /** Format: double */
-            todayAttendanceRate?: number;
+            todayAttendanceRate: number;
             /** Format: double */
-            feeCollectionRate?: number;
+            feeCollectionRate: number;
             /** Format: int64 */
-            messagesThisWeek?: number;
+            messagesThisWeek: number;
             /** Format: double */
-            parentActivationRate?: number;
-            subscriptionStatus?: string;
+            parentActivationRate: number;
+            subscriptionStatus?: string | null;
             /** Format: int32 */
-            daysUntilExpiry?: number;
+            daysUntilExpiry?: number | null;
             /** Format: date-time */
-            createdAt?: string;
+            createdAt: string;
             /** Format: date-time */
-            lastActivityAt?: string;
-            isActive?: boolean;
-            isFullySetUp?: boolean;
+            lastActivityAt?: string | null;
+            isActive: boolean;
+            isFullySetUp: boolean;
         };
         SystemDashboardResponse: {
             /** Format: int64 */
-            totalSchools?: number;
+            totalSchools: number;
             /** Format: int64 */
-            activeSchools?: number;
+            activeSchools: number;
             /** Format: int64 */
-            totalStudents?: number;
+            totalStudents: number;
             /** Format: int64 */
-            totalTeachers?: number;
+            totalTeachers: number;
             /** Format: int64 */
-            totalParents?: number;
+            totalParents: number;
             /** Format: int64 */
-            totalUsers?: number;
-            mrr?: number;
-            totalRevenue?: number;
-            totalOutstanding?: number;
-            revenuePerStudent?: number;
+            totalUsers: number;
+            mrr: number;
+            totalRevenue: number;
+            totalOutstanding: number;
+            revenuePerStudent: number;
             /** Format: int64 */
-            activeSubscriptions?: number;
+            activeSubscriptions: number;
             /** Format: int64 */
-            gracePeriodSubscriptions?: number;
+            gracePeriodSubscriptions: number;
             /** Format: int64 */
-            expiredSubscriptions?: number;
+            expiredSubscriptions: number;
             /** Format: int64 */
-            fullySetUpSchools?: number;
+            fullySetUpSchools: number;
             /** Format: double */
-            avgDaysToFirstAttendance?: number;
+            avgDaysToFirstAttendance?: number | null;
             /** Format: int64 */
-            studentsAddedThisMonth?: number;
+            studentsAddedThisMonth: number;
             /** Format: int64 */
-            studentsRemovedThisMonth?: number;
+            studentsRemovedThisMonth: number;
             /** Format: int64 */
-            netStudentGrowth?: number;
+            netStudentGrowth: number;
             /** Format: double */
-            teacherAttendanceRate?: number;
+            teacherAttendanceRate: number;
             /** Format: double */
-            parentActivationRate?: number;
+            parentActivationRate: number;
             /** Format: double */
-            weeklyActiveParentRate?: number;
+            weeklyActiveParentRate: number;
             /** Format: double */
-            homeworkCompletionRate?: number;
+            homeworkCompletionRate: number;
             /** Format: int64 */
-            messagesToday?: number;
-            schoolSummaries?: components["schemas"]["SchoolHealthSummary"][];
-            alerts?: components["schemas"]["DashboardAlert"][];
+            messagesToday: number;
+            schoolSummaries: components["schemas"]["SchoolHealthSummary"][];
+            alerts: components["schemas"]["DashboardAlert"][];
         };
     };
     responses: never;

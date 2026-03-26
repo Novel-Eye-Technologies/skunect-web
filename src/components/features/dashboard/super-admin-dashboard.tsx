@@ -372,7 +372,7 @@ export function SuperAdminDashboard() {
                           className="text-xs"
                         >
                           {school.subscriptionStatus.replace('_', ' ')}
-                          {school.daysUntilExpiry !== null && school.daysUntilExpiry <= 30 && (
+                          {school.daysUntilExpiry != null && school.daysUntilExpiry <= 30 && (
                             <span className="ml-1">({school.daysUntilExpiry}d)</span>
                           )}
                         </Badge>

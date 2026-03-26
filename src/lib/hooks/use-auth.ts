@@ -20,6 +20,7 @@ import type {
   VerifyOtpRequest,
   GoogleOAuthRequest,
   RefreshTokenRequest,
+  UserInfo,
 } from '@/lib/types/auth';
 import { queryClient } from '@/lib/query-client';
 
@@ -80,9 +81,9 @@ export function useVerifyOtp() {
     mutationFn: (data: VerifyOtpRequest) => verifyOtp(data),
     onSuccess: (response) => {
       if (response.status === 'SUCCESS') {
-        const { accessToken, refreshToken, user } = response.data;
-        setTokens(accessToken, refreshToken);
-        setUser(user);
+        const data = response.data;
+        setTokens(data.accessToken!, data.refreshToken!);
+        setUser(data.user as UserInfo);
         queryClient.invalidateQueries({ queryKey: authKeys.me() });
       }
     },
@@ -99,9 +100,9 @@ export function useGoogleOAuth() {
     mutationFn: (data: GoogleOAuthRequest) => googleOAuth(data),
     onSuccess: (response) => {
       if (response.status === 'SUCCESS') {
-        const { accessToken, refreshToken, user } = response.data;
-        setTokens(accessToken, refreshToken);
-        setUser(user);
+        const data = response.data;
+        setTokens(data.accessToken!, data.refreshToken!);
+        setUser(data.user as UserInfo);
         queryClient.invalidateQueries({ queryKey: authKeys.me() });
         router.push('/dashboard');
       }
@@ -117,8 +118,7 @@ export function useRefreshToken() {
     mutationFn: (data: RefreshTokenRequest) => refreshTokenApi(data),
     onSuccess: (response) => {
       if (response.status === 'SUCCESS') {
-        const { accessToken, refreshToken } = response.data;
-        setTokens(accessToken, refreshToken);
+        setTokens(response.data.accessToken!, response.data.refreshToken!);
       }
     },
   });

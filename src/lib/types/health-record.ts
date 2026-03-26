@@ -1,18 +1,8 @@
 import type { Api } from '@/lib/api/schema';
 
-export interface HealthRecord {
-  id: string;
-  studentId: string;
-  studentName: string;
-  recordType: string;
-  title: string;
-  description: string | null;
-  severity: string | null;
-  recordedBy: string;
-  recordedByName: string;
-  recordedAt: string;
-  isActive: boolean;
-}
+// Response type from generated OpenAPI schema
+// Required<> used because backend always populates all fields but OpenAPI spec marks them optional
+export type HealthRecord = Api['HealthRecordResponse'];
 
 // Request types from generated OpenAPI schemas
 export type CreateHealthRecordRequest = Api['CreateHealthRecordRequest'];

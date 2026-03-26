@@ -10027,13 +10027,18 @@
         }
       },
       "ErrorDetail": {
+        "required": [
+          "code",
+          "message"
+        ],
         "type": "object",
         "properties": {
           "code": {
             "type": "string"
           },
           "field": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "message": {
             "type": "string"
@@ -10041,6 +10046,12 @@
         }
       },
       "PageMeta": {
+        "required": [
+          "page",
+          "size",
+          "totalElements",
+          "totalPages"
+        ],
         "type": "object",
         "properties": {
           "page": {
@@ -10062,6 +10073,16 @@
         }
       },
       "UserResponse": {
+        "required": [
+          "createdAt",
+          "email",
+          "firstName",
+          "id",
+          "isActive",
+          "lastName",
+          "roles",
+          "status"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -10072,7 +10093,8 @@
             "type": "string"
           },
           "phone": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "firstName": {
             "type": "string"
@@ -10081,14 +10103,16 @@
             "type": "string"
           },
           "avatarUrl": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "status": {
             "type": "string"
           },
           "lastLogin": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "nullable": true
           },
           "createdAt": {
             "type": "string",
@@ -10106,6 +10130,11 @@
         }
       },
       "UserRoleResponse": {
+        "required": [
+          "isActive",
+          "role",
+          "schoolId"
+        ],
         "type": "object",
         "properties": {
           "schoolId": {
@@ -10174,6 +10203,21 @@
         }
       },
       "SchoolResponse": {
+        "required": [
+          "address",
+          "city",
+          "code",
+          "createdAt",
+          "email",
+          "id",
+          "isActive",
+          "name",
+          "phone",
+          "primaryColor",
+          "secondaryColor",
+          "subscriptionTier",
+          "updatedAt"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -10187,7 +10231,8 @@
             "type": "string"
           },
           "logoUrl": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "primaryColor": {
             "type": "string"
@@ -10202,7 +10247,8 @@
             "type": "string"
           },
           "state": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "phone": {
             "type": "string"
@@ -10215,7 +10261,8 @@
           },
           "currentTermId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "createdAt": {
             "type": "string",
@@ -10301,6 +10348,13 @@
         }
       },
       "TimetableSlotResponse": {
+        "required": [
+          "classId",
+          "dayOfWeek",
+          "id",
+          "periodNumber",
+          "sessionId"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -10313,11 +10367,13 @@
           },
           "subjectId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "teacherId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "sessionId": {
             "type": "string",
@@ -10331,7 +10387,8 @@
             "format": "int32"
           },
           "label": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -10385,6 +10442,16 @@
         }
       },
       "TermResponse": {
+        "required": [
+          "endDate",
+          "id",
+          "isClosed",
+          "isCurrent",
+          "name",
+          "schoolId",
+          "sessionId",
+          "startDate"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -10456,6 +10523,12 @@
         }
       },
       "SubjectResponse": {
+        "required": [
+          "code",
+          "id",
+          "name",
+          "schoolId"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -10552,6 +10625,18 @@
         }
       },
       "ParentLinkResponse": {
+        "required": [
+          "email",
+          "firstName",
+          "id",
+          "isApproved",
+          "isEmergencyContact",
+          "lastName",
+          "parentId",
+          "parentName",
+          "phone",
+          "relationship"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -10566,10 +10651,12 @@
             "type": "string"
           },
           "parentEmail": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "parentPhone": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "relationship": {
             "type": "string"
@@ -10580,21 +10667,36 @@
           "isApproved": {
             "type": "boolean"
           },
-          "firstName": {
-            "type": "string"
-          },
-          "lastName": {
+          "phone": {
             "type": "string"
           },
           "email": {
             "type": "string"
           },
-          "phone": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
             "type": "string"
           }
         }
       },
       "StudentResponse": {
+        "required": [
+          "admissionNumber",
+          "dateOfBirth",
+          "enrolledDate",
+          "firstName",
+          "gender",
+          "id",
+          "isActive",
+          "lastName",
+          "otherName",
+          "parents",
+          "photo",
+          "schoolId",
+          "status"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -10607,7 +10709,8 @@
           },
           "classId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "admissionNumber": {
             "type": "string"
@@ -10619,43 +10722,55 @@
             "type": "string"
           },
           "middleName": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "gender": {
             "type": "string"
           },
           "photoUrl": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "bloodGroup": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "genotype": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "healthNotes": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "address": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "stateOfOrigin": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "lga": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "religion": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "allergies": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "medicalConditions": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "className": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "dateOfBirth": {
             "type": "string",
@@ -10730,6 +10845,14 @@
         }
       },
       "SessionResponse": {
+        "required": [
+          "endDate",
+          "id",
+          "isCurrent",
+          "name",
+          "schoolId",
+          "startDate"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -10780,6 +10903,18 @@
         }
       },
       "ReportCardResponse": {
+        "required": [
+          "averageScore",
+          "classId",
+          "generatedAt",
+          "id",
+          "isPublished",
+          "schoolId",
+          "studentId",
+          "studentName",
+          "termId",
+          "totalScore"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -10810,24 +10945,29 @@
           },
           "positionInClass": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "totalStudents": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "teacherComment": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "adminComment": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "studentName": {
             "type": "string"
           },
           "publishedAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "nullable": true
           },
           "generatedAt": {
             "type": "string",
@@ -10889,6 +11029,16 @@
         }
       },
       "PickupAuthorizationResponse": {
+        "required": [
+          "authorizedBy",
+          "createdAt",
+          "id",
+          "isActive",
+          "pickupPersonName",
+          "qrCode",
+          "schoolId",
+          "studentId"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -10911,21 +11061,25 @@
             "type": "string"
           },
           "pickupPersonPhone": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "pickupPersonRelationship": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "qrCode": {
             "type": "string"
           },
           "validFrom": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "nullable": true
           },
           "validUntil": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "nullable": true
           },
           "createdAt": {
             "type": "string",
@@ -11003,6 +11157,22 @@
         }
       },
       "HomeworkResponse": {
+        "required": [
+          "assignedDate",
+          "classId",
+          "className",
+          "createdAt",
+          "createdBy",
+          "dueDate",
+          "id",
+          "schoolId",
+          "status",
+          "subjectId",
+          "subjectName",
+          "teacherId",
+          "teacherName",
+          "title"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -11038,7 +11208,8 @@
             "type": "string"
           },
           "description": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "dueDate": {
             "type": "string",
@@ -11050,24 +11221,29 @@
           },
           "maxScore": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "status": {
             "type": "string"
           },
           "attachmentUrls": {
             "type": "array",
+            "nullable": true,
             "items": {
-              "type": "string"
+              "type": "string",
+              "nullable": true
             }
           },
           "totalSubmissions": {
             "type": "integer",
-            "format": "int64"
+            "format": "int64",
+            "nullable": true
           },
           "totalStudents": {
             "type": "integer",
-            "format": "int64"
+            "format": "int64",
+            "nullable": true
           },
           "createdBy": {
             "type": "string"
@@ -11120,6 +11296,13 @@
         }
       },
       "SubmissionResponse": {
+        "required": [
+          "homeworkId",
+          "id",
+          "status",
+          "studentId",
+          "studentName"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -11141,18 +11324,22 @@
             "type": "string"
           },
           "teacherNotes": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "score": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "feedback": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "submittedAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "nullable": true
           }
         }
       },
@@ -11200,6 +11387,18 @@
         }
       },
       "HealthRecordResponse": {
+        "required": [
+          "id",
+          "isActive",
+          "recordType",
+          "recordedAt",
+          "recordedBy",
+          "recordedByName",
+          "severity",
+          "studentId",
+          "studentName",
+          "title"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -11220,7 +11419,8 @@
             "type": "string"
           },
           "description": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "severity": {
             "type": "string"
@@ -11236,7 +11436,7 @@
             "type": "string",
             "format": "date-time"
           },
-          "active": {
+          "isActive": {
             "type": "boolean"
           }
         }
@@ -11256,7 +11456,7 @@
               "$ref": "#/components/schemas/GradingScaleEntry"
             }
           },
-          "default": {
+          "isDefault": {
             "type": "boolean"
           }
         }
@@ -11279,7 +11479,8 @@
             "type": "number"
           },
           "remark": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -11307,6 +11508,12 @@
         }
       },
       "GradingScaleResponse": {
+        "required": [
+          "gradeLabel",
+          "id",
+          "maxScore",
+          "minScore"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -11323,11 +11530,19 @@
             "type": "number"
           },
           "remark": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           }
         }
       },
       "GradingSystemResponse": {
+        "required": [
+          "id",
+          "isDefault",
+          "name",
+          "scales",
+          "schoolId"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -11380,7 +11595,7 @@
           "breakdown": {
             "type": "string"
           },
-          "mandatory": {
+          "isMandatory": {
             "type": "boolean"
           }
         }
@@ -11409,6 +11624,13 @@
         }
       },
       "FeeStructureResponse": {
+        "required": [
+          "amount",
+          "id",
+          "isMandatory",
+          "name",
+          "schoolId"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -11421,11 +11643,13 @@
           },
           "classId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "termId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "name": {
             "type": "string"
@@ -11435,13 +11659,16 @@
           },
           "deadline": {
             "type": "string",
-            "format": "date"
+            "format": "date",
+            "nullable": true
           },
           "breakdown": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "amountInWords": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "isMandatory": {
             "type": "boolean"
@@ -11483,6 +11710,17 @@
         }
       },
       "FeeInvoiceResponse": {
+        "required": [
+          "amountPaid",
+          "balance",
+          "id",
+          "invoiceNumber",
+          "schoolId",
+          "status",
+          "studentId",
+          "termId",
+          "totalAmount"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -11518,7 +11756,8 @@
           },
           "dueDate": {
             "type": "string",
-            "format": "date"
+            "format": "date",
+            "nullable": true
           }
         }
       },
@@ -11589,6 +11828,12 @@
         }
       },
       "CoordinatorInfo": {
+        "required": [
+          "id",
+          "role",
+          "teacherId",
+          "teacherName"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -11608,6 +11853,19 @@
         }
       },
       "EventResponse": {
+        "required": [
+          "coordinators",
+          "createdAt",
+          "createdBy",
+          "createdByName",
+          "endTime",
+          "id",
+          "schoolId",
+          "startTime",
+          "status",
+          "title",
+          "visibility"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -11622,7 +11880,8 @@
             "type": "string"
           },
           "description": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "startTime": {
             "type": "string",
@@ -11633,18 +11892,22 @@
             "format": "date-time"
           },
           "location": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "classId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "className": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "reminderMinutes": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "visibility": {
             "type": "string"
@@ -11695,6 +11958,17 @@
         }
       },
       "EmergencyAlertResponse": {
+        "required": [
+          "createdAt",
+          "id",
+          "initiatedBy",
+          "isActive",
+          "message",
+          "schoolId",
+          "severity",
+          "title",
+          "updatedAt"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -11720,7 +11994,8 @@
           },
           "resolvedAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "nullable": true
           },
           "createdAt": {
             "type": "string",
@@ -11786,6 +12061,14 @@
         }
       },
       "ClassResponse": {
+        "required": [
+          "capacity",
+          "gradeLevel",
+          "id",
+          "name",
+          "schoolId",
+          "sessionId"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -11812,10 +12095,12 @@
           },
           "classTeacherId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "classTeacherName": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -11856,6 +12141,14 @@
         }
       },
       "ClassSubjectResponse": {
+        "required": [
+          "classId",
+          "id",
+          "isClassTeacher",
+          "subjectCode",
+          "subjectId",
+          "subjectName"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -11878,17 +12171,21 @@
           },
           "teacherId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "teacherName": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "termId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "termName": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "isClassTeacher": {
             "type": "boolean"
@@ -11936,6 +12233,14 @@
         }
       },
       "BusTripStudentResponse": {
+        "required": [
+          "createdAt",
+          "id",
+          "status",
+          "studentId",
+          "tripId",
+          "updatedAt"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -11961,11 +12266,13 @@
           },
           "boardedAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "nullable": true
           },
           "droppedOffAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "nullable": true
           },
           "createdAt": {
             "type": "string",
@@ -12001,6 +12308,17 @@
         }
       },
       "BusTripResponse": {
+        "required": [
+          "busId",
+          "createdAt",
+          "id",
+          "schoolId",
+          "status",
+          "students",
+          "tripDate",
+          "tripType",
+          "updatedAt"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -12037,11 +12355,13 @@
           },
           "startedAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "nullable": true
           },
           "completedAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "nullable": true
           },
           "students": {
             "type": "array",
@@ -12104,6 +12424,15 @@
         }
       },
       "BusRouteResponse": {
+        "required": [
+          "createdAt",
+          "id",
+          "isActive",
+          "pickupPoints",
+          "routeName",
+          "schoolId",
+          "updatedAt"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -12118,7 +12447,8 @@
             "type": "string"
           },
           "description": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "pickupPoints": {
             "type": "array",
@@ -12193,6 +12523,19 @@
         }
       },
       "BusResponse": {
+        "required": [
+          "capacity",
+          "createdAt",
+          "driverName",
+          "driverPhone",
+          "id",
+          "isActive",
+          "plateNumber",
+          "routeId",
+          "routeName",
+          "schoolId",
+          "updatedAt"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -12293,6 +12636,17 @@
         }
       },
       "AssessmentResponse": {
+        "required": [
+          "classId",
+          "createdBy",
+          "id",
+          "maxScore",
+          "schoolId",
+          "subjectId",
+          "termId",
+          "title",
+          "type"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -12355,6 +12709,17 @@
         }
       },
       "AnnouncementResponse": {
+        "required": [
+          "content",
+          "createdAt",
+          "id",
+          "isPublished",
+          "readCount",
+          "schoolId",
+          "targetAudience",
+          "title",
+          "updatedAt"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -12373,8 +12738,10 @@
           },
           "attachmentUrls": {
             "type": "array",
+            "nullable": true,
             "items": {
-              "type": "string"
+              "type": "string",
+              "nullable": true
             }
           },
           "targetAudience": {
@@ -12382,18 +12749,22 @@
           },
           "targetClassId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "publishedBy": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "publishedByName": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "publishedAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "nullable": true
           },
           "readCount": {
             "type": "integer",
@@ -12459,6 +12830,15 @@
         }
       },
       "NotificationResponse": {
+        "required": [
+          "body",
+          "createdAt",
+          "id",
+          "isRead",
+          "status",
+          "title",
+          "type"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -12475,14 +12855,16 @@
             "type": "string"
           },
           "channel": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "status": {
             "type": "string"
           },
           "sentAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "nullable": true
           },
           "createdAt": {
             "type": "string",
@@ -12554,6 +12936,12 @@
         }
       },
       "NotificationPreferenceResponse": {
+        "required": [
+          "emailEnabled",
+          "notificationType",
+          "pushEnabled",
+          "smsEnabled"
+        ],
         "type": "object",
         "properties": {
           "notificationType": {
@@ -12644,6 +13032,17 @@
         }
       },
       "SubscriptionPlanResponse": {
+        "required": [
+          "billingPeriodMonths",
+          "createdAt",
+          "id",
+          "isActive",
+          "isTrial",
+          "name",
+          "pricePerStudent",
+          "tier",
+          "updatedAt"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -12665,14 +13064,17 @@
           },
           "maxStudents": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "features": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "trialDurationDays": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "createdAt": {
             "type": "string",
@@ -12763,6 +13165,19 @@
         }
       },
       "SubscriptionDiscountResponse": {
+        "required": [
+          "code",
+          "createdAt",
+          "createdBy",
+          "currentUses",
+          "discountType",
+          "discountValue",
+          "id",
+          "isActive",
+          "name",
+          "updatedAt",
+          "validFrom"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -12776,7 +13191,8 @@
             "type": "string"
           },
           "description": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "discountType": {
             "type": "string",
@@ -12790,7 +13206,8 @@
           },
           "maxUses": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "currentUses": {
             "type": "integer",
@@ -12802,17 +13219,21 @@
           },
           "validUntil": {
             "type": "string",
-            "format": "date"
+            "format": "date",
+            "nullable": true
           },
           "applicableTiers": {
             "type": "array",
+            "nullable": true,
             "items": {
-              "type": "string"
+              "type": "string",
+              "nullable": true
             }
           },
           "minStudents": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "createdBy": {
             "type": "string",
@@ -12881,6 +13302,26 @@
         }
       },
       "SchoolSubscriptionResponse": {
+        "required": [
+          "activeStudentCount",
+          "amountPaid",
+          "createdAt",
+          "endDate",
+          "gracePeriodDays",
+          "id",
+          "isAutoRenew",
+          "outstandingBalance",
+          "planId",
+          "planName",
+          "planTier",
+          "schoolId",
+          "schoolName",
+          "startDate",
+          "status",
+          "studentLimit",
+          "totalAmount",
+          "updatedAt"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -12937,15 +13378,18 @@
             "format": "int32"
           },
           "notes": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "daysUntilExpiry": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "studentUsagePercent": {
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "nullable": true
           },
           "createdAt": {
             "type": "string",
@@ -13044,7 +13488,8 @@
             "type": "string"
           },
           "notes": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -13156,6 +13601,15 @@
         }
       },
       "TimetableConfigResponse": {
+        "required": [
+          "days",
+          "id",
+          "periodDuration",
+          "periodsPerDay",
+          "schoolId",
+          "sessionId",
+          "startTime"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -13183,11 +13637,13 @@
           },
           "breakAfter": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "breakDuration": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "days": {
             "type": "array",
@@ -13278,6 +13734,14 @@
         }
       },
       "GuardianInfo": {
+        "required": [
+          "email",
+          "firstName",
+          "isEmergencyContact",
+          "lastName",
+          "phone",
+          "relationship"
+        ],
         "type": "object",
         "properties": {
           "firstName": {
@@ -13296,7 +13760,7 @@
           "relationship": {
             "type": "string"
           },
-          "emergencyContact": {
+          "isEmergencyContact": {
             "type": "boolean"
           }
         }
@@ -13450,6 +13914,17 @@
         }
       },
       "PromotionResponse": {
+        "required": [
+          "admissionNumber",
+          "createdAt",
+          "fromClassId",
+          "fromClassName",
+          "id",
+          "sessionId",
+          "status",
+          "studentId",
+          "studentName"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -13475,10 +13950,12 @@
           },
           "toClassId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "toClassName": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "sessionId": {
             "type": "string",
@@ -13488,7 +13965,8 @@
             "type": "string"
           },
           "remarks": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "createdAt": {
             "type": "string",
@@ -13543,6 +14021,15 @@
         }
       },
       "PickupLogResponse": {
+        "required": [
+          "createdAt",
+          "id",
+          "pickedUpByName",
+          "pickupTime",
+          "schoolId",
+          "status",
+          "studentId"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -13559,21 +14046,24 @@
           },
           "authorizationId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "pickedUpByName": {
             "type": "string"
           },
           "verifiedBy": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "pickupTime": {
             "type": "string",
             "format": "date-time"
           },
           "notes": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "status": {
             "type": "string"
@@ -13657,6 +14147,15 @@
         }
       },
       "MoodEntryResponse": {
+        "required": [
+          "id",
+          "mood",
+          "recordedAt",
+          "recordedBy",
+          "recordedByName",
+          "studentId",
+          "studentName"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -13674,7 +14173,8 @@
             "type": "string"
           },
           "note": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "recordedAt": {
             "type": "string",
@@ -13713,6 +14213,19 @@
         }
       },
       "MigrationJobResponse": {
+        "required": [
+          "createdAt",
+          "failedRecords",
+          "fileUrl",
+          "id",
+          "initiatedBy",
+          "processedRecords",
+          "schoolId",
+          "status",
+          "totalRecords",
+          "type",
+          "updatedAt"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -13745,10 +14258,12 @@
             "format": "int32"
           },
           "errorReportUrl": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "fieldMapping": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "initiatedBy": {
             "type": "string",
@@ -13756,11 +14271,13 @@
           },
           "startedAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "nullable": true
           },
           "completedAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "nullable": true
           },
           "createdAt": {
             "type": "string",
@@ -14023,6 +14540,20 @@
         }
       },
       "BusEnrollmentResponse": {
+        "required": [
+          "busId",
+          "busPlateNumber",
+          "createdAt",
+          "enrolledAt",
+          "id",
+          "isActive",
+          "pickupPoint",
+          "routeName",
+          "schoolId",
+          "studentId",
+          "studentName",
+          "updatedAt"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -14178,6 +14709,14 @@
         }
       },
       "AssessmentCommentResponse": {
+        "required": [
+          "assessmentId",
+          "comment",
+          "createdAt",
+          "id",
+          "userId",
+          "userName"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -14296,6 +14835,15 @@
         }
       },
       "ConversationResponse": {
+        "required": [
+          "createdAt",
+          "id",
+          "lastMessage",
+          "participants",
+          "schoolId",
+          "type",
+          "updatedAt"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -14329,6 +14877,15 @@
         }
       },
       "MessageResponse": {
+        "required": [
+          "attachmentUrls",
+          "content",
+          "conversationId",
+          "createdAt",
+          "id",
+          "senderId",
+          "senderName"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -14359,9 +14916,14 @@
             "type": "string",
             "format": "date-time"
           }
-        }
+        },
+        "nullable": true
       },
       "ParticipantInfo": {
+        "required": [
+          "name",
+          "userId"
+        ],
         "type": "object",
         "properties": {
           "userId": {
@@ -14373,7 +14935,8 @@
           },
           "lastReadAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "nullable": true
           }
         }
       },
@@ -14441,6 +15004,13 @@
         }
       },
       "FileUploadResponse": {
+        "required": [
+          "contentType",
+          "fileId",
+          "fileName",
+          "fileSize",
+          "fileUrl"
+        ],
         "type": "object",
         "properties": {
           "fileId": {
@@ -14500,6 +15070,12 @@
         }
       },
       "AuthResponse": {
+        "required": [
+          "accessToken",
+          "expiresIn",
+          "refreshToken",
+          "user"
+        ],
         "type": "object",
         "properties": {
           "accessToken": {
@@ -14518,6 +15094,13 @@
         }
       },
       "SchoolRoleInfo": {
+        "required": [
+          "isSchoolActive",
+          "role",
+          "schoolId",
+          "schoolName",
+          "subscriptionStatus"
+        ],
         "type": "object",
         "properties": {
           "schoolId": {
@@ -14539,6 +15122,13 @@
         }
       },
       "UserInfo": {
+        "required": [
+          "email",
+          "firstName",
+          "id",
+          "lastName",
+          "roles"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -14555,10 +15145,12 @@
             "type": "string"
           },
           "phone": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "avatarUrl": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "roles": {
             "type": "array",
@@ -14618,6 +15210,10 @@
         }
       },
       "OtpResponse": {
+        "required": [
+          "expiresIn",
+          "otpReference"
+        ],
         "type": "object",
         "properties": {
           "otpReference": {
@@ -14809,6 +15405,12 @@
         }
       },
       "BulkOperationResponse": {
+        "required": [
+          "failureCount",
+          "results",
+          "successCount",
+          "totalRequested"
+        ],
         "type": "object",
         "properties": {
           "totalRequested": {
@@ -15009,6 +15611,13 @@
         }
       },
       "ApplyDiscountResponse": {
+        "required": [
+          "discountAmount",
+          "discountCode",
+          "discountName",
+          "finalAmount",
+          "originalAmount"
+        ],
         "type": "object",
         "properties": {
           "originalAmount": {
@@ -15115,6 +15724,15 @@
         }
       },
       "SubscriptionPaymentResponse": {
+        "required": [
+          "amount",
+          "createdAt",
+          "id",
+          "paymentType",
+          "schoolId",
+          "studentsAdded",
+          "subscriptionId"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -15136,24 +15754,30 @@
             "type": "string"
           },
           "paymentMethod": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "paymentReference": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "description": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "paidAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "nullable": true
           },
           "recordedBy": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "recordedByName": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "studentsAdded": {
             "type": "integer",
@@ -15161,7 +15785,8 @@
           },
           "prorationMonths": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "createdAt": {
             "type": "string",
@@ -15245,6 +15870,15 @@
         }
       },
       "WelfareResponse": {
+        "required": [
+          "createdAt",
+          "date",
+          "id",
+          "recordedBy",
+          "status",
+          "studentId",
+          "studentName"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -15262,7 +15896,8 @@
             "type": "string"
           },
           "notes": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "date": {
             "type": "string",
@@ -15401,6 +16036,13 @@
         }
       },
       "TeacherOverviewResponse": {
+        "required": [
+          "activeTeachers",
+          "classTeachers",
+          "inactiveTeachers",
+          "suspendedTeachers",
+          "totalTeachers"
+        ],
         "type": "object",
         "properties": {
           "totalTeachers": {
@@ -15449,6 +16091,15 @@
         }
       },
       "ProrateCalculationResponse": {
+        "required": [
+          "additionalStudents",
+          "breakdown",
+          "monthlyRatePerStudent",
+          "newStudentLimit",
+          "newTotalAmount",
+          "proratedAmount",
+          "remainingMonths"
+        ],
         "type": "object",
         "properties": {
           "additionalStudents": {
@@ -15501,6 +16152,19 @@
         }
       },
       "PageSubscriptionPaymentResponse": {
+        "required": [
+          "content",
+          "empty",
+          "first",
+          "last",
+          "number",
+          "numberOfElements",
+          "pageable",
+          "size",
+          "sort",
+          "totalElements",
+          "totalPages"
+        ],
         "type": "object",
         "properties": {
           "totalElements": {
@@ -15703,6 +16367,15 @@
         }
       },
       "AttendanceResponse": {
+        "required": [
+          "classId",
+          "date",
+          "id",
+          "status",
+          "studentId",
+          "studentName",
+          "syncedFromOffline"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -15724,7 +16397,8 @@
             "type": "string"
           },
           "notes": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "date": {
             "type": "string",
@@ -15759,6 +16433,12 @@
         }
       },
       "StudentUsageResponse": {
+        "required": [
+          "activeStudents",
+          "hasSubscription",
+          "studentLimit",
+          "usagePercent"
+        ],
         "type": "object",
         "properties": {
           "activeStudents": {
@@ -15831,6 +16511,13 @@
         }
       },
       "EligibleStudentResponse": {
+        "required": [
+          "admissionNumber",
+          "eligible",
+          "firstName",
+          "lastName",
+          "studentId"
+        ],
         "type": "object",
         "properties": {
           "studentId": {
@@ -15847,7 +16534,8 @@
             "type": "string"
           },
           "averageScore": {
-            "type": "number"
+            "type": "number",
+            "nullable": true
           },
           "eligible": {
             "type": "boolean"
@@ -16086,6 +16774,15 @@
         }
       },
       "FeeOverviewResponse": {
+        "required": [
+          "expectedAmount",
+          "outstandingAmount",
+          "overdueInvoices",
+          "paidInvoices",
+          "pendingInvoices",
+          "realizedAmount",
+          "totalInvoices"
+        ],
         "type": "object",
         "properties": {
           "expectedAmount": {
@@ -16243,6 +16940,11 @@
         }
       },
       "BusTrackingResponse": {
+        "required": [
+          "enrollment",
+          "latestTrip",
+          "studentTripStatus"
+        ],
         "type": "object",
         "properties": {
           "enrollment": {
@@ -16257,6 +16959,15 @@
         }
       },
       "EnrollmentInfo": {
+        "required": [
+          "busId",
+          "busPlateNumber",
+          "driverName",
+          "driverPhone",
+          "id",
+          "pickupPoint",
+          "routeName"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -16285,6 +16996,12 @@
         }
       },
       "TripInfo": {
+        "required": [
+          "id",
+          "status",
+          "tripDate",
+          "tripType"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -16311,9 +17028,16 @@
               "CANCELLED"
             ]
           }
-        }
+        },
+        "nullable": true
       },
       "TripStudentInfo": {
+        "required": [
+          "id",
+          "status",
+          "studentId",
+          "tripId"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -16339,13 +17063,16 @@
           },
           "boardedAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "nullable": true
           },
           "droppedOffAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "nullable": true
           }
-        }
+        },
+        "nullable": true
       },
       "ApiResponseListBusRouteResponse": {
         "type": "object",
@@ -16449,6 +17176,15 @@
         }
       },
       "AuditLogResponse": {
+        "required": [
+          "action",
+          "createdAt",
+          "entityId",
+          "entityType",
+          "id",
+          "userId",
+          "userName"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -16457,7 +17193,8 @@
           },
           "schoolId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "userId": {
             "type": "string",
@@ -16477,7 +17214,8 @@
             "format": "uuid"
           },
           "details": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "createdAt": {
             "type": "string",
@@ -16486,6 +17224,19 @@
         }
       },
       "PageAuditLogResponse": {
+        "required": [
+          "content",
+          "empty",
+          "first",
+          "last",
+          "number",
+          "numberOfElements",
+          "pageable",
+          "size",
+          "sort",
+          "totalElements",
+          "totalPages"
+        ],
         "type": "object",
         "properties": {
           "totalElements": {
@@ -16558,6 +17309,14 @@
         }
       },
       "AttendanceOverviewResponse": {
+        "required": [
+          "absentCount",
+          "attendanceRate",
+          "classSummaries",
+          "lateCount",
+          "presentCount",
+          "totalStudents"
+        ],
         "type": "object",
         "properties": {
           "totalStudents": {
@@ -16589,6 +17348,14 @@
         }
       },
       "ClassAttendanceSummary": {
+        "required": [
+          "absent",
+          "classId",
+          "className",
+          "late",
+          "present",
+          "total"
+        ],
         "type": "object",
         "properties": {
           "classId": {
@@ -16669,6 +17436,14 @@
         }
       },
       "GradeResponse": {
+        "required": [
+          "admissionNumber",
+          "assessmentId",
+          "id",
+          "score",
+          "studentId",
+          "studentName"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -16690,10 +17465,12 @@
             "type": "string"
           },
           "gradeLabel": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "remark": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "score": {
             "type": "number"
@@ -16851,6 +17628,15 @@
         }
       },
       "TeacherDashboardResponse": {
+        "required": [
+          "classAttendance",
+          "dailySchedule",
+          "myClassesCount",
+          "pendingHomeworkCount",
+          "todayAttendanceRate",
+          "totalStudentsCount",
+          "upcomingAssignments"
+        ],
         "type": "object",
         "properties": {
           "myClassesCount": {
@@ -16937,6 +17723,16 @@
         }
       },
       "FeeSummary": {
+        "required": [
+          "collectionRate",
+          "overdueInvoices",
+          "paidInvoices",
+          "pendingInvoices",
+          "totalBilled",
+          "totalCollected",
+          "totalInvoices",
+          "totalOutstanding"
+        ],
         "type": "object",
         "properties": {
           "totalBilled": {
@@ -17016,11 +17812,13 @@
           },
           "avgScore": {
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "nullable": true
           },
           "scoreTrend": {
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "nullable": true
           },
           "riskScore": {
             "type": "number",
@@ -17058,18 +17856,35 @@
           },
           "avgScore": {
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "nullable": true
           },
           "atRiskCount": {
             "type": "integer",
             "format": "int32"
           },
-          "homeroom": {
+          "isHomeroom": {
             "type": "boolean"
           }
         }
       },
       "EnhancedTeacherDashboardResponse": {
+        "required": [
+          "atRiskStudents",
+          "classPerformance",
+          "myClassesCount",
+          "overdueHomeworkCount",
+          "pendingGrading",
+          "pendingHomeworkToGrade",
+          "recentAssignments",
+          "todayAbsentCount",
+          "todayAttendanceRate",
+          "todayLateCount",
+          "todayPresentCount",
+          "todaySchedule",
+          "totalStudentsCount",
+          "unansweredParentMessages"
+        ],
         "type": "object",
         "properties": {
           "todaySchedule": {
@@ -17193,12 +18008,41 @@
           "attendanceMarked": {
             "type": "boolean"
           },
-          "homeroom": {
+          "isHomeroom": {
             "type": "boolean"
           }
         }
       },
       "AdminDashboardResponse": {
+        "required": [
+          "activeStudents",
+          "alerts",
+          "announcementsSentToday",
+          "classesNoHomework",
+          "currentPhase",
+          "feeCollectionRate",
+          "homeworkAssignedThisWeek",
+          "parentEngagementRate",
+          "phaseMetrics",
+          "teachersMarkedAttendance",
+          "todayAbsentCount",
+          "todayAttendanceRate",
+          "todayLateCount",
+          "todayPresentCount",
+          "totalClasses",
+          "totalFeesBilled",
+          "totalFeesCollected",
+          "totalFeesOutstanding",
+          "totalParents",
+          "totalStudents",
+          "totalTeachers",
+          "totalTeachersWithClasses",
+          "unansweredParentMessages",
+          "unansweredThreads",
+          "worstClassesAttendance",
+          "worstStudentsAttendance",
+          "worstTeachers"
+        ],
         "type": "object",
         "properties": {
           "todayAttendanceRate": {
@@ -17360,6 +18204,11 @@
         }
       },
       "DashboardAlert": {
+        "required": [
+          "message",
+          "severity",
+          "title"
+        ],
         "type": "object",
         "properties": {
           "severity": {
@@ -17378,51 +18227,64 @@
         "properties": {
           "newStudentsThisTerm": {
             "type": "integer",
-            "format": "int64"
+            "format": "int64",
+            "nullable": true
           },
           "incompleteRegistrations": {
             "type": "integer",
-            "format": "int64"
+            "format": "int64",
+            "nullable": true
           },
           "unpaidFeesCount": {
-            "type": "number"
+            "type": "number",
+            "nullable": true
           },
           "termAttendanceTrend": {
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "nullable": true
           },
           "homeworkCompletionRate": {
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "nullable": true
           },
           "parentWeeklyEngagement": {
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "nullable": true
           },
           "assessmentsCreated": {
             "type": "integer",
-            "format": "int64"
+            "format": "int64",
+            "nullable": true
           },
           "assessmentsGraded": {
             "type": "integer",
-            "format": "int64"
+            "format": "int64",
+            "nullable": true
           },
           "assessmentCoverage": {
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "nullable": true
           },
           "termFeeCollectionRate": {
-            "type": "number"
+            "type": "number",
+            "nullable": true
           },
           "reportCardsGenerated": {
             "type": "integer",
-            "format": "int64"
+            "format": "int64",
+            "nullable": true
           },
           "avgTermScore": {
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "nullable": true
           }
-        }
+        },
+        "nullable": true
       },
       "StudentAttendance": {
         "type": "object",
@@ -17525,6 +18387,20 @@
         }
       },
       "DashboardResponse": {
+        "required": [
+          "activeEmergencyAlerts",
+          "activeStudents",
+          "feeCollectionRate",
+          "todayAbsentCount",
+          "todayAttendanceRate",
+          "todayPresentCount",
+          "totalClasses",
+          "totalFeesBilled",
+          "totalFeesCollected",
+          "totalFeesOutstanding",
+          "totalStudents",
+          "totalTeachers"
+        ],
         "type": "object",
         "properties": {
           "totalStudents": {
@@ -17598,6 +18474,14 @@
         }
       },
       "AttendanceSummary": {
+        "required": [
+          "absentCount",
+          "attendanceRate",
+          "dailyBreakdown",
+          "lateCount",
+          "presentCount",
+          "totalRecords"
+        ],
         "type": "object",
         "properties": {
           "totalRecords": {
@@ -17653,6 +18537,14 @@
         }
       },
       "AcademicSummary": {
+        "required": [
+          "averageScore",
+          "highestScore",
+          "lowestScore",
+          "subjectBreakdown",
+          "totalAssessments",
+          "totalGradesRecorded"
+        ],
         "type": "object",
         "properties": {
           "totalAssessments": {
@@ -17728,6 +18620,12 @@
         }
       },
       "ActivityFeedResponse": {
+        "required": [
+          "actorName",
+          "timestamp",
+          "title",
+          "type"
+        ],
         "type": "object",
         "properties": {
           "type": {
@@ -17737,7 +18635,8 @@
             "type": "string"
           },
           "description": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "actorName": {
             "type": "string"
@@ -17779,18 +18678,22 @@
         "properties": {
           "overallAverage": {
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "nullable": true
           },
           "grade": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "classPosition": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "classSize": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "subjectsAboveAvg": {
             "type": "integer",
@@ -17810,7 +18713,8 @@
               "type": "string"
             }
           }
-        }
+        },
+        "nullable": true
       },
       "AnnouncementItem": {
         "type": "object",
@@ -17878,11 +18782,18 @@
             "format": "double"
           },
           "todayStatus": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           }
-        }
+        },
+        "nullable": true
       },
       "ChildSummary": {
+        "required": [
+          "className",
+          "name",
+          "studentId"
+        ],
         "type": "object",
         "properties": {
           "studentId": {
@@ -17896,10 +18807,12 @@
             "type": "string"
           },
           "attendance": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "recentGrade": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -17914,7 +18827,8 @@
             "type": "string"
           },
           "description": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "startDate": {
             "type": "string",
@@ -17922,14 +18836,32 @@
           },
           "endDate": {
             "type": "string",
-            "format": "date"
+            "format": "date",
+            "nullable": true
           },
           "location": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           }
         }
       },
       "ParentDashboardResponse": {
+        "required": [
+          "academicPerformance",
+          "attendanceMetrics",
+          "children",
+          "childrenCount",
+          "pendingFees",
+          "pendingHomework",
+          "recentAnnouncements",
+          "recentAssessments",
+          "recentHomework",
+          "subjectPerformance",
+          "todayAttendance",
+          "unreadMessages",
+          "upcomingEvents",
+          "upcomingFees"
+        ],
         "type": "object",
         "properties": {
           "childrenCount": {
@@ -18019,19 +18951,23 @@
           },
           "score": {
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "nullable": true
           },
           "maxScore": {
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "nullable": true
           },
           "percentage": {
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "nullable": true
           },
           "classAverage": {
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "nullable": true
           },
           "date": {
             "type": "string",
@@ -18068,14 +19004,17 @@
           },
           "studentAvg": {
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "nullable": true
           },
           "classAvg": {
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "nullable": true
           },
           "grade": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "assessmentCount": {
             "type": "integer",
@@ -18089,7 +19028,8 @@
           },
           "trend": {
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "nullable": true
           }
         }
       },
@@ -18141,6 +19081,15 @@
         }
       },
       "ChildResponse": {
+        "required": [
+          "admissionNumber",
+          "firstName",
+          "lastName",
+          "schoolId",
+          "schoolName",
+          "status",
+          "studentId"
+        ],
         "type": "object",
         "properties": {
           "studentId": {
@@ -18153,7 +19102,8 @@
           },
           "classId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "firstName": {
             "type": "string"
@@ -18165,13 +19115,15 @@
             "type": "string"
           },
           "className": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "admissionNumber": {
             "type": "string"
           },
           "photoUrl": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "status": {
             "type": "string"
@@ -18358,6 +19310,16 @@
         }
       },
       "SubscriptionDashboardResponse": {
+        "required": [
+          "expiringWithin30Days",
+          "inGracePeriod",
+          "totalActiveSubscriptions",
+          "totalExpiredSubscriptions",
+          "totalGracePeriodSubscriptions",
+          "totalOutstanding",
+          "totalPendingSubscriptions",
+          "totalRevenue"
+        ],
         "type": "object",
         "properties": {
           "totalActiveSubscriptions": {
@@ -18423,6 +19385,16 @@
         }
       },
       "SchoolSummary": {
+        "required": [
+          "adminCount",
+          "code",
+          "createdAt",
+          "id",
+          "isActive",
+          "name",
+          "studentCount",
+          "teacherCount"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -18436,13 +19408,16 @@
             "type": "string"
           },
           "city": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "state": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "subscriptionTier": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "studentCount": {
             "type": "integer",
@@ -18489,6 +19464,22 @@
         }
       },
       "SchoolDetailResponse": {
+        "required": [
+          "activeSessionCount",
+          "adminCount",
+          "admins",
+          "classCount",
+          "code",
+          "createdAt",
+          "id",
+          "isActive",
+          "name",
+          "parentCount",
+          "studentCount",
+          "subjectCount",
+          "teacherCount",
+          "updatedAt"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -18502,31 +19493,40 @@
             "type": "string"
           },
           "logoUrl": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "primaryColor": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "secondaryColor": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "address": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "city": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "state": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "phone": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "email": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "subscriptionTier": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "createdAt": {
             "type": "string",
@@ -18625,6 +19625,24 @@
         }
       },
       "SchoolHealthSummary": {
+        "required": [
+          "city",
+          "code",
+          "createdAt",
+          "feeCollectionRate",
+          "id",
+          "isActive",
+          "isFullySetUp",
+          "messagesThisWeek",
+          "name",
+          "parentActivationRate",
+          "parentCount",
+          "state",
+          "studentCount",
+          "subscriptionTier",
+          "teacherCount",
+          "todayAttendanceRate"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -18675,11 +19693,13 @@
             "format": "double"
           },
           "subscriptionStatus": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "daysUntilExpiry": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "createdAt": {
             "type": "string",
@@ -18687,7 +19707,8 @@
           },
           "lastActivityAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "nullable": true
           },
           "isActive": {
             "type": "boolean"
@@ -18698,6 +19719,32 @@
         }
       },
       "SystemDashboardResponse": {
+        "required": [
+          "activeSchools",
+          "activeSubscriptions",
+          "alerts",
+          "expiredSubscriptions",
+          "fullySetUpSchools",
+          "gracePeriodSubscriptions",
+          "homeworkCompletionRate",
+          "messagesToday",
+          "mrr",
+          "netStudentGrowth",
+          "parentActivationRate",
+          "revenuePerStudent",
+          "schoolSummaries",
+          "studentsAddedThisMonth",
+          "studentsRemovedThisMonth",
+          "teacherAttendanceRate",
+          "totalOutstanding",
+          "totalParents",
+          "totalRevenue",
+          "totalSchools",
+          "totalStudents",
+          "totalTeachers",
+          "totalUsers",
+          "weeklyActiveParentRate"
+        ],
         "type": "object",
         "properties": {
           "totalSchools": {
@@ -18754,7 +19801,8 @@
           },
           "avgDaysToFirstAttendance": {
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "nullable": true
           },
           "studentsAddedThisMonth": {
             "type": "integer",

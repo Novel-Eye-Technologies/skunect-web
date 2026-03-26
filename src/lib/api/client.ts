@@ -98,7 +98,8 @@ apiClient.interceptors.response.use(
         { headers: { 'Content-Type': 'application/json' } }
       );
 
-      const { accessToken, refreshToken: newRefreshToken } = data.data;
+      const accessToken = data.data.accessToken!;
+      const newRefreshToken = data.data.refreshToken!;
 
       useAuthStore.getState().setTokens(accessToken, newRefreshToken);
 
