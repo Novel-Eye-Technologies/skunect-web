@@ -150,6 +150,7 @@ export const navigationConfig: NavItem[] = [
     children: [
       { title: 'Attendance', href: '/attendance', icon: ClipboardCheck, roles: ['PARENT'] },
       { title: 'Homework', href: '/homework', icon: FileText, roles: ['PARENT'] },
+      { title: 'Grades', href: '/academics/grades', icon: FileText, roles: ['PARENT'] },
     ],
   },
   {

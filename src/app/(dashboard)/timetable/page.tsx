@@ -23,10 +23,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useSubjects } from '@/lib/hooks/use-school-settings';
 
 export default function TimetablePage() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
   const [sessionId, setSessionId] = useState('');
+  const { data: subjects, isLoading } = useSubjects();
+
   const [classId, setClassId] = useState('');
   const [slotDialog, setSlotDialog] = useState<{
     open: boolean;
@@ -36,7 +39,7 @@ export default function TimetablePage() {
   const [slotSubjectId, setSlotSubjectId] = useState('');
   const [slotTeacherId, setSlotTeacherId] = useState('');
   const [slotLabel, setSlotLabel] = useState('');
-
+  const [selectedSubject, setSelectedSubject] = useState<string | undefined>(undefined);
   const { data: config, isLoading: configLoading } = useTimetableConfig(sessionId || undefined);
   const { data: slots = [], isLoading: slotsLoading } = useTimetableSlots(
     sessionId || undefined,
@@ -79,9 +82,12 @@ export default function TimetablePage() {
         periodNumber: slotDialog.period,
         subjectId: slotSubjectId || undefined,
         teacherId: slotTeacherId || undefined,
-        label: slotLabel || undefined,
+        label: selectedSubject !== '_unknown' ? selectedSubject : slotLabel || undefined,
       },
-      { onSuccess: () => setSlotDialog({ open: false, day: '', period: 0 }) },
+      { onSuccess: () => {
+        setSlotDialog({ open: false, day: '', period: 0 });
+        setSelectedSubject(undefined);
+      }},
     );
   };
 
@@ -149,7 +155,31 @@ export default function TimetablePage() {
           <div className="space-y-4">
             <div>
               <Label>Label (e.g. &quot;Assembly&quot;, &quot;Break&quot;)</Label>
-              <Input value={slotLabel} onChange={(e) => setSlotLabel(e.target.value)} placeholder="Optional label" />
+              <div className="my-4">
+                <Select
+                  value={selectedSubject || slotLabel}
+                  onValueChange={(value) => {
+                    setSelectedSubject(value);
+                  }}
+                  disabled={isLoading || subjects?.length === 0}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select Subject (optional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {subjects?.map((s: { id: string; name: string }) => (
+                      <SelectItem key={s.name} value={s.name}>
+                        {s.name}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="Free Period">Free Period</SelectItem>
+                    <SelectItem value="_unknown">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {selectedSubject === '_unknown' && (
+                <Input value={slotLabel} onChange={(e) => setSlotLabel(e.target.value)} placeholder="Enter optional label" />
+              )}
             </div>
             <div className="flex gap-4">
               <Button onClick={handleCreateSlot} disabled={createSlot.isPending}>

@@ -1,3 +1,5 @@
+import type { Api } from '@/lib/api/schema';
+
 // ---------------------------------------------------------------------------
 // Data Migration types
 // ---------------------------------------------------------------------------
@@ -17,26 +19,16 @@ export type MigrationJobStatus =
   | 'COMPLETED'
   | 'FAILED';
 
-export interface MigrationJob {
-  id: string;
-  fileName: string;
-  type: MigrationDataType;
-  status: MigrationJobStatus;
-  totalRecords: number;
-  processedRecords: number;
-  successCount: number;
-  errorCount: number;
-  errors: MigrationError[];
-  createdAt: string;
-  completedAt: string | null;
-}
+export type MigrationJob = Api["MigrationJobResponse"];
 
+// MigrationError — no match in generated schema; keep hand-written
 export interface MigrationError {
   row: number;
   field: string;
   message: string;
 }
 
+// ValidationResult — no match in generated schema; keep hand-written
 export interface ValidationResult {
   valid: boolean;
   totalRecords: number;

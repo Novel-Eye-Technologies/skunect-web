@@ -28,15 +28,9 @@ export async function createEmergencyAlert(
   schoolId: string,
   data: CreateEmergencyAlertRequest,
 ): Promise<ApiResponse<EmergencyAlert>> {
-  // Backend expects { title, message, severity } — map frontend fields
-  const payload = {
-    title: data.title,
-    message: data.description,
-    severity: data.severity,
-  };
   const response = await apiClient.post<ApiResponse<EmergencyAlert>>(
     `/schools/${schoolId}/emergency-alerts`,
-    payload,
+    data,
   );
   return response.data;
 }

@@ -12,6 +12,7 @@ Frontend for the Skunect School Management Platform, built with Next.js 15, Reac
 - [Architecture](#architecture)
 - [Features by Role](#features-by-role)
 - [Project Structure](#project-structure)
+- [API Type Generation](#api-type-generation)
 - [Authentication](#authentication)
 - [State Management](#state-management)
 - [Configuration](#configuration)
@@ -43,6 +44,32 @@ npm run dev
 ```
 
 The app will be available at `http://localhost:3000`.
+
+### Local PR Checks (Husky)
+
+This repo uses a Husky `pre-push` hook to simulate PR checks before pushing:
+
+- `npm run ci:pr` (lint + typecheck)
+- Build with PR workflow env (`NEXT_PUBLIC_API_URL=/api/v1`, `NEXT_PUBLIC_WS_URL=/ws/messages`)
+- E2E suite excluding School Lifecycle against dev (`https://dev.skunect.com`)
+
+To run manually:
+
+```bash
+npm run pr:simulate
+```
+
+To simulate local full-stack flow (including School Lifecycle) against local services:
+
+```bash
+npm run pr:simulate:local
+```
+
+To bypass once (not recommended):
+
+```bash
+SKIP_PR_SIMULATION=1 git push
+```
 
 ### Build for Production
 
@@ -195,9 +222,15 @@ skunect-web/
 │   │   └── ui/                 # shadcn/ui primitives (28 components)
 │   ├── lib/
 │   │   ├── api/                # API client modules (31 modules)
+│   │   │   ├── client.ts       # Axios instance with auth + token refresh
+│   │   │   ├── types.ts        # ApiResponse<T> envelope type
+│   │   │   ├── openapi.json    # OpenAPI spec from backend (auto-fetched)
+│   │   │   ├── generated-types.ts # Auto-generated TS types (DO NOT edit)
+│   │   │   ├── schema.ts       # Re-exports: Api['SchemaName']
+│   │   │   └── *.ts            # Domain API modules (auth, students, fees, etc.)
 │   │   ├── providers/          # AuthProvider (token validation, route guards)
 │   │   ├── stores/             # Zustand stores (auth, ui, child, notification)
-│   │   ├── types/              # TypeScript interfaces (28 type files)
+│   │   ├── types/              # Hand-written TypeScript interfaces (being migrated to generated types)
 │   │   └── utils/              # Constants, navigation config, helpers
 │   └── styles/                 # Global CSS
 ├── e2e/
@@ -212,6 +245,75 @@ skunect-web/
 ├── tailwind.config.ts          # Tailwind CSS config
 ├── tsconfig.json               # TypeScript config
 └── package.json
+```
+
+---
+
+## API Type Generation
+
+Backend TypeScript types are **auto-generated** from the Spring Boot OpenAPI spec to prevent frontend-backend DTO drift.
+
+### How It Works
+
+1. The backend exposes an OpenAPI 3.0.1 spec at `/api-docs` (via springdoc-openapi)
+2. `openapi-typescript` generates TypeScript interfaces from the spec
+3. CI verifies types are in sync with the running backend on every PR
+
+### Files
+
+| File | Purpose |
+|------|---------|
+| `src/lib/api/openapi.json` | OpenAPI spec snapshot (303 schemas, 181 paths) |
+| `src/lib/api/generated-types.ts` | Auto-generated TypeScript types — **DO NOT edit** |
+| `src/lib/api/schema.ts` | Helper for importing: `Api['SchemaName']` |
+
+### Usage
+
+```typescript
+import type { Api } from '@/lib/api/schema';
+
+// Use exact backend DTO types
+type Assessment = Api['AssessmentResponse'];
+type BulkGradeRequest = Api['BulkGradeRequest'];
+type GradeEntry = Api['GradeEntry'];
+type Student = Api['StudentResponse'];
+```
+
+### Commands
+
+```bash
+# Regenerate types after backend DTO changes
+npm run api:sync
+
+# Fetch spec only (without regenerating)
+npm run api:fetch-spec
+
+# Regenerate from existing local spec
+npm run api:generate-types
+
+# Point to a different backend
+API_SPEC_URL=http://localhost:8080/api-docs npm run api:sync
+```
+
+### CI Drift Detection
+
+The `e2e-full.yml` workflow automatically checks that committed types match the running backend. If types are out of sync, CI fails with:
+
+```
+::error::API types are out of sync! Run 'npm run api:sync' locally and commit the changes.
+```
+
+### Migration Path
+
+Existing hand-written types in `src/lib/types/` continue to work. Gradually replace them with generated types:
+
+```typescript
+// Before (hand-written, can drift)
+import type { Assessment } from '@/lib/types/academics';
+
+// After (auto-generated, always in sync)
+import type { Api } from '@/lib/api/schema';
+type Assessment = Api['AssessmentResponse'];
 ```
 
 ---

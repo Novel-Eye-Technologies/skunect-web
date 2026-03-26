@@ -14,6 +14,7 @@ interface StatCardProps {
     direction: 'up' | 'down';
   };
   className?: string;
+  onClick?: () => void;
 }
 
 export function StatCard({
@@ -23,9 +24,17 @@ export function StatCard({
   icon: Icon,
   trend,
   className,
+  onClick,
 }: StatCardProps) {
   return (
-    <Card className={cn('relative overflow-hidden', className)}>
+    <Card 
+      className={cn(
+        'relative overflow-hidden', 
+        onClick && 'cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors', 
+        className
+      )}
+      onClick={onClick}
+    >
       <CardContent className="p-6">
         <div className="flex items-start justify-between">
           <div className="space-y-2">

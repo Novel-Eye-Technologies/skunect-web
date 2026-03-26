@@ -54,8 +54,35 @@ export class UsersPage {
     return this.dataTable.locator('tbody tr', { hasText: name });
   }
 
+  async findRowByNameAcrossPages(name: string, maxPageHops = 10) {
+    const nextPageButton = this.page.getByRole('button', {
+      name: /go to next page/i,
+    });
+
+    for (let hop = 0; hop <= maxPageHops; hop++) {
+      const row = this.getRowByName(name).first();
+      if ((await row.count()) > 0) {
+        await expect(row).toBeVisible({ timeout: 10_000 });
+        return row;
+      }
+
+      if (await nextPageButton.isDisabled()) {
+        break;
+      }
+
+      await nextPageButton.click();
+      await expect(this.dataTable.locator('tbody tr').first()).toBeVisible({
+        timeout: 10_000,
+      });
+    }
+
+    throw new Error(
+      `Could not find user row for "${name}" after checking multiple pages.`
+    );
+  }
+
   async openActionsMenu(name: string) {
-    const row = this.getRowByName(name);
+    const row = await this.findRowByNameAcrossPages(name);
     await row.getByRole('button', { name: /open menu/i }).click();
   }
 

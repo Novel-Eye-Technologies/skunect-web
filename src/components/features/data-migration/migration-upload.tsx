@@ -166,7 +166,7 @@ export function MigrationUpload() {
     isUploading || uploadMigration.isPending || validateMutation.isPending;
   const canValidate = !!selectedFile && !!dataType;
   const canImport =
-    migrationJob?.status === 'VALIDATED' && migrationJob.errorCount === 0;
+    migrationJob?.status === 'VALIDATED' && migrationJob.failedRecords === 0;
 
   return (
     <div className="space-y-6">
@@ -301,7 +301,7 @@ export function MigrationUpload() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
-              {migrationJob.errorCount === 0 ? (
+              {migrationJob.failedRecords === 0 ? (
                 <>
                   <CheckCircle2 className="h-5 w-5 text-[#2A9D8F]" />
                   Validation Passed
@@ -323,16 +323,16 @@ export function MigrationUpload() {
                 variant="outline"
                 className="border-[#2A9D8F] text-[#2A9D8F]"
               >
-                Valid: {migrationJob.successCount}
+                Valid: {migrationJob.totalRecords - migrationJob.failedRecords}
               </Badge>
-              {migrationJob.errorCount > 0 && (
+              {migrationJob.failedRecords > 0 && (
                 <Badge variant="destructive">
-                  Errors: {migrationJob.errorCount}
+                  Errors: {migrationJob.failedRecords}
                 </Badge>
               )}
             </div>
 
-            {migrationJob.errorCount === 0 && (
+            {migrationJob.failedRecords === 0 && (
               <Alert>
                 <CheckCircle2 className="h-4 w-4" />
                 <AlertTitle>Ready to import</AlertTitle>
@@ -343,45 +343,30 @@ export function MigrationUpload() {
               </Alert>
             )}
 
-            {migrationJob.errors.length > 0 && (
-              <>
-                <Alert variant="destructive">
-                  <AlertTriangle className="h-4 w-4" />
-                  <AlertTitle>Errors found</AlertTitle>
-                  <AlertDescription>
-                    Fix the following errors in your CSV file and re-upload.
-                  </AlertDescription>
-                </Alert>
-
-                <div className="max-h-[300px] overflow-auto rounded-md border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-20">Row</TableHead>
-                        <TableHead className="w-32">Field</TableHead>
-                        <TableHead>Error</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {migrationJob.errors.map((error, index) => (
-                        <TableRow key={`error-${index}`}>
-                          <TableCell className="font-mono text-xs">
-                            {error.row}
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant="outline" className="font-mono text-xs">
-                              {error.field}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-sm">
-                            {error.message}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              </>
+            {migrationJob.failedRecords > 0 && (
+              <Alert variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>Errors found</AlertTitle>
+                <AlertDescription>
+                  {migrationJob.failedRecords} record{migrationJob.failedRecords !== 1 ? 's' : ''} have errors.
+                  {migrationJob.errorReportUrl ? (
+                    <>
+                      {' '}
+                      <a
+                        href={migrationJob.errorReportUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline underline-offset-4"
+                      >
+                        Download error report
+                      </a>{' '}
+                      for details.
+                    </>
+                  ) : (
+                    ' Fix the errors in your CSV file and re-upload.'
+                  )}
+                </AlertDescription>
+              </Alert>
             )}
           </CardContent>
         </Card>

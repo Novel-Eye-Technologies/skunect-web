@@ -199,8 +199,8 @@ export default function SubscriptionDashboardPage() {
                     </TableCell>
                     <TableCell>{sub.endDate}</TableCell>
                     <TableCell>
-                      <span className={sub.daysUntilExpiry <= 7 ? 'text-destructive font-bold' : sub.daysUntilExpiry <= 14 ? 'text-yellow-600 font-medium' : ''}>
-                        {sub.daysUntilExpiry} days
+                      <span className={(sub.daysUntilExpiry ?? 0) <= 7 ? 'text-destructive font-bold' : (sub.daysUntilExpiry ?? 0) <= 14 ? 'text-yellow-600 font-medium' : ''}>
+                        {sub.daysUntilExpiry ?? 0} days
                       </span>
                     </TableCell>
                     <TableCell>

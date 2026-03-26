@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { PanelLeftClose, PanelLeft, User } from 'lucide-react';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { useUIStore } from '@/lib/stores/ui-store';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useSchoolSettings } from '@/lib/hooks/use-school-settings';
@@ -86,7 +85,7 @@ export function Sidebar() {
         {/* ---------------------------------------------------------------- */}
         {/* Navigation                                                       */}
         {/* ---------------------------------------------------------------- */}
-        <div className="mt-5   overflow-y-auto">
+        <div className="mt-5 flex-1 overflow-y-auto scrollbar-hidden">
           <nav
             className={cn(
               'space-y-1',

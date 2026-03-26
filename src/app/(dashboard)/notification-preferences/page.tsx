@@ -60,7 +60,7 @@ function PreferenceRow({
   onToggle,
 }: {
   pref: NotificationPreference;
-  onToggle: (type: string, channel: 'email' | 'push' | 'sms', value: boolean) => void;
+  onToggle: (type: string, channel: 'emailEnabled' | 'pushEnabled' | 'smsEnabled', value: boolean) => void;
 }) {
   const config = PREF_LABELS[pref.type] ?? {
     label: pref.type,
@@ -78,22 +78,22 @@ function PreferenceRow({
         <div className="flex items-center gap-2">
           <Mail className="h-4 w-4 text-muted-foreground" />
           <Switch
-            checked={pref.email}
-            onCheckedChange={(checked) => onToggle(pref.type, 'email', checked)}
+            checked={pref.emailEnabled}
+            onCheckedChange={(checked) => onToggle(pref.type, 'emailEnabled', checked)}
           />
         </div>
         <div className="flex items-center gap-2">
           <Smartphone className="h-4 w-4 text-muted-foreground" />
           <Switch
-            checked={pref.push}
-            onCheckedChange={(checked) => onToggle(pref.type, 'push', checked)}
+            checked={pref.pushEnabled}
+            onCheckedChange={(checked) => onToggle(pref.type, 'pushEnabled', checked)}
           />
         </div>
         <div className="flex items-center gap-2">
           <MessageSquare className="h-4 w-4 text-muted-foreground" />
           <Switch
-            checked={pref.sms}
-            onCheckedChange={(checked) => onToggle(pref.type, 'sms', checked)}
+            checked={pref.smsEnabled}
+            onCheckedChange={(checked) => onToggle(pref.type, 'smsEnabled', checked)}
           />
         </div>
       </div>
@@ -107,7 +107,7 @@ export default function NotificationPreferencesPage() {
 
   const preferences = response?.data ?? [];
 
-  function handleToggle(type: string, channel: 'email' | 'push' | 'sms', value: boolean) {
+  function handleToggle(type: string, channel: 'emailEnabled' | 'pushEnabled' | 'smsEnabled', value: boolean) {
     updatePref.mutate({ type, data: { [channel]: value } });
   }
 
