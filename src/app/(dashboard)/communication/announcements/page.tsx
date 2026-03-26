@@ -48,49 +48,7 @@ import {
 } from '@/lib/hooks/use-announcements';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { formatDate, formatDateTime } from '@/lib/utils/format-date';
-import { cn } from '@/lib/utils';
 import type { Announcement } from '@/lib/types/announcements';
-
-// ---------------------------------------------------------------------------
-// Priority badge color helper
-// ---------------------------------------------------------------------------
-const priorityConfig: Record<string, { label: string; className: string }> = {
-  LOW: {
-    label: 'Low',
-    className:
-      'bg-gray-100 text-gray-800 hover:bg-gray-100 dark:bg-gray-900/30 dark:text-gray-400',
-  },
-  NORMAL: {
-    label: 'Normal',
-    className:
-      'bg-blue-100 text-blue-800 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400',
-  },
-  HIGH: {
-    label: 'High',
-    className:
-      'bg-orange-100 text-orange-800 hover:bg-orange-100 dark:bg-orange-900/30 dark:text-orange-400',
-  },
-  URGENT: {
-    label: 'Urgent',
-    className:
-      'bg-red-100 text-red-800 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-400',
-  },
-};
-
-function PriorityBadge({ priority }: { priority: string }) {
-  const config = priorityConfig[priority] ?? {
-    label: priority,
-    className: 'bg-gray-100 text-gray-800',
-  };
-  return (
-    <Badge
-      variant="secondary"
-      className={cn('font-medium', config.className)}
-    >
-      {config.label}
-    </Badge>
-  );
-}
 
 // ---------------------------------------------------------------------------
 // Audience label helper
@@ -99,7 +57,7 @@ const audienceLabels: Record<string, string> = {
   ALL: 'All',
   TEACHERS: 'Teachers',
   PARENTS: 'Parents',
-  STUDENTS: 'Students',
+  CLASS_SPECIFIC: 'Class Specific',
 };
 
 export default function AnnouncementsPage() {
@@ -170,11 +128,6 @@ export default function AnnouncementsPage() {
       ),
     },
     {
-      accessorKey: 'priority',
-      header: 'Priority',
-      cell: ({ row }) => <PriorityBadge priority={row.original.priority} />,
-    },
-    {
       accessorKey: 'targetAudience',
       header: 'Audience',
       cell: ({ row }) =>
@@ -182,9 +135,9 @@ export default function AnnouncementsPage() {
         row.original.targetAudience,
     },
     {
-      accessorKey: 'status',
+      id: 'status',
       header: 'Status',
-      cell: ({ row }) => <StatusBadge status={row.original.status} />,
+      cell: ({ row }) => <StatusBadge status={row.original.isPublished ? 'PUBLISHED' : 'DRAFT'} />,
     },
     {
       accessorKey: 'publishedAt',
@@ -219,7 +172,7 @@ export default function AnnouncementsPage() {
                     <Pencil className="mr-2 h-4 w-4" />
                     Edit
                   </DropdownMenuItem>
-                  {announcement.status === 'DRAFT' ? (
+                  {!announcement.isPublished ? (
                     <DropdownMenuItem
                       onClick={() =>
                         publishAnnouncement.mutate(announcement.id)
@@ -337,8 +290,7 @@ export default function AnnouncementsPage() {
           {viewTarget && (
             <div className="space-y-4">
               <div className="flex flex-wrap items-center gap-2">
-                <PriorityBadge priority={viewTarget.priority} />
-                <StatusBadge status={viewTarget.status} />
+                <StatusBadge status={viewTarget.isPublished ? 'PUBLISHED' : 'DRAFT'} />
                 <Badge variant="outline">
                   {audienceLabels[viewTarget.targetAudience] ??
                     viewTarget.targetAudience}

@@ -2,9 +2,8 @@ export interface Announcement {
   id: string;
   title: string;
   content: string;
-  targetAudience: 'ALL' | 'TEACHERS' | 'PARENTS' | 'STUDENTS';
-  priority: 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT';
-  status: 'DRAFT' | 'PUBLISHED';
+  targetAudience: 'ALL' | 'TEACHERS' | 'PARENTS' | 'CLASS_SPECIFIC';
+  isPublished: boolean;
   publishedAt: string | null;
   expiresAt: string | null;
   attachmentUrls?: string[];
@@ -15,8 +14,7 @@ export interface Announcement {
 export interface CreateAnnouncementRequest {
   title: string;
   content: string;
-  targetAudience: 'ALL' | 'TEACHERS' | 'PARENTS' | 'STUDENTS';
-  priority: 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT';
+  targetAudience: 'ALL' | 'TEACHERS' | 'PARENTS' | 'CLASS_SPECIFIC';
   expiresAt?: string;
   attachmentUrls?: string[];
 }

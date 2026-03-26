@@ -15,7 +15,7 @@ export interface AttendanceRecord {
 export interface BulkAttendanceEntry {
   studentId: string;
   status: 'PRESENT' | 'ABSENT' | 'LATE';
-  note?: string;
+  notes?: string;
 }
 
 export interface BulkAttendanceRequest {

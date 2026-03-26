@@ -1,13 +1,13 @@
 export interface NotificationPreference {
   id: string;
   type: string;
-  email: boolean;
-  push: boolean;
-  sms: boolean;
+  emailEnabled: boolean;
+  pushEnabled: boolean;
+  smsEnabled: boolean;
 }
 
 export interface UpdatePreferenceRequest {
-  email?: boolean;
-  push?: boolean;
-  sms?: boolean;
+  emailEnabled?: boolean;
+  pushEnabled?: boolean;
+  smsEnabled?: boolean;
 }

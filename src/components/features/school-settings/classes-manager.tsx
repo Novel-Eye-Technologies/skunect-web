@@ -127,12 +127,12 @@ export function ClassesManager() {
   }
 
   function onSubmit(values: ClassFormValues) {
+    if (!currentSessionId) return;
     const payload = {
       name: values.name,
-      capacity: values.capacity,
-      section: values.section || undefined,
-      classTeacherId: values.classTeacherId,
       sessionId: currentSessionId,
+      capacity: values.capacity || undefined,
+      classTeacherId: values.classTeacherId || undefined,
     };
 
     if (editingClass) {

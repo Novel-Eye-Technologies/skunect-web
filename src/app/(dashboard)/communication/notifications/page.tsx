@@ -94,7 +94,7 @@ export default function NotificationsPage() {
   // Handlers
   // ---------------------------------------------------------------------------
   function handleNotificationClick(notification: NotificationItem) {
-    if (!notification.read) {
+    if (!notification.isRead) {
       markAsRead.mutate(notification.id);
     }
     if (notification.actionUrl) {
@@ -186,7 +186,7 @@ export default function NotificationsPage() {
                 key={notification.id}
                 className={cn(
                   'cursor-pointer transition-colors hover:bg-accent/50',
-                  !notification.read && 'border-l-4 border-l-primary',
+                  !notification.isRead && 'border-l-4 border-l-primary',
                 )}
                 onClick={() => handleNotificationClick(notification)}
               >
@@ -207,7 +207,7 @@ export default function NotificationsPage() {
                       <h3
                         className={cn(
                           'text-sm',
-                          !notification.read
+                          !notification.isRead
                             ? 'font-semibold text-foreground'
                             : 'font-medium text-foreground/80',
                         )}
@@ -215,12 +215,12 @@ export default function NotificationsPage() {
                         {notification.title}
                       </h3>
                       {/* Unread indicator */}
-                      {!notification.read && (
+                      {!notification.isRead && (
                         <span className="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full bg-primary" />
                       )}
                     </div>
                     <p className="mt-0.5 text-sm text-muted-foreground line-clamp-2">
-                      {notification.message}
+                      {notification.body}
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
                       {formatRelative(notification.createdAt)}
