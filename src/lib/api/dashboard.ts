@@ -51,10 +51,16 @@ export async function getTeacherDashboard(
 
 export async function getParentDashboard(
   schoolId: string,
+  studentId?: string,
 ): Promise<ApiResponse<ParentDashboardData>> {
+  const params: Record<string, string> = { schoolId };
+  if (studentId) {
+    params.studentId = studentId;
+  }
+  
   const response = await apiClient.get<ApiResponse<ParentDashboardData>>(
     '/parents/me/dashboard',
-    { params: { schoolId } },
+    { params },
   );
   return response.data;
 }
