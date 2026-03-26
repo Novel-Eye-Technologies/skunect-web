@@ -119,7 +119,7 @@ export function GradeSubmissionDialog({
             <div className="text-xs text-muted-foreground">
               Submitted: {formatDateTime(submission.submittedAt)}
             </div>
-            {submission.attachments.length > 0 && (
+            {submission.attachments?.length > 0 && (
               <div className="text-xs text-muted-foreground">
                 {submission.attachments.length} attachment(s)
               </div>
