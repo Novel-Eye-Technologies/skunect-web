@@ -74,7 +74,22 @@ export interface CreateStudentRequest {
   guardians?: GuardianInfo[];
 }
 
-export interface UpdateStudentRequest extends Partial<CreateStudentRequest> {
+export interface UpdateStudentRequest {
+  firstName?: string;
+  lastName?: string;
+  middleName?: string;
+  gender?: string;
+  bloodGroup?: string;
+  genotype?: string;
+  address?: string;
+  stateOfOrigin?: string;
+  lga?: string;
+  religion?: string;
+  allergies?: string;
+  medicalConditions?: string;
+  healthNotes?: string;
+  photoUrl?: string;
+  dateOfBirth?: string;
   status?: 'ACTIVE' | 'INACTIVE' | 'GRADUATED' | 'TRANSFERRED' | 'SUSPENDED' | 'EXPELLED';
 }
 

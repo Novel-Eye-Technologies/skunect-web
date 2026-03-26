@@ -121,10 +121,10 @@ export interface UpdateTermRequest extends CreateTermRequest {
 
 export interface CreateClassRequest {
   name: string;
-  section?: string;
-  capacity: number;
-  classTeacherId: string;
-  sessionId?: string;
+  gradeLevel?: string;
+  sessionId: string;
+  capacity?: number;
+  classTeacherId?: string;
 }
 
 export interface UpdateClassRequest extends CreateClassRequest {}
@@ -132,7 +132,6 @@ export interface UpdateClassRequest extends CreateClassRequest {}
 export interface CreateSubjectRequest {
   name: string;
   code: string;
-  description?: string;
 }
 
 export interface UpdateSubjectRequest extends CreateSubjectRequest {}

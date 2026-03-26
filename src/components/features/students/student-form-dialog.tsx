@@ -209,15 +209,27 @@ export function StudentFormDialog({
   );
 
   function onSubmit(values: StudentFormValues) {
-    // Clean up empty guardians array
-    const data = {
-      ...values,
-      guardians: values.guardians?.length ? values.guardians : undefined,
-    };
-
     if (isEdit) {
+      // Map to UpdateStudentRequest fields (backend uses middleName, not otherName;
+      // does not accept classId, admissionNumber, or guardians on update)
+      const updateData = {
+        firstName: values.firstName,
+        lastName: values.lastName,
+        middleName: values.otherName || undefined,
+        gender: values.gender,
+        dateOfBirth: values.dateOfBirth,
+        photoUrl: values.photoUrl || undefined,
+        address: values.address || undefined,
+        stateOfOrigin: values.stateOfOrigin || undefined,
+        lga: values.lga || undefined,
+        religion: values.religion || undefined,
+        bloodGroup: values.bloodGroup || undefined,
+        genotype: values.genotype || undefined,
+        allergies: values.allergies || undefined,
+        medicalConditions: values.medicalConditions || undefined,
+      };
       updateStudent.mutate(
-        { studentId: student.id, data },
+        { studentId: student.id, data: updateData },
         {
           onSuccess: () => {
             form.reset();
@@ -226,7 +238,12 @@ export function StudentFormDialog({
         },
       );
     } else {
-      createStudent.mutate(data, {
+      // Clean up empty guardians array
+      const createData = {
+        ...values,
+        guardians: values.guardians?.length ? values.guardians : undefined,
+      };
+      createStudent.mutate(createData, {
         onSuccess: () => {
           form.reset();
           onOpenChange(false);

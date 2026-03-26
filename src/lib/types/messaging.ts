@@ -34,8 +34,9 @@ export interface Message {
 }
 
 export interface CreateConversationRequest {
-  recipientId: string;
-  message: string;
+  type: string;
+  schoolId: string;
+  participantIds: string[];
 }
 
 export interface SendMessageRequest {
