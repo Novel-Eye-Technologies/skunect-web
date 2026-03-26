@@ -289,7 +289,7 @@ export function SchoolSubscriptionClient() {
             />
             <StatCard
               title="Days Until Expiry"
-              value={subscription.daysUntilExpiry.toString()}
+              value={(subscription.daysUntilExpiry ?? 0).toString()}
             />
           </div>
 

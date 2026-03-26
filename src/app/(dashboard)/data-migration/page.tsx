@@ -119,17 +119,17 @@ function DataMigrationContent() {
   const columns: ColumnDef<MigrationJob>[] = useMemo(
     () => [
       {
-        accessorKey: 'fileName',
+        accessorKey: 'fileUrl',
         header: 'File Name',
         cell: ({ row }) => (
-          <span className="font-medium">{row.original.fileName}</span>
+          <span className="font-medium">{(() => { const u = row.original.fileUrl ?? ''; return u.split('/').pop() ?? u; })()}</span>
         ),
       },
       {
         accessorKey: 'type',
         header: 'Type',
         cell: ({ row }) => {
-          const type = row.original.type;
+          const type = row.original.type!;
           return (
             <Badge
               variant="secondary"
@@ -144,7 +144,7 @@ function DataMigrationContent() {
         accessorKey: 'status',
         header: 'Status',
         cell: ({ row }) => {
-          const status = row.original.status;
+          const status = row.original.status as MigrationJobStatus;
           const config = JOB_STATUS_MAP[status];
           const Icon = config.icon;
           const isSpinning =
@@ -167,7 +167,7 @@ function DataMigrationContent() {
         cell: ({ row }) => {
           const job = row.original;
           const pct =
-            job.totalRecords > 0
+            (job.totalRecords ?? 0) > 0
               ? Math.round((job.processedRecords / job.totalRecords) * 100)
               : 0;
           return (
@@ -181,24 +181,24 @@ function DataMigrationContent() {
         },
       },
       {
-        accessorKey: 'successCount',
+        id: 'successCount',
         header: 'Success',
         cell: ({ row }) => (
-          <span className="text-[#2A9D8F]">{row.original.successCount}</span>
+          <span className="text-[#2A9D8F]">{(row.original.totalRecords ?? 0) - (row.original.failedRecords ?? 0)}</span>
         ),
       },
       {
-        accessorKey: 'errorCount',
+        accessorKey: 'failedRecords',
         header: 'Errors',
         cell: ({ row }) => (
           <span
             className={
-              row.original.errorCount > 0
+              row.original.failedRecords ?? 0 > 0
                 ? 'font-medium text-red-500'
                 : 'text-muted-foreground'
             }
           >
-            {row.original.errorCount}
+            {row.original.failedRecords ?? 0}
           </span>
         ),
       },
@@ -271,7 +271,7 @@ function DataMigrationContent() {
                 pageIndex={pagination.pageIndex}
                 pageSize={pagination.pageSize}
                 onPaginationChange={handlePaginationChange}
-                searchKey="fileName"
+                searchKey="fileUrl"
                 searchPlaceholder="Search by file name..."
               />
             )}

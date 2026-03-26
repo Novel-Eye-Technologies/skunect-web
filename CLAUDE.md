@@ -12,9 +12,22 @@ npm run test:e2e                        # Playwright E2E tests (against dev.skun
 npm run test:e2e:ui                     # Interactive Playwright UI
 npx playwright test path/to/spec.ts    # Single E2E test file
 E2E_BASE_URL=http://localhost:3000 npm run test:e2e  # E2E against local dev
+npm run api:sync                        # Regenerate API types from backend OpenAPI spec
 ```
 
 After code changes, run E2E tests against local dev to verify no regressions.
+
+## API Type Generation
+
+Backend types are auto-generated from the OpenAPI spec using `openapi-typescript`.
+
+- **Spec**: `src/lib/api/openapi.json` — downloaded from backend `/api-docs` endpoint
+- **Generated types**: `src/lib/api/generated-types.ts` — DO NOT edit manually
+- **Schema helper**: `src/lib/api/schema.ts` — re-exports with `Api['SchemaName']` shorthand
+- **Sync command**: `npm run api:sync` — fetches spec and regenerates types
+- **CI check**: The E2E full workflow verifies types are in sync with the running backend
+
+When backend DTOs change, run `npm run api:sync` and commit the updated files. CI will fail if types drift.
 
 ## Architecture
 

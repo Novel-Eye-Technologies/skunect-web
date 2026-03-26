@@ -97,7 +97,7 @@ export default function SubscriptionPlansPage() {
     setEditingPlan(plan);
     setForm({
       name: plan.name,
-      tier: plan.tier,
+      tier: plan.tier as SubscriptionTier,
       pricePerStudent: plan.pricePerStudent,
       billingPeriodMonths: plan.billingPeriodMonths,
       maxStudents: plan.maxStudents,

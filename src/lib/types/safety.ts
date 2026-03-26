@@ -1,21 +1,21 @@
+import type { Api } from '@/lib/api/schema';
+
+// Request types from generated OpenAPI schemas
+export type CreatePickupAuthorizationRequest = Api['CreatePickupAuthorizationRequest'];
+export type RecordPickupRequest = Api['RecordPickupRequest'];
+
+// Response types — generated schemas have all fields optional, keep hand-written
 export interface EmergencyAlert {
   id: string;
-  type: 'LOCKDOWN' | 'EVACUATION' | 'MEDICAL' | 'WEATHER' | 'OTHER';
+  schoolId: string;
   title: string;
-  description: string;
-  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-  status: 'ACTIVE' | 'RESOLVED';
-  createdBy: string;
-  createdAt: string;
+  message: string;
+  severity: string;
+  initiatedBy: string;
+  isActive: boolean;
   resolvedAt: string | null;
-  resolvedBy: string | null;
-}
-
-export interface CreateEmergencyAlertRequest {
-  type: 'LOCKDOWN' | 'EVACUATION' | 'MEDICAL' | 'WEATHER' | 'OTHER';
-  title: string;
-  description: string;
-  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface PickupLog {
@@ -29,14 +29,6 @@ export interface PickupLog {
   verifiedAt: string | null;
   status: 'PENDING' | 'VERIFIED';
   createdAt: string;
-}
-
-export interface CreatePickupLogRequest {
-  studentId: string;
-  pickupPersonName: string;
-  relationship: string;
-  authorizationId?: string;
-  notes?: string;
 }
 
 export interface PickupAuthorization {
@@ -54,11 +46,18 @@ export interface PickupAuthorization {
   createdAt: string;
 }
 
-export interface CreatePickupAuthorizationRequest {
+// Keep hand-written — backend expects title + message + severity
+export interface CreateEmergencyAlertRequest {
+  title: string;
+  message: string;
+  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+}
+
+// No generated schema — keep hand-written
+export interface CreatePickupLogRequest {
   studentId: string;
-  pickupPersonName: string;
-  pickupPersonPhone?: string;
-  pickupPersonRelationship?: string;
-  validFrom?: string;
-  validUntil?: string;
+  pickedUpByName: string;
+  relationship: string;
+  authorizationId?: string;
+  notes?: string;
 }

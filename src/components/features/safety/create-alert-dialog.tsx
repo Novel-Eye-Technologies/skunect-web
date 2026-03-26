@@ -34,11 +34,8 @@ import { cn } from '@/lib/utils';
 import { useCreateEmergencyAlert } from '@/lib/hooks/use-safety';
 
 const alertFormSchema = z.object({
-  type: z.enum(['LOCKDOWN', 'EVACUATION', 'MEDICAL', 'WEATHER', 'OTHER'], {
-    message: 'Please select an alert type',
-  }),
   title: z.string().min(1, { message: 'Title is required' }),
-  description: z.string().min(1, { message: 'Description is required' }),
+  message: z.string().min(1, { message: 'Message is required' }),
   severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'], {
     message: 'Please select severity level',
   }),
@@ -67,9 +64,8 @@ export function CreateAlertDialog({
   const form = useForm<AlertFormValues>({
     resolver: zodResolver(alertFormSchema),
     defaultValues: {
-      type: undefined,
       title: '',
-      description: '',
+      message: '',
       severity: undefined,
     },
   });
@@ -102,35 +98,6 @@ export function CreateAlertDialog({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {/* Alert Type */}
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Alert Type</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select alert type" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="LOCKDOWN">Lockdown</SelectItem>
-                      <SelectItem value="EVACUATION">Evacuation</SelectItem>
-                      <SelectItem value="MEDICAL">Medical</SelectItem>
-                      <SelectItem value="WEATHER">Weather</SelectItem>
-                      <SelectItem value="OTHER">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             {/* Title */}
             <FormField
               control={form.control}
@@ -182,13 +149,13 @@ export function CreateAlertDialog({
               )}
             />
 
-            {/* Description */}
+            {/* Message */}
             <FormField
               control={form.control}
-              name="description"
+              name="message"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>Message</FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="Provide details about the emergency..."

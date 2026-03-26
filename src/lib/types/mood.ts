@@ -1,3 +1,5 @@
+import type { Api } from '@/lib/api/schema';
+
 export interface MoodEntry {
   id: string;
   studentId: string;
@@ -9,11 +11,8 @@ export interface MoodEntry {
   recordedByName: string;
 }
 
-export interface CreateMoodEntryRequest {
-  studentId: string;
-  mood: string;
-  note?: string;
-}
+// Request types from generated OpenAPI schemas
+export type CreateMoodEntryRequest = Api['CreateMoodEntryRequest'];
 
 export const MOOD_OPTIONS = [
   'HAPPY',

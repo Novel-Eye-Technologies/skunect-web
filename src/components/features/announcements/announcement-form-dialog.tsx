@@ -46,17 +46,14 @@ const MAX_FILES = 5;
 const announcementFormSchema = z.object({
   title: z.string().min(1, { message: 'Title is required' }),
   content: z.string().min(1, { message: 'Content is required' }),
-  targetAudience: z.enum(['ALL', 'TEACHERS', 'PARENTS', 'STUDENTS'], {
+  targetAudience: z.enum(['ALL', 'TEACHERS', 'PARENTS', 'CLASS_SPECIFIC'], {
     message: 'Please select a target audience',
   }),
   targetClassId: z.string().optional(),
-  priority: z.enum(['LOW', 'NORMAL', 'HIGH', 'URGENT'], {
-    message: 'Please select a priority',
-  }),
   expiresAt: z.string().optional(),
 }).superRefine((values, ctx) => {
   const requiresClass =
-    values.targetAudience === 'STUDENTS' || values.targetAudience === 'PARENTS';
+    values.targetAudience === 'CLASS_SPECIFIC' || values.targetAudience === 'PARENTS';
 
   if (requiresClass && !values.targetClassId?.trim()) {
     ctx.addIssue({
@@ -114,16 +111,12 @@ export function AnnouncementFormDialog({
       title: '',
       content: '',
       targetAudience: isTeacher ? 'PARENTS' : 'ALL',
-      priority: 'NORMAL',
       expiresAt: '',
-      targetClassId: ''
+      targetClassId: '',
     },
   });
 
-  const {
-    data: classesResponse
-  } = useClasses();
-
+  const { data: classesResponse } = useClasses();
 
   const targetAudience = form.watch('targetAudience');
 
@@ -133,7 +126,6 @@ export function AnnouncementFormDialog({
         title: announcement.title,
         content: announcement.content,
         targetAudience: announcement.targetAudience,
-        priority: announcement.priority,
         expiresAt: announcement.expiresAt
           ? announcement.expiresAt.split('T')[0]
           : '',
@@ -155,7 +147,6 @@ export function AnnouncementFormDialog({
         title: '',
         content: '',
         targetAudience: isTeacher ? 'PARENTS' : 'ALL',
-        priority: 'NORMAL',
         expiresAt: '',
       });
       setAttachments([]);
@@ -300,7 +291,7 @@ export function AnnouncementFormDialog({
                       onValueChange={(value) => {
                         field.onChange(value);
 
-                        if (value !== 'STUDENTS' && value !== 'PARENTS') {
+                        if (value !== 'CLASS_SPECIFIC' && value !== 'PARENTS') {
                           form.setValue('targetClassId', '');
                           form.clearErrors('targetClassId');
                           return;
@@ -319,14 +310,14 @@ export function AnnouncementFormDialog({
                         {!isTeacher && <SelectItem value="ALL">All</SelectItem>}
                         <SelectItem value="TEACHERS">Teachers</SelectItem>
                         <SelectItem value="PARENTS">Parents</SelectItem>
-                        <SelectItem value="STUDENTS">Students</SelectItem>
+                        <SelectItem value="CLASS_SPECIFIC">Class Specific</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              {(targetAudience === 'STUDENTS' || targetAudience === 'PARENTS') && (
+              {(targetAudience === 'CLASS_SPECIFIC' || targetAudience === 'PARENTS') && (
                 <FormField
                   control={form.control}
                   name="targetClassId"
@@ -340,7 +331,7 @@ export function AnnouncementFormDialog({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {classesResponse?.map((classItem : { id: string; name: string }) => (
+                          {classesResponse?.map((classItem: { id: string; name: string }) => (
                             <SelectItem key={classItem.id} value={classItem.id}>
                               {classItem.name}
                             </SelectItem>
@@ -354,30 +345,8 @@ export function AnnouncementFormDialog({
                       )}
                     </FormItem>
                   )}
-                />)}
-              <FormField
-                control={form.control}
-                name="priority"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Priority</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select priority" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="LOW">Low</SelectItem>
-                        <SelectItem value="NORMAL">Normal</SelectItem>
-                        <SelectItem value="HIGH">High</SelectItem>
-                        <SelectItem value="URGENT">Urgent</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                />
+              )}
             </div>
 
             <FormField

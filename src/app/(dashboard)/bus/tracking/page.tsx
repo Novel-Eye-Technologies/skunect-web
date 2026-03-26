@@ -98,7 +98,7 @@ function ChildBusTrackingCard({ childId, childName }: { childId: string; childNa
 
   const { enrollment, latestTrip, studentTripStatus } = tracking;
   const StatusIcon = studentTripStatus
-    ? studentTripStatusIcons[studentTripStatus.status] ?? Clock
+    ? studentTripStatusIcons[studentTripStatus?.status ?? ""] ?? Clock
     : Clock;
 
   return (
@@ -111,15 +111,15 @@ function ChildBusTrackingCard({ childId, childName }: { childId: string; childNa
               {childName}
             </CardTitle>
             <CardDescription>
-              {enrollment.routeName ?? 'No route assigned'}
+              {enrollment?.routeName ?? 'No route assigned'}
             </CardDescription>
           </div>
           {latestTrip && (
             <Badge
               variant="secondary"
-              className={tripStatusColors[latestTrip.status] ?? ''}
+              className={tripStatusColors[latestTrip?.status ?? ""] ?? ''}
             >
-              {latestTrip.status.replace('_', ' ')}
+              {latestTrip?.status?.replace('_', ' ')}
             </Badge>
           )}
         </div>
@@ -132,7 +132,7 @@ function ChildBusTrackingCard({ childId, childName }: { childId: string; childNa
             <div>
               <p className="text-xs text-muted-foreground">Bus</p>
               <p className="text-sm font-medium">
-                {enrollment.busPlateNumber ?? '-'}
+                {enrollment?.busPlateNumber ?? '-'}
               </p>
             </div>
           </div>
@@ -141,7 +141,7 @@ function ChildBusTrackingCard({ childId, childName }: { childId: string; childNa
             <div>
               <p className="text-xs text-muted-foreground">Pickup Point</p>
               <p className="text-sm font-medium">
-                {enrollment.pickupPoint ?? 'Not specified'}
+                {enrollment?.pickupPoint ?? 'Not specified'}
               </p>
             </div>
           </div>
@@ -164,18 +164,6 @@ function ChildBusTrackingCard({ childId, childName }: { childId: string; childNa
                 <span className="text-muted-foreground">Trip Date</span>
                 <span>{latestTrip.tripDate}</span>
               </div>
-              {latestTrip.startedAt && (
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Started</span>
-                  <span>{formatDateTime(latestTrip.startedAt)}</span>
-                </div>
-              )}
-              {latestTrip.completedAt && (
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Completed</span>
-                  <span>{formatDateTime(latestTrip.completedAt)}</span>
-                </div>
-              )}
             </div>
 
             {/* Student Trip Status */}
@@ -187,11 +175,11 @@ function ChildBusTrackingCard({ childId, childName }: { childId: string; childNa
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-medium">
-                      {studentTripStatus.status.replace('_', ' ')}
+                      {studentTripStatus?.status?.replace('_', ' ')}
                     </p>
                     <Badge
                       variant="secondary"
-                      className={`text-[10px] ${studentTripStatusColors[studentTripStatus.status] ?? ''}`}
+                      className={`text-[10px] ${studentTripStatusColors[studentTripStatus?.status ?? ""] ?? ''}`}
                     >
                       {studentTripStatus.status}
                     </Badge>

@@ -111,7 +111,7 @@ export function AttendanceGrid() {
     const records: BulkAttendanceEntry[] = rows.map((row) => ({
       studentId: row.studentId,
       status: row.status,
-      ...(row.note ? { note: row.note } : {}),
+      ...(row.note ? { notes: row.note } : {}),
     }));
 
     submitAttendance.mutate({

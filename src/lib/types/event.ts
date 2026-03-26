@@ -1,3 +1,5 @@
+import type { Api } from '@/lib/api/schema';
+
 export interface EventItem {
   id: string;
   schoolId: string;
@@ -24,27 +26,6 @@ export interface CoordinatorInfo {
   role: string;
 }
 
-export interface CreateEventRequest {
-  title: string;
-  description?: string;
-  startTime: string;
-  endTime?: string;
-  location?: string;
-  classId?: string;
-  reminderMinutes?: number;
-  visibility?: 'TEACHERS_ONLY' | 'TEACHERS_AND_PARENTS';
-  coordinatorIds?: string[];
-}
-
-export interface UpdateEventRequest {
-  title?: string;
-  description?: string;
-  startTime?: string;
-  endTime?: string;
-  location?: string;
-  classId?: string;
-  reminderMinutes?: number;
-  visibility?: 'TEACHERS_ONLY' | 'TEACHERS_AND_PARENTS';
-  status?: string;
-  coordinatorIds?: string[];
-}
+// Request types from generated OpenAPI schemas
+export type CreateEventRequest = Api['CreateEventRequest'];
+export type UpdateEventRequest = Api['UpdateEventRequest'];

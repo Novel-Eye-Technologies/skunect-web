@@ -78,7 +78,7 @@ export default function ProfilePage() {
         <CardHeader>
           <div className="flex items-center gap-4">
             <Avatar className="h-16 w-16">
-              <AvatarImage src={user.avatarUrl} alt={initials} />
+              <AvatarImage src={user.avatarUrl ?? undefined} alt={initials} />
               <AvatarFallback className="text-lg">{initials}</AvatarFallback>
             </Avatar>
             <div>

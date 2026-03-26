@@ -318,10 +318,10 @@ export default function BusManagementPage() {
   // ---------------------------------------------------------------------------
   const tripColumns: ColumnDef<BusTrip>[] = [
     {
-      accessorKey: 'busPlateNumber',
-      header: 'Bus',
+      accessorKey: 'busId',
+      header: 'Bus ID',
       cell: ({ row }) => (
-        <div className="font-medium">{row.original.busPlateNumber ?? '-'}</div>
+        <div className="font-medium">{row.original.busId.slice(0, 8)}...</div>
       ),
     },
     {

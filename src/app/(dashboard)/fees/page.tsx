@@ -139,35 +139,21 @@ export default function FeesPage() {
       ),
     },
     {
-      accessorKey: 'description',
-      header: 'Description',
-      cell: ({ row }) => (
-        <span className="text-muted-foreground">
-          {row.original.description ?? '-'}
-        </span>
-      ),
-    },
-    {
       accessorKey: 'amount',
       header: 'Amount',
       cell: ({ row }) => formatCurrency(row.original.amount),
     },
     {
-      accessorKey: 'className',
-      header: 'Class',
-      cell: ({ row }) => row.original.className ?? 'All Classes',
-    },
-    {
-      accessorKey: 'termName',
-      header: 'Term',
-      cell: ({ row }) => row.original.termName ?? '-',
-    },
-    {
-      id: 'status',
-      header: 'Status',
+      id: 'mandatory',
+      header: 'Mandatory',
       cell: ({ row }) => (
-        <StatusBadge status={row.original.isActive ? 'ACTIVE' : 'INACTIVE'} />
+        <StatusBadge status={row.original.isMandatory ? 'MANDATORY' : 'OPTIONAL'} />
       ),
+    },
+    {
+      accessorKey: 'deadline',
+      header: 'Deadline',
+      cell: ({ row }) => row.original.deadline ?? '-',
     },
     {
       id: 'actions',

@@ -267,8 +267,8 @@ export default function BulkSubscriptionPage() {
                     </TableCell>
                     <TableCell>{sub.endDate}</TableCell>
                     <TableCell>
-                      <span className={sub.daysUntilExpiry <= 7 ? 'text-destructive font-bold' : ''}>
-                        {sub.daysUntilExpiry} days
+                      <span className={(sub.daysUntilExpiry ?? 0) <= 7 ? 'text-destructive font-bold' : ''}>
+                        {sub.daysUntilExpiry ?? 0} days
                       </span>
                     </TableCell>
                     <TableCell>{formatCurrency(sub.outstandingBalance)}</TableCell>
