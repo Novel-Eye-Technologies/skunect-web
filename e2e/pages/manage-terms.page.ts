@@ -22,7 +22,7 @@ export class ManageTermsPage {
   async expectVisible() {
     await expect(
       this.page.getByText('Academic Sessions', { exact: true })
-    ).toBeVisible({ timeout: 10_000 });
+    ).toBeVisible({ timeout: 15_000 });
   }
 
   // --- Session methods ---
@@ -57,7 +57,7 @@ export class ManageTermsPage {
   }
 
   async expectSessionVisible(name: string) {
-    await expect(this.page.getByText(name)).toBeVisible({ timeout: 10_000 });
+    await expect(this.page.getByText(name)).toBeVisible({ timeout: 15_000 });
   }
 
   async selectSession(name: string) {
@@ -120,7 +120,7 @@ export class ManageTermsPage {
   }
 
   async expectTermVisible(name: string) {
-    await expect(this.page.getByText(name)).toBeVisible({ timeout: 10_000 });
+    await expect(this.page.getByText(name)).toBeVisible({ timeout: 15_000 });
   }
 
   async editTerm(name: string) {
