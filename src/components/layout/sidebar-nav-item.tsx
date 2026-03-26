@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ChevronDown } from 'lucide-react';
@@ -18,12 +17,16 @@ interface SidebarNavItemProps {
   item: NavItem;
   collapsed: boolean;
   onNavigate?: () => void;
+  expanded?: boolean;
+  onToggle?: () => void;
 }
 
 export function SidebarNavItem({
   item,
   collapsed,
   onNavigate,
+  expanded = false,
+  onToggle,
 }: SidebarNavItemProps) {
   const pathname = usePathname();
   const currentRole = useAuthStore((s) => s.currentRole);
@@ -42,8 +45,6 @@ export function SidebarNavItem({
           pathname === child.href || pathname.startsWith(`${child.href}/`),
       )
     : false;
-
-  const [expanded, setExpanded] = useState(isActive || isChildActive);
 
   const Icon = item.icon;
 
@@ -88,7 +89,7 @@ export function SidebarNavItem({
       <div>
         <button
           type="button"
-          onClick={() => setExpanded(!expanded)}
+          onClick={onToggle}
           className={cn(
             'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
             isActive || isChildActive

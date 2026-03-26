@@ -36,6 +36,8 @@ import {
 } from '@/lib/hooks/use-announcements';
 import { uploadFile } from '@/lib/api/files';
 import type { Announcement } from '@/lib/types/announcements';
+import { useAuthStore } from '@/lib/stores/auth-store';
+import { useClasses } from '@/lib/queries/useClasses';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 const MAX_FILES = 5;
@@ -46,7 +48,19 @@ const announcementFormSchema = z.object({
   targetAudience: z.enum(['ALL', 'TEACHERS', 'PARENTS', 'CLASS_SPECIFIC'], {
     message: 'Please select a target audience',
   }),
+  targetClassId: z.string().optional(),
   expiresAt: z.string().optional(),
+}).superRefine((values, ctx) => {
+  const requiresClass =
+    values.targetAudience === 'CLASS_SPECIFIC' || values.targetAudience === 'PARENTS';
+
+  if (requiresClass && !values.targetClassId?.trim()) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['targetClassId'],
+      message: 'Please select a target class',
+    });
+  }
 });
 
 type AnnouncementFormValues = z.infer<typeof announcementFormSchema>;
@@ -81,7 +95,8 @@ export function AnnouncementFormDialog({
   announcement,
 }: AnnouncementFormDialogProps) {
   const isEdit = !!announcement;
-
+  const currentRole = useAuthStore((s) => s.currentRole);
+  const isTeacher = currentRole === 'TEACHER';
   const createAnnouncement = useCreateAnnouncement();
   const updateAnnouncement = useUpdateAnnouncement();
 
@@ -94,10 +109,15 @@ export function AnnouncementFormDialog({
     defaultValues: {
       title: '',
       content: '',
-      targetAudience: 'ALL',
+      targetAudience: isTeacher ? 'PARENTS' : 'ALL',
       expiresAt: '',
+      targetClassId: '',
     },
   });
+
+  const { data: classesResponse } = useClasses();
+
+  const targetAudience = form.watch('targetAudience');
 
   useEffect(() => {
     if (announcement && open) {
@@ -125,12 +145,12 @@ export function AnnouncementFormDialog({
       form.reset({
         title: '',
         content: '',
-        targetAudience: 'ALL',
+        targetAudience: isTeacher ? 'PARENTS' : 'ALL',
         expiresAt: '',
       });
       setAttachments([]);
     }
-  }, [announcement, open, form]);
+  }, [announcement, open, form, isTeacher]);
 
   const handleFilesSelected = useCallback(
     (files: FileList | null) => {
@@ -255,29 +275,74 @@ export function AnnouncementFormDialog({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="targetAudience"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Target Audience</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select audience" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="ALL">All</SelectItem>
-                      <SelectItem value="TEACHERS">Teachers</SelectItem>
-                      <SelectItem value="PARENTS">Parents</SelectItem>
-                      <SelectItem value="CLASS_SPECIFIC">Class Specific</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="targetAudience"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Target Audience</FormLabel>
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value);
+
+                        if (value !== 'CLASS_SPECIFIC' && value !== 'PARENTS') {
+                          form.setValue('targetClassId', '');
+                          form.clearErrors('targetClassId');
+                          return;
+                        }
+
+                        form.trigger('targetClassId');
+                      }}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select audience" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {!isTeacher && <SelectItem value="ALL">All</SelectItem>}
+                        <SelectItem value="TEACHERS">Teachers</SelectItem>
+                        <SelectItem value="PARENTS">Parents</SelectItem>
+                        <SelectItem value="CLASS_SPECIFIC">Class Specific</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {(targetAudience === 'CLASS_SPECIFIC' || targetAudience === 'PARENTS') && (
+                <FormField
+                  control={form.control}
+                  name="targetClassId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Target Class</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value ?? ''}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select class" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {classesResponse?.map((classItem: { id: string; name: string }) => (
+                            <SelectItem key={classItem.id} value={classItem.id}>
+                              {classItem.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {form.formState.errors.targetClassId?.message && (
+                        <p className="text-sm font-medium text-destructive">
+                          {form.formState.errors.targetClassId.message}
+                        </p>
+                      )}
+                    </FormItem>
+                  )}
+                />
               )}
-            />
+            </div>
 
             <FormField
               control={form.control}

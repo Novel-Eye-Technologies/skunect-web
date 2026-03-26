@@ -109,7 +109,7 @@ const [activeConversationId, setActiveConversationId] = useState<
       unsubscribe();
       disconnectStomp();
     };
-  }, [accessToken, activeConversationId, queryClient, scrollToBottom]);
+  }, [accessToken, activeConversationId, scrollToBottom]);
 
   useEffect(() => {
     if (messages.length > 0) {

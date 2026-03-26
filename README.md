@@ -45,6 +45,32 @@ npm run dev
 
 The app will be available at `http://localhost:3000`.
 
+### Local PR Checks (Husky)
+
+This repo uses a Husky `pre-push` hook to simulate PR checks before pushing:
+
+- `npm run ci:pr` (lint + typecheck)
+- Build with PR workflow env (`NEXT_PUBLIC_API_URL=/api/v1`, `NEXT_PUBLIC_WS_URL=/ws/messages`)
+- E2E suite excluding School Lifecycle against dev (`https://dev.skunect.com`)
+
+To run manually:
+
+```bash
+npm run pr:simulate
+```
+
+To simulate local full-stack flow (including School Lifecycle) against local services:
+
+```bash
+npm run pr:simulate:local
+```
+
+To bypass once (not recommended):
+
+```bash
+SKIP_PR_SIMULATION=1 git push
+```
+
 ### Build for Production
 
 ```bash

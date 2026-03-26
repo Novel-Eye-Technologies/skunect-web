@@ -134,10 +134,22 @@ export const navigationConfig: NavItem[] = [
     icon: BookOpen,
     roles: ['ADMIN', 'TEACHER'],
     children: [
-      { title: 'Overview', href: '/academics', icon: BookOpen, roles: ['ADMIN', 'TEACHER'] },
-      { title: 'Timetable', href: '/timetable', icon: Calendar, roles: ['ADMIN'] },
-      { title: 'Attendance', href: '/attendance', icon: ClipboardCheck, roles: ['ADMIN', 'TEACHER'] },
-      { title: 'Homework', href: '/homework', icon: FileText, roles: ['ADMIN', 'TEACHER'] },
+      { title: 'Academic Overview', href: '/academics', icon: BookOpen, roles: ['ADMIN', 'TEACHER'] },
+      { title: 'Timetable', href: '/timetable', icon: Calendar, roles: ['ADMIN', 'TEACHER'] },
+      { title: 'Attendance Marking', href: '/attendance', icon: ClipboardCheck, roles: ['ADMIN', 'TEACHER'] },
+      { title: 'Homework Management', href: '/homework', icon: FileText, roles: ['ADMIN', 'TEACHER'] },
+      { title: 'Assessments & Grading', href: '/academics?tab=assessments', icon: ClipboardCheck, roles: ['ADMIN', 'TEACHER'] },
+      { title: 'Report Cards', href: '/academics?tab=report-cards', icon: ScrollText, roles: ['ADMIN', 'TEACHER'] },
+    ],
+  },
+  {
+    title: 'Academics',
+    href: '/academics',
+    icon: BookOpen,
+    roles: ['PARENT'],
+    children: [
+      { title: 'Attendance', href: '/attendance', icon: ClipboardCheck, roles: ['PARENT'] },
+      { title: 'Homework', href: '/homework', icon: FileText, roles: ['PARENT'] },
     ],
   },
   {
@@ -145,12 +157,6 @@ export const navigationConfig: NavItem[] = [
     href: '/promotions',
     icon: ArrowUpDown,
     roles: ['ADMIN'],
-  },
-  {
-    title: 'Homework',
-    href: '/homework',
-    icon: FileText,
-    roles: ['PARENT'],
   },
   {
     title: 'Calendar',

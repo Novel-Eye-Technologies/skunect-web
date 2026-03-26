@@ -11,7 +11,6 @@ export interface NotificationListParams extends PaginatedParams {
 }
 
 export async function getNotifications(
-  _schoolId: string,
   params?: NotificationListParams,
 ): Promise<ApiResponse<NotificationItem[]>> {
   const response = await apiClient.get<ApiResponse<NotificationItem[]>>(
@@ -22,7 +21,6 @@ export async function getNotifications(
 }
 
 export async function markNotificationAsRead(
-  _schoolId: string,
   notificationId: string,
 ): Promise<ApiResponse<null>> {
   const response = await apiClient.put<ApiResponse<null>>(
@@ -31,18 +29,14 @@ export async function markNotificationAsRead(
   return response.data;
 }
 
-export async function markAllNotificationsAsRead(
-  _schoolId: string,
-): Promise<ApiResponse<null>> {
+export async function markAllNotificationsAsRead(): Promise<ApiResponse<null>> {
   const response = await apiClient.put<ApiResponse<null>>(
     `/notifications/read-all`,
   );
   return response.data;
 }
 
-export async function getUnreadCount(
-  _schoolId: string,
-): Promise<ApiResponse<{ count: number }>> {
+export async function getUnreadCount() : Promise<ApiResponse<{ count: number }>> {
   const response = await apiClient.get<ApiResponse<{ count: number }>>(
     `/notifications/unread-count`,
   );
