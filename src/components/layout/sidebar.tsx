@@ -1,6 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { PanelLeftClose, PanelLeft, User } from 'lucide-react';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -19,11 +21,25 @@ export function Sidebar() {
 
   const isSuperAdmin = useAuthStore((s) => s.isSuperAdmin);
   const { data: schoolSettings } = useSchoolSettings();
+  const pathname = usePathname();
 
   // Filter nav items by the user's current role
   const filteredNav = navigationConfig.filter((item) =>
     currentRole ? item.roles.includes(currentRole as 'ADMIN' | 'TEACHER' | 'PARENT' | 'SUPER_ADMIN') : false,
   );
+
+  // Track which parent nav item is expanded (only one at a time)
+  const [expandedHref, setExpandedHref] = useState<string | null>(
+    filteredNav.find((item) =>
+      item.children?.some(
+        (child) => pathname === child.href || pathname.startsWith(`${child.href}/`),
+      ),
+    )?.href ?? null,
+  );
+
+  function handleToggle(href: string) {
+    setExpandedHref((prev) => (prev === href ? null : href));
+  }
 
   // Get current school name
   const currentSchoolId = useAuthStore((s) => s.currentSchoolId);
@@ -70,7 +86,7 @@ export function Sidebar() {
         {/* ---------------------------------------------------------------- */}
         {/* Navigation                                                       */}
         {/* ---------------------------------------------------------------- */}
-        <ScrollArea className="flex-1 py-4">
+        <div className="mt-5   overflow-y-auto">
           <nav
             className={cn(
               'space-y-1',
@@ -82,10 +98,12 @@ export function Sidebar() {
                 key={item.href}
                 item={item}
                 collapsed={collapsed}
+                expanded={expandedHref === item.href}
+                onToggle={() => handleToggle(item.href)}
               />
             ))}
           </nav>
-        </ScrollArea>
+        </div>
 
         {/* ---------------------------------------------------------------- */}
         {/* Bottom section: user link + collapse toggle                       */}

@@ -7,6 +7,7 @@ export interface ChildSummary {
   id: string;
   firstName: string;
   lastName: string;
+  classId: string;
   className: string;
   photo: string | null;
 }
