@@ -1,3 +1,5 @@
+import type { Api } from '@/lib/api/schema';
+
 export interface TeacherListItem {
   id: string;
   firstName: string;
@@ -10,8 +12,5 @@ export interface TeacherListItem {
   assignedClasses?: string[];
 }
 
-export interface AssignSubjectRequest {
-  teacherId: string;
-  classId: string;
-  subjectId: string;
-}
+// Request types from generated OpenAPI schemas
+export type AssignSubjectRequest = Api['AssignSubjectTeacherRequest'];

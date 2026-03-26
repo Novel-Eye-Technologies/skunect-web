@@ -65,16 +65,16 @@ export default function AnalyticsPage() {
               />
               <StatCard
                 title="Attendance Rate"
-                value={`${(dashboard?.attendanceRate ?? 0).toFixed(1)}%`}
+                value={`${(dashboard?.todayAttendanceRate ?? 0).toFixed(1)}%`}
                 icon={CalendarDays}
                 trend={
-                  dashboard?.attendanceRate
+                  dashboard?.todayAttendanceRate
                     ? {
                         value: parseFloat(
-                          (dashboard.attendanceRate - 90).toFixed(1),
+                          (dashboard.todayAttendanceRate - 90).toFixed(1),
                         ),
                         direction:
-                          dashboard.attendanceRate >= 90 ? 'up' : 'down',
+                          dashboard.todayAttendanceRate >= 90 ? 'up' : 'down',
                       }
                     : undefined
                 }
@@ -82,28 +82,28 @@ export default function AnalyticsPage() {
               />
               <StatCard
                 title="Fees Collected"
-                value={formatCurrencyShort(dashboard?.totalFeesPaid ?? 0)}
+                value={formatCurrencyShort(dashboard?.totalFeesCollected ?? 0)}
                 icon={Banknote}
                 trend={
-                  dashboard?.totalFees
+                  dashboard?.totalFeesBilled
                     ? {
                         value: parseFloat(
                           (
-                            ((dashboard.totalFeesPaid ?? 0) /
-                              (dashboard.totalFees || 1)) *
+                            ((dashboard.totalFeesCollected ?? 0) /
+                              (dashboard.totalFeesBilled || 1)) *
                             100
                           ).toFixed(1),
                         ),
                         direction:
-                          (dashboard.totalFeesPaid ?? 0) /
-                            (dashboard.totalFees || 1) >=
+                          (dashboard.totalFeesCollected ?? 0) /
+                            (dashboard.totalFeesBilled || 1) >=
                           0.5
                             ? 'up'
                             : 'down',
                       }
                     : undefined
                 }
-                description={`of ${formatCurrencyShort(dashboard?.totalFees ?? 0)} invoiced`}
+                description={`of ${formatCurrencyShort(dashboard?.totalFeesBilled ?? 0)} invoiced`}
               />
             </div>
           )}

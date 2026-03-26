@@ -1,3 +1,10 @@
+import type { Api } from '@/lib/api/schema';
+
+// Request types from generated OpenAPI schemas
+export type CreateAnnouncementRequest = Api['CreateAnnouncementRequest'];
+export type UpdateAnnouncementRequest = Api['UpdateAnnouncementRequest'];
+
+// Response type — generated schema has all fields optional, keep hand-written
 export interface Announcement {
   id: string;
   title: string;
@@ -10,13 +17,3 @@ export interface Announcement {
   createdBy: string;
   createdAt: string;
 }
-
-export interface CreateAnnouncementRequest {
-  title: string;
-  content: string;
-  targetAudience: 'ALL' | 'TEACHERS' | 'PARENTS' | 'CLASS_SPECIFIC';
-  expiresAt?: string;
-  attachmentUrls?: string[];
-}
-
-export interface UpdateAnnouncementRequest extends Partial<CreateAnnouncementRequest> {}

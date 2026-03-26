@@ -1,3 +1,5 @@
+import type { Api } from '@/lib/api/schema';
+
 export interface EligibleStudent {
   studentId: string;
   firstName: string;
@@ -7,12 +9,8 @@ export interface EligibleStudent {
   eligible: boolean;
 }
 
-export interface BulkPromoteRequest {
-  fromClassId: string;
-  toClassId: string;
-  sessionId: string;
-  studentIds: string[];
-}
+// Request types from generated OpenAPI schemas
+export type BulkPromoteRequest = Api['BulkPromoteRequest'];
 
 export interface PromotionRecord {
   id: string;

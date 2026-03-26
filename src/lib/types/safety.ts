@@ -1,3 +1,10 @@
+import type { Api } from '@/lib/api/schema';
+
+// Request types from generated OpenAPI schemas
+export type CreatePickupAuthorizationRequest = Api['CreatePickupAuthorizationRequest'];
+export type RecordPickupRequest = Api['RecordPickupRequest'];
+
+// Response types — generated schemas have all fields optional, keep hand-written
 export interface EmergencyAlert {
   id: string;
   schoolId: string;
@@ -11,12 +18,6 @@ export interface EmergencyAlert {
   updatedAt: string;
 }
 
-export interface CreateEmergencyAlertRequest {
-  title: string;
-  message: string;
-  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-}
-
 export interface PickupLog {
   id: string;
   studentId: string;
@@ -28,14 +29,6 @@ export interface PickupLog {
   verifiedAt: string | null;
   status: 'PENDING' | 'VERIFIED';
   createdAt: string;
-}
-
-export interface CreatePickupLogRequest {
-  studentId: string;
-  pickedUpByName: string;
-  relationship: string;
-  authorizationId?: string;
-  notes?: string;
 }
 
 export interface PickupAuthorization {
@@ -53,11 +46,18 @@ export interface PickupAuthorization {
   createdAt: string;
 }
 
-export interface CreatePickupAuthorizationRequest {
+// Keep hand-written — backend expects title + message + severity
+export interface CreateEmergencyAlertRequest {
+  title: string;
+  message: string;
+  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+}
+
+// No generated schema — keep hand-written
+export interface CreatePickupLogRequest {
   studentId: string;
-  pickupPersonName: string;
-  pickupPersonPhone?: string;
-  pickupPersonRelationship?: string;
-  validFrom?: string;
-  validUntil?: string;
+  pickedUpByName: string;
+  relationship: string;
+  authorizationId?: string;
+  notes?: string;
 }

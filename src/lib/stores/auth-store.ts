@@ -75,7 +75,7 @@ export const useAuthStore = create<AuthStore>()(
           );
           set({
             user,
-            currentRole: currentSchoolRole?.role ?? null,
+            currentRole: (currentSchoolRole?.role as Role) ?? null,
             schoolActive: currentSchoolRole?.isSchoolActive !== false,
             subscriptionStatus: currentSchoolRole?.subscriptionStatus ?? null,
           });
@@ -85,7 +85,7 @@ export const useAuthStore = create<AuthStore>()(
           set({
             user,
             currentSchoolId: firstRole.schoolId,
-            currentRole: firstRole.role,
+            currentRole: firstRole.role as Role,
             schoolActive: firstRole.isSchoolActive !== false,
             subscriptionStatus: firstRole.subscriptionStatus ?? null,
           });
@@ -105,7 +105,7 @@ export const useAuthStore = create<AuthStore>()(
         if (schoolRole) {
           set({
             currentSchoolId: schoolRole.schoolId,
-            currentRole: schoolRole.role,
+            currentRole: schoolRole.role as Role,
             schoolActive: schoolRole.isSchoolActive !== false,
             subscriptionStatus: schoolRole.subscriptionStatus ?? null,
           });

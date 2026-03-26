@@ -2062,10 +2062,9 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await academics.expectVisible();
 
     // Create a CA1 assessment for each of Teacher 1's 4 subjects in JSS 1
-    const today = new Date().toISOString().split('T')[0];
     for (const subject of TEACHER1_JSS1_SUBJECTS) {
       await academics.clickCreateAssessment();
-      await academics.fillAssessmentForm(`${subject} CA1 ${TS}`, '100', today);
+      await academics.fillAssessmentForm(`${subject} CA1 ${TS}`, '100');
       await academics.selectAssessmentClass(new RegExp(CLASS1_NAME));
       await academics.selectAssessmentSubject(new RegExp(subject));
       await academics.selectAssessmentTerm(new RegExp(TERM_NAME));

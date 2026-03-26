@@ -1,3 +1,18 @@
+import type { Api } from '@/lib/api/schema';
+
+// Request types from generated OpenAPI schemas
+export type CreateFeeStructureRequest = Api['CreateFeeStructureRequest'];
+
+// RecordPaymentRequest — keep hand-written because consumer code
+// (school-subscription-client) adds fields like paymentType, paymentReference,
+// studentsAdded, description that are not in the generated schema.
+export interface RecordPaymentRequest {
+  amount: number;
+  paymentMethod: 'CASH' | 'BANK_TRANSFER' | 'CARD' | 'OTHER';
+  reference?: string;
+}
+
+// Response types — generated schemas have all fields optional, keep hand-written
 export interface FeeStructure {
   id: string;
   schoolId: string;
@@ -10,18 +25,6 @@ export interface FeeStructure {
   breakdown: string | null;
   amountInWords: string | null;
 }
-
-export interface CreateFeeStructureRequest {
-  name: string;
-  amount: number;
-  termId?: string;
-  classId?: string;
-  isMandatory?: boolean;
-  deadline?: string;
-  breakdown?: string;
-}
-
-export interface UpdateFeeStructureRequest extends Partial<CreateFeeStructureRequest> {}
 
 export interface Invoice {
   id: string;
@@ -51,13 +54,12 @@ export interface Payment {
   recordedBy: string;
 }
 
+// No generated schema — keep hand-written
+export interface UpdateFeeStructureRequest extends Partial<CreateFeeStructureRequest> {
+  isActive?: boolean;
+}
+
 export interface GenerateInvoicesRequest {
   termId: string;
   classId?: string;
-}
-
-export interface RecordPaymentRequest {
-  amount: number;
-  paymentMethod: 'CASH' | 'BANK_TRANSFER' | 'CARD' | 'OTHER';
-  reference?: string;
 }
