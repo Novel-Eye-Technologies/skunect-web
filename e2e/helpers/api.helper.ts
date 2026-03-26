@@ -42,41 +42,60 @@ interface AuthResponse {
  */
 export async function authenticateAccount(
   email: string,
-  otp: string
+  otp: string,
+  maxRetries = 3
 ): Promise<AuthResponse> {
-  // Step 1: Request OTP
-  const loginRes = await fetch(`${API_BASE_URL}/auth/login/email`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email }),
-  });
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      // Step 1: Request OTP
+      const loginRes = await fetch(`${API_BASE_URL}/auth/login/email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
 
-  if (!loginRes.ok) {
-    const body = await loginRes.text();
-    throw new Error(
-      `Login request failed for ${email}: ${loginRes.status} ${body}`
-    );
+      const loginText = await loginRes.text();
+      if (!loginRes.ok) {
+        throw new Error(`Login request failed for ${email}: ${loginRes.status} ${loginText}`);
+      }
+
+      let loginData: ApiResponse<OtpResponse>;
+      try {
+        loginData = JSON.parse(loginText);
+      } catch {
+        throw new Error(`Login response for ${email} was not JSON: ${loginText.slice(0, 200)}`);
+      }
+      const otpReference = loginData.data.otpReference;
+
+      // Step 2: Verify OTP
+      const verifyRes = await fetch(`${API_BASE_URL}/auth/verify-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ otpReference, otp }),
+      });
+
+      const verifyText = await verifyRes.text();
+      if (!verifyRes.ok) {
+        throw new Error(`OTP verification failed for ${email}: ${verifyRes.status} ${verifyText}`);
+      }
+
+      let verifyData: ApiResponse<AuthResponse>;
+      try {
+        verifyData = JSON.parse(verifyText);
+      } catch {
+        throw new Error(`OTP verify response for ${email} was not JSON: ${verifyText.slice(0, 200)}`);
+      }
+      return verifyData.data;
+    } catch (error) {
+      if (attempt < maxRetries) {
+        console.warn(`  ⚠ Auth attempt ${attempt + 1} failed for ${email}: ${(error as Error).message.slice(0, 100)}. Retrying...`);
+        await new Promise(r => setTimeout(r, 2000 * (attempt + 1)));
+        continue;
+      }
+      throw error;
+    }
   }
-
-  const loginData: ApiResponse<OtpResponse> = await loginRes.json();
-  const otpReference = loginData.data.otpReference;
-
-  // Step 2: Verify OTP
-  const verifyRes = await fetch(`${API_BASE_URL}/auth/verify-otp`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ otpReference, otp }),
-  });
-
-  if (!verifyRes.ok) {
-    const body = await verifyRes.text();
-    throw new Error(
-      `OTP verification failed for ${email}: ${verifyRes.status} ${body}`
-    );
-  }
-
-  const verifyData: ApiResponse<AuthResponse> = await verifyRes.json();
-  return verifyData.data;
+  throw new Error(`authenticateAccount failed for ${email} after ${maxRetries} retries`);
 }
 
 /**
