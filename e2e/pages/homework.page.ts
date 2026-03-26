@@ -10,7 +10,7 @@ export class HomeworkPage {
   constructor(page: Page) {
     this.page = page;
     // PageHeader renders title as <h1>
-    this.heading = page.getByRole('heading', { name: /homework/i });
+    this.heading = page.getByRole('heading', { name: /^homework$/i, level: 1 });
     this.description = page.getByText(
       'Manage homework assignments and submissions.'
     );

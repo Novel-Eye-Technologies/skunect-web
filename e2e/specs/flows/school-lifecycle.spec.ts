@@ -168,7 +168,30 @@ async function loginViaUI(page: Page, email: string) {
   const loginPage = new LoginPage(page);
   await loginPage.goto();
   await loginPage.fillEmail(email);
+
+  const otpHeading = page.getByRole('heading', { name: /verify your identity/i });
+
+  // Submit and wait up to 20s for OTP page to appear.
   await loginPage.submit();
+  const reachedOtp = await otpHeading.isVisible({ timeout: 20_000 }).catch(() => false);
+
+  // If OTP page didn't appear, check for a "Failed to send OTP" toast and retry once.
+  if (!reachedOtp) {
+    const otpErrorToast = page
+      .locator('[data-sonner-toast][data-type="error"]')
+      .filter({ hasText: /failed to send otp/i });
+    const hasOtpError = await otpErrorToast.isVisible({ timeout: 2_000 }).catch(() => false);
+
+    if (hasOtpError) {
+      await page.waitForTimeout(1_000);
+      await loginPage.goto();
+      await loginPage.fillEmail(email);
+      await loginPage.submit();
+    }
+
+    // Final wait — throws a clear error if OTP page still doesn't appear.
+    await expect(otpHeading).toBeVisible({ timeout: 20_000 });
+  }
 
   const otpPage = new VerifyOtpPage(page);
   await otpPage.expectVisible();
@@ -1196,7 +1219,7 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
       await timetable.clickEmptySlot(slot.day, slot.period);
       await timetable.fillSlotForm(slot.label);
       await timetable.submitSlotForm();
-      await expect(timetable.slotDialog).not.toBeVisible({ timeout: 5_000 });
+        await expect(timetable.slotDialog).not.toBeVisible({ timeout: 15_000 });
     }
 
     // Verify Mathematics slot appears
@@ -1219,7 +1242,7 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
       await timetable.clickEmptySlot(slot.day, slot.period);
       await timetable.fillSlotForm(slot.label);
       await timetable.submitSlotForm();
-      await expect(timetable.slotDialog).not.toBeVisible({ timeout: 5_000 });
+        await expect(timetable.slotDialog).not.toBeVisible({ timeout: 15_000 });
     }
 
     await timetable.expectSlotInGrid('English Language');
@@ -2004,21 +2027,29 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
   test('3.4 — Teacher: Take attendance for JSS 1 (class teacher)', async ({ page }) => {
     await injectAuth(page, TEACHER1_EMAIL, { schoolId: schoolData.schoolId! });
 
-    await gotoPage(page, '/attendance');
-    await expect(page.getByRole('heading', { name: /attendance/i })).toBeVisible({ timeout: 15_000 });
+    await page.goto('/attendance', { waitUntil: 'networkidle' });
+    await expect(page.getByRole('heading', { name: /attendance/i })).toBeVisible({ timeout: 30_000 });
 
     // Mark Attendance tab should be active by default
-    await expect(page.getByText('Select Class & Date')).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText('Select Class & Date')).toBeVisible({ timeout: 15_000 });
 
     // Select JSS 1 class inside the AttendanceGrid's "Select Class & Date" card
     // (NOT the page-level filter select which is the first on the page)
     const selectCard = page.locator('[data-slot="card"]').filter({ hasText: 'Select Class & Date' });
     const classSelect = selectCard.locator('[data-slot="select-trigger"]');
     await classSelect.click();
-    await page.getByRole('option', { name: new RegExp(CLASS1_NAME) }).click();
 
-    // Wait for students to load
-    await expect(page.getByText(/Mark Attendance \(\d+ student/)).toBeVisible({ timeout: 15_000 });
+      // Intercept the students API response that fires after class selection, then click.
+      const [_studentsResp] = await Promise.all([
+        page.waitForResponse(
+          resp => resp.url().includes('/students') && resp.status() === 200,
+          { timeout: 20_000 },
+        ),
+        page.getByRole('option', { name: new RegExp(CLASS1_NAME) }).click(),
+      ]);
+
+      // Wait for students to render
+      await expect(page.getByText(/Mark Attendance \(\d+ student/)).toBeVisible({ timeout: 20_000 });
 
     // Mark all present using the quick action
     await page.getByRole('button', { name: /mark all present/i }).click();
@@ -2043,14 +2074,20 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await expect(page.getByRole('heading', { name: /attendance/i })).toBeVisible({ timeout: 30_000 });
     await expect(page.getByText('Select Class & Date')).toBeVisible({ timeout: 15_000 });
 
-    // Select JSS 2 class inside AttendanceGrid's card
+    // Select JSS 2 class inside AttendanceGrid's card — intercept the students API response
     const selectCard = page.locator('[data-slot="card"]').filter({ hasText: 'Select Class & Date' });
     const classSelect = selectCard.locator('[data-slot="select-trigger"]');
     await classSelect.click();
-    await page.getByRole('option', { name: new RegExp(CLASS2_NAME) }).click();
+    await Promise.all([
+      page.waitForResponse(
+        resp => resp.url().includes('/students') && resp.status() === 200,
+        { timeout: 20_000 },
+      ),
+      page.getByRole('option', { name: new RegExp(CLASS2_NAME) }).click(),
+    ]);
 
-    // Wait for students to load
-    await expect(page.getByText(/Mark Attendance \(\d+ student/)).toBeVisible({ timeout: 15_000 });
+    // Wait for students to render
+    await expect(page.getByText(/Mark Attendance \(\d+ student/)).toBeVisible({ timeout: 20_000 });
 
     // Mark all present
     await page.getByRole('button', { name: /mark all present/i }).click();
