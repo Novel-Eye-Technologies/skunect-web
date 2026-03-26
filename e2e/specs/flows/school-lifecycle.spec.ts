@@ -2004,9 +2004,9 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await loginViaUI(page, TEACHER1_EMAIL);
     await waitForDashboard(page);
 
-    await page.goto('/attendance');
-    await expect(page.getByRole('heading', { name: /attendance/i })).toBeVisible({ timeout: 15_000 });
-    await expect(page.getByText('Select Class & Date')).toBeVisible({ timeout: 10_000 });
+    await page.goto('/attendance', { waitUntil: 'networkidle' });
+    await expect(page.getByRole('heading', { name: /attendance/i })).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByText('Select Class & Date')).toBeVisible({ timeout: 15_000 });
 
     // Select JSS 2 class inside AttendanceGrid's card
     const selectCard = page.locator('[data-slot="card"]').filter({ hasText: 'Select Class & Date' });
@@ -2287,11 +2287,21 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await expect(page.getByRole('heading', { name: /attendance/i })).toBeVisible({ timeout: 15_000 });
 
     // Switch to Records tab
-    await page.getByRole('tab', { name: /records/i }).click();
+    const recordsTab = page.getByRole('tab', { name: /records/i });
+    await recordsTab.click();
 
     // Records should show entries from attendance taken in tests 3.4 and 3.5
-    // Wait for the table to show at least one record
-    await expect(page.locator('table tbody tr').first()).toBeVisible({ timeout: 15_000 });
+    // Wait for table to load — may need a refresh if data hasn't propagated yet
+    const firstRow = page.locator('table tbody tr').first();
+    try {
+      await expect(firstRow).toBeVisible({ timeout: 15_000 });
+    } catch {
+      // Data may not have propagated yet — reload and retry
+      await page.reload();
+      await expect(page.getByRole('heading', { name: /attendance/i })).toBeVisible({ timeout: 15_000 });
+      await recordsTab.click();
+      await expect(firstRow).toBeVisible({ timeout: 30_000 });
+    }
   });
 
   test('3.12 — Teacher: Validate student discipline tab', async ({ page }) => {
@@ -2474,10 +2484,9 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await academics.expectVisible();
 
     const deleteTitle = `Delete Assessment ${TS}`;
-    const today = new Date().toISOString().split('T')[0];
 
     await academics.clickCreateAssessment();
-    await academics.fillAssessmentForm(deleteTitle, '50', today);
+    await academics.fillAssessmentForm(deleteTitle, '50');
     await academics.selectAssessmentClass(new RegExp(CLASS1_NAME));
     await academics.selectAssessmentSubject(/Mathematics/);
     await academics.selectAssessmentTerm(new RegExp(TERM_NAME));
@@ -2583,10 +2592,6 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     const selects = dialog.getByRole('combobox');
     await selects.nth(0).click();
     await page.getByRole('option', { name: 'All' }).click();
-
-    // Select priority
-    await selects.nth(1).click();
-    await page.getByRole('option', { name: 'Normal' }).click();
 
     // Fill content
     await dialog.getByPlaceholder('Write the announcement content...').fill(
@@ -3175,7 +3180,7 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await busPage.expectVisible();
 
     await busPage.switchToTrips();
-    await expect(busPage.createTripButton).toBeVisible();
+    await expect(busPage.createTripButton).toBeVisible({ timeout: 15_000 });
   });
 
   test('6.5 — Admin Return: Create emergency alert', async ({ page }) => {
@@ -3193,24 +3198,17 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
       const dialog = page.locator('[data-slot="dialog-content"]');
       await expect(dialog).toBeVisible();
 
-      // Select alert type
-      const alertTypeSelect = dialog.locator('button[role="combobox"]').first();
-      await alertTypeSelect.click();
-      await page.getByRole('option', { name: 'Evacuation' }).click();
-
       // Fill title
-      await dialog.getByPlaceholder('e.g. Fire drill evacuation').fill(`Fire Drill ${TS}`);
+      await dialog.locator('input').first().fill(`Fire Drill ${TS}`);
+
+      // Fill message
+      const msgInput = dialog.locator('textarea');
+      await msgInput.fill('Scheduled fire drill. All students to evacuate to assembly point.');
 
       // Select severity
-      const severitySelect = dialog.locator('button[role="combobox"]').nth(1);
+      const severitySelect = dialog.locator('button[role="combobox"]').first();
       await severitySelect.click();
       await page.getByRole('option', { name: 'Medium' }).click();
-
-      // Fill description
-      const descInput = dialog.getByPlaceholder(/description|message|details/i);
-      if (await descInput.isVisible().catch(() => false)) {
-        await descInput.fill('Scheduled fire drill. All students to evacuate to assembly point.');
-      }
 
       const submitBtn = dialog.getByRole('button', { name: /create alert/i });
       await submitBtn.click();

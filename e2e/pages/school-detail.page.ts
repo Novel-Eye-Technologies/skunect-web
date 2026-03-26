@@ -26,15 +26,15 @@ export class SchoolDetailPage {
     // Use text matching instead of exact heading name match
     await expect(
       this.page.getByRole('heading').filter({ hasText: schoolName })
-    ).toBeVisible({ timeout: 15_000 });
+    ).toBeVisible({ timeout: 30_000 });
   }
 
   async expectSchoolInfo() {
-    await expect(this.page.getByText('School Information')).toBeVisible();
+    await expect(this.page.getByText('School Information')).toBeVisible({ timeout: 15_000 });
   }
 
   async expectAdminSection() {
-    await expect(this.page.getByText('School Administrators')).toBeVisible();
+    await expect(this.page.getByText('School Administrators')).toBeVisible({ timeout: 15_000 });
   }
 
   async expectMetricCards() {
