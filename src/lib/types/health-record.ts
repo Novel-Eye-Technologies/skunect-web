@@ -1,3 +1,5 @@
+import type { Api } from '@/lib/api/schema';
+
 export interface HealthRecord {
   id: string;
   studentId: string;
@@ -12,21 +14,9 @@ export interface HealthRecord {
   isActive: boolean;
 }
 
-export interface CreateHealthRecordRequest {
-  studentId: string;
-  recordType: string;
-  title: string;
-  description?: string;
-  severity?: string;
-}
-
-export interface UpdateHealthRecordRequest {
-  recordType?: string;
-  title?: string;
-  description?: string;
-  severity?: string;
-  isActive?: boolean;
-}
+// Request types from generated OpenAPI schemas
+export type CreateHealthRecordRequest = Api['CreateHealthRecordRequest'];
+export type UpdateHealthRecordRequest = Api['UpdateHealthRecordRequest'];
 
 export const RECORD_TYPES = [
   'ALLERGY',

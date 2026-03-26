@@ -1,3 +1,14 @@
+import type { Api } from '@/lib/api/schema';
+
+// Request types from generated OpenAPI schemas
+export type CreateStudentRequest = Api['CreateStudentRequest'];
+export type UpdateStudentRequest = Api['UpdateStudentRequest'];
+export type LinkParentRequest = Api['LinkParentRequest'];
+
+// Sub-types from generated schemas
+export type GuardianInfo = Api['GuardianInfo'];
+
+// Response types — generated schemas have all fields optional, keep hand-written
 export interface StudentListItem {
   id: string;
   admissionNumber: string;
@@ -45,39 +56,6 @@ export interface StudentDocument {
   uploadedAt: string;
 }
 
-export interface GuardianInfo {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  relationship: string;
-  isEmergencyContact: boolean;
-}
-
-export interface CreateStudentRequest {
-  admissionNumber?: string; // optional — auto-generated if blank
-  firstName: string;
-  lastName: string;
-  otherName?: string;
-  dateOfBirth: string;
-  gender: 'MALE' | 'FEMALE';
-  classId: string;
-  photoUrl?: string;
-  address?: string;
-  stateOfOrigin?: string;
-  lga?: string;
-  religion?: string;
-  bloodGroup?: string;
-  genotype?: string;
-  allergies?: string;
-  medicalConditions?: string;
-  guardians?: GuardianInfo[];
-}
-
-export interface UpdateStudentRequest extends Partial<CreateStudentRequest> {
-  status?: 'ACTIVE' | 'INACTIVE' | 'GRADUATED' | 'TRANSFERRED' | 'SUSPENDED' | 'EXPELLED';
-}
-
 export interface FileUploadResponse {
   fileId: string;
   fileName: string;
@@ -86,11 +64,13 @@ export interface FileUploadResponse {
   fileSize: number;
 }
 
-export interface LinkParentRequest {
-  parentUserId?: string;
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  phone?: string;
+export interface ParentLinkResponse {
+  id: string;
+  parentId: string;
+  parentName: string;
+  parentEmail: string;
+  parentPhone: string;
   relationship: string;
+  isEmergencyContact: boolean;
+  isApproved: boolean;
 }

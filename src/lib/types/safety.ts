@@ -1,3 +1,10 @@
+import type { Api } from '@/lib/api/schema';
+
+// Request types from generated OpenAPI schemas
+export type CreatePickupAuthorizationRequest = Api['CreatePickupAuthorizationRequest'];
+export type RecordPickupRequest = Api['RecordPickupRequest'];
+
+// Response types — generated schemas have all fields optional, keep hand-written
 export interface EmergencyAlert {
   id: string;
   type: 'LOCKDOWN' | 'EVACUATION' | 'MEDICAL' | 'WEATHER' | 'OTHER';
@@ -11,13 +18,6 @@ export interface EmergencyAlert {
   resolvedBy: string | null;
 }
 
-export interface CreateEmergencyAlertRequest {
-  type: 'LOCKDOWN' | 'EVACUATION' | 'MEDICAL' | 'WEATHER' | 'OTHER';
-  title: string;
-  description: string;
-  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-}
-
 export interface PickupLog {
   id: string;
   studentId: string;
@@ -29,14 +29,6 @@ export interface PickupLog {
   verifiedAt: string | null;
   status: 'PENDING' | 'VERIFIED';
   createdAt: string;
-}
-
-export interface CreatePickupLogRequest {
-  studentId: string;
-  pickupPersonName: string;
-  relationship: string;
-  authorizationId?: string;
-  notes?: string;
 }
 
 export interface PickupAuthorization {
@@ -54,11 +46,20 @@ export interface PickupAuthorization {
   createdAt: string;
 }
 
-export interface CreatePickupAuthorizationRequest {
+// Frontend uses 'description' but backend expects 'message' — API layer maps this.
+// Keep hand-written.
+export interface CreateEmergencyAlertRequest {
+  type: 'LOCKDOWN' | 'EVACUATION' | 'MEDICAL' | 'WEATHER' | 'OTHER';
+  title: string;
+  description: string;
+  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+}
+
+// No generated schema — keep hand-written
+export interface CreatePickupLogRequest {
   studentId: string;
   pickupPersonName: string;
-  pickupPersonPhone?: string;
-  pickupPersonRelationship?: string;
-  validFrom?: string;
-  validUntil?: string;
+  relationship: string;
+  authorizationId?: string;
+  notes?: string;
 }

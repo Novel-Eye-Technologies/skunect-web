@@ -1,3 +1,5 @@
+import type { Api } from '@/lib/api/schema';
+
 export type SubscriptionTier = 'STANDARD' | 'PREMIUM';
 export type SubscriptionStatus = 'ACTIVE' | 'EXPIRED' | 'GRACE_PERIOD' | 'CANCELLED' | 'PENDING';
 export type PaymentType = 'FULL' | 'PARTIAL' | 'PRORATED' | 'UPGRADE' | 'RENEWAL';
@@ -18,6 +20,7 @@ export interface SubscriptionPlan {
   updatedAt: string;
 }
 
+// Generated types use undefined for optional fields, but code passes null — keep hand-written
 export interface CreateSubscriptionPlanRequest {
   name: string;
   tier: SubscriptionTier;
@@ -64,25 +67,9 @@ export interface SchoolSubscription {
   updatedAt: string;
 }
 
-export interface CreateSchoolSubscriptionRequest {
-  planId: string;
-  startDate: string;
-  endDate: string;
-  studentLimit: number;
-  gracePeriodDays?: number;
-  autoRenew?: boolean;
-  notes?: string;
-}
-
-export interface UpdateSchoolSubscriptionRequest {
-  endDate?: string;
-  studentLimit?: number;
-  gracePeriodDays?: number;
-  autoRenew?: boolean;
-  notes?: string;
-  status?: SubscriptionStatus;
-}
-
+export type CreateSchoolSubscriptionRequest = Api['CreateSchoolSubscriptionRequest'];
+export type UpdateSchoolSubscriptionRequest = Api['UpdateSchoolSubscriptionRequest'];
+// Generated RecordPaymentRequest is for fee payments, not subscription — keep hand-written
 export interface RecordPaymentRequest {
   amount: number;
   paymentType: PaymentType;
@@ -121,26 +108,11 @@ export interface ProrateCalculation {
   breakdown: string;
 }
 
-export interface UpgradeRequest {
-  additionalStudents?: number;
-  message?: string;
-}
+export type UpgradeRequest = Api['UpgradeRequest'];
 
 // Bulk operations
-export interface BulkExtendRequest {
-  schoolIds: string[];
-  newEndDate: string;
-  notes?: string;
-}
-
-export interface BulkRenewRequest {
-  schoolIds: string[];
-  planId: string;
-  startDate: string;
-  endDate: string;
-  studentLimit?: number;
-  notes?: string;
-}
+export type BulkExtendRequest = Api['BulkExtendRequest'];
+export type BulkRenewRequest = Api['BulkRenewRequest'];
 
 export interface BulkOperationResult {
   schoolId: string;
@@ -177,28 +149,8 @@ export interface SubscriptionDiscount {
   updatedAt: string;
 }
 
-export interface CreateDiscountRequest {
-  code: string;
-  name: string;
-  description?: string;
-  discountType: DiscountType;
-  discountValue: number;
-  maxUses?: number;
-  validFrom: string;
-  validUntil?: string;
-  applicableTiers?: string[];
-  minStudents?: number;
-}
-
-export interface UpdateDiscountRequest {
-  name?: string;
-  description?: string;
-  discountValue?: number;
-  maxUses?: number;
-  validUntil?: string;
-  applicableTiers?: string[];
-  minStudents?: number;
-}
+export type CreateDiscountRequest = Api['CreateSubscriptionDiscountRequest'];
+export type UpdateDiscountRequest = Api['UpdateSubscriptionDiscountRequest'];
 
 export interface ValidateDiscountRequest {
   code: string;

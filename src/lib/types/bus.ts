@@ -1,3 +1,5 @@
+import type { Api } from '@/lib/api/schema';
+
 export interface BusRoute {
   id: string;
   schoolId: string;
@@ -69,6 +71,7 @@ export interface BusTracking {
 // Request types
 // ---------------------------------------------------------------------------
 
+// Generated types have different required/optional fields — keep hand-written
 export interface CreateBusRouteRequest {
   routeName: string;
   description?: string;
@@ -89,12 +92,6 @@ export interface EnrollStudentRequest {
   pickupPoint?: string;
 }
 
-export interface CreateBusTripRequest {
-  busId: string;
-  tripDate: string;
-  tripType: 'MORNING_PICKUP' | 'AFTERNOON_DROP';
-}
-
-export interface UpdateTripStudentRequest {
-  status: 'PENDING' | 'BOARDED' | 'DROPPED_OFF' | 'ABSENT';
-}
+// Request types from generated OpenAPI schemas
+export type CreateBusTripRequest = Api['CreateBusTripRequest'];
+export type UpdateTripStudentRequest = Api['UpdateTripStudentRequest'];

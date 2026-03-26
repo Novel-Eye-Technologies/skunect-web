@@ -1,3 +1,5 @@
+import type { Api } from '@/lib/api/schema';
+
 export interface TimetableConfig {
   id: string;
   schoolId: string;
@@ -21,22 +23,6 @@ export interface TimetableSlot {
   label: string | null;
 }
 
-export interface CreateTimetableSlotRequest {
-  classId: string;
-  subjectId?: string;
-  teacherId?: string;
-  sessionId: string;
-  dayOfWeek: string;
-  periodNumber: number;
-  label?: string;
-}
-
-export interface TimetableConfigRequest {
-  sessionId: string;
-  periodsPerDay?: number;
-  periodDuration?: number;
-  startTime?: string;
-  breakAfter?: number;
-  breakDuration?: number;
-  days?: string[];
-}
+// Request types from generated OpenAPI schemas
+export type CreateTimetableSlotRequest = Api['TimetableSlotRequest'];
+export type TimetableConfigRequest = Api['TimetableConfigRequest'];

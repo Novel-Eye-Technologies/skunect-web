@@ -1,3 +1,5 @@
+import type { Api } from '@/lib/api/schema';
+
 export interface NotificationPreference {
   id: string;
   type: string;
@@ -6,8 +8,5 @@ export interface NotificationPreference {
   sms: boolean;
 }
 
-export interface UpdatePreferenceRequest {
-  email?: boolean;
-  push?: boolean;
-  sms?: boolean;
-}
+// Request types from generated OpenAPI schemas
+export type UpdatePreferenceRequest = Api['UpdatePreferenceRequest'];

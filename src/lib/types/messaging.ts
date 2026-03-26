@@ -1,3 +1,16 @@
+import type { Api } from '@/lib/api/schema';
+
+// SendMessageRequest matches the generated schema
+export type SendMessageRequest = Api['SendMessageRequest'];
+
+// CreateConversationRequest — frontend uses a different shape (recipientId + message)
+// than the generated schema (type + schoolId + participantIds). Keep hand-written.
+export interface CreateConversationRequest {
+  recipientId: string;
+  message: string;
+}
+
+// Response types — generated schemas have all fields optional, keep hand-written
 export interface Conversation {
   id: string;
   participants: ConversationParticipant[];
@@ -31,13 +44,4 @@ export interface Message {
   content: string;
   sentAt: string;
   readAt: string | null;
-}
-
-export interface CreateConversationRequest {
-  recipientId: string;
-  message: string;
-}
-
-export interface SendMessageRequest {
-  content: string;
 }

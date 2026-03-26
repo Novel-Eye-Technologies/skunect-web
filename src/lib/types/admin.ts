@@ -1,3 +1,5 @@
+import type { Api } from '@/lib/api/schema';
+
 export interface SchoolSummary {
   id: string;
   name: string;
@@ -98,38 +100,11 @@ export interface SchoolDetail {
   updatedAt: string;
 }
 
-export interface CreateSchoolRequest {
-  name: string;
-  subscriptionTier?: 'STANDARD' | 'PREMIUM';
-  email?: string;
-  phone?: string;
-  address?: string;
-  city?: string;
-  state?: string;
-}
-
-export interface UpdateSchoolRequest {
-  name?: string;
-  subscriptionTier?: 'STANDARD' | 'PREMIUM';
-  email?: string;
-  phone?: string;
-  address?: string;
-  city?: string;
-  state?: string;
-}
-
-export interface CreateSuperAdminRequest {
-  email: string;
-  phone?: string;
-  firstName: string;
-  lastName: string;
-}
-
-export interface UpdateSuperAdminRequest {
-  firstName: string;
-  lastName: string;
-  avatarUrl?: string;
-}
+// Request types from generated OpenAPI schemas
+export type CreateSchoolRequest = Api['CreateSchoolRequest'];
+export type UpdateSchoolRequest = Api['UpdateSchoolRequest'];
+export type CreateSuperAdminRequest = Api['CreateSuperAdminRequest'];
+export type UpdateSuperAdminRequest = Api['UpdateSuperAdminRequest'];
 
 export interface SchoolDetailResponse {
   id: string;
@@ -157,17 +132,8 @@ export interface SchoolDetailResponse {
   admins: SuperAdminUser[];
 }
 
-export interface CreateSchoolAdminRequest {
-  email: string;
-  phone?: string;
-  firstName: string;
-  lastName: string;
-}
-
-export interface UpdateSchoolAdminRequest {
-  firstName: string;
-  lastName: string;
-}
+export type CreateSchoolAdminRequest = Api['CreateSchoolAdminRequest'];
+export type UpdateSchoolAdminRequest = Api['UpdateSchoolAdminRequest'];
 
 export interface UserRoleInfo {
   schoolId: string | null;
