@@ -6,4 +6,4 @@ if [ "$SKIP_PR_SIMULATION" = "1" ]; then
 fi
 
 echo "Running local PR simulation checks (CI + E2E)..."
-npm run pr:simulate
+npm run pr:simulate:local

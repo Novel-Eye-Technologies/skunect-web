@@ -19,7 +19,7 @@
     "test:e2e:debug": "playwright test --debug",
     "test:e2e:report": "playwright show-report",
     "pr:simulate": "npm run clean:next && npm run ci:pr && E2E_BASE_URL=https://dev.skunect.com npx playwright test",
-    "pr:simulate:local": "npm run clean:next && npm run ci:pr && E2E_BASE_URL=https://dev.skunect.com npx playwright test"
+    "pr:simulate:local": "npm run clean:next && npm run ci:pr && E2E_BASE_URL=http://localhost:3000 npx playwright test"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
