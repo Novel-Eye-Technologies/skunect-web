@@ -43,7 +43,7 @@ interface AuthResponse {
 export async function authenticateAccount(
   email: string,
   otp: string,
-  maxRetries = 3
+  maxRetries = 5
 ): Promise<AuthResponse> {
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
