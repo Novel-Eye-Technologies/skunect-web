@@ -15,6 +15,9 @@ const eslintConfig = defineConfig([
     // Playwright E2E tests — not React code
     "e2e/**",
     "playwright.config.ts",
+    // Playwright report output — minified third-party JS
+    "playwright-report/**",
+    "test-results/**",
   ]),
   {
     rules: {
