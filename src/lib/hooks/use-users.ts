@@ -11,6 +11,7 @@ import {
   updateSchoolUser,
   removeUser,
   type UserListParams,
+  getContacts,
 } from '@/lib/api/users';
 import type { InviteUserRequest, UpdateUserStatusRequest, UpdateSchoolUserRequest } from '@/lib/types/user';
 import { queryClient } from '@/lib/query-client';
@@ -35,6 +36,15 @@ export function useUsers(params?: UserListParams) {
   return useQuery({
     queryKey: userKeys.list(schoolId ?? '', params),
     queryFn: () => getUsers(schoolId!, params),
+    enabled: !!schoolId,
+  });
+}
+export function useContacts(params?: UserListParams) {
+  const schoolId = useAuthStore((s) => s.currentSchoolId);
+
+  return useQuery({
+    queryKey: userKeys.list(schoolId ?? '', params),
+    queryFn: () => getContacts(schoolId!, params),
     enabled: !!schoolId,
   });
 }

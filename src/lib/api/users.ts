@@ -16,18 +16,18 @@ export interface UserListParams extends PaginatedParams {
   status?: string;
 }
 
-// export async function getUsers(
-//   schoolId: string,
-//   params?: UserListParams,
-// ): Promise<ApiResponse<UserListItem[]>> {
-//   const response = await apiClient.get<ApiResponse<UserListItem[]>>(
-//     `/schools/${schoolId}/users`,
-//     { params },
-//   );
-//   return response.data;
-// }
+export async function getUsers(
+  schoolId: string,
+  params?: UserListParams,
+): Promise<ApiResponse<UserListItem[]>> {
+  const response = await apiClient.get<ApiResponse<UserListItem[]>>(
+    `/schools/${schoolId}/users`,
+    { params },
+  );
+  return response.data;
+}
 
-export function getUsers(
+export function getContacts(
   schoolId: string,
   params?: UserListParams,
 ): Promise<ApiResponse<UserListItem[]>> {

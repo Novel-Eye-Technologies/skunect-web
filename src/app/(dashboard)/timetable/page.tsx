@@ -25,6 +25,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useSubjects } from '@/lib/hooks/use-school-settings';
 
+const CUSTOM_LABEL_OPTION = 'option:custom';
+const FREE_PERIOD_OPTION = 'option:free-period';
+
+type SlotOptionValue =
+  | typeof CUSTOM_LABEL_OPTION
+  | typeof FREE_PERIOD_OPTION
+  | `subject:${string}`;
+
 export default function TimetablePage() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
   const [sessionId, setSessionId] = useState('');
@@ -36,10 +44,9 @@ export default function TimetablePage() {
     day: string;
     period: number;
   }>({ open: false, day: '', period: 0 });
-  const [slotSubjectId, setSlotSubjectId] = useState('');
   const [slotTeacherId, setSlotTeacherId] = useState('');
   const [slotLabel, setSlotLabel] = useState('');
-  const [selectedSubject, setSelectedSubject] = useState<string | undefined>(undefined);
+  const [selectedOption, setSelectedOption] = useState<SlotOptionValue | undefined>(undefined);
   const { data: config, isLoading: configLoading } = useTimetableConfig(sessionId || undefined);
   const { data: slots = [], isLoading: slotsLoading } = useTimetableSlots(
     sessionId || undefined,
@@ -67,26 +74,41 @@ export default function TimetablePage() {
 
   const handleAddSlot = (day: string, period: number) => {
     setSlotDialog({ open: true, day, period });
-    setSlotSubjectId('');
     setSlotTeacherId('');
     setSlotLabel('');
+    setSelectedOption(undefined);
   };
 
   const handleCreateSlot = () => {
     if (!sessionId || !classId) return;
+
+    let subjectId: string | undefined;
+    let label: string | undefined;
+
+    if (selectedOption?.startsWith('subject:')) {
+      subjectId = selectedOption.replace('subject:', '');
+      const selected = subjects?.find((s: { id: string; name: string }) => s.id === subjectId);
+      label = selected?.name;
+    } else if (selectedOption === FREE_PERIOD_OPTION) {
+      label = 'Free Period';
+    } else if (selectedOption === CUSTOM_LABEL_OPTION) {
+      const trimmed = slotLabel.trim();
+      label = trimmed || undefined;
+    }
+
     createSlot.mutate(
       {
         classId,
         sessionId,
         dayOfWeek: slotDialog.day,
         periodNumber: slotDialog.period,
-        subjectId: slotSubjectId || undefined,
+        subjectId,
         teacherId: slotTeacherId || undefined,
-        label: selectedSubject !== '_unknown' ? selectedSubject : slotLabel || undefined,
+        label,
       },
       { onSuccess: () => {
         setSlotDialog({ open: false, day: '', period: 0 });
-        setSelectedSubject(undefined);
+        setSelectedOption(undefined);
       }},
     );
   };
@@ -157,9 +179,9 @@ export default function TimetablePage() {
               <Label>Label (e.g. &quot;Assembly&quot;, &quot;Break&quot;)</Label>
               <div className="my-4">
                 <Select
-                  value={selectedSubject || slotLabel}
+                  value={selectedOption}
                   onValueChange={(value) => {
-                    setSelectedSubject(value);
+                    setSelectedOption(value as SlotOptionValue);
                   }}
                   disabled={isLoading || subjects?.length === 0}
                 >
@@ -168,16 +190,16 @@ export default function TimetablePage() {
                   </SelectTrigger>
                   <SelectContent>
                     {subjects?.map((s: { id: string; name: string }) => (
-                      <SelectItem key={s.name} value={s.name}>
+                      <SelectItem key={s.id} value={`subject:${s.id}`}>
                         {s.name}
                       </SelectItem>
                     ))}
-                    <SelectItem value="Free Period">Free Period</SelectItem>
-                    <SelectItem value="_unknown">Other</SelectItem>
+                    <SelectItem value={FREE_PERIOD_OPTION}>Free Period</SelectItem>
+                    <SelectItem value={CUSTOM_LABEL_OPTION}>Other</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              {selectedSubject === '_unknown' && (
+              {selectedOption === CUSTOM_LABEL_OPTION && (
                 <Input value={slotLabel} onChange={(e) => setSlotLabel(e.target.value)} placeholder="Enter optional label" />
               )}
             </div>

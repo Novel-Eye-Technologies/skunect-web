@@ -240,9 +240,7 @@ export function AnnouncementFormDialog({
     }
   }
 
-  useEffect(() => {
-    console.log('Classes response:', classesResponse);
-  }, [classesResponse]);
+
 
   const isPending =
     createAnnouncement.isPending ||

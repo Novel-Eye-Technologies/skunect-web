@@ -27,7 +27,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/lib/stores/auth-store';
-import { useUsers } from '@/lib/hooks/use-users';
+import { useUsers, useContacts } from '@/lib/hooks/use-users';
 import { useCreateConversation } from '@/lib/hooks/use-messaging';
 import type { UserListItem } from '@/lib/types/user';
 
@@ -53,7 +53,7 @@ export function NewConversationDialog({
   const userId = useAuthStore((s) => s.user?.id);
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
-  const { data: usersResponse, isLoading: usersLoading } = useUsers({
+  const { data: usersResponse, isLoading: usersLoading } = useContacts({
     size: 50,
   });
 
