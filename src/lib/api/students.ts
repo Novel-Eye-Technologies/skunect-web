@@ -78,20 +78,24 @@ export async function getParentChildren(): Promise<ApiResponse<StudentListItem[]
   const raw = response.data;
 
   // Map the backend shape to the frontend StudentListItem shape
-  const mapped: StudentListItem[] = (raw.data ?? []).map((child) => ({
+  const mapped = (raw.data ?? []).map((child) => ({
     id: child.studentId,
     admissionNumber: child.admissionNumber,
     firstName: child.firstName,
     lastName: child.lastName,
-    otherName: null,
+    otherName: '',
     dateOfBirth: '',
-    gender: (child.gender as StudentListItem['gender']) ?? 'MALE',
+    enrolledDate: '',
+    gender: (child.gender as string) ?? 'MALE',
     classId: child.classId,
     className: child.className ?? '',
-    status: (child.status as StudentListItem['status']) ?? 'ACTIVE',
-    photo: child.photo ?? null,
+    status: (child.status as string) ?? 'ACTIVE',
+    photo: child.photo ?? '',
+    parents: [] as StudentListItem['parents'],
+    isActive: true,
     createdAt: '',
-  }));
+    schoolId: '',
+  })) as StudentListItem[];
 
   return { ...raw, data: mapped };
 }

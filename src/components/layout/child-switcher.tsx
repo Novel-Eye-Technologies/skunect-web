@@ -42,7 +42,7 @@ export function ChildSwitcher() {
         lastName: s.lastName,
         classId: s.classId ?? null,
         className: s.className ?? null,
-        photo: s.photo,
+        photo: s.photo ?? null,
       }));
       setChildren(mapped);
     }
