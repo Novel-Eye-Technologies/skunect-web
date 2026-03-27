@@ -47,7 +47,7 @@ export default function AttendancePage() {
   // Sync classFilter for parents
   useEffect(() => {
     if (isParent && selectedChild) {
-      setClassFilter(selectedChild.classId);
+      setClassFilter(selectedChild.classId ?? '');
     }
   }, [isParent, selectedChild]);
 
@@ -162,11 +162,11 @@ export default function AttendancePage() {
       cell: ({ row }) => <StatusBadge status={row.original.status} />,
     },
     {
-      accessorKey: 'note',
+      accessorKey: 'notes',
       header: 'Note',
       cell: ({ row }) => (
         <span className="text-muted-foreground">
-          {row.original.note ?? '-'}
+          {row.original.notes ?? '-'}
         </span>
       ),
     },

@@ -70,7 +70,7 @@ export function CreateBusDialog({ open, onOpenChange }: CreateBusDialogProps) {
   function onSubmit(values: BusFormValues) {
     createBus.mutate(
       {
-        routeId: values.routeId || undefined,
+        routeId: values.routeId || '',
         plateNumber: values.plateNumber,
         capacity: values.capacity,
         driverName: values.driverName,

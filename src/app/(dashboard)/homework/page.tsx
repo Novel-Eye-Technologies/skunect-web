@@ -344,7 +344,7 @@ export default function HomeworkPage() {
                 </div>
               </div>
               <ChildHomeworkList
-                classId={selectedChild.classId}
+                classId={selectedChild.classId ?? ''}
                 childId={selectedChild.id}
               />
             </div>
@@ -378,7 +378,7 @@ export default function HomeworkPage() {
                     {classes.map((cls) => (
                       <SelectItem key={cls.id} value={cls.id}>
                         {cls.name}
-                        {cls.section ? ` (${cls.section})` : ''}
+                        {cls.gradeLevel ? ` (${cls.gradeLevel})` : ''}
                       </SelectItem>
                     ))}
                   </SelectContent>

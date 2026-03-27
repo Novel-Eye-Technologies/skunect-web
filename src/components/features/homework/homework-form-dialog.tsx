@@ -129,12 +129,12 @@ export function HomeworkFormDialog({
     if (homework && open) {
       form.reset({
         title: homework.title,
-        description: 'description' in homework ? homework.description : '',
+        description: homework.description ?? '',
         classId: homework.classId,
         subjectId: homework.subjectId,
         assignedDate: homework.assignedDate,
         dueDate: homework.dueDate,
-        maxScore: 'maxScore' in homework ? homework.maxScore : 100,
+        maxScore: homework.maxScore ?? 100,
       });
       setFiles([]);
     } else if (!open) {
@@ -234,7 +234,7 @@ export function HomeworkFormDialog({
                         {classes.map((cls) => (
                           <SelectItem key={cls.id} value={cls.id}>
                             {cls.name}
-                            {cls.section ? ` (${cls.section})` : ''}
+                            {cls.gradeLevel ? ` (${cls.gradeLevel})` : ''}
                           </SelectItem>
                         ))}
                       </SelectContent>

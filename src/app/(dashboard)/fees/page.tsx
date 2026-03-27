@@ -217,13 +217,13 @@ export default function FeesPage() {
       header: 'Class',
     },
     {
-      accessorKey: 'feeStructureName',
-      header: 'Fee',
+      accessorKey: 'invoiceNumber',
+      header: 'Invoice #',
     },
     {
-      accessorKey: 'amount',
+      accessorKey: 'totalAmount',
       header: 'Amount',
-      cell: ({ row }) => formatCurrency(row.original.amount),
+      cell: ({ row }) => formatCurrency(row.original.totalAmount),
     },
     {
       accessorKey: 'amountPaid',
@@ -382,7 +382,7 @@ export default function FeesPage() {
                     {classes.map((cls) => (
                       <SelectItem key={cls.id} value={cls.id}>
                         {cls.name}
-                        {cls.section ? ` (${cls.section})` : ''}
+                        {cls.gradeLevel ? ` (${cls.gradeLevel})` : ''}
                       </SelectItem>
                     ))}
                   </SelectContent>

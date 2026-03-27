@@ -3284,6 +3284,8 @@ export interface components {
             startDate: string;
             /** Format: date */
             endDate: string;
+            /** Format: date-time */
+            createdAt: string;
             isCurrent: boolean;
             isClosed: boolean;
         };
@@ -3305,6 +3307,8 @@ export interface components {
             schoolId: string;
             name: string;
             code: string;
+            /** Format: date-time */
+            createdAt: string;
         };
         UpdateStudentRequest: {
             firstName?: string;
@@ -3405,6 +3409,8 @@ export interface components {
             startDate: string;
             /** Format: date */
             endDate: string;
+            /** Format: date-time */
+            createdAt: string;
             isCurrent: boolean;
         };
         ApiResponseReportCardResponse: {
@@ -3434,6 +3440,10 @@ export interface components {
             teacherComment?: string | null;
             adminComment?: string | null;
             studentName: string;
+            admissionNumber?: string | null;
+            className?: string | null;
+            termName?: string | null;
+            sessionName?: string | null;
             /** Format: date-time */
             publishedAt?: string | null;
             /** Format: date-time */
@@ -3690,6 +3700,11 @@ export interface components {
             balance: number;
             /** Format: date */
             dueDate?: string | null;
+            studentName?: string | null;
+            admissionNumber?: string | null;
+            className?: string | null;
+            /** Format: date-time */
+            createdAt: string;
         };
         UpdateEventRequest: {
             title?: string;
@@ -3804,6 +3819,8 @@ export interface components {
             /** Format: uuid */
             classTeacherId?: string | null;
             classTeacherName?: string | null;
+            /** Format: date-time */
+            createdAt: string;
         };
         AssignSubjectTeacherRequest: {
             /** Format: uuid */
@@ -3989,6 +4006,11 @@ export interface components {
             type: string;
             title: string;
             maxScore: number;
+            className?: string | null;
+            subjectName?: string | null;
+            termName?: string | null;
+            /** Format: date-time */
+            createdAt: string;
         };
         UpdateAnnouncementRequest: {
             title?: string;
@@ -4046,6 +4068,7 @@ export interface components {
             status: string;
             /** Format: date-time */
             sentAt?: string | null;
+            actionUrl?: string | null;
             /** Format: date-time */
             createdAt: string;
             isRead: boolean;
@@ -4070,6 +4093,8 @@ export interface components {
             meta?: components["schemas"]["PageMeta"];
         };
         NotificationPreferenceResponse: {
+            /** Format: uuid */
+            id: string;
             notificationType: string;
             pushEnabled: boolean;
             smsEnabled: boolean;
@@ -4307,6 +4332,8 @@ export interface components {
             /** Format: int32 */
             breakDuration?: number | null;
             days: string[];
+            /** Format: date-time */
+            createdAt: string;
         };
         UpgradeRequest: {
             /** Format: int32 */
@@ -4429,6 +4456,8 @@ export interface components {
             schoolId: string;
             /** Format: uuid */
             studentId: string;
+            studentName: string;
+            admissionNumber: string;
             /** Format: uuid */
             authorizationId?: string | null;
             pickedUpByName: string;
@@ -4685,6 +4714,8 @@ export interface components {
             type: string;
             participants: components["schemas"]["ParticipantInfo"][];
             lastMessage: components["schemas"]["MessageResponse"];
+            /** Format: int32 */
+            unreadCount: number;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
@@ -4698,15 +4729,22 @@ export interface components {
             /** Format: uuid */
             senderId: string;
             senderName: string;
+            senderAvatar?: string | null;
             content: string;
             attachmentUrls: string[];
             /** Format: date-time */
             createdAt: string;
+            /** Format: date-time */
+            sentAt: string;
         } | null;
         ParticipantInfo: {
             /** Format: uuid */
             userId: string;
             name: string;
+            firstName?: string | null;
+            lastName?: string | null;
+            role?: string | null;
+            avatar?: string | null;
             /** Format: date-time */
             lastReadAt?: string | null;
         };
@@ -4996,6 +5034,9 @@ export interface components {
             /** Format: uuid */
             studentId: string;
             studentName: string;
+            /** Format: uuid */
+            classId?: string | null;
+            className?: string | null;
             status: string;
             notes?: string | null;
             /** Format: date */
@@ -5086,8 +5127,8 @@ export interface components {
             first: boolean;
             /** Format: int32 */
             numberOfElements: number;
-            last: boolean;
             pageable: components["schemas"]["PageableObject"];
+            last: boolean;
             /** Format: int32 */
             size: number;
             content: components["schemas"]["SubscriptionPaymentResponse"][];
@@ -5150,11 +5191,16 @@ export interface components {
             /** Format: uuid */
             classId: string;
             studentName: string;
+            admissionNumber?: string | null;
+            className?: string | null;
+            markedBy?: string | null;
             status: string;
             notes?: string | null;
             /** Format: date */
             date: string;
             syncedFromOffline: boolean;
+            /** Format: date-time */
+            createdAt: string;
         };
         ApiResponseStudentUsageResponse: {
             status?: string;
@@ -5398,8 +5444,8 @@ export interface components {
             first: boolean;
             /** Format: int32 */
             numberOfElements: number;
-            last: boolean;
             pageable: components["schemas"]["PageableObject"];
+            last: boolean;
             /** Format: int32 */
             size: number;
             content: components["schemas"]["AuditLogResponse"][];

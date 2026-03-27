@@ -146,9 +146,9 @@ export default function MyClassesPage() {
                   <CardHeader className="pb-3">
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-lg">{cls.name}</CardTitle>
-                      {cls.section && (
+                      {cls.gradeLevel && (
                         <Badge variant="outline" className="text-xs">
-                          Section {cls.section}
+                          Section {cls.gradeLevel}
                         </Badge>
                       )}
                     </div>

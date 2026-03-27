@@ -143,7 +143,7 @@ export function AssessmentFormDialog({
         classId: assessment.classId,
         subjectId: assessment.subjectId,
         termId: assessment.termId,
-        type: assessment.type,
+        type: assessment.type as 'CA1' | 'CA2' | 'CA3' | 'EXAM',
         maxScore: assessment.maxScore,
       });
     } else if (!open) {
@@ -232,7 +232,7 @@ export function AssessmentFormDialog({
                         {classes.map((cls) => (
                           <SelectItem key={cls.id} value={cls.id}>
                             {cls.name}
-                            {cls.section ? ` (${cls.section})` : ''}
+                            {cls.gradeLevel ? ` (${cls.gradeLevel})` : ''}
                           </SelectItem>
                         ))}
                       </SelectContent>

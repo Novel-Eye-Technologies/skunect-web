@@ -4,39 +4,10 @@ import type { Api } from '@/lib/api/schema';
 export type AttendanceEntry = Api['AttendanceEntry'];
 export type RecordAttendanceRequest = Api['RecordAttendanceRequest'];
 
-// Response types — generated schemas have all fields optional, keep hand-written
-export interface AttendanceRecord {
-  id: string;
-  studentId: string;
-  studentName: string;
-  admissionNumber: string;
-  classId: string;
-  className: string;
-  date: string;
-  status: 'PRESENT' | 'ABSENT' | 'LATE';
-  note: string | null;
-  markedBy: string;
-  createdAt: string;
-}
-
-export interface AttendanceOverviewResponse {
-  totalStudents: number;
-  presentCount: number;
-  absentCount: number;
-  lateCount: number;
-  attendanceRate: number;
-}
-
-export interface WelfareResponse {
-  id: string;
-  studentId: string;
-  studentName: string;
-  status: string;
-  notes: string;
-  date: string;
-  recordedBy: string;
-  createdAt: string;
-}
+// Response types from generated OpenAPI schemas
+export type WelfareResponse = Api['WelfareResponse'];
+export type AttendanceRecord = Api['AttendanceResponse'];
+export type AttendanceOverviewResponse = Api['AttendanceOverviewResponse'];
 
 // Aliases used in hand-written code
 export type BulkAttendanceEntry = AttendanceEntry;
