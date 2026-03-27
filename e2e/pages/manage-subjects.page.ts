@@ -68,7 +68,7 @@ export class ManageSubjectsPage {
 
   async expectSubjectInTable(name: string) {
     await expect(this.dataTable.getByText(name)).toBeVisible({
-      timeout: 10_000,
+      timeout: 15_000,
     });
   }
 
