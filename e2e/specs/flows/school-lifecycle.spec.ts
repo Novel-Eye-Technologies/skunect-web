@@ -2315,14 +2315,19 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     const recordsTab = page.getByRole('tab', { name: /records/i });
     await recordsTab.click();
 
-    // Verify Records tab content renders — shows "No attendance records" because
-    // the Records tab doesn't have a class filter (product gap — tracked separately).
-    // The attendance data IS present (verified in tests 3.4/3.5) but requires a
-    // classId param to be returned by the API.
-    await expect(
-      page.locator('table tbody tr').first()
-        .or(page.getByText('No attendance records'))
-    ).toBeVisible({ timeout: 15_000 });
+    // Select a class filter to load records (Records tab may not auto-load without class)
+    const classFilter = page.locator('select, [data-slot="select-trigger"]').filter({ hasText: /all classes|select class/i }).first();
+    if (await classFilter.isVisible({ timeout: 3_000 }).catch(() => false)) {
+      await classFilter.click();
+      const classOption = page.getByRole('option', { name: new RegExp(CLASS1_NAME) });
+      if (await classOption.isVisible({ timeout: 3_000 }).catch(() => false)) {
+        await classOption.click();
+      }
+    }
+
+    // Records should show entries from attendance taken in tests 3.4 and 3.5
+    const firstRow = page.locator('table tbody tr').first();
+    await expect(firstRow).toBeVisible({ timeout: 30_000 });
   });
 
   test('3.12 — Teacher: Validate student discipline tab', async ({ page }) => {
