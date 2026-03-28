@@ -25,7 +25,7 @@ export class TimetablePage {
 
     this.slotDialog = page.getByRole('dialog');
     this.subjectSelect = this.slotDialog.locator('button[data-slot="select-trigger"]');
-    this.customLabelInput = page.getByPlaceholder('Enter optional label');
+    this.customLabelInput = this.slotDialog.getByPlaceholder('Enter optional label');
     this.createSlotButton = page.getByRole('button', { name: /create slot/i });
     this.cancelSlotButton = this.slotDialog.getByRole('button', { name: /cancel/i });
   }

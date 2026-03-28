@@ -183,7 +183,6 @@ export default function TimetablePage() {
                   onValueChange={(value) => {
                     setSelectedOption(value as SlotOptionValue);
                   }}
-                  disabled={isLoading || subjects?.length === 0}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select Subject (optional)" />
