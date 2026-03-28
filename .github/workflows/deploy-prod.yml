@@ -59,8 +59,10 @@ jobs:
           aws s3 sync out/ s3://${{ secrets.S3_BUCKET }} \
             --delete \
             --cache-control "public,max-age=0,must-revalidate" \
+            --exclude "*" \
             --include "*.html" \
             --include "*.json" \
+            --include "*.txt" \
             --exclude "_next/*"
 
       - name: Invalidate CloudFront
