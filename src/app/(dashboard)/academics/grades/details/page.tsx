@@ -25,7 +25,7 @@ export default function GradeDetailsPage() {
 
   const { data: response = [], isLoading, isError, refetch } = useStudentSubjectGrades(
     selectedChild?.id,
-    selectedChild?.classId
+    selectedChild?.classId ?? undefined
   );
 
   const subjectDetails = subjectId ? response.find((s) => s.subjectId === subjectId) : undefined;

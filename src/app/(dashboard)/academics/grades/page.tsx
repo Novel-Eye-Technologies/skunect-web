@@ -29,7 +29,7 @@ export default function GradesPage() {
 
   const { data: response = [], isLoading, isError, refetch } = useStudentSubjectGrades(
     selectedChild?.id,
-    selectedChild?.classId
+    selectedChild?.classId ?? undefined
   );
 
   const subjectsList = response;

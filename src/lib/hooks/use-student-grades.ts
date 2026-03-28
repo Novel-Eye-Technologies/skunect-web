@@ -117,7 +117,7 @@ export function useStudentSubjectGrades(studentId?: string, classId?: string) {
           type: assessment.type,
           score: scoreValue,
           maxScore: assessment.maxScore,
-          date: assessment.date,
+          date: assessment.createdAt,
         });
 
         // Add to max scores
