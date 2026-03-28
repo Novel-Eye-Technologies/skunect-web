@@ -42,6 +42,7 @@ import { useClasses } from '@/lib/queries/useClasses';
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 const MAX_FILES = 5;
 
+
 const announcementFormSchema = z.object({
   title: z.string().min(1, { message: 'Title is required' }),
   content: z.string().min(1, { message: 'Content is required' }),
@@ -233,6 +234,8 @@ export function AnnouncementFormDialog({
       setIsUploadingFiles(false);
     }
   }
+
+
 
   const isPending =
     createAnnouncement.isPending ||

@@ -1,5 +1,7 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
+
 import {
   GraduationCap,
   TrendingUp,
@@ -175,6 +177,8 @@ function AcademicSnapshotCard({
 }: {
   data: ParentAcademicOverview | null;
 }) {
+  const router = useRouter();
+
   if (!data) {
     return (
       <Card>
@@ -228,7 +232,10 @@ function AcademicSnapshotCard({
         <div className="h-10 w-px bg-border" />
 
         {/* Subjects needing attention */}
-        <div className="text-center">
+        <div 
+          className="text-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors rounded-md p-2 -m-2"
+          onClick={() => router.push('/academics/grades')}
+        >
           <p className="text-sm text-muted-foreground">Needs Attention</p>
           <p
             className={`text-2xl font-bold ${attentionCount > 0 ? 'text-red-600' : 'text-emerald-600'}`}
@@ -760,7 +767,8 @@ export function ParentDashboard() {
   const currentSchoolId = useAuthStore((s) => s.currentSchoolId);
   const user = useAuthStore((s) => s.user);
   const selectedChildId = useChildStore((s) => s.selectedChildId);
-  const { data: response, isLoading, isError, refetch } = useParentDashboard();
+  const { data: response, isLoading, isError, refetch } = useParentDashboard(selectedChildId || undefined);
+  const router = useRouter();
 
   const currentSchool = user?.roles.find(
     (r) => r.schoolId === currentSchoolId,
@@ -799,8 +807,17 @@ export function ParentDashboard() {
   const activeChild =
     children.find((c) => c.studentId === selectedChildId) ?? children[0];
 
-  // Compute homework stats
-  const overdueHomework = recentHomework.filter(
+  // Filter child-specific data by active child name
+  const activeChildName = activeChild?.name;
+  const filteredHomework = activeChildName
+    ? recentHomework.filter((hw) => hw.childName === activeChildName)
+    : recentHomework;
+  const filteredFees = activeChildName
+    ? upcomingFees.filter((fee) => fee.childName === activeChildName)
+    : upcomingFees;
+
+  // Compute homework stats scoped to active child
+  const overdueHomework = filteredHomework.filter(
     (hw) => hw.status?.toUpperCase() === 'OVERDUE',
   ).length;
 
@@ -827,6 +844,7 @@ export function ParentDashboard() {
         {/* Attendance */}
         <StatCard
           title="Attendance"
+          onClick={() => router.push('/attendance')}
           value={
             attendanceMetrics
               ? `${attendanceMetrics.attendanceRate.toFixed(0)}%`
@@ -853,7 +871,8 @@ export function ParentDashboard() {
         {/* Homework */}
         <StatCard
           title="Homework"
-          value={data.pendingHomework}
+          onClick={() => router.push('/homework')}
+          value={filteredHomework.length}
           description={
             overdueHomework > 0 ? (
               <span className="text-red-600">
@@ -869,6 +888,7 @@ export function ParentDashboard() {
         {/* Messages */}
         <StatCard
           title="Messages"
+          onClick={() => router.push('/communication/messages')}
           value={unreadMessages ?? 0}
           description="unread"
           icon={MessageSquare}
@@ -877,6 +897,7 @@ export function ParentDashboard() {
         {/* Fees */}
         <StatCard
           title="Fees Owing"
+          onClick={() => router.push('/fees')}
           value={data.pendingFees > 0 ? formatNaira(data.pendingFees) : '\u20A60'}
           description="balance"
           icon={CreditCard}
@@ -899,7 +920,7 @@ export function ParentDashboard() {
       {/* ── Row 5: Recent Assessments + Recent Homework ── */}
       <div className="grid gap-6 lg:grid-cols-2">
         <RecentAssessmentsCard assessments={recentAssessments ?? []} />
-        <RecentHomeworkCard homework={recentHomework} />
+        <RecentHomeworkCard homework={filteredHomework} />
       </div>
 
       {/* ── Row 6: Announcements + Upcoming Events ── */}
@@ -909,7 +930,7 @@ export function ParentDashboard() {
       </div>
 
       {/* ── Row 7: Upcoming Fees ── */}
-      <UpcomingFeesCard fees={upcomingFees} />
+      <UpcomingFeesCard fees={filteredFees} />
     </div>
   );
 }

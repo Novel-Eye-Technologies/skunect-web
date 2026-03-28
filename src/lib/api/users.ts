@@ -27,6 +27,15 @@ export async function getUsers(
   return response.data;
 }
 
+export function getContacts(
+  schoolId: string,
+  params?: UserListParams,
+): Promise<ApiResponse<UserListItem[]>> {
+  return apiClient
+    .get<ApiResponse<UserListItem[]>>(`/messaging/schools/${schoolId}/contacts`, { params })
+    .then((response) => response.data);
+}
+
 export async function inviteUser(
   schoolId: string,
   data: InviteUserRequest,

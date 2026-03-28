@@ -10,7 +10,8 @@ export class TimetablePage {
 
   // Slot dialog elements
   readonly slotDialog: Locator;
-  readonly slotLabelInput: Locator;
+  readonly subjectSelect: Locator;
+  readonly customLabelInput: Locator;
   readonly createSlotButton: Locator;
   readonly cancelSlotButton: Locator;
 
@@ -23,7 +24,8 @@ export class TimetablePage {
     this.emptyState = page.getByText(/select a session and class/i);
 
     this.slotDialog = page.getByRole('dialog');
-    this.slotLabelInput = page.getByPlaceholder('Optional label');
+    this.subjectSelect = this.slotDialog.locator('button[data-slot="select-trigger"]');
+    this.customLabelInput = this.slotDialog.getByPlaceholder('Enter optional label');
     this.createSlotButton = page.getByRole('button', { name: /create slot/i });
     this.cancelSlotButton = this.slotDialog.getByRole('button', { name: /cancel/i });
   }
@@ -78,8 +80,23 @@ export class TimetablePage {
     await expect(this.slotDialog).toBeVisible({ timeout: 10_000 });
   }
 
+  /**
+   * Select a subject from the dropdown, or pick "Other" and type a custom label.
+   * Matches against option text visible in the dropdown.
+   */
   async fillSlotForm(label: string) {
-    await this.slotLabelInput.fill(label);
+    await this.subjectSelect.click();
+    const option = this.page.getByRole('option', { name: label, exact: true });
+    const hasOption = await option.isVisible({ timeout: 3_000 }).catch(() => false);
+
+    if (hasOption) {
+      await option.click();
+    } else {
+      // Label not in the dropdown — select "Other" and type it manually
+      await this.page.getByRole('option', { name: 'Other' }).click();
+      await expect(this.customLabelInput).toBeVisible({ timeout: 5_000 });
+      await this.customLabelInput.fill(label);
+    }
   }
 
   async submitSlotForm() {

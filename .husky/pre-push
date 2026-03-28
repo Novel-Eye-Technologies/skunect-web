@@ -5,5 +5,5 @@ if [ "$SKIP_PR_SIMULATION" = "1" ]; then
   exit 0
 fi
 
-echo "Running local PR simulation checks (CI + E2E)..."
-npm run pr:simulate
+echo "Running pre-push checks (lint + typecheck)..."
+npm run ci:pr

@@ -23,20 +23,30 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useSubjects } from '@/lib/hooks/use-school-settings';
+
+const CUSTOM_LABEL_OPTION = 'option:custom';
+const FREE_PERIOD_OPTION = 'option:free-period';
+
+type SlotOptionValue =
+  | typeof CUSTOM_LABEL_OPTION
+  | typeof FREE_PERIOD_OPTION
+  | `subject:${string}`;
 
 export default function TimetablePage() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
   const [sessionId, setSessionId] = useState('');
+  const { data: subjects, isLoading } = useSubjects();
+
   const [classId, setClassId] = useState('');
   const [slotDialog, setSlotDialog] = useState<{
     open: boolean;
     day: string;
     period: number;
   }>({ open: false, day: '', period: 0 });
-  const [slotSubjectId, setSlotSubjectId] = useState('');
   const [slotTeacherId, setSlotTeacherId] = useState('');
   const [slotLabel, setSlotLabel] = useState('');
-
+  const [selectedOption, setSelectedOption] = useState<SlotOptionValue | undefined>(undefined);
   const { data: config, isLoading: configLoading } = useTimetableConfig(sessionId || undefined);
   const { data: slots = [], isLoading: slotsLoading } = useTimetableSlots(
     sessionId || undefined,
@@ -64,24 +74,42 @@ export default function TimetablePage() {
 
   const handleAddSlot = (day: string, period: number) => {
     setSlotDialog({ open: true, day, period });
-    setSlotSubjectId('');
     setSlotTeacherId('');
     setSlotLabel('');
+    setSelectedOption(undefined);
   };
 
   const handleCreateSlot = () => {
     if (!sessionId || !classId) return;
+
+    let subjectId: string | undefined;
+    let label: string | undefined;
+
+    if (selectedOption?.startsWith('subject:')) {
+      subjectId = selectedOption.replace('subject:', '');
+      const selected = subjects?.find((s: { id: string; name: string }) => s.id === subjectId);
+      label = selected?.name;
+    } else if (selectedOption === FREE_PERIOD_OPTION) {
+      label = 'Free Period';
+    } else if (selectedOption === CUSTOM_LABEL_OPTION) {
+      const trimmed = slotLabel.trim();
+      label = trimmed || undefined;
+    }
+
     createSlot.mutate(
       {
         classId,
         sessionId,
         dayOfWeek: slotDialog.day,
         periodNumber: slotDialog.period,
-        subjectId: slotSubjectId || undefined,
+        subjectId,
         teacherId: slotTeacherId || undefined,
-        label: slotLabel || undefined,
+        label,
       },
-      { onSuccess: () => setSlotDialog({ open: false, day: '', period: 0 }) },
+      { onSuccess: () => {
+        setSlotDialog({ open: false, day: '', period: 0 });
+        setSelectedOption(undefined);
+      }},
     );
   };
 
@@ -149,7 +177,30 @@ export default function TimetablePage() {
           <div className="space-y-4">
             <div>
               <Label>Label (e.g. &quot;Assembly&quot;, &quot;Break&quot;)</Label>
-              <Input value={slotLabel} onChange={(e) => setSlotLabel(e.target.value)} placeholder="Optional label" />
+              <div className="my-4">
+                <Select
+                  value={selectedOption}
+                  onValueChange={(value) => {
+                    setSelectedOption(value as SlotOptionValue);
+                  }}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select Subject (optional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {subjects?.map((s: { id: string; name: string }) => (
+                      <SelectItem key={s.id} value={`subject:${s.id}`}>
+                        {s.name}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value={FREE_PERIOD_OPTION}>Free Period</SelectItem>
+                    <SelectItem value={CUSTOM_LABEL_OPTION}>Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {selectedOption === CUSTOM_LABEL_OPTION && (
+                <Input value={slotLabel} onChange={(e) => setSlotLabel(e.target.value)} placeholder="Enter optional label" />
+              )}
             </div>
             <div className="flex gap-4">
               <Button onClick={handleCreateSlot} disabled={createSlot.isPending}>
