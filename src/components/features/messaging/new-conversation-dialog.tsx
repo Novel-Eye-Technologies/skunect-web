@@ -27,8 +27,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/lib/stores/auth-store';
-import { useUsers, useContacts } from '@/lib/hooks/use-users';
-import { useCreateConversation } from '@/lib/hooks/use-messaging';
+import { useContacts } from '@/lib/hooks/use-users';
+import { useCreateConversation, useSendMessage } from '@/lib/hooks/use-messaging';
 import type { UserListItem } from '@/lib/types/user';
 
 const newConversationSchema = z.object({
@@ -58,6 +58,7 @@ export function NewConversationDialog({
   });
 
   const createConversation = useCreateConversation();
+  const sendMsg = useSendMessage();
 
   const form = useForm<NewConversationValues>({
     resolver: zodResolver(newConversationSchema),
@@ -94,10 +95,21 @@ export function NewConversationDialog({
       },
       {
         onSuccess: (response) => {
-          form.reset();
-          setSearchQuery('');
-          onOpenChange(false);
-          onConversationCreated?.(response.data.id);
+          const conversationId = response.data.id;
+          sendMsg.mutate(
+            {
+              conversationId,
+              data: { content: values.message },
+            },
+            {
+              onSettled: () => {
+                form.reset();
+                setSearchQuery('');
+                onOpenChange(false);
+                onConversationCreated?.(conversationId);
+              },
+            },
+          );
         },
       },
     );
@@ -217,8 +229,8 @@ export function NewConversationDialog({
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={createConversation.isPending}>
-                {createConversation.isPending ? 'Sending...' : 'Send Message'}
+              <Button type="submit" disabled={createConversation.isPending || sendMsg.isPending}>
+                {createConversation.isPending || sendMsg.isPending ? 'Sending...' : 'Send Message'}
               </Button>
             </div>
           </form>

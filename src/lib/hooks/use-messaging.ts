@@ -59,7 +59,7 @@ export function useMessages(conversationId: string, params?: PaginatedParams) {
 
 export function useCreateConversation() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-return useMutation({
+  return useMutation({
     mutationFn: (data: CreateConversationRequest) =>
       createConversation(schoolId!, data),
     onSuccess: () => {
@@ -86,7 +86,7 @@ export function useUnreadMessageCount() {
 
 export function useSendMessage() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-return useMutation({
+  return useMutation({
     mutationFn: ({
       conversationId,
       data,

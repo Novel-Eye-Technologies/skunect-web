@@ -92,7 +92,7 @@ export default function GradesPage() {
         </Button>
       ),
     },
-  ], [router, selectedChild]);
+  ], [router]);
 
   if (!isParent) {
     return (

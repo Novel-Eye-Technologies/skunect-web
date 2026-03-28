@@ -1,9 +1,12 @@
 export function GradeBadge({ grade }: { grade: string | null | undefined }) {
   if (!grade || grade === '—' || grade === '-') return <span className="text-muted-foreground">—</span>;
-  
+
+  const upper = grade.toUpperCase();
+  const letter = upper.charAt(0);
+
   let colorClass = 'bg-gray-50 text-gray-700 ring-gray-600/20 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20';
-  
-  switch (grade.toUpperCase()) {
+
+  switch (letter) {
     case 'A':
       colorClass = 'bg-green-50 text-green-700 ring-green-600/20 dark:bg-green-500/10 dark:text-green-400 dark:ring-green-500/20';
       break;
@@ -21,10 +24,10 @@ export function GradeBadge({ grade }: { grade: string | null | undefined }) {
       colorClass = 'bg-red-50 text-red-700 ring-red-600/10 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20';
       break;
   }
-  
+
   return (
     <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-bold ring-1 ring-inset ${colorClass}`}>
-      {grade.toUpperCase()}
+      {upper}
     </span>
   );
 }

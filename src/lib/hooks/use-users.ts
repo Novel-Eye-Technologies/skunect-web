@@ -24,6 +24,8 @@ const userKeys = {
   all: ['users'] as const,
   list: (schoolId: string, params?: UserListParams) =>
     [...userKeys.all, 'list', schoolId, params] as const,
+  contacts: (schoolId: string, params?: UserListParams) =>
+    [...userKeys.all, 'contacts', schoolId, params] as const,
 };
 
 // ---------------------------------------------------------------------------
@@ -43,7 +45,7 @@ export function useContacts(params?: UserListParams) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   return useQuery({
-    queryKey: userKeys.list(schoolId ?? '', params),
+    queryKey: userKeys.contacts(schoolId ?? '', params),
     queryFn: () => getContacts(schoolId!, params),
     enabled: !!schoolId,
   });
@@ -55,7 +57,7 @@ export function useContacts(params?: UserListParams) {
 
 export function useInviteUser() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-return useMutation({
+  return useMutation({
     mutationFn: (data: InviteUserRequest) => inviteUser(schoolId!, data),
     onSuccess: () => {
       toast.success('User invited successfully');
@@ -69,7 +71,7 @@ return useMutation({
 
 export function useUpdateUserStatus() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-return useMutation({
+  return useMutation({
     mutationFn: ({
       userId,
       data,
@@ -89,7 +91,7 @@ return useMutation({
 
 export function useUpdateSchoolUser() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-return useMutation({
+  return useMutation({
     mutationFn: ({
       userId,
       data,
@@ -110,7 +112,7 @@ return useMutation({
 
 export function useRemoveUser() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-return useMutation({
+  return useMutation({
     mutationFn: (userId: string) => removeUser(schoolId!, userId),
     onSuccess: () => {
       toast.success('User removed from school');
