@@ -203,9 +203,9 @@ export default function AcademicsPage() {
       header: 'Max Score',
     },
     {
-      accessorKey: 'date',
+      accessorKey: 'createdAt',
       header: 'Date',
-      cell: ({ row }) => formatDate(row.original.date),
+      cell: ({ row }) => formatDate(row.original.createdAt),
     },
     {
       id: 'actions',
@@ -273,23 +273,23 @@ export default function AcademicsPage() {
       header: 'Total Score',
     },
     {
-      accessorKey: 'average',
+      accessorKey: 'averageScore',
       header: 'Average',
-      cell: ({ row }) => row.original.average.toFixed(1),
+      cell: ({ row }) => row.original.averageScore.toFixed(1),
     },
     {
-      accessorKey: 'position',
+      accessorKey: 'positionInClass',
       header: 'Position',
       cell: ({ row }) => (
         <span>
-          {row.original.position}/{row.original.totalStudents}
+          {row.original.positionInClass ?? '-'}/{row.original.totalStudents ?? '-'}
         </span>
       ),
     },
     {
-      accessorKey: 'status',
+      accessorKey: 'isPublished',
       header: 'Status',
-      cell: ({ row }) => <StatusBadge status={row.original.status} />,
+      cell: ({ row }) => <StatusBadge status={row.original.isPublished ? 'PUBLISHED' : 'DRAFT'} />,
     },
     {
       id: 'actions',
@@ -297,7 +297,7 @@ export default function AcademicsPage() {
         const card = row.original;
         return (
           <div className="flex items-center gap-1">
-            {!isParent && card.status === 'DRAFT' ? (
+            {!isParent && !card.isPublished ? (
               <Button
                 variant="outline"
                 size="sm"
@@ -384,7 +384,7 @@ export default function AcademicsPage() {
                     {classes.map((cls) => (
                       <SelectItem key={cls.id} value={cls.id}>
                         {cls.name}
-                        {cls.section ? ` (${cls.section})` : ''}
+                        {cls.gradeLevel ? ` (${cls.gradeLevel})` : ''}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -489,7 +489,7 @@ export default function AcademicsPage() {
                     {classes.map((cls) => (
                       <SelectItem key={cls.id} value={cls.id}>
                         {cls.name}
-                        {cls.section ? ` (${cls.section})` : ''}
+                        {cls.gradeLevel ? ` (${cls.gradeLevel})` : ''}
                       </SelectItem>
                     ))}
                   </SelectContent>

@@ -50,7 +50,6 @@ const announcementFormSchema = z.object({
     message: 'Please select a target audience',
   }),
   targetClassId: z.string().optional(),
-  expiresAt: z.string().optional(),
 }).superRefine((values, ctx) => {
   const requiresClass =
     values.targetAudience === 'CLASS_SPECIFIC' || values.targetAudience === 'PARENTS';
@@ -111,7 +110,6 @@ export function AnnouncementFormDialog({
       title: '',
       content: '',
       targetAudience: isTeacher ? 'PARENTS' : 'ALL',
-      expiresAt: '',
       targetClassId: '',
     },
   });
@@ -125,19 +123,18 @@ export function AnnouncementFormDialog({
       form.reset({
         title: announcement.title,
         content: announcement.content,
-        targetAudience: announcement.targetAudience,
-        expiresAt: announcement.expiresAt
-          ? announcement.expiresAt.split('T')[0]
-          : '',
+        targetAudience: announcement.targetAudience as 'ALL' | 'TEACHERS' | 'PARENTS' | 'CLASS_SPECIFIC',
       });
       if (announcement.attachmentUrls?.length) {
         setAttachments(
-          announcement.attachmentUrls.map((url) => ({
-            id: crypto.randomUUID(),
-            url,
-            name: getFileNameFromUrl(url),
-            status: 'done' as const,
-          })),
+          announcement.attachmentUrls
+            .filter((u): u is string => u !== null)
+            .map((url) => ({
+              id: crypto.randomUUID(),
+              url,
+              name: getFileNameFromUrl(url),
+              status: 'done' as const,
+            })),
         );
       } else {
         setAttachments([]);
@@ -147,7 +144,6 @@ export function AnnouncementFormDialog({
         title: '',
         content: '',
         targetAudience: isTeacher ? 'PARENTS' : 'ALL',
-        expiresAt: '',
       });
       setAttachments([]);
     }
@@ -211,7 +207,6 @@ export function AnnouncementFormDialog({
 
       const payload = {
         ...values,
-        expiresAt: values.expiresAt || undefined,
         attachmentUrls: attachmentUrls.length > 0 ? attachmentUrls : undefined,
       };
 
@@ -347,19 +342,6 @@ export function AnnouncementFormDialog({
               )}
             </div>
 
-            <FormField
-              control={form.control}
-              name="expiresAt"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Expires At (Optional)</FormLabel>
-                  <FormControl>
-                    <Input type="date" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
             <FormField
               control={form.control}

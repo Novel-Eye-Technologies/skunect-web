@@ -120,13 +120,13 @@ export function RecordPaymentDialog({
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Fee</span>
-                <span className="font-medium">{invoice.feeStructureName}</span>
+                <span className="font-medium">{invoice.invoiceNumber}</span>
               </div>
               <Separator />
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Total Amount</span>
                 <span className="font-medium">
-                  {formatCurrency(invoice.amount)}
+                  {formatCurrency(invoice.totalAmount)}
                 </span>
               </div>
               <div className="flex justify-between text-sm">

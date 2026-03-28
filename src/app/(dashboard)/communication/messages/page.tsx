@@ -95,12 +95,12 @@ const [activeConversationId, setActiveConversationId] = useState<
     if (!accessToken) return;
 
     connectStomp(accessToken);
-    const unsubscribe = subscribeToMessages((incomingMessage: Message) => {
+    const unsubscribe = subscribeToMessages((incomingMessage: Message | null) => {
       // Invalidate queries to refresh conversation list + messages
       queryClient.invalidateQueries({ queryKey: messagingKeys.all });
 
       // If the incoming message is for the active conversation, scroll to bottom
-      if (incomingMessage.conversationId === activeConversationId) {
+      if (incomingMessage && incomingMessage.conversationId === activeConversationId) {
         setTimeout(() => scrollToBottom(), 100);
       }
     });
@@ -224,14 +224,14 @@ const [activeConversationId, setActiveConversationId] = useState<
                       <Avatar className="h-10 w-10 shrink-0">
                         <AvatarImage src={other.avatar ?? ''} />
                         <AvatarFallback className="text-xs">
-                          {other.firstName[0]}
-                          {other.lastName[0]}
+                          {(other.firstName ?? other.name)?.[0]}
+                          {(other.lastName ?? '')?.[0]}
                         </AvatarFallback>
                       </Avatar>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between gap-2">
                           <p className="truncate text-sm font-medium">
-                            {other.firstName} {other.lastName}
+                            {other.firstName ?? other.name} {other.lastName ?? ''}
                           </p>
                           {conversation.lastMessage && (
                             <span className="shrink-0 text-[11px] text-muted-foreground">
@@ -279,13 +279,13 @@ const [activeConversationId, setActiveConversationId] = useState<
                       <Avatar className="h-9 w-9">
                         <AvatarImage src={other.avatar ?? ''} />
                         <AvatarFallback className="text-xs">
-                          {other.firstName[0]}
-                          {other.lastName[0]}
+                          {(other.firstName ?? other.name)?.[0]}
+                          {(other.lastName ?? '')?.[0]}
                         </AvatarFallback>
                       </Avatar>
                       <div>
                         <p className="text-sm font-semibold">
-                          {other.firstName} {other.lastName}
+                          {other.firstName ?? other.name} {other.lastName ?? ''}
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {other.role}

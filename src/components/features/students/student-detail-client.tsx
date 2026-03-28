@@ -134,7 +134,7 @@ export function StudentDetailClient() {
   // ---------------------------------------------------------------------------
   // Info rows helper
   // ---------------------------------------------------------------------------
-  function InfoRow({ label, value }: { label: string; value: string | null }) {
+  function InfoRow({ label, value }: { label: string; value: string | null | undefined }) {
     return (
       <div className="space-y-1">
         <p className="text-sm font-medium text-muted-foreground">{label}</p>
@@ -246,7 +246,7 @@ export function StudentDetailClient() {
               </Card>
             ) : (
               <div className="grid gap-4 sm:grid-cols-2">
-                {(student.parents ?? []).map((parent) => (
+                {(student.parents ?? []).map((parent: ParentInfo) => (
                   <Card key={parent.id}>
                     <CardContent className="pt-6">
                       <div className="flex items-start justify-between">

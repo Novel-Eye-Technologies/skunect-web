@@ -102,9 +102,9 @@ export function AssignClassDialog({
                   <SelectItem key={cls.id} value={cls.id}>
                     <span className="flex items-center gap-2">
                       {cls.name}
-                      {cls.section && (
+                      {cls.gradeLevel && (
                         <Badge variant="outline" className="text-xs">
-                          {cls.section}
+                          {cls.gradeLevel}
                         </Badge>
                       )}
                       {cls.classTeacherName && (

@@ -1,7 +1,3 @@
-export interface ActivityFeedItem {
-  type: string;
-  title: string;
-  description: string;
-  actorName: string;
-  timestamp: string;
-}
+import type { Api } from '@/lib/api/schema';
+
+export type ActivityFeedItem = Api['ActivityFeedResponse'];

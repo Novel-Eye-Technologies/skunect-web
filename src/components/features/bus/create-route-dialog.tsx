@@ -70,7 +70,7 @@ export function CreateRouteDialog({
       {
         routeName: values.routeName,
         description: values.description || undefined,
-        pickupPoints,
+        pickupPoints: pickupPoints ?? [],
       },
       {
         onSuccess: () => {
