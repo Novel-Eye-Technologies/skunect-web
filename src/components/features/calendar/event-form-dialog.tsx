@@ -116,7 +116,7 @@ export function EventFormDialog({
         startTime: event.startTime ? event.startTime.slice(0, 16) : '',
         endTime: event.endTime ? event.endTime.slice(0, 16) : '',
         location: event.location ?? '',
-        visibility: event.visibility,
+        visibility: event.visibility as 'TEACHERS_ONLY' | 'TEACHERS_AND_PARENTS',
         reminderMinutes: event.reminderMinutes != null ? String(event.reminderMinutes) : 'none',
         classId: event.classId ?? '',
       });
@@ -354,7 +354,7 @@ export function EventFormDialog({
                         {classes.map((cls) => (
                           <SelectItem key={cls.id} value={cls.id}>
                             {cls.name}
-                            {cls.section ? ` (${cls.section})` : ''}
+                            {cls.gradeLevel ? ` (${cls.gradeLevel})` : ''}
                           </SelectItem>
                         ))}
                       </SelectContent>

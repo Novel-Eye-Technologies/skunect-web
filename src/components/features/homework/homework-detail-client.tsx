@@ -106,10 +106,10 @@ export function HomeworkDetailClient() {
       cell: ({ row }) => formatDateTime(row.original.submittedAt),
     },
     {
-      id: 'attachments',
-      header: 'Attachments',
+      id: 'feedback',
+      header: 'Feedback',
       cell: ({ row }) => (
-        <span>{row.original.attachments?.length} file(s)</span>
+        <span className="text-muted-foreground">{row.original.feedback ?? '-'}</span>
       ),
     },
     {
@@ -257,52 +257,58 @@ export function HomeworkDetailClient() {
           <Card>
             <CardHeader>
               <CardTitle>
-                Attachments ({homework.attachments?.length ?? 0})
+                Attachments ({homework.attachmentUrls?.filter(Boolean).length ?? 0})
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {!homework.attachments || homework.attachments.length === 0 ? (
+              {!homework.attachmentUrls || homework.attachmentUrls.filter(Boolean).length === 0 ? (
                 <p className="text-sm text-muted-foreground">
                   No attachments.
                 </p>
               ) : (
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {homework.attachments.map((attachment) => (
-                    <div
-                      key={attachment.id}
-                      className="flex items-start justify-between rounded-md border p-3"
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="rounded-md bg-muted p-2">
-                          <FileText className="h-5 w-5 text-muted-foreground" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium">
-                            {attachment.name}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {attachment.type} &middot;{' '}
-                            {formatFileSize(attachment.size)}
-                          </p>
-                        </div>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        aria-label="Download attachment"
-                        asChild
+                  {homework.attachmentUrls.filter((url): url is string => url !== null).map((url, index) => {
+                    const fileName = (() => {
+                      try {
+                        const pathname = new URL(url).pathname;
+                        return decodeURIComponent(pathname.split('/').pop() || url);
+                      } catch {
+                        return url.split('/').pop() || url;
+                      }
+                    })();
+                    return (
+                      <div
+                        key={index}
+                        className="flex items-start justify-between rounded-md border p-3"
                       >
-                        <a
-                          href={attachment.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <div className="flex items-start gap-3">
+                          <div className="rounded-md bg-muted p-2">
+                            <FileText className="h-5 w-5 text-muted-foreground" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium">
+                              {fileName}
+                            </p>
+                          </div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          aria-label="Download attachment"
+                          asChild
                         >
-                          <Download className="h-4 w-4" />
-                        </a>
-                      </Button>
-                    </div>
-                  ))}
+                          <a
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <Download className="h-4 w-4" />
+                          </a>
+                        </Button>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </CardContent>
@@ -363,52 +369,58 @@ export function HomeworkDetailClient() {
             <Card>
               <CardHeader>
                 <CardTitle>
-                  Attachments ({homework.attachments?.length ?? 0})
+                  Attachments ({homework.attachmentUrls?.filter(Boolean).length ?? 0})
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {!homework.attachments || homework.attachments.length === 0 ? (
+                {!homework.attachmentUrls || homework.attachmentUrls.filter(Boolean).length === 0 ? (
                   <p className="text-sm text-muted-foreground">
                     No attachments.
                   </p>
                 ) : (
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {homework.attachments.map((attachment) => (
-                      <div
-                        key={attachment.id}
-                        className="flex items-start justify-between rounded-md border p-3"
-                      >
-                        <div className="flex items-start gap-3">
-                          <div className="rounded-md bg-muted p-2">
-                            <FileText className="h-5 w-5 text-muted-foreground" />
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium">
-                              {attachment.name}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {attachment.type} &middot;{' '}
-                              {formatFileSize(attachment.size)}
-                            </p>
-                          </div>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          aria-label="Download attachment"
-                          asChild
+                    {homework.attachmentUrls.filter((u): u is string => u !== null).map((url, index) => {
+                      const fileName = (() => {
+                        try {
+                          const pathname = new URL(url).pathname;
+                          return decodeURIComponent(pathname.split('/').pop() || url);
+                        } catch {
+                          return url.split('/').pop() || url;
+                        }
+                      })();
+                      return (
+                        <div
+                          key={index}
+                          className="flex items-start justify-between rounded-md border p-3"
                         >
-                          <a
-                            href={attachment.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                          <div className="flex items-start gap-3">
+                            <div className="rounded-md bg-muted p-2">
+                              <FileText className="h-5 w-5 text-muted-foreground" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium">
+                                {fileName}
+                              </p>
+                            </div>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            aria-label="Download attachment"
+                            asChild
                           >
-                            <Download className="h-4 w-4" />
-                          </a>
-                        </Button>
-                      </div>
-                    ))}
+                            <a
+                              href={url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <Download className="h-4 w-4" />
+                            </a>
+                          </Button>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </CardContent>
@@ -446,7 +458,7 @@ export function HomeworkDetailClient() {
         }}
         submission={gradeTarget ?? undefined}
         homeworkId={homeworkId}
-        maxScore={homework.maxScore}
+        maxScore={homework.maxScore ?? 100}
       />
     </div>
   );

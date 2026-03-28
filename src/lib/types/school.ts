@@ -1,110 +1,41 @@
 import type { Api } from '@/lib/api/schema';
 
-// Request types from generated OpenAPI schemas (where field shapes match)
+// Request types from generated OpenAPI schemas
 export type CreateSessionRequest = Api['CreateSessionRequest'];
 export type CreateTermRequest = Api['CreateTermRequest'];
 export type CreateSubjectRequest = Api['CreateSubjectRequest'];
 export type BulkAssignSubjectsRequest = Api['BulkAssignSubjectsRequest'];
+export type CreateClassRequest = Api['CreateClassRequest'];
+export type CreateGradingSystemRequest = Api['CreateGradingSystemRequest'];
 
-// CreateClassRequest — generated uses `sessionId` (required) + `gradeLevel`, hand-written
-// uses `section` + `sessionId?`. Incompatible; keep hand-written.
-export interface CreateClassRequest {
-  name: string;
-  gradeLevel?: string;
-  sessionId: string;
-  capacity?: number;
-  classTeacherId?: string;
-}
+export type ClassSubject = Api['ClassSubjectResponse'];
 
 // AssignSubjectTeacherRequest — generated uses `teacherId?: string`, hand-written uses
-// `teacherId: string | null`. Keep hand-written for null support.
+// `teacherId: string | null`. Keep hand-written for null support (unassign teacher).
 export interface AssignSubjectTeacherRequest {
   teacherId: string | null;
 }
 
-// CreateGradingSystemRequest — generated uses `default?`, hand-written uses `isDefault?`.
-// Incompatible field name; keep hand-written.
-export interface CreateGradingSystemRequest {
-  name: string;
-  scales: Omit<GradeDefinition, 'id'>[];
-  isDefault?: boolean;
-}
+// Response types from generated OpenAPI schemas
+export type AcademicSession = Api['SessionResponse'];
+export type Term = Api['TermResponse'];
+export type SchoolClass = Api['ClassResponse'] & {
+  /** Backend returns studentCount but OpenAPI spec omits it */
+  studentCount?: number;
+  /** Alias: backend may also return section alongside gradeLevel */
+  section?: string | null;
+};
+export type Subject = Api['SubjectResponse'] & {
+  /** Backend returns description but OpenAPI spec omits it */
+  description?: string | null;
+};
+export type GradingSystem = Api['GradingSystemResponse'] & {
+  /** Backend returns createdAt but OpenAPI spec omits it */
+  createdAt?: string;
+};
+export type GradeDefinition = Api['GradingScaleResponse'];
 
-// Response types — generated schemas have all fields optional, keep hand-written
-// with correct required/optional marking.
-
-export interface AcademicSession {
-  id: string;
-  schoolId: string;
-  name: string;
-  startDate: string;
-  endDate: string;
-  isCurrent: boolean;
-  createdAt: string;
-}
-
-export interface Term {
-  id: string;
-  sessionId: string;
-  name: string;
-  startDate: string;
-  endDate: string;
-  isCurrent: boolean;
-  isClosed: boolean;
-  createdAt: string;
-}
-
-export interface SchoolClass {
-  id: string;
-  schoolId: string;
-  name: string;
-  section: string | null;
-  capacity: number;
-  classTeacherId: string | null;
-  classTeacherName: string | null;
-  studentCount: number;
-  createdAt: string;
-}
-
-export interface Subject {
-  id: string;
-  schoolId: string;
-  name: string;
-  code: string;
-  description: string | null;
-  createdAt: string;
-}
-
-export interface ClassSubject {
-  id: string;
-  classId: string;
-  subjectId: string;
-  subjectName: string;
-  subjectCode: string;
-  teacherId: string | null;
-  teacherName: string | null;
-  termId: string;
-  termName: string | null;
-  isClassTeacher: boolean;
-}
-
-export interface GradingSystem {
-  id: string;
-  schoolId: string;
-  name: string;
-  scales: GradeDefinition[];
-  isDefault: boolean;
-  createdAt: string;
-}
-
-export interface GradeDefinition {
-  id?: string;
-  gradeLabel: string;
-  minScore: number;
-  maxScore: number;
-  remark: string;
-}
-
+// No generated schema — keep hand-written
 export interface SchoolSettings {
   id: string;
   schoolId: string;

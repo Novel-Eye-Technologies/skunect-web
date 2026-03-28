@@ -186,7 +186,7 @@ export default function PromotionsPage() {
                         </TableCell>
                         <TableCell>{student.admissionNumber}</TableCell>
                         <TableCell className="text-right">
-                          {student.averageScore.toFixed(1)}
+                          {(student.averageScore ?? 0).toFixed(1)}
                         </TableCell>
                         <TableCell className="text-center">
                           <Badge variant={student.eligible ? 'default' : 'destructive'}>

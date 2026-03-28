@@ -158,7 +158,7 @@ export function AttendanceGrid() {
                   {classes.map((cls) => (
                     <SelectItem key={cls.id} value={cls.id}>
                       {cls.name}
-                      {cls.section ? ` (${cls.section})` : ''}
+                      {cls.gradeLevel ? ` (${cls.gradeLevel})` : ''}
                     </SelectItem>
                   ))}
                 </SelectContent>

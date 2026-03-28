@@ -296,9 +296,9 @@ export default function AnnouncementsPage() {
                     viewTarget.targetAudience}
                 </Badge>
               </div>
-              {viewTarget.expiresAt && (
+              {viewTarget.publishedAt && (
                 <p className="text-sm text-muted-foreground">
-                  Expires: {formatDate(viewTarget.expiresAt)}
+                  Published: {formatDate(viewTarget.publishedAt)}
                 </p>
               )}
               <div className="rounded-md border p-4">
@@ -311,7 +311,7 @@ export default function AnnouncementsPage() {
                   <div className="space-y-2">
                     <p className="text-sm font-medium">Attachments</p>
                     <ul className="space-y-1.5">
-                      {viewTarget.attachmentUrls.map((url, index) => {
+                      {viewTarget.attachmentUrls.filter((url): url is string => url !== null).map((url, index) => {
                         const fileName = (() => {
                           try {
                             const pathname = new URL(url).pathname;

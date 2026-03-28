@@ -1,23 +1,8 @@
 import type { Api } from '@/lib/api/schema';
 
-export interface UserRoleItem {
-  schoolId: string;
-  role: string;
-  isActive: boolean;
-}
-
-export interface UserListItem {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string | null;
-  isActive: boolean;
-  status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
-  lastLogin: string | null;
-  createdAt: string;
-  roles: UserRoleItem[];
-}
+// Response types from generated OpenAPI schemas
+export type UserRoleItem = Api['UserRoleResponse'];
+export type UserListItem = Api['UserResponse'];
 
 // Request types from generated OpenAPI schemas
 export type InviteUserRequest = Api['InviteUserRequest'];

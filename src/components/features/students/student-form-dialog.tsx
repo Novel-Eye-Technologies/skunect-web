@@ -151,8 +151,8 @@ export function StudentFormDialog({
         lastName: student.lastName,
         otherName: student.otherName ?? '',
         dateOfBirth: student.dateOfBirth,
-        gender: student.gender,
-        classId: student.classId,
+        gender: student.gender as 'MALE' | 'FEMALE',
+        classId: student.classId ?? '',
         photoUrl: student.photo ?? '',
         address: student.address ?? '',
         stateOfOrigin: student.stateOfOrigin ?? '',
@@ -339,7 +339,7 @@ export function StudentFormDialog({
                           {classes.map((cls) => (
                             <SelectItem key={cls.id} value={cls.id}>
                               {cls.name}
-                              {cls.section ? ` (${cls.section})` : ''}
+                              {cls.gradeLevel ? ` (${cls.gradeLevel})` : ''}
                             </SelectItem>
                           ))}
                         </SelectContent>

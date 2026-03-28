@@ -1,47 +1,13 @@
 import type { Api } from '@/lib/api/schema';
 
-// SendMessageRequest matches the generated schema
+// Request types from generated OpenAPI schemas
 export type SendMessageRequest = Api['SendMessageRequest'];
+export type CreateConversationRequest = Api['CreateConversationRequest'];
 
-// CreateConversationRequest — backend expects type + schoolId + participantIds.
-export interface CreateConversationRequest {
-  type: string;
-  schoolId: string;
-  participantIds: string[];
-}
-
-// Response types — generated schemas have all fields optional, keep hand-written
-export interface Conversation {
-  id: string;
-  participants: ConversationParticipant[];
-  lastMessage: MessagePreview | null;
-  unreadCount: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface ConversationParticipant {
-  userId: string;
-  firstName: string;
-  lastName: string;
-  role: string;
-  avatar: string | null;
-}
-
-export interface MessagePreview {
-  content: string;
-  senderId: string;
-  senderName: string;
-  sentAt: string;
-}
-
-export interface Message {
-  id: string;
-  conversationId: string;
-  senderId: string;
-  senderName: string;
-  senderAvatar: string | null;
-  content: string;
-  sentAt: string;
-  readAt: string | null;
-}
+// Response types from generated OpenAPI schemas
+export type Conversation = Api['ConversationResponse'];
+export type ConversationParticipant = Api['ParticipantInfo'];
+// MessageResponse is `{...} | null` in generated types (nullable for lastMessage field).
+// Strip null for standalone message usage.
+export type Message = NonNullable<Api['MessageResponse']>;
+export type MessagePreview = NonNullable<Api['MessageResponse']>;

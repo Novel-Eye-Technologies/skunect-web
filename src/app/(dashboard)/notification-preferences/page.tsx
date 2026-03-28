@@ -62,8 +62,8 @@ function PreferenceRow({
   pref: NotificationPreference;
   onToggle: (type: string, channel: 'emailEnabled' | 'pushEnabled' | 'smsEnabled', value: boolean) => void;
 }) {
-  const config = PREF_LABELS[pref.type] ?? {
-    label: pref.type,
+  const config = PREF_LABELS[pref.notificationType] ?? {
+    label: pref.notificationType,
     description: '',
     icon: Bell,
   };
@@ -79,21 +79,21 @@ function PreferenceRow({
           <Mail className="h-4 w-4 text-muted-foreground" />
           <Switch
             checked={pref.emailEnabled}
-            onCheckedChange={(checked) => onToggle(pref.type, 'emailEnabled', checked)}
+            onCheckedChange={(checked) => onToggle(pref.notificationType, 'emailEnabled', checked)}
           />
         </div>
         <div className="flex items-center gap-2">
           <Smartphone className="h-4 w-4 text-muted-foreground" />
           <Switch
             checked={pref.pushEnabled}
-            onCheckedChange={(checked) => onToggle(pref.type, 'pushEnabled', checked)}
+            onCheckedChange={(checked) => onToggle(pref.notificationType, 'pushEnabled', checked)}
           />
         </div>
         <div className="flex items-center gap-2">
           <MessageSquare className="h-4 w-4 text-muted-foreground" />
           <Switch
             checked={pref.smsEnabled}
-            onCheckedChange={(checked) => onToggle(pref.type, 'smsEnabled', checked)}
+            onCheckedChange={(checked) => onToggle(pref.notificationType, 'smsEnabled', checked)}
           />
         </div>
       </div>
@@ -160,7 +160,7 @@ export default function NotificationPreferencesPage() {
             <div className="divide-y">
               {preferences.map((pref) => (
                 <PreferenceRow
-                  key={pref.type}
+                  key={pref.notificationType}
                   pref={pref}
                   onToggle={handleToggle}
                 />

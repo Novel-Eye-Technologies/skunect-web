@@ -4,33 +4,12 @@ import type { Api } from '@/lib/api/schema';
 export type CreateHomeworkRequest = Api['CreateHomeworkRequest'];
 export type UpdateSubmissionRequest = Api['UpdateSubmissionRequest'];
 
-// Response types — generated schemas have all fields optional, keep hand-written
-export interface HomeworkListItem {
-  id: string;
-  title: string;
-  classId: string;
-  className?: string;
-  subjectId: string;
-  subjectName?: string;
-  assignedDate?: string;
-  dueDate: string;
-  status?: 'ACTIVE' | 'CLOSED' | 'DRAFT';
-  totalSubmissions?: number;
-  totalStudents?: number;
-  teacherId?: string;
-  teacherName?: string;
-  description?: string;
-  attachmentUrls?: string[];
-  createdBy?: string;
-  createdAt: string;
-}
+// Response types from generated OpenAPI schemas
+export type HomeworkListItem = Api['HomeworkResponse'];
+export type HomeworkDetail = Api['HomeworkResponse'];
+export type Submission = Api['SubmissionResponse'];
 
-export interface HomeworkDetail extends HomeworkListItem {
-  description: string;
-  attachments: HomeworkAttachment[];
-  maxScore: number;
-}
-
+// No generated schema — keep hand-written
 export interface HomeworkAttachment {
   id: string;
   name: string;
@@ -39,19 +18,6 @@ export interface HomeworkAttachment {
   size: number;
 }
 
-export interface Submission {
-  id: string;
-  studentId: string;
-  studentName: string;
-  admissionNumber: string;
-  submittedAt: string;
-  attachments: HomeworkAttachment[];
-  score: number | null;
-  feedback: string | null;
-  status: 'SUBMITTED' | 'GRADED' | 'LATE';
-}
-
-// No generated schema — keep hand-written
 export interface UpdateHomeworkRequest extends Partial<CreateHomeworkRequest> {
   status?: 'ACTIVE' | 'CLOSED' | 'DRAFT';
 }
