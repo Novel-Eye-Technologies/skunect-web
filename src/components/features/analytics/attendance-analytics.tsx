@@ -55,8 +55,8 @@ export function AttendanceAnalytics() {
   const classes = classesResponse ?? [];
 
   const { data, isLoading } = useAttendanceSummary({
-    startDate: startDate || undefined,
-    endDate: endDate || undefined,
+    from: startDate || undefined,
+    to: endDate || undefined,
     classId: classId || undefined,
   });
 

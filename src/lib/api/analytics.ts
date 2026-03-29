@@ -21,8 +21,8 @@ export async function getDashboard(
 }
 
 export interface AttendanceSummaryParams {
-  startDate?: string;
-  endDate?: string;
+  from?: string;
+  to?: string;
   classId?: string;
 }
 
