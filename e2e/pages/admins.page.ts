@@ -1,6 +1,6 @@
 import { type Page, type Locator, expect } from '@playwright/test';
 
-export class UsersPage {
+export class AdminsPage {
   readonly page: Page;
   readonly heading: Locator;
   readonly inviteButton: Locator;
@@ -8,25 +8,23 @@ export class UsersPage {
   readonly dialog: Locator;
   readonly alertDialog: Locator;
 
-  // Filter selects
-  readonly roleFilter: Locator;
+  // Filter selects (admins page only has status filter)
   readonly statusFilter: Locator;
 
   constructor(page: Page) {
     this.page = page;
-    this.heading = page.getByRole('heading', { name: 'User Management' });
-    this.inviteButton = page.getByRole('button', { name: 'Invite User' });
+    this.heading = page.getByRole('heading', { name: 'Admins' });
+    this.inviteButton = page.getByRole('button', { name: 'Add Admin' });
     this.dataTable = page.locator('table');
     this.dialog = page.getByRole('dialog');
     this.alertDialog = page.locator('[role="alertdialog"]');
 
-    // The role filter is the first select, status is the second
-    this.roleFilter = page.getByRole('combobox').first();
-    this.statusFilter = page.getByRole('combobox').last();
+    // The admins page only has a status filter (no role filter)
+    this.statusFilter = page.getByRole('combobox').first();
   }
 
   async goto() {
-    await this.page.goto('/users');
+    await this.page.goto('/admins');
   }
 
   async expectVisible() {
@@ -100,7 +98,7 @@ export class UsersPage {
 
   async clickRemoveUser(name: string) {
     await this.openActionsMenu(name);
-    await this.page.getByRole('menuitem', { name: /remove user/i }).click();
+    await this.page.getByRole('menuitem', { name: /remove admin/i }).click();
     await expect(this.alertDialog).toBeVisible({ timeout: 3_000 });
   }
 
