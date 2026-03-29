@@ -4,7 +4,6 @@ import { useState, useCallback } from 'react';
 import { type ColumnDef } from '@tanstack/react-table';
 import { type PaginationState } from '@tanstack/react-table';
 import { MoreHorizontal, Shield, UserX, Pencil } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -31,7 +30,7 @@ import { useUsers, useRemoveUser } from '@/lib/hooks/use-users';
 import { formatDate } from '@/lib/utils/format-date';
 import type { UserListItem } from '@/lib/types/user';
 
-export default function UsersPage() {
+export default function AdminsPage() {
   // ---------------------------------------------------------------------------
   // Pagination and filter state
   // ---------------------------------------------------------------------------
@@ -39,7 +38,6 @@ export default function UsersPage() {
     pageIndex: 0,
     pageSize: 10,
   });
-  const [roleFilter, setRoleFilter] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('');
 
   // ---------------------------------------------------------------------------
@@ -56,17 +54,17 @@ export default function UsersPage() {
   );
 
   // ---------------------------------------------------------------------------
-  // Data fetching
+  // Data fetching — always filter by ADMIN role
   // ---------------------------------------------------------------------------
   const { data: response, isLoading } = useUsers({
     page: pagination.pageIndex,
     size: pagination.pageSize,
-    role: roleFilter || undefined,
+    role: 'ADMIN',
     status: statusFilter || undefined,
   });
   const removeUser = useRemoveUser();
 
-  const users = response?.data ?? [];
+  const admins = response?.data ?? [];
   const pageCount = response?.meta?.totalPages ?? 0;
 
   // ---------------------------------------------------------------------------
@@ -113,19 +111,6 @@ export default function UsersPage() {
       header: 'Email',
     },
     {
-      accessorKey: 'roles',
-      header: 'Role',
-      cell: ({ row }) => {
-        const roles = row.original.roles ?? [];
-        const roleLabel = roles.map((r) => r.role).join(', ') || '—';
-        return (
-          <Badge variant="outline" className="capitalize">
-            {roleLabel.toLowerCase()}
-          </Badge>
-        );
-      },
-    },
-    {
       accessorKey: 'status',
       header: 'Status',
       cell: ({ row }) => <StatusBadge status={row.original.status} />,
@@ -170,7 +155,7 @@ export default function UsersPage() {
                 className="text-destructive focus:text-destructive"
               >
                 <UserX className="mr-2 h-4 w-4" />
-                Remove User
+                Remove Admin
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -185,14 +170,14 @@ export default function UsersPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="User Management"
-        description="Manage administrators and teachers in your school."
-        actions={<InviteUserDialog />}
+        title="Admins"
+        description="Manage administrators in your school."
+        actions={<InviteUserDialog defaultRole="ADMIN" buttonLabel="Add Admin" />}
       />
 
       <DataTable
         columns={columns}
-        data={users}
+        data={admins}
         isLoading={isLoading}
         pageCount={pageCount}
         pageIndex={pagination.pageIndex}
@@ -200,22 +185,6 @@ export default function UsersPage() {
         onPaginationChange={handlePaginationChange}
         toolbarActions={
           <div className="flex items-center gap-2">
-            <Select
-              value={roleFilter}
-              onValueChange={(value) => {
-                setRoleFilter(value === 'ALL' ? '' : value);
-                setPagination((prev) => ({ ...prev, pageIndex: 0 }));
-              }}
-            >
-              <SelectTrigger className="h-8 w-[130px]">
-                <SelectValue placeholder="All Roles" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">All Roles</SelectItem>
-                <SelectItem value="ADMIN">Admin</SelectItem>
-                <SelectItem value="TEACHER">Teacher</SelectItem>
-              </SelectContent>
-            </Select>
             <Select
               value={statusFilter}
               onValueChange={(value) => {
@@ -251,13 +220,13 @@ export default function UsersPage() {
         onOpenChange={setStatusDialogOpen}
       />
 
-      {/* Remove User Confirmation */}
+      {/* Remove Admin Confirmation */}
       <ConfirmDialog
         open={!!removeDialogUser}
         onOpenChange={(open) => {
           if (!open) setRemoveDialogUser(null);
         }}
-        title="Remove User"
+        title="Remove Admin"
         description={
           removeDialogUser
             ? `Are you sure you want to remove ${removeDialogUser.firstName} ${removeDialogUser.lastName} from this school? This action cannot be undone.`

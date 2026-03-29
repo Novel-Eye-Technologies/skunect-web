@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react';
 import { type ColumnDef, type PaginationState } from '@tanstack/react-table';
 import { MoreHorizontal, Shield, UserX, Mail, Phone, BookOpen, Pencil } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -36,6 +37,7 @@ import { formatDate } from '@/lib/utils/format-date';
 import type { UserListItem } from '@/lib/types/user';
 
 export default function TeachersPage() {
+  const router = useRouter();
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
@@ -81,9 +83,13 @@ export default function TeachersPage() {
       accessorKey: 'name',
       header: 'Name',
       cell: ({ row }) => (
-        <div className="font-medium">
+        <button
+          type="button"
+          className="font-medium text-left hover:underline text-primary"
+          onClick={() => router.push(`/teachers/${row.original.id}`)}
+        >
           {row.original.firstName} {row.original.lastName}
-        </div>
+        </button>
       ),
     },
     {

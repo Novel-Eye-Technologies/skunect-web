@@ -81,10 +81,10 @@ test.describe('Admin screenshots', () => {
     await page.screenshot(screenshotOpts('admin-settings'));
   });
 
-  test('users management', async ({ adminSkunectPage: page }) => {
-    await page.goto('/users');
+  test('admins management', async ({ adminSkunectPage: page }) => {
+    await page.goto('/admins');
     await waitForPageLoad(page);
-    await page.screenshot(screenshotOpts('admin-users'));
+    await page.screenshot(screenshotOpts('admin-admins'));
   });
 
   test('analytics', async ({ adminSkunectPage: page }) => {

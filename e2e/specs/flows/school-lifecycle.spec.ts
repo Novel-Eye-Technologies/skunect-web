@@ -34,7 +34,7 @@ import { ManageClassesPage } from '../../pages/manage-classes.page';
 import { ManageSubjectsPage } from '../../pages/manage-subjects.page';
 import { ClassSubjectsPage } from '../../pages/class-subjects.page';
 import { TimetablePage } from '../../pages/timetable.page';
-import { UsersPage } from '../../pages/users.page';
+import { AdminsPage } from '../../pages/admins.page';
 import { TeachersPage } from '../../pages/teachers.page';
 import { StudentsPage } from '../../pages/students.page';
 import { ParentsPage } from '../../pages/parents.page';
@@ -698,30 +698,30 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
   test('2.2 — School Admin: Create a second school admin via User Management', async ({ page }) => {
     await injectAuth(page, schoolData.adminEmail!, { schoolId: schoolData.schoolId! });
 
-    const usersPage = new UsersPage(page);
-    await usersPage.goto();
-    await usersPage.expectVisible();
+    const adminsPage = new AdminsPage(page);
+    await adminsPage.goto();
+    await adminsPage.expectVisible();
 
-    // Click "Invite User" button
-    await usersPage.inviteButton.click();
-    await expect(usersPage.dialog).toBeVisible();
+    // Click "Add Admin" button
+    await adminsPage.inviteButton.click();
+    await expect(adminsPage.dialog).toBeVisible();
 
     // Fill the invite form
-    await usersPage.dialog.getByLabel('Email').fill(ADMIN2_EMAIL);
-    await usersPage.dialog.getByLabel('First Name').fill('Second');
-    await usersPage.dialog.getByLabel('Last Name').fill('Admin');
+    await adminsPage.dialog.getByLabel('Email').fill(ADMIN2_EMAIL);
+    await adminsPage.dialog.getByLabel('First Name').fill('Second');
+    await adminsPage.dialog.getByLabel('Last Name').fill('Admin');
 
     // Select Admin role
-    const roleTrigger = usersPage.dialog.getByRole('combobox');
+    const roleTrigger = adminsPage.dialog.getByRole('combobox');
     await roleTrigger.click();
     await page.getByRole('option', { name: 'Admin' }).click();
 
     // Submit
-    await usersPage.dialog.getByRole('button', { name: /send invitation/i }).click();
+    await adminsPage.dialog.getByRole('button', { name: /send invitation/i }).click();
     await expectDialogClosed(page);
 
     // Verify user appears in table
-    await usersPage.expectUserInTable(ADMIN2_EMAIL);
+    await adminsPage.expectUserInTable(ADMIN2_EMAIL);
     schoolData.admin2Email = ADMIN2_EMAIL;
   });
 
@@ -1379,15 +1379,13 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
   test('2.18 — School Admin: Validate People section pages', async ({ page }) => {
     await injectAuth(page, schoolData.adminEmail!, { schoolId: schoolData.schoolId! });
 
-    // Check Users page
-    const usersPage = new UsersPage(page);
-    await usersPage.goto();
-    await usersPage.expectVisible();
-    await usersPage.expectTableNotEmpty();
-    // Filter by admin role to verify second admin is present
-    await usersPage.roleFilter.click();
-    await page.getByRole('option', { name: /admin/i }).click();
-    await usersPage.expectUserInTable(ADMIN2_EMAIL);
+    // Check Admins page
+    const adminsPage = new AdminsPage(page);
+    await adminsPage.goto();
+    await adminsPage.expectVisible();
+    await adminsPage.expectTableNotEmpty();
+    // Verify second admin is present (admins page already filters to ADMIN role)
+    await adminsPage.expectUserInTable(ADMIN2_EMAIL);
 
     // Check Teachers page
     const teachersPage = new TeachersPage(page);
@@ -1661,21 +1659,21 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     }
   });
 
-  test('2.26l — School Admin: User management filter by role', async ({ page }) => {
+  test('2.26l — School Admin: Admins page filter by status', async ({ page }) => {
     await injectAuth(page, schoolData.adminEmail!, { schoolId: schoolData.schoolId! });
 
-    const usersPage = new UsersPage(page);
-    await usersPage.goto();
-    await usersPage.expectVisible();
-    await usersPage.expectTableNotEmpty();
+    const adminsPage = new AdminsPage(page);
+    await adminsPage.goto();
+    await adminsPage.expectVisible();
+    await adminsPage.expectTableNotEmpty();
 
-    // Try filtering by role if filter exists
-    const roleFilter = page.getByRole('combobox').first();
-    if (await roleFilter.isVisible({ timeout: 3_000 }).catch(() => false)) {
-      await roleFilter.click();
-      const teacherOption = page.getByRole('option', { name: /teacher/i });
-      if (await teacherOption.isVisible({ timeout: 3_000 }).catch(() => false)) {
-        await teacherOption.click();
+    // Try filtering by status if filter exists
+    const statusFilter = adminsPage.statusFilter;
+    if (await statusFilter.isVisible({ timeout: 3_000 }).catch(() => false)) {
+      await statusFilter.click();
+      const activeOption = page.getByRole('option', { name: /active/i });
+      if (await activeOption.isVisible({ timeout: 3_000 }).catch(() => false)) {
+        await activeOption.click();
         await page.waitForTimeout(1_000);
         // Table should still be visible after filtering
         await expect(page.locator('table')).toBeVisible();
@@ -1910,7 +1908,7 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await gotoPage(page, '/school-settings');
     await expect(page).toHaveURL(/\/dashboard\/?/, { timeout: 10_000 });
 
-    await gotoPage(page, '/users');
+    await gotoPage(page, '/admins');
     await expect(page).toHaveURL(/\/dashboard\/?/, { timeout: 10_000 });
 
     await gotoPage(page, '/fees');
@@ -2744,7 +2742,7 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await gotoPage(page, '/school-settings');
     await expect(page).toHaveURL(/\/dashboard\/?/, { timeout: 10_000 });
 
-    await gotoPage(page, '/users');
+    await gotoPage(page, '/admins');
     await expect(page).toHaveURL(/\/dashboard\/?/, { timeout: 10_000 });
 
     await gotoPage(page, '/data-migration');

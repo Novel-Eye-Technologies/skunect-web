@@ -1,6 +1,7 @@
 import apiClient from '@/lib/api/client';
 import type { ApiResponse, PaginatedParams } from '@/lib/api/types';
 import type { UserListItem } from '@/lib/types/user';
+import type { ClassSubject } from '@/lib/types/school';
 
 // ---------------------------------------------------------------------------
 // Teacher API functions
@@ -29,6 +30,16 @@ export async function getTeacher(
 ): Promise<ApiResponse<UserListItem>> {
   const response = await apiClient.get<ApiResponse<UserListItem>>(
     `/schools/${schoolId}/users/${teacherId}`,
+  );
+  return response.data;
+}
+
+export async function getTeacherSubjects(
+  schoolId: string,
+  teacherId: string,
+): Promise<ApiResponse<ClassSubject[]>> {
+  const response = await apiClient.get<ApiResponse<ClassSubject[]>>(
+    `/schools/${schoolId}/teachers/${teacherId}/subjects`,
   );
   return response.data;
 }

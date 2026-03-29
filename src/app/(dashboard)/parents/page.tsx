@@ -3,6 +3,8 @@
 import { useState, useCallback } from 'react';
 import { type ColumnDef, type PaginationState } from '@tanstack/react-table';
 import { MoreHorizontal, Shield, UserX, Mail, Phone } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -31,6 +33,7 @@ import { formatDate } from '@/lib/utils/format-date';
 import type { UserListItem } from '@/lib/types/user';
 
 export default function ParentsPage() {
+  const router = useRouter();
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
@@ -72,9 +75,13 @@ export default function ParentsPage() {
       accessorKey: 'name',
       header: 'Name',
       cell: ({ row }) => (
-        <div className="font-medium">
+        <button
+          type="button"
+          className="font-medium text-left hover:underline text-primary"
+          onClick={() => router.push(`/parents/${row.original.id}`)}
+        >
           {row.original.firstName} {row.original.lastName}
-        </div>
+        </button>
       ),
     },
     {
@@ -99,6 +106,19 @@ export default function ParentsPage() {
         ) : (
           <span className="text-sm text-muted-foreground">—</span>
         ),
+    },
+    {
+      accessorKey: 'childrenCount',
+      header: 'Children',
+      cell: ({ row }) => {
+        const count = (row.original as UserListItem & { childrenCount?: number }).childrenCount;
+        return (
+          <div className="flex items-center gap-1.5 text-sm">
+            <Users className="h-3.5 w-3.5 text-muted-foreground" />
+            {count ?? 0}
+          </div>
+        );
+      },
     },
     {
       accessorKey: 'status',

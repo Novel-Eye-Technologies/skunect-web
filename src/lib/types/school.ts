@@ -20,8 +20,6 @@ export interface AssignSubjectTeacherRequest {
 export type AcademicSession = Api['SessionResponse'];
 export type Term = Api['TermResponse'];
 export type SchoolClass = Api['ClassResponse'] & {
-  /** Backend returns studentCount but OpenAPI spec omits it */
-  studentCount?: number;
   /** Alias: backend may also return section alongside gradeLevel */
   section?: string | null;
 };

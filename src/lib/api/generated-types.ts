@@ -47,7 +47,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Get a specific school user by ID */
+        get: operations["getSchoolUser"];
         /** Update a school user's details */
         put: operations["updateSchoolUser"];
         post?: never;
@@ -2380,6 +2381,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/schools/{schoolId}/parents/{parentId}/children": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get children linked to a parent (admin view) */
+        get: operations["getParentChildrenByAdmin"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/schools/{schoolId}/my-subjects": {
         parameters: {
             query?: never;
@@ -3169,6 +3187,11 @@ export interface components {
             /** Format: date-time */
             createdAt: string;
             roles: components["schemas"]["UserRoleResponse"][];
+            /**
+             * Format: int32
+             * @description Number of children linked to this parent (only populated for PARENT role)
+             */
+            childrenCount?: number | null;
             isActive: boolean;
         };
         UserRoleResponse: {
@@ -3347,10 +3370,10 @@ export interface components {
             relationship: string;
             isEmergencyContact: boolean;
             isApproved: boolean;
-            phone: string;
-            email: string;
             firstName: string;
             lastName: string;
+            phone: string;
+            email: string;
         };
         StudentResponse: {
             /** Format: uuid */
@@ -3819,6 +3842,8 @@ export interface components {
             /** Format: uuid */
             classTeacherId?: string | null;
             classTeacherName?: string | null;
+            /** Format: int64 */
+            studentCount?: number | null;
             /** Format: date-time */
             createdAt: string;
         };
@@ -5124,29 +5149,29 @@ export interface components {
             totalElements: number;
             /** Format: int32 */
             totalPages: number;
-            pageable: components["schemas"]["PageableObject"];
-            last: boolean;
-            first: boolean;
-            /** Format: int32 */
-            numberOfElements: number;
             /** Format: int32 */
             size: number;
             content: components["schemas"]["SubscriptionPaymentResponse"][];
             /** Format: int32 */
             number: number;
             sort: components["schemas"]["SortObject"][];
+            pageable: components["schemas"]["PageableObject"];
+            /** Format: int32 */
+            numberOfElements: number;
+            first: boolean;
+            last: boolean;
             empty: boolean;
         };
         PageableObject: {
-            unpaged?: boolean;
-            paged?: boolean;
+            /** Format: int64 */
+            offset?: number;
+            sort?: components["schemas"]["SortObject"][];
             /** Format: int32 */
             pageNumber?: number;
             /** Format: int32 */
             pageSize?: number;
-            /** Format: int64 */
-            offset?: number;
-            sort?: components["schemas"]["SortObject"][];
+            paged?: boolean;
+            unpaged?: boolean;
         };
         SortObject: {
             direction?: string;
@@ -5247,6 +5272,28 @@ export interface components {
             data?: components["schemas"]["PickupAuthorizationResponse"][];
             errors?: components["schemas"]["ErrorDetail"][];
             meta?: components["schemas"]["PageMeta"];
+        };
+        ApiResponseListChildResponse: {
+            status?: string;
+            message?: string;
+            data?: components["schemas"]["ChildResponse"][];
+            errors?: components["schemas"]["ErrorDetail"][];
+            meta?: components["schemas"]["PageMeta"];
+        };
+        ChildResponse: {
+            /** Format: uuid */
+            studentId: string;
+            /** Format: uuid */
+            schoolId: string;
+            /** Format: uuid */
+            classId?: string | null;
+            firstName: string;
+            lastName: string;
+            schoolName: string;
+            className?: string | null;
+            admissionNumber: string;
+            photoUrl?: string | null;
+            status: string;
         };
         ApiResponseListMoodEntryResponse: {
             status?: string;
@@ -5441,17 +5488,17 @@ export interface components {
             totalElements: number;
             /** Format: int32 */
             totalPages: number;
-            pageable: components["schemas"]["PageableObject"];
-            last: boolean;
-            first: boolean;
-            /** Format: int32 */
-            numberOfElements: number;
             /** Format: int32 */
             size: number;
             content: components["schemas"]["AuditLogResponse"][];
             /** Format: int32 */
             number: number;
             sort: components["schemas"]["SortObject"][];
+            pageable: components["schemas"]["PageableObject"];
+            /** Format: int32 */
+            numberOfElements: number;
+            first: boolean;
+            last: boolean;
             empty: boolean;
         };
         ApiResponseAttendanceOverviewResponse: {
@@ -6051,28 +6098,6 @@ export interface components {
             dueDate?: string;
             status?: string;
         };
-        ApiResponseListChildResponse: {
-            status?: string;
-            message?: string;
-            data?: components["schemas"]["ChildResponse"][];
-            errors?: components["schemas"]["ErrorDetail"][];
-            meta?: components["schemas"]["PageMeta"];
-        };
-        ChildResponse: {
-            /** Format: uuid */
-            studentId: string;
-            /** Format: uuid */
-            schoolId: string;
-            /** Format: uuid */
-            classId?: string | null;
-            firstName: string;
-            lastName: string;
-            schoolName: string;
-            className?: string | null;
-            admissionNumber: string;
-            photoUrl?: string | null;
-            status: string;
-        };
         ApiResponseListNotificationResponse: {
             status?: string;
             message?: string;
@@ -6392,6 +6417,29 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApiResponseSchoolResponse"];
+                };
+            };
+        };
+    };
+    getSchoolUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                schoolId: string;
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseUserResponse"];
                 };
             };
         };
@@ -11322,6 +11370,29 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApiResponsePickupAuthorizationResponse"];
+                };
+            };
+        };
+    };
+    getParentChildrenByAdmin: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                schoolId: string;
+                parentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseListChildResponse"];
                 };
             };
         };

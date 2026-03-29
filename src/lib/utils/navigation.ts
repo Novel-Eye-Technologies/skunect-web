@@ -100,11 +100,11 @@ export const navigationConfig: NavItem[] = [
   },
   {
     title: 'People',
-    href: '/users',
+    href: '/admins',
     icon: Users,
     roles: ['ADMIN'],
     children: [
-      { title: 'All Users', href: '/users', icon: Users, roles: ['ADMIN'] },
+      { title: 'Admins', href: '/admins', icon: Shield, roles: ['ADMIN'] },
       { title: 'Teachers', href: '/teachers', icon: UserCheck, roles: ['ADMIN'] },
       { title: 'Parents', href: '/parents', icon: UserRound, roles: ['ADMIN'] },
       { title: 'Students', href: '/students', icon: GraduationCap, roles: ['ADMIN'] },
@@ -134,7 +134,7 @@ export const navigationConfig: NavItem[] = [
     icon: BookOpen,
     roles: ['ADMIN', 'TEACHER'],
     children: [
-      { title: 'Academic Overview', href: '/academics', icon: BookOpen, roles: ['ADMIN', 'TEACHER'] },
+      { title: 'Classes', href: '/academics/classes', icon: GraduationCap, roles: ['ADMIN'] },
       { title: 'Timetable', href: '/timetable', icon: Calendar, roles: ['ADMIN', 'TEACHER'] },
       { title: 'Attendance Marking', href: '/attendance', icon: ClipboardCheck, roles: ['ADMIN', 'TEACHER'] },
       { title: 'Homework Management', href: '/homework', icon: FileText, roles: ['ADMIN', 'TEACHER'] },
