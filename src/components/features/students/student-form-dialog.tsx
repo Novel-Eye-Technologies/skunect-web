@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useQuery } from '@tanstack/react-query';
-import { Camera, Plus, Trash2, User } from 'lucide-react';
+import { Camera, Check, Plus, Trash2, User } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -22,12 +22,17 @@ import {
   FormMessage,
   FormDescription,
 } from '@/components/ui/form';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Separator } from '@/components/ui/separator';
 import {
   Select,
   SelectContent,
@@ -254,6 +259,52 @@ export function StudentFormDialog({
 
   const isPending = createStudent.isPending || updateStudent.isPending;
 
+  // Track which required fields per section are filled for status badges
+  const watchedValues = form.watch();
+
+  const basicRequiredFilled = useMemo(() => {
+    const fields = ['firstName', 'lastName', 'dateOfBirth', 'gender', 'classId'] as const;
+    return fields.filter((f) => !!watchedValues[f]).length;
+  }, [watchedValues]);
+  const basicRequiredTotal = 5;
+  const basicComplete = basicRequiredFilled === basicRequiredTotal;
+
+  // Contact & location fields are all optional, so "complete" means at least one filled
+  const contactFields = ['address', 'stateOfOrigin', 'lga', 'religion'] as const;
+  const contactFilled = useMemo(
+    () => contactFields.filter((f) => !!watchedValues[f]).length,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [watchedValues],
+  );
+  const contactComplete = contactFilled === contactFields.length;
+
+  // Medical fields are all optional
+  const medicalFields = ['bloodGroup', 'genotype', 'allergies', 'medicalConditions'] as const;
+  const medicalFilled = useMemo(
+    () => medicalFields.filter((f) => !!watchedValues[f]).length,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [watchedValues],
+  );
+  const medicalComplete = medicalFilled === medicalFields.length;
+
+  // Guardian count for badge
+  const guardianCount = fields.length;
+
+  function SectionBadge({ complete, filled, total }: { complete: boolean; filled: number; total: number }) {
+    if (complete) {
+      return (
+        <span className="ml-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
+          <Check className="h-3 w-3" />
+        </span>
+      );
+    }
+    return (
+      <span className="ml-2 inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+        {filled}/{total}
+      </span>
+    );
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[650px]">
@@ -302,429 +353,470 @@ export function StudentFormDialog({
               </div>
             </div>
 
-            {/* ── Basic Info ─────────────────────────────────────── */}
-            <div className="space-y-4">
-              <h4 className="text-sm font-semibold text-muted-foreground">Basic Information</h4>
-              {/* Row 1 */}
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="admissionNumber"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Admission Number</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Leave blank to auto-generate" {...field} />
-                      </FormControl>
-                      <FormDescription className="text-xs">
-                        Auto-generated if left blank
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="classId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Class</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select class" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {classes.map((cls) => (
-                            <SelectItem key={cls.id} value={cls.id}>
-                              {cls.name}
-                              {cls.gradeLevel ? ` (${cls.gradeLevel})` : ''}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* Row 2 */}
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="firstName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>First Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="John" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="lastName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Last Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Doe" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* Row 3 */}
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="otherName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Other Name (Optional)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Middle name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="dateOfBirth"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Date of Birth</FormLabel>
-                      <FormControl>
-                        <Input type="date" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* Row 4 */}
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="gender"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Gender</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select gender" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="MALE">Male</SelectItem>
-                          <SelectItem value="FEMALE">Female</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="religion"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Religion (Optional)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g. Christianity" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* Row 5 - Address */}
-              <FormField
-                control={form.control}
-                name="address"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Address (Optional)</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Home address"
-                        className="resize-none"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Row 6 */}
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="stateOfOrigin"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>State of Origin (Optional)</FormLabel>
-                      <FormControl>
-                        <StateCombobox
-                          value={field.value ?? ''}
-                          onValueChange={field.onChange}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="lga"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>LGA (Optional)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Local government area" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
-            {/* ── Medical Info ────────────────────────────────────── */}
-            <div className="space-y-4">
-              <h4 className="text-sm font-semibold text-muted-foreground">Medical Information</h4>
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="bloodGroup"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Blood Group (Optional)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g. O+" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="genotype"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Genotype (Optional)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g. AA" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="allergies"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Allergies (Optional)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Known allergies" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="medicalConditions"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Medical Conditions (Optional)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Known conditions" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
-            {/* ── Guardian Info (Create only) ─────────────────────── */}
-            {!isEdit && (
-              <div className="space-y-4">
-                <Separator />
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="text-sm font-semibold text-muted-foreground">
-                      Guardian / Parent Information
-                    </h4>
-                    <p className="text-xs text-muted-foreground">
-                      Add at least one guardian for the student
-                    </p>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      append({
-                        firstName: '',
-                        lastName: '',
-                        email: '',
-                        phone: '',
-                        relationship: '',
-                        isEmergencyContact: false,
-                      })
-                    }
-                  >
-                    <Plus className="mr-1 h-3.5 w-3.5" />
-                    Add Guardian
-                  </Button>
-                </div>
-
-                {fields.map((field, index) => (
-                  <div
-                    key={field.id}
-                    className="relative rounded-lg border p-4 space-y-3"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-medium text-muted-foreground">
-                        Guardian {index + 1}
-                      </span>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6 text-destructive"
-                        aria-label={`Remove guardian ${index + 1}`}
-                        onClick={() => remove(index)}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
+            {/* ── Accordion Sections ─────────────────────────────── */}
+            <Accordion type="multiple" defaultValue={isEdit ? ['basic'] : ['basic', 'guardian']} className="w-full">
+              {/* ── Basic Information ─────────────────────────────── */}
+              <AccordionItem value="basic">
+                <AccordionTrigger className="text-sm font-semibold">
+                  <span className="flex items-center">
+                    Basic Information
+                    <SectionBadge complete={basicComplete} filled={basicRequiredFilled} total={basicRequiredTotal} />
+                  </span>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-4 pt-2">
+                    {/* Row 1 */}
+                    <div className="grid grid-cols-2 gap-4">
                       <FormField
                         control={form.control}
-                        name={`guardians.${index}.firstName`}
-                        render={({ field: f }) => (
+                        name="admissionNumber"
+                        render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-xs">First Name</FormLabel>
+                            <FormLabel>Admission Number</FormLabel>
                             <FormControl>
-                              <Input placeholder="First name" className="h-8" {...f} />
+                              <Input placeholder="Leave blank to auto-generate" {...field} />
                             </FormControl>
+                            <FormDescription className="text-xs">
+                              Auto-generated if left blank
+                            </FormDescription>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
                       <FormField
                         control={form.control}
-                        name={`guardians.${index}.lastName`}
-                        render={({ field: f }) => (
+                        name="classId"
+                        render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-xs">Last Name</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Last name" className="h-8" {...f} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <FormField
-                        control={form.control}
-                        name={`guardians.${index}.email`}
-                        render={({ field: f }) => (
-                          <FormItem>
-                            <FormLabel className="text-xs">Email</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="email"
-                                placeholder="guardian@email.com"
-                                className="h-8"
-                                {...f}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name={`guardians.${index}.phone`}
-                        render={({ field: f }) => (
-                          <FormItem>
-                            <FormLabel className="text-xs">Phone</FormLabel>
-                            <FormControl>
-                              <Input placeholder="08012345678" className="h-8" {...f} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <FormField
-                        control={form.control}
-                        name={`guardians.${index}.relationship`}
-                        render={({ field: f }) => (
-                          <FormItem>
-                            <FormLabel className="text-xs">Relationship</FormLabel>
-                            <Select onValueChange={f.onChange} value={f.value}>
+                            <FormLabel>Class</FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value}>
                               <FormControl>
-                                <SelectTrigger className="h-8">
-                                  <SelectValue placeholder="Select" />
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select class" />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="FATHER">Father</SelectItem>
-                                <SelectItem value="MOTHER">Mother</SelectItem>
-                                <SelectItem value="GUARDIAN">Guardian</SelectItem>
-                                <SelectItem value="UNCLE">Uncle</SelectItem>
-                                <SelectItem value="AUNT">Aunt</SelectItem>
-                                <SelectItem value="SIBLING">Sibling</SelectItem>
-                                <SelectItem value="OTHER">Other</SelectItem>
+                                {classes.map((cls) => (
+                                  <SelectItem key={cls.id} value={cls.id}>
+                                    {cls.name}
+                                    {cls.gradeLevel ? ` (${cls.gradeLevel})` : ''}
+                                  </SelectItem>
+                                ))}
                               </SelectContent>
                             </Select>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
+                    </div>
+
+                    {/* Row 2 */}
+                    <div className="grid grid-cols-2 gap-4">
                       <FormField
                         control={form.control}
-                        name={`guardians.${index}.isEmergencyContact`}
-                        render={({ field: f }) => (
-                          <FormItem className="flex items-end gap-2 pb-1">
+                        name="firstName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>First Name</FormLabel>
                             <FormControl>
-                              <Checkbox
-                                checked={f.value}
-                                onCheckedChange={f.onChange}
-                              />
+                              <Input placeholder="John" {...field} />
                             </FormControl>
-                            <FormLabel className="text-xs font-normal">
-                              Emergency Contact
-                            </FormLabel>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="lastName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Last Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Doe" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    {/* Row 3 */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="otherName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Other Name (Optional)</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Middle name" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="dateOfBirth"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Date of Birth</FormLabel>
+                            <FormControl>
+                              <Input type="date" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    {/* Row 4 */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="gender"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Gender</FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select gender" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="MALE">Male</SelectItem>
+                                <SelectItem value="FEMALE">Female</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
                           </FormItem>
                         )}
                       />
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* ── Contact & Location ────────────────────────────── */}
+              <AccordionItem value="contact">
+                <AccordionTrigger className="text-sm font-semibold">
+                  <span className="flex items-center">
+                    Contact &amp; Location
+                    <SectionBadge complete={contactComplete} filled={contactFilled} total={contactFields.length} />
+                  </span>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-4 pt-2">
+                    <FormField
+                      control={form.control}
+                      name="address"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Address (Optional)</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Home address"
+                              className="resize-none"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="stateOfOrigin"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>State of Origin (Optional)</FormLabel>
+                            <FormControl>
+                              <StateCombobox
+                                value={field.value ?? ''}
+                                onValueChange={field.onChange}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="lga"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>LGA (Optional)</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Local government area" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <FormField
+                      control={form.control}
+                      name="religion"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Religion (Optional)</FormLabel>
+                          <FormControl>
+                            <Input placeholder="e.g. Christianity" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* ── Medical Information ───────────────────────────── */}
+              <AccordionItem value="medical">
+                <AccordionTrigger className="text-sm font-semibold">
+                  <span className="flex items-center">
+                    Medical Information
+                    <SectionBadge complete={medicalComplete} filled={medicalFilled} total={medicalFields.length} />
+                  </span>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-4 pt-2">
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="bloodGroup"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Blood Group (Optional)</FormLabel>
+                            <FormControl>
+                              <Input placeholder="e.g. O+" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="genotype"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Genotype (Optional)</FormLabel>
+                            <FormControl>
+                              <Input placeholder="e.g. AA" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="allergies"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Allergies (Optional)</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Known allergies" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="medicalConditions"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Medical Conditions (Optional)</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Known conditions" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* ── Guardian Info (Create only) ───────────────────── */}
+              {!isEdit && (
+                <AccordionItem value="guardian">
+                  <AccordionTrigger className="text-sm font-semibold">
+                    <span className="flex items-center">
+                      Guardian / Parent Information
+                      {guardianCount > 0 && (
+                        <span className="ml-2 inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                          {guardianCount} added
+                        </span>
+                      )}
+                    </span>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="space-y-4 pt-2">
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs text-muted-foreground">
+                          Add at least one guardian for the student
+                        </p>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            append({
+                              firstName: '',
+                              lastName: '',
+                              email: '',
+                              phone: '',
+                              relationship: '',
+                              isEmergencyContact: false,
+                            })
+                          }
+                        >
+                          <Plus className="mr-1 h-3.5 w-3.5" />
+                          Add Guardian
+                        </Button>
+                      </div>
+
+                      {fields.map((field, index) => (
+                        <div
+                          key={field.id}
+                          className="relative rounded-lg border p-4 space-y-3"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-medium text-muted-foreground">
+                              Guardian {index + 1}
+                            </span>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 text-destructive"
+                              aria-label={`Remove guardian ${index + 1}`}
+                              onClick={() => remove(index)}
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
+                          <div className="grid grid-cols-2 gap-3">
+                            <FormField
+                              control={form.control}
+                              name={`guardians.${index}.firstName`}
+                              render={({ field: f }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs">First Name</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="First name" className="h-8" {...f} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name={`guardians.${index}.lastName`}
+                              render={({ field: f }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs">Last Name</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="Last name" className="h-8" {...f} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                          <div className="grid grid-cols-2 gap-3">
+                            <FormField
+                              control={form.control}
+                              name={`guardians.${index}.email`}
+                              render={({ field: f }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs">Email</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      type="email"
+                                      placeholder="guardian@email.com"
+                                      className="h-8"
+                                      {...f}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name={`guardians.${index}.phone`}
+                              render={({ field: f }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs">Phone</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="08012345678" className="h-8" {...f} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                          <div className="grid grid-cols-2 gap-3">
+                            <FormField
+                              control={form.control}
+                              name={`guardians.${index}.relationship`}
+                              render={({ field: f }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs">Relationship</FormLabel>
+                                  <Select onValueChange={f.onChange} value={f.value}>
+                                    <FormControl>
+                                      <SelectTrigger className="h-8">
+                                        <SelectValue placeholder="Select" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      <SelectItem value="FATHER">Father</SelectItem>
+                                      <SelectItem value="MOTHER">Mother</SelectItem>
+                                      <SelectItem value="GUARDIAN">Guardian</SelectItem>
+                                      <SelectItem value="UNCLE">Uncle</SelectItem>
+                                      <SelectItem value="AUNT">Aunt</SelectItem>
+                                      <SelectItem value="SIBLING">Sibling</SelectItem>
+                                      <SelectItem value="OTHER">Other</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name={`guardians.${index}.isEmergencyContact`}
+                              render={({ field: f }) => (
+                                <FormItem className="flex items-end gap-2 pb-1">
+                                  <FormControl>
+                                    <Checkbox
+                                      checked={f.value}
+                                      onCheckedChange={f.onChange}
+                                    />
+                                  </FormControl>
+                                  <FormLabel className="text-xs font-normal">
+                                    Emergency Contact
+                                  </FormLabel>
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              )}
+            </Accordion>
 
             {/* ── Actions ────────────────────────────────────────── */}
             <div className="flex justify-end gap-2 pt-4">

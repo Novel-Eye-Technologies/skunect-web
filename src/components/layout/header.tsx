@@ -8,6 +8,7 @@ import { NotificationBell } from '@/components/layout/notification-bell';
 import { SchoolSwitcher } from '@/components/layout/school-switcher';
 import { ChildSwitcher } from '@/components/layout/child-switcher';
 import { UserMenu } from '@/components/layout/user-menu';
+import { CommandSearch } from '@/components/layout/command-search';
 import { Separator } from '@/components/ui/separator';
 
 export function Header() {
@@ -36,6 +37,7 @@ export function Header() {
 
       {/* Right side actions */}
       <div className="flex items-center gap-2">
+        <CommandSearch />
         <SchoolSwitcher />
         <ChildSwitcher />
         <button

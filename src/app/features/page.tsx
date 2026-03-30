@@ -27,6 +27,12 @@ import {
 import { Button } from '@/components/ui/button';
 
 // ---------------------------------------------------------------------------
+// Tiny 1x1 pixel base64 placeholder for blur effect on images
+// ---------------------------------------------------------------------------
+const BLUR_PLACEHOLDER =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN88P/BfwAJhAPk2iLajgAAAABJRU5ErkJggg==';
+
+// ---------------------------------------------------------------------------
 // Data
 // ---------------------------------------------------------------------------
 
@@ -431,8 +437,8 @@ export default function FeaturesPage() {
           <div
             className="absolute inset-0"
             style={{
-              backgroundImage: `radial-gradient(circle at 25% 25%, #2A9D8F 1px, transparent 1px),
-                radial-gradient(circle at 75% 75%, #2A9D8F 1px, transparent 1px)`,
+              backgroundImage: `radial-gradient(circle at 25% 25%, var(--color-teal) 1px, transparent 1px),
+                radial-gradient(circle at 75% 75%, var(--color-teal) 1px, transparent 1px)`,
               backgroundSize: '48px 48px',
             }}
           />
@@ -532,6 +538,8 @@ export default function FeaturesPage() {
                     width={1280}
                     height={960}
                     className="w-full"
+                    placeholder="blur"
+                    blurDataURL={BLUR_PLACEHOLDER}
                   />
                 </div>
               </div>
@@ -614,6 +622,8 @@ export default function FeaturesPage() {
                       width={390}
                       height={844}
                       className="w-full"
+                      placeholder="blur"
+                      blurDataURL={BLUR_PLACEHOLDER}
                     />
                   </div>
                   <p className="mt-3 text-sm font-medium text-muted-foreground">

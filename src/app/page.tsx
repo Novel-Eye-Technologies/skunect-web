@@ -29,6 +29,10 @@ import {
 } from '@/components/ui/accordion';
 import { useAuthStore } from '@/lib/stores/auth-store';
 
+// Tiny 1x1 pixel base64 placeholder for blur effect on images
+const BLUR_PLACEHOLDER =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN88P/BfwAJhAPk2iLajgAAAABJRU5ErkJggg==';
+
 const features = [
   {
     icon: BarChart3,
@@ -177,6 +181,25 @@ export default function HomePage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
+      {/* SEO: FAQPage structured data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            mainEntity: faqs.map((faq) => ({
+              '@type': 'Question',
+              name: faq.question,
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: faq.answer,
+              },
+            })),
+          }),
+        }}
+      />
+
       {/* Navigation */}
       <nav className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -261,8 +284,8 @@ export default function HomePage() {
           <div
             className="absolute inset-0"
             style={{
-              backgroundImage: `radial-gradient(circle at 25% 25%, #2A9D8F 1px, transparent 1px),
-                radial-gradient(circle at 75% 75%, #2A9D8F 1px, transparent 1px)`,
+              backgroundImage: `radial-gradient(circle at 25% 25%, var(--color-teal) 1px, transparent 1px),
+                radial-gradient(circle at 75% 75%, var(--color-teal) 1px, transparent 1px)`,
               backgroundSize: '48px 48px',
             }}
           />
@@ -346,6 +369,8 @@ export default function HomePage() {
                 height={720}
                 className="w-full"
                 priority
+                placeholder="blur"
+                blurDataURL={BLUR_PLACEHOLDER}
               />
             </div>
           </div>
@@ -436,6 +461,8 @@ export default function HomePage() {
                             width={1280}
                             height={720}
                             className="w-full"
+                            placeholder="blur"
+                            blurDataURL={BLUR_PLACEHOLDER}
                           />
                         </div>
                       )}
@@ -515,6 +542,8 @@ export default function HomePage() {
                 width={1280}
                 height={960}
                 className="w-full"
+                placeholder="blur"
+                blurDataURL={BLUR_PLACEHOLDER}
               />
             </div>
           </div>
@@ -549,6 +578,8 @@ export default function HomePage() {
                     width={390}
                     height={844}
                     className="w-full"
+                    placeholder="blur"
+                    blurDataURL={BLUR_PLACEHOLDER}
                   />
                 </div>
                 <div className="overflow-hidden rounded-2xl border shadow-sm">
@@ -558,6 +589,8 @@ export default function HomePage() {
                     width={390}
                     height={844}
                     className="w-full"
+                    placeholder="blur"
+                    blurDataURL={BLUR_PLACEHOLDER}
                   />
                 </div>
               </div>
@@ -577,6 +610,8 @@ export default function HomePage() {
                     width={390}
                     height={844}
                     className="w-full"
+                    placeholder="blur"
+                    blurDataURL={BLUR_PLACEHOLDER}
                   />
                 </div>
                 <div className="overflow-hidden rounded-2xl border shadow-sm">
@@ -586,6 +621,8 @@ export default function HomePage() {
                     width={390}
                     height={844}
                     className="w-full"
+                    placeholder="blur"
+                    blurDataURL={BLUR_PLACEHOLDER}
                   />
                 </div>
               </div>

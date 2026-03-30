@@ -2,9 +2,11 @@
 
 import { useState, useCallback } from 'react';
 import { type ColumnDef, type PaginationState } from '@tanstack/react-table';
+import { Search } from 'lucide-react';
 import { PageHeader } from '@/components/shared/page-header';
 import { DataTable } from '@/components/shared/data-table';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { useAuditLogs } from '@/lib/hooks/use-audit';
 import { formatDate } from '@/lib/utils/format-date';
 import {
@@ -30,12 +32,14 @@ export default function AuditLogsPage() {
   });
   const [entityType, setEntityType] = useState('');
   const [action, setAction] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const { data: response, isLoading } = useAuditLogs({
     page: pagination.pageIndex,
     size: pagination.pageSize,
     entityType: entityType || undefined,
     action: action || undefined,
+    search: searchQuery || undefined,
   });
 
   const logs = response?.data ?? [];
@@ -99,6 +103,18 @@ export default function AuditLogsPage() {
         onPaginationChange={handlePaginationChange}
         toolbarActions={
           <div className="flex items-center gap-2">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search logs..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setPagination((p) => ({ ...p, pageIndex: 0 }));
+                }}
+                className="h-8 w-[200px] pl-8"
+              />
+            </div>
             <Select
               value={entityType}
               onValueChange={(v) => {
