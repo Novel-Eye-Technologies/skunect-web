@@ -42,18 +42,40 @@ import { lagosSchools } from '@/lib/data/lagos-schools';
 import { createBetaSignup } from '@/lib/api/beta';
 import { getApiErrorMessage } from '@/lib/utils/get-error-message';
 
-const betaSignupSchema = z.object({
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().min(1, 'Last name is required'),
-  email: z.string().min(1, 'Email is required').email('Please enter a valid email'),
-  phone: z.string().optional(),
-  role: z.enum(['SCHOOL_OWNER', 'SCHOOL_ADMIN', 'TEACHER', 'PARENT'], {
-    message: 'Please select your role',
-  }),
-  schoolName: z.string().optional(),
-  schoolSize: z.string().optional(),
-  city: z.string().optional(),
-});
+const SCHOOL_ROLES = ['SCHOOL_OWNER', 'SCHOOL_ADMIN'] as const;
+
+const betaSignupSchema = z
+  .object({
+    firstName: z.string().min(1, 'First name is required'),
+    lastName: z.string().min(1, 'Last name is required'),
+    email: z.string().min(1, 'Email is required').email('Please enter a valid email'),
+    phone: z.string().optional(),
+    role: z.enum(['SCHOOL_OWNER', 'SCHOOL_ADMIN', 'TEACHER', 'PARENT'], {
+      message: 'Please select your role',
+    }),
+    schoolName: z.string().min(1, 'School name is required'),
+    schoolSize: z.string().optional(),
+    city: z.string().optional(),
+    hasExistingSystem: z.string().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (SCHOOL_ROLES.includes(data.role as (typeof SCHOOL_ROLES)[number])) {
+      if (!data.schoolSize) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'School size is required',
+          path: ['schoolSize'],
+        });
+      }
+      if (!data.hasExistingSystem) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Please select an option',
+          path: ['hasExistingSystem'],
+        });
+      }
+    }
+  });
 
 type BetaSignupFormValues = z.infer<typeof betaSignupSchema>;
 
@@ -73,13 +95,21 @@ export function BetaSignupForm() {
       schoolName: '',
       schoolSize: '',
       city: 'Lagos',
+      hasExistingSystem: '',
     },
   });
+
+  const selectedRole = form.watch('role');
+  const isSchoolRole = SCHOOL_ROLES.includes(selectedRole as (typeof SCHOOL_ROLES)[number]);
 
   async function onSubmit(data: BetaSignupFormValues) {
     setIsSubmitting(true);
     try {
-      const response = await createBetaSignup(data);
+      const { hasExistingSystem, ...rest } = data;
+      const response = await createBetaSignup({
+        ...rest,
+        hasExistingSystem: hasExistingSystem === 'yes',
+      });
       if (response.status === 'SUCCESS') {
         setSubmitted(true);
         toast.success('Application submitted!');
@@ -230,9 +260,7 @@ export function BetaSignupForm() {
             name="schoolName"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>
-                  School name <span className="text-muted-foreground">(optional)</span>
-                </FormLabel>
+                <FormLabel>School name</FormLabel>
                 <Popover open={schoolPopoverOpen} onOpenChange={setSchoolPopoverOpen}>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -253,25 +281,29 @@ export function BetaSignupForm() {
                   <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
                     <Command>
                       <CommandInput
-                        placeholder="Search schools..."
+                        placeholder="Search or type school name..."
                         onValueChange={(search) => {
-                          // Allow free text entry
                           if (search) field.onChange(search);
                         }}
                       />
                       <CommandList>
-                        <CommandEmpty>
-                          <button
-                            type="button"
-                            className="w-full px-2 py-1.5 text-left text-sm"
-                            onClick={() => {
-                              setSchoolPopoverOpen(false);
-                            }}
-                          >
-                            Use typed name
-                          </button>
+                        <CommandEmpty className="py-2 text-center text-sm text-muted-foreground">
+                          No schools found
                         </CommandEmpty>
-                        <CommandGroup>
+                        {field.value && (
+                          <CommandGroup heading="Your entry">
+                            <CommandItem
+                              value={`custom-${field.value}`}
+                              onSelect={() => {
+                                setSchoolPopoverOpen(false);
+                              }}
+                            >
+                              <Check className="mr-2 h-4 w-4 opacity-100" />
+                              <span>Use &quot;{field.value}&quot;</span>
+                            </CommandItem>
+                          </CommandGroup>
+                        )}
+                        <CommandGroup heading="Suggestions">
                           {lagosSchools.map((school) => (
                             <CommandItem
                               key={school.name}
@@ -303,55 +335,81 @@ export function BetaSignupForm() {
             )}
           />
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <FormField
-              control={form.control}
-              name="schoolSize"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    School size <span className="text-muted-foreground">(optional)</span>
-                  </FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                    disabled={isSubmitting}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Number of students" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="1-50">1 - 50 students</SelectItem>
-                      <SelectItem value="51-200">51 - 200 students</SelectItem>
-                      <SelectItem value="201-500">201 - 500 students</SelectItem>
-                      <SelectItem value="501-1000">501 - 1,000 students</SelectItem>
-                      <SelectItem value="1001-2000">1,001 - 2,000 students</SelectItem>
-                      <SelectItem value="2000+">2,000+ students</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          {isSchoolRole && (
+            <>
+              <FormField
+                control={form.control}
+                name="schoolSize"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>School size</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      disabled={isSubmitting}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Number of students" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="1-50">1 - 50 students</SelectItem>
+                        <SelectItem value="51-200">51 - 200 students</SelectItem>
+                        <SelectItem value="201-500">201 - 500 students</SelectItem>
+                        <SelectItem value="501-1000">501 - 1,000 students</SelectItem>
+                        <SelectItem value="1001-2000">1,001 - 2,000 students</SelectItem>
+                        <SelectItem value="2000+">2,000+ students</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="city"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    City <span className="text-muted-foreground">(optional)</span>
-                  </FormLabel>
-                  <FormControl>
-                    <Input placeholder="Lagos" disabled={isSubmitting} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+              <FormField
+                control={form.control}
+                name="hasExistingSystem"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Do you use a school management system?</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      disabled={isSubmitting}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select an option" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="yes">Yes</SelectItem>
+                        <SelectItem value="no">No</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </>
+          )}
+
+          <FormField
+            control={form.control}
+            name="city"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  City <span className="text-muted-foreground">(optional)</span>
+                </FormLabel>
+                <FormControl>
+                  <Input placeholder="Lagos" disabled={isSubmitting} {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           <Button
             type="submit"
