@@ -6,6 +6,7 @@ import { useAuthStore } from '@/lib/stores/auth-store';
 import { getApiErrorMessage } from '@/lib/utils/get-error-message';
 import {
   getMoodEntries,
+  getStudentMoodEntries,
   createMoodEntry,
   type MoodListParams,
 } from '@/lib/api/mood';
@@ -16,6 +17,8 @@ const moodKeys = {
   all: ['mood'] as const,
   list: (schoolId: string, params?: MoodListParams) =>
     [...moodKeys.all, 'list', schoolId, params] as const,
+  studentHistory: (schoolId: string, studentId: string) =>
+    [...moodKeys.all, 'student', schoolId, studentId] as const,
 };
 
 export function useMoodEntries(params?: MoodListParams) {
@@ -25,6 +28,16 @@ export function useMoodEntries(params?: MoodListParams) {
     queryKey: moodKeys.list(schoolId ?? '', params),
     queryFn: () => getMoodEntries(schoolId!, params),
     enabled: !!schoolId,
+  });
+}
+
+export function useStudentMoodHistory(studentId: string | null) {
+  const schoolId = useAuthStore((s) => s.currentSchoolId);
+
+  return useQuery({
+    queryKey: moodKeys.studentHistory(schoolId ?? '', studentId ?? ''),
+    queryFn: () => getStudentMoodEntries(schoolId!, studentId!, { size: 50 }),
+    enabled: !!schoolId && !!studentId,
   });
 }
 
