@@ -77,9 +77,14 @@ export function SiteNavbar({
         </button>
       </div>
 
+      {/* Mobile menu overlay */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-40" onClick={() => setMobileMenuOpen(false)} />
+      )}
+
       {/* Mobile menu */}
       {mobileMenuOpen && (
-        <div className="border-t bg-background px-4 pb-4 pt-2 md:hidden">
+        <div className="relative z-50 border-t bg-background px-4 pb-4 pt-2 md:hidden">
           {links.map((link) => (
             <Link
               key={link.label}

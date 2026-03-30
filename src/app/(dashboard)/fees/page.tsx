@@ -10,6 +10,7 @@ import {
   CreditCard,
   Receipt,
   DollarSign,
+  Wallet,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -27,6 +28,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent } from '@/components/ui/card';
 import { PageHeader } from '@/components/shared/page-header';
 import { DataTable } from '@/components/shared/data-table';
 import { StatusBadge } from '@/components/shared/status-badge';
@@ -49,6 +51,8 @@ import type { Invoice } from '@/lib/types/fees';
 
 export default function FeesPage() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
+  const currentRole = useAuthStore((s) => s.currentRole);
+  const isParent = currentRole === 'PARENT';
 
   // ---------------------------------------------------------------------------
   // Fee Structures state
@@ -102,6 +106,9 @@ export default function FeesPage() {
   const invoices = invoicesResponse?.data ?? [];
   const invoicePageCount = invoicesResponse?.meta?.totalPages ?? 0;
   const classes = classesResponse ?? [];
+
+  // Total balance across all loaded invoices (used for parent summary)
+  const totalBalance = invoices.reduce((sum, inv) => sum + (inv.balance ?? 0), 0);
 
   // ---------------------------------------------------------------------------
   // Handlers
@@ -217,10 +224,6 @@ export default function FeesPage() {
       header: 'Class',
     },
     {
-      accessorKey: 'invoiceNumber',
-      header: 'Invoice #',
-    },
-    {
       accessorKey: 'totalAmount',
       header: 'Amount',
       cell: ({ row }) => formatCurrency(row.original.totalAmount),
@@ -286,11 +289,27 @@ export default function FeesPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Fees Management"
-        description="Manage fee structures, invoices, and payments."
+        title={isParent ? 'Fees' : 'Fees Management'}
+        description={isParent ? 'View your fee invoices and payment status.' : 'Manage fee structures, invoices, and payments.'}
       />
 
-      <Tabs defaultValue="structures" className="space-y-4">
+      {isParent && (
+        <Card className="border-primary/20 bg-primary/5">
+          <CardContent className="flex items-center gap-4 p-5">
+            <div className="rounded-lg bg-primary/10 p-3">
+              <Wallet className="h-6 w-6 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Total Balance</p>
+              <p className="text-2xl font-bold">
+                {formatCurrency(totalBalance)}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <Tabs defaultValue={isParent ? 'invoices' : 'structures'} className="space-y-4">
         <TabsList>
           <TabsTrigger value="structures">
             <DollarSign className="mr-2 h-4 w-4" />

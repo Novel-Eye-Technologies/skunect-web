@@ -17,6 +17,18 @@ export const metadata: Metadata = {
   title: "Skunect",
   description: "School Management & Parent Engagement Platform",
   icons: { icon: "/favicon.ico" },
+  openGraph: {
+    title: 'Skunect',
+    description: 'School Management & Parent Engagement Platform',
+    url: 'https://skunect.com',
+    siteName: 'Skunect',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Skunect',
+    description: 'School Management & Parent Engagement Platform',
+  },
 };
 
 export default function RootLayout({

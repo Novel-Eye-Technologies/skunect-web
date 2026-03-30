@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 import {
   GraduationCap,
@@ -232,9 +233,18 @@ function AcademicSnapshotCard({
         <div className="h-10 w-px bg-border" />
 
         {/* Subjects needing attention */}
-        <div 
+        <div
+          role="button"
+          tabIndex={0}
+          aria-label={`${attentionCount} subject${attentionCount !== 1 ? 's' : ''} needing attention`}
           className="text-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors rounded-md p-2 -m-2"
           onClick={() => router.push('/academics/grades')}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              router.push('/academics/grades');
+            }
+          }}
         >
           <p className="text-sm text-muted-foreground">Needs Attention</p>
           <p
@@ -322,10 +332,11 @@ function SubjectsNeedingAttentionSection({
                         className={`flex items-center gap-0.5 ${item.trend >= 0 ? 'text-emerald-600' : 'text-red-600'}`}
                       >
                         {item.trend >= 0 ? (
-                          <TrendingUp className="h-3 w-3" />
+                          <TrendingUp className="h-3 w-3" aria-hidden="true" />
                         ) : (
-                          <TrendingDown className="h-3 w-3" />
+                          <TrendingDown className="h-3 w-3" aria-hidden="true" />
                         )}
+                        <span className="sr-only">{item.trend >= 0 ? 'Improving' : 'Declining'}</span>
                         {Math.abs(item.trend).toFixed(1)}%
                       </span>
                     )}
@@ -428,6 +439,8 @@ function SubjectPerformanceTable({
                         {subject.studentAvg != null
                           ? `${subject.studentAvg.toFixed(1)}%`
                           : '--'}
+                        {subject.belowClassAvg && <span className="sr-only">(Below class average)</span>}
+                        {aboveAvg && <span className="sr-only">(Above class average)</span>}
                       </td>
                       <td className="py-3 pr-4 text-muted-foreground">
                         {subject.classAvg != null
@@ -453,10 +466,11 @@ function SubjectPerformanceTable({
                             }`}
                           >
                             {subject.trend >= 0 ? (
-                              <TrendingUp className="h-3.5 w-3.5" />
+                              <TrendingUp className="h-3.5 w-3.5" aria-hidden="true" />
                             ) : (
-                              <TrendingDown className="h-3.5 w-3.5" />
+                              <TrendingDown className="h-3.5 w-3.5" aria-hidden="true" />
                             )}
+                            <span className="sr-only">{subject.trend >= 0 ? 'Improving' : 'Declining'}</span>
                             {Math.abs(subject.trend).toFixed(1)}%
                           </span>
                         ) : (
@@ -543,13 +557,13 @@ function RecentAssessmentsCard({
                     </span>
                     {a.classAverage != null && a.percentage != null && (
                       <p
-                        className={`text-[10px] ${
+                        className={`text-xs ${
                           a.percentage >= a.classAverage
                             ? 'text-emerald-600'
                             : 'text-red-600'
                         }`}
                       >
-                        vs class {a.classAverage.toFixed(0)}%
+                        {a.percentage >= a.classAverage ? 'Above' : 'Below'} class {a.classAverage.toFixed(0)}%
                       </p>
                     )}
                   </div>
@@ -562,6 +576,13 @@ function RecentAssessmentsCard({
                 </div>
               </div>
             ))}
+            {assessments.length > 5 && (
+              <div className="mt-1 flex justify-end">
+                <Link href="/academics/grades" className="text-sm text-primary hover:underline">
+                  View all &rarr;
+                </Link>
+              </div>
+            )}
           </div>
         )}
       </CardContent>
@@ -611,6 +632,13 @@ function RecentHomeworkCard({
                 </Badge>
               </div>
             ))}
+            {homework.length > 5 && (
+              <div className="mt-1 flex justify-end">
+                <Link href="/homework" className="text-sm text-primary hover:underline">
+                  View all &rarr;
+                </Link>
+              </div>
+            )}
           </div>
         )}
       </CardContent>
@@ -654,6 +682,13 @@ function AnnouncementsCard({
                 </p>
               </div>
             ))}
+            {announcements.length > 5 && (
+              <div className="mt-1 flex justify-end">
+                <Link href="/communication/announcements" className="text-sm text-primary hover:underline">
+                  View all &rarr;
+                </Link>
+              </div>
+            )}
           </div>
         )}
       </CardContent>
@@ -703,6 +738,13 @@ function UpcomingEventsCard({
                 )}
               </div>
             ))}
+            {events.length > 5 && (
+              <div className="mt-1 flex justify-end">
+                <Link href="/calendar" className="text-sm text-primary hover:underline">
+                  View all &rarr;
+                </Link>
+              </div>
+            )}
           </div>
         )}
       </CardContent>
@@ -754,6 +796,11 @@ function UpcomingFeesCard({ fees }: { fees: UpcomingFee[] }) {
                 </div>
               </div>
             ))}
+            <div className="mt-1 flex justify-end">
+              <Link href="/fees" className="text-sm text-primary hover:underline">
+                View all &rarr;
+              </Link>
+            </div>
           </div>
         )}
       </CardContent>
