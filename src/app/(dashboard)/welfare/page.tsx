@@ -97,6 +97,8 @@ export default function WelfarePage() {
         columns={columns}
         data={records}
         isLoading={isLoading}
+        searchKey="studentName"
+        searchPlaceholder="Search students..."
         toolbarActions={
           <div className="flex items-center gap-2">
             <Select

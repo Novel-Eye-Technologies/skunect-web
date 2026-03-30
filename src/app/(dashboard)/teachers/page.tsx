@@ -105,6 +105,7 @@ export default function TeachersPage() {
     {
       accessorKey: 'phone',
       header: 'Phone',
+      meta: { className: 'hidden md:table-cell' },
       cell: ({ row }) =>
         row.original.phone ? (
           <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
@@ -123,6 +124,7 @@ export default function TeachersPage() {
     {
       accessorKey: 'lastLogin',
       header: 'Last Login',
+      meta: { className: 'hidden md:table-cell' },
       cell: ({ row }) =>
         row.original.lastLogin
           ? formatDate(row.original.lastLogin)
@@ -131,6 +133,7 @@ export default function TeachersPage() {
     {
       accessorKey: 'createdAt',
       header: 'Joined',
+      meta: { className: 'hidden md:table-cell' },
       cell: ({ row }) => formatDate(row.original.createdAt),
     },
     {

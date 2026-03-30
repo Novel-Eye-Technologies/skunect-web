@@ -192,6 +192,7 @@ export default function AcademicsPage() {
     {
       accessorKey: 'termName',
       header: 'Term',
+      meta: { className: 'hidden md:table-cell' },
     },
     {
       accessorKey: 'type',
@@ -206,6 +207,7 @@ export default function AcademicsPage() {
       accessorKey: 'createdAt',
       header: 'Date',
       cell: ({ row }) => formatDate(row.original.createdAt),
+      meta: { className: 'hidden md:table-cell' },
     },
     {
       id: 'actions',
@@ -259,6 +261,7 @@ export default function AcademicsPage() {
     {
       accessorKey: 'admissionNumber',
       header: 'Admission No',
+      meta: { className: 'hidden md:table-cell' },
     },
     {
       accessorKey: 'className',
@@ -267,6 +270,7 @@ export default function AcademicsPage() {
     {
       accessorKey: 'termName',
       header: 'Term',
+      meta: { className: 'hidden md:table-cell' },
     },
     {
       accessorKey: 'totalScore',

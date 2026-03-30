@@ -3,8 +3,9 @@
 import { useState, useCallback } from 'react';
 import { type ColumnDef } from '@tanstack/react-table';
 import { type PaginationState } from '@tanstack/react-table';
-import { MoreHorizontal, Shield, UserX, Pencil } from 'lucide-react';
+import { MoreHorizontal, Shield, UserX, Pencil, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,6 +40,7 @@ export default function AdminsPage() {
     pageSize: 10,
   });
   const [statusFilter, setStatusFilter] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   // ---------------------------------------------------------------------------
   // Dialog state
@@ -61,6 +63,7 @@ export default function AdminsPage() {
     size: pagination.pageSize,
     role: 'ADMIN',
     status: statusFilter || undefined,
+    search: searchQuery || undefined,
   });
   const removeUser = useRemoveUser();
 
@@ -185,6 +188,18 @@ export default function AdminsPage() {
         onPaginationChange={handlePaginationChange}
         toolbarActions={
           <div className="flex items-center gap-2">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search admins..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+                }}
+                className="h-8 w-[200px] pl-8"
+              />
+            </div>
             <Select
               value={statusFilter}
               onValueChange={(value) => {

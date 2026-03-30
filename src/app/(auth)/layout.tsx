@@ -14,8 +14,8 @@ export default function AuthLayout({
         {/* Background pattern */}
         <div className="absolute inset-0 opacity-[0.07]">
           <div className="absolute top-0 left-0 w-full h-full" style={{
-            backgroundImage: `radial-gradient(circle at 25% 25%, #2A9D8F 1px, transparent 1px),
-              radial-gradient(circle at 75% 75%, #2A9D8F 1px, transparent 1px)`,
+            backgroundImage: `radial-gradient(circle at 25% 25%, var(--color-teal) 1px, transparent 1px),
+              radial-gradient(circle at 75% 75%, var(--color-teal) 1px, transparent 1px)`,
             backgroundSize: '48px 48px',
           }} />
         </div>
