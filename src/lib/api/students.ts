@@ -1,5 +1,6 @@
 import apiClient from '@/lib/api/client';
 import type { ApiResponse, PaginatedParams } from '@/lib/api/types';
+import type { Api } from '@/lib/api/schema';
 import type {
   StudentListItem,
   StudentDetail,
@@ -197,11 +198,7 @@ export async function deleteDocument(
 // Profile API
 // ---------------------------------------------------------------------------
 
-export interface UpdateProfileRequest {
-  firstName?: string;
-  lastName?: string;
-  phone?: string;
-}
+export type UpdateProfileRequest = Api['UpdateUserRequest'];
 
 export async function updateProfile(
   data: UpdateProfileRequest,
@@ -217,12 +214,7 @@ export async function updateProfile(
 // Student Usage
 // ---------------------------------------------------------------------------
 
-export interface StudentUsageResponse {
-  activeStudents: number;
-  studentLimit: number;
-  usagePercent: number;
-  hasSubscription: boolean;
-}
+export type StudentUsageResponse = Api['StudentUsageResponse'];
 
 export async function getStudentUsage(
   schoolId: string,

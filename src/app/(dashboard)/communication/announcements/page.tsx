@@ -12,6 +12,7 @@ import {
   EyeOff,
   FileIcon,
   Search,
+  BookOpen,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -142,6 +143,22 @@ export default function AnnouncementsPage() {
       id: 'status',
       header: 'Status',
       cell: ({ row }) => <StatusBadge status={row.original.isPublished ? 'PUBLISHED' : 'DRAFT'} />,
+    },
+    {
+      accessorKey: 'readCount',
+      header: 'Reads',
+      cell: ({ row }) => {
+        const announcement = row.original;
+        if (!announcement.isPublished) {
+          return <span className="text-muted-foreground">-</span>;
+        }
+        return (
+          <Badge variant="secondary" className="gap-1">
+            <BookOpen className="h-3 w-3" />
+            {announcement.readCount ?? 0}
+          </Badge>
+        );
+      },
     },
     {
       accessorKey: 'publishedAt',
@@ -311,6 +328,12 @@ export default function AnnouncementsPage() {
                   {audienceLabels[viewTarget.targetAudience] ??
                     viewTarget.targetAudience}
                 </Badge>
+                {viewTarget.isPublished && (
+                  <Badge variant="secondary" className="gap-1">
+                    <BookOpen className="h-3 w-3" />
+                    {viewTarget.readCount ?? 0} {(viewTarget.readCount ?? 0) === 1 ? 'read' : 'reads'}
+                  </Badge>
+                )}
               </div>
               {viewTarget.publishedAt && (
                 <p className="text-sm text-muted-foreground">

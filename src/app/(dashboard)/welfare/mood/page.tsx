@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { format } from 'date-fns';
-import { Plus } from 'lucide-react';
+import { Plus, History } from 'lucide-react';
 import { type ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,6 +16,8 @@ import {
 import { PageHeader } from '@/components/shared/page-header';
 import { DataTable } from '@/components/shared/data-table';
 import { MoodFormDialog } from '@/components/features/welfare/mood-form-dialog';
+import { MoodCharts } from '@/components/features/welfare/mood-charts';
+import { StudentMoodHistoryDialog } from '@/components/features/welfare/student-mood-history-dialog';
 import { useMoodEntries } from '@/lib/hooks/use-mood';
 import type { MoodEntry } from '@/lib/types/mood';
 import { MOOD_OPTIONS } from '@/lib/types/mood';
@@ -41,6 +43,10 @@ const moodEmojis: Record<string, string> = {
 export default function MoodTrackerPage() {
   const [moodFilter, setMoodFilter] = useState('');
   const [formOpen, setFormOpen] = useState(false);
+  const [historyStudent, setHistoryStudent] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
   const { data: response, isLoading } = useMoodEntries();
   const entries = response?.data ?? [];
@@ -91,6 +97,25 @@ export default function MoodTrackerPage() {
       accessorKey: 'recordedByName',
       header: 'Recorded By',
     },
+    {
+      id: 'actions',
+      header: '',
+      cell: ({ row }) => (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() =>
+            setHistoryStudent({
+              id: row.original.studentId,
+              name: row.original.studentName,
+            })
+          }
+        >
+          <History className="mr-1.5 h-4 w-4" />
+          History
+        </Button>
+      ),
+    },
   ];
 
   return (
@@ -106,6 +131,10 @@ export default function MoodTrackerPage() {
         }
       />
 
+      {/* Mood Visualization Charts */}
+      <MoodCharts entries={entries} />
+
+      {/* Mood Entries Table */}
       <DataTable
         columns={columns}
         data={filteredEntries}
@@ -135,6 +164,15 @@ export default function MoodTrackerPage() {
       />
 
       <MoodFormDialog open={formOpen} onOpenChange={setFormOpen} />
+
+      <StudentMoodHistoryDialog
+        open={!!historyStudent}
+        onOpenChange={(open) => {
+          if (!open) setHistoryStudent(null);
+        }}
+        studentId={historyStudent?.id ?? null}
+        studentName={historyStudent?.name ?? ''}
+      />
     </div>
   );
 }

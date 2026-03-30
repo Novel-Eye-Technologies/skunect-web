@@ -5,10 +5,12 @@ import {
   Upload,
   FileText,
   CheckCircle2,
-  XCircle,
   AlertTriangle,
   Download,
   X,
+  FileDown,
+  ShieldCheck,
+  ShieldAlert,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,7 +23,7 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
+
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import {
@@ -154,11 +156,21 @@ export function MigrationUpload() {
     });
   }, [migrationJob, importMutation]);
 
+  // ---------------------------------------------------------------------------
+  // Download validation errors as CSV
+  // ---------------------------------------------------------------------------
+  const handleDownloadErrorsCsv = useCallback(() => {
+    if (!migrationJob?.errorReportUrl) return;
+    // If the backend provides an error report URL, open it directly
+    window.open(migrationJob.errorReportUrl, '_blank');
+  }, [migrationJob]);
+
   const isValidating =
     isUploading || uploadMigration.isPending || validateMutation.isPending;
   const canValidate = !!selectedFile && !!dataType;
-  const canImport =
-    migrationJob?.status === 'VALIDATED' && migrationJob.failedRecords === 0;
+  const isValidated = migrationJob?.status === 'VALIDATED';
+  const hasErrors = (migrationJob?.failedRecords ?? 0) > 0;
+  const canImport = isValidated && !hasErrors;
 
   return (
     <div className="space-y-6">
@@ -293,72 +305,92 @@ export function MigrationUpload() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
-              {migrationJob.failedRecords === 0 ? (
+              {!hasErrors ? (
                 <>
-                  <CheckCircle2 className="h-5 w-5 text-teal" />
+                  <ShieldCheck className="h-5 w-5 text-teal" />
                   Validation Passed
                 </>
               ) : (
                 <>
-                  <XCircle className="h-5 w-5 text-red-500" />
-                  Validation Failed
+                  <ShieldAlert className="h-5 w-5 text-red-500" />
+                  Validation Complete &mdash; Errors Found
                 </>
               )}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex gap-4">
-              <Badge variant="outline">
-                Total Records: {migrationJob.totalRecords}
-              </Badge>
-              <Badge
-                variant="outline"
-                className="border-teal text-teal"
+            {/* Summary Badges */}
+            <div className="grid grid-cols-3 gap-4">
+              <div className="rounded-lg border p-3 text-center">
+                <p className="text-2xl font-bold">{migrationJob.totalRecords}</p>
+                <p className="text-xs text-muted-foreground">Total Records</p>
+              </div>
+              <div className="rounded-lg border border-teal/30 bg-teal/5 p-3 text-center">
+                <p className="text-2xl font-bold text-teal">
+                  {migrationJob.totalRecords - migrationJob.failedRecords}
+                </p>
+                <p className="text-xs text-muted-foreground">Valid</p>
+              </div>
+              <div
+                className={cn(
+                  'rounded-lg border p-3 text-center',
+                  hasErrors
+                    ? 'border-red-300 bg-red-50'
+                    : 'border-muted',
+                )}
               >
-                Valid: {migrationJob.totalRecords - migrationJob.failedRecords}
-              </Badge>
-              {migrationJob.failedRecords > 0 && (
-                <Badge variant="destructive">
-                  Errors: {migrationJob.failedRecords}
-                </Badge>
-              )}
+                <p
+                  className={cn(
+                    'text-2xl font-bold',
+                    hasErrors ? 'text-red-600' : 'text-muted-foreground',
+                  )}
+                >
+                  {migrationJob.failedRecords}
+                </p>
+                <p className="text-xs text-muted-foreground">Errors</p>
+              </div>
             </div>
 
-            {migrationJob.failedRecords === 0 && (
-              <Alert>
-                <CheckCircle2 className="h-4 w-4" />
+            <Separator />
+
+            {/* Success banner */}
+            {!hasErrors && (
+              <Alert className="border-teal/30 bg-teal/5">
+                <CheckCircle2 className="h-4 w-4 text-teal" />
                 <AlertTitle>Ready to import</AlertTitle>
                 <AlertDescription>
-                  All {migrationJob.totalRecords} records are valid.
-                  Click the &quot;Import&quot; button to proceed.
+                  All {migrationJob.totalRecords} records passed validation.
+                  Click the &quot;Import&quot; button above to proceed.
                 </AlertDescription>
               </Alert>
             )}
 
-            {migrationJob.failedRecords > 0 && (
-              <Alert variant="destructive">
-                <AlertTriangle className="h-4 w-4" />
-                <AlertTitle>Errors found</AlertTitle>
-                <AlertDescription>
-                  {migrationJob.failedRecords} record{migrationJob.failedRecords !== 1 ? 's' : ''} have errors.
-                  {migrationJob.errorReportUrl ? (
-                    <>
-                      {' '}
-                      <a
-                        href={migrationJob.errorReportUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="underline underline-offset-4"
-                      >
-                        Download error report
-                      </a>{' '}
-                      for details.
-                    </>
-                  ) : (
-                    ' Fix the errors in your CSV file and re-upload.'
-                  )}
-                </AlertDescription>
-              </Alert>
+            {/* Error warning banner */}
+            {hasErrors && (
+              <>
+                <Alert variant="destructive">
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertTitle>
+                    {migrationJob.failedRecords} record{migrationJob.failedRecords !== 1 ? 's' : ''} failed validation
+                  </AlertTitle>
+                  <AlertDescription>
+                    The import cannot proceed until all errors are fixed.
+                    Please download the error report, correct the issues in your CSV file, and re-upload.
+                  </AlertDescription>
+                </Alert>
+
+                {/* Download Errors Button */}
+                {migrationJob.errorReportUrl && (
+                  <Button
+                    variant="outline"
+                    onClick={handleDownloadErrorsCsv}
+                    className="gap-2"
+                  >
+                    <FileDown className="h-4 w-4" />
+                    Download Error Report (CSV)
+                  </Button>
+                )}
+              </>
             )}
           </CardContent>
         </Card>
