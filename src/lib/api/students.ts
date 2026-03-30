@@ -201,6 +201,7 @@ export interface UpdateProfileRequest {
   firstName?: string;
   lastName?: string;
   phone?: string;
+  avatarUrl?: string;
 }
 
 export async function updateProfile(
