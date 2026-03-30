@@ -41,11 +41,11 @@ export function TeacherDetailClient() {
 
   // Get all subject assignments for this teacher (across ALL classes)
   const { data: teacherSubjects } = useTeacherSubjects(teacherId);
-  const subjectsList = teacherSubjects ?? [];
+  const subjectsList = useMemo(() => teacherSubjects ?? [], [teacherSubjects]);
 
   // Get all classes to resolve class names and metadata
   const { data: allClasses } = useClasses();
-  const classList = allClasses ?? [];
+  const classList = useMemo(() => allClasses ?? [], [allClasses]);
   const classMap = useMemo(
     () => new Map(classList.map((c: SchoolClass) => [c.id, c])),
     [classList],

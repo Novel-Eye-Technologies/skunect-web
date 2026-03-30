@@ -4,7 +4,6 @@ import { useState, useCallback } from 'react';
 import { type ColumnDef, type PaginationState } from '@tanstack/react-table';
 import { MoreHorizontal, Shield, UserX, Mail, Phone, BookOpen, Pencil } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,

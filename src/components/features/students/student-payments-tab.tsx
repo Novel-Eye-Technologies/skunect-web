@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { DollarSign, Receipt } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { StatusBadge } from '@/components/shared/status-badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuthStore } from '@/lib/stores/auth-store';

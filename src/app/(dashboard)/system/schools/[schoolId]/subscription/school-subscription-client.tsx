@@ -217,16 +217,6 @@ export function SchoolSubscriptionClient() {
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(amount);
 
-  const statusColor = (status: string) => {
-    switch (status) {
-      case 'ACTIVE': return 'default';
-      case 'GRACE_PERIOD': return 'secondary';
-      case 'EXPIRED': return 'destructive';
-      case 'CANCELLED': return 'destructive';
-      default: return 'outline';
-    }
-  };
-
   if (loading) {
     return <div className="flex items-center justify-center h-64">Loading...</div>;
   }

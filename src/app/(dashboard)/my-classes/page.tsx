@@ -64,12 +64,6 @@ export default function MyClassesPage() {
     }
   }
 
-  // Calculate current week of term
-  const currentTermInfo = (() => {
-    if (!settings?.currentTermId) return null;
-    return null; // Term week calculation requires term start date
-  })();
-
   return (
     <div className="space-y-6">
       <PageHeader

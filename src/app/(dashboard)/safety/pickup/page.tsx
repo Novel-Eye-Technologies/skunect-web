@@ -51,14 +51,14 @@ export default function PickupAuthorizationPage() {
     queryKey: ['parent', 'children'],
     queryFn: getParentChildren,
   });
-  const children = childrenResponse?.data ?? [];
+  const children = useMemo(() => childrenResponse?.data ?? [], [childrenResponse?.data]);
 
   // Fetch authorizations (optionally filtered by child)
   const filterStudentId =
     selectedChildId === 'all' ? undefined : selectedChildId;
   const { data: authResponse, isLoading: authLoading } =
     usePickupAuthorizations(filterStudentId);
-  const authorizations = authResponse?.data ?? [];
+  const authorizations = useMemo(() => authResponse?.data ?? [], [authResponse?.data]);
 
   const revokeAuthorization = useRevokePickupAuthorization();
 

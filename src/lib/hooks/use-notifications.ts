@@ -61,7 +61,7 @@ export function useUnreadCount() {
 // ---------------------------------------------------------------------------
 
 export function useMarkAsRead() {
-  const schoolId = useAuthStore((s) => s.currentSchoolId);
+
 const decrementUnread = useNotificationStore((s) => s.decrementUnread);
 
   return useMutation({
@@ -78,7 +78,7 @@ const decrementUnread = useNotificationStore((s) => s.decrementUnread);
 }
 
 export function useMarkAllAsRead() {
-  const schoolId = useAuthStore((s) => s.currentSchoolId);
+
 const setUnreadCount = useNotificationStore((s) => s.setUnreadCount);
 
   return useMutation({

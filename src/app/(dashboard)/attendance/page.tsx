@@ -11,7 +11,7 @@ import { useAttendanceRecords } from '@/lib/hooks/use-attendance';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useChildStore } from '@/lib/stores/child-store';
 import { useQuery } from '@tanstack/react-query';
-import { getClasses } from '@/lib/api/school-settings';
+
 import { getAttendanceOverview } from '@/lib/api/attendance';
 import { formatDate } from '@/lib/utils/format-date';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -59,12 +59,6 @@ export default function AttendancePage() {
     date: dateFilter || undefined,
   });
 
-  const { data: classesResponse } = useQuery({
-    queryKey: ['classes', schoolId ?? ''],
-    queryFn: () => getClasses(schoolId!),
-    enabled: !!schoolId && !isParent,
-    select: (res) => res.data,
-  });
 
   const { data: schoolOverview, isLoading: isLoadingOverview } = useQuery({
     queryKey: ['attendance', 'overview', schoolId ?? '', dateFilter],
@@ -79,7 +73,6 @@ export default function AttendancePage() {
     ? rawRecords.filter(r => r.studentId === selectedChildId)
     : rawRecords;
   const pageCount = isParent ? (records.length > 0 ? 1 : 0) : (response?.meta?.totalPages ?? 0);
-  const classes = classesResponse ?? [];
 
   // Child-specific overview for parents based on the selected child's record today
   const childRecord = isParent ? records[0] : null;

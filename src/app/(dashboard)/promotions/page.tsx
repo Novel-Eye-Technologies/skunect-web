@@ -29,7 +29,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { PageHeader } from '@/components/shared/page-header';
 import { EmptyState } from '@/components/shared/empty-state';
-import { useClasses, useSessions, useSchoolSettings } from '@/lib/hooks/use-school-settings';
+import { useClasses, useSchoolSettings } from '@/lib/hooks/use-school-settings';
 import {
   useEligibleStudents,
   useBulkPromote,
@@ -40,9 +40,8 @@ import { cn } from '@/lib/utils';
 export default function PromotionsPage() {
   const { data: settings } = useSchoolSettings();
   const { data: classes } = useClasses();
-  const { data: sessions } = useSessions();
 
-  const [step, setStep] = useState(1);
+  const [, setStep] = useState(1);
   const [sourceClassId, setSourceClassId] = useState('');
   const [targetClassId, setTargetClassId] = useState('');
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);

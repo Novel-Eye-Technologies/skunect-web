@@ -33,7 +33,7 @@ import { useChildStore } from '@/lib/stores/child-store';
 import { useParentDashboard } from '@/lib/hooks/use-dashboard';
 import type {
   ParentAcademicOverview,
-  ParentAttendanceOverview,
+
   ParentSubjectItem,
   ParentAssessmentItem,
   ParentAnnouncementItem,
@@ -67,11 +67,7 @@ const assessmentTypeColors: Record<string, string> = {
 
 // ─── Helpers ───────────────────────────────────────────────────────
 
-function getAttendanceRateColor(rate: number): string {
-  if (rate >= 90) return 'text-emerald-600';
-  if (rate >= 75) return 'text-amber-600';
-  return 'text-red-600';
-}
+
 
 function getAttendanceBgColor(rate: number): string {
   if (rate >= 90) return 'bg-emerald-50';
