@@ -647,15 +647,14 @@ export default function FeaturesPage() {
                   <ChevronRight className="ml-1 h-4 w-4" />
                 </Button>
               </Link>
-              <Link href="/">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-white/20 text-white hover:bg-white/10"
-                >
-                  Contact Sales
-                </Button>
-              </Link>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-white/20 text-white pointer-events-none opacity-50"
+                aria-disabled="true"
+              >
+                Contact Sales (Coming Soon)
+              </Button>
             </div>
           </div>
         </div>
@@ -683,19 +682,37 @@ export default function FeaturesPage() {
                 Product
               </h4>
               <ul className="space-y-2">
+                <li>
+                  <Link
+                    href="/features"
+                    className="text-sm text-white/40 transition-colors hover:text-white/70"
+                  >
+                    Features
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/beta"
+                    className="text-sm text-white/40 transition-colors hover:text-white/70"
+                  >
+                    Beta Program
+                  </Link>
+                </li>
                 {[
-                  { label: 'Features', href: '/features' },
-                  { label: 'For Schools', href: '/' },
-                  { label: 'For Parents', href: '/' },
-                  { label: 'Pricing', href: '/' },
+                  { label: 'For Schools' },
+                  { label: 'For Parents' },
+                  { label: 'Pricing' },
                 ].map((link) => (
                   <li key={link.label}>
-                    <Link
-                      href={link.href}
-                      className="text-sm text-white/40 transition-colors hover:text-white/70"
+                    <span
+                      aria-disabled="true"
+                      className="text-sm text-white/40 pointer-events-none opacity-50"
                     >
-                      {link.label}
-                    </Link>
+                      {link.label}{' '}
+                      <span className="text-[10px] text-white/30">
+                        (Coming Soon)
+                      </span>
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -707,18 +724,21 @@ export default function FeaturesPage() {
               </h4>
               <ul className="space-y-2">
                 {[
-                  { label: 'About Us', href: '/' },
-                  { label: 'Blog', href: '/' },
-                  { label: 'Careers', href: '/' },
-                  { label: 'Contact', href: '/' },
+                  { label: 'About Us' },
+                  { label: 'Blog' },
+                  { label: 'Careers' },
+                  { label: 'Contact' },
                 ].map((link) => (
                   <li key={link.label}>
-                    <Link
-                      href={link.href}
-                      className="text-sm text-white/40 transition-colors hover:text-white/70"
+                    <span
+                      aria-disabled="true"
+                      className="text-sm text-white/40 pointer-events-none opacity-50"
                     >
-                      {link.label}
-                    </Link>
+                      {link.label}{' '}
+                      <span className="text-[10px] text-white/30">
+                        (Coming Soon)
+                      </span>
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -730,17 +750,20 @@ export default function FeaturesPage() {
               </h4>
               <ul className="space-y-2">
                 {[
-                  { label: 'Help Center', href: '/' },
-                  { label: 'Privacy Policy', href: '/' },
-                  { label: 'Terms of Service', href: '/' },
+                  { label: 'Help Center' },
+                  { label: 'Privacy Policy' },
+                  { label: 'Terms of Service' },
                 ].map((link) => (
                   <li key={link.label}>
-                    <Link
-                      href={link.href}
-                      className="text-sm text-white/40 transition-colors hover:text-white/70"
+                    <span
+                      aria-disabled="true"
+                      className="text-sm text-white/40 pointer-events-none opacity-50"
                     >
-                      {link.label}
-                    </Link>
+                      {link.label}{' '}
+                      <span className="text-[10px] text-white/30">
+                        (Coming Soon)
+                      </span>
+                    </span>
                   </li>
                 ))}
               </ul>

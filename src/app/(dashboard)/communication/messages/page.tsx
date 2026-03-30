@@ -30,7 +30,7 @@ import {
   subscribeToMessages,
 } from '@/lib/websocket/stomp-client';
 
-import { formatRelative } from '@/lib/utils/format-date';
+import { formatRelativeTime } from '@/lib/utils/format-relative-time';
 import { cn } from '@/lib/utils';
 import type { Conversation, Message } from '@/lib/types/messaging';
 import { queryClient } from '@/lib/query-client';
@@ -235,7 +235,7 @@ const [activeConversationId, setActiveConversationId] = useState<
                           </p>
                           {conversation.lastMessage && (
                             <span className="shrink-0 text-[11px] text-muted-foreground">
-                              {formatRelative(
+                              {formatRelativeTime(
                                 conversation.lastMessage.sentAt,
                               )}
                             </span>
@@ -353,7 +353,7 @@ const [activeConversationId, setActiveConversationId] = useState<
                                     : 'text-muted-foreground',
                                 )}
                               >
-                                {formatRelative(msg.sentAt)}
+                                {formatRelativeTime(msg.sentAt)}
                               </p>
                             </div>
                           </div>

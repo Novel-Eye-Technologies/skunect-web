@@ -318,6 +318,12 @@ export default function HomeworkPage() {
 
       {isParent ? (
         <div className="space-y-6">
+          <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-green-500" /> Submitted</span>
+            <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-amber-500" /> Pending</span>
+            <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-blue-500" /> Graded</span>
+            <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-red-500" /> Overdue</span>
+          </div>
           {!selectedChild ? (
             <Card className="flex flex-col items-center justify-center py-12 text-center">
               <div className="mb-4 rounded-full bg-muted p-4">

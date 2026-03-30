@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { Bell, CheckCheck, ExternalLink } from 'lucide-react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { formatDistanceToNow } from 'date-fns';
+import { formatRelativeTime } from '@/lib/utils/format-relative-time';
 import { Button } from '@/components/ui/button';
 import {
   Popover,
@@ -156,9 +156,7 @@ export function NotificationBell() {
                       {notification.body}
                     </p>
                     <p className="mt-1 text-[10px] text-muted-foreground/70">
-                      {formatDistanceToNow(new Date(notification.createdAt), {
-                        addSuffix: true,
-                      })}
+                      {formatRelativeTime(notification.createdAt)}
                     </p>
                   </div>
                 </button>

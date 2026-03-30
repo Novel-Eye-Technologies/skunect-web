@@ -31,13 +31,24 @@ export function StatCard({
   onClick,
 }: StatCardProps) {
   return (
-    <Card 
+    <Card
       className={cn(
-        'relative overflow-hidden', 
-        onClick && 'cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors', 
+        'relative overflow-hidden',
+        onClick && 'cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors',
         className
       )}
       onClick={onClick}
+      {...(onClick && {
+        role: 'button',
+        tabIndex: 0,
+        'aria-label': title,
+        onKeyDown: (e: React.KeyboardEvent) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onClick();
+          }
+        },
+      })}
     >
       <CardContent className="p-6">
         <div className="flex items-start justify-between">
@@ -56,10 +67,11 @@ export function StatCard({
                     )}
                   >
                     {trend.direction === 'up' ? (
-                      <TrendingUp className="h-3 w-3" />
+                      <TrendingUp className="h-3 w-3" aria-hidden="true" />
                     ) : (
-                      <TrendingDown className="h-3 w-3" />
+                      <TrendingDown className="h-3 w-3" aria-hidden="true" />
                     )}
+                    <span className="sr-only">{trend.direction === 'up' ? 'Increased' : 'Decreased'}</span>
                     {trend.value}%
                   </span>
                 )}

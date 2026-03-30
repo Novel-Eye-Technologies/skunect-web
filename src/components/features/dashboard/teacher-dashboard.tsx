@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import {
   Clock,
   ClipboardCheck,
@@ -35,6 +36,12 @@ function rateColor(value: number, target: number): string {
   if (value >= target) return 'text-emerald-600';
   if (value >= target * 0.6) return 'text-amber-500';
   return 'text-red-500';
+}
+
+function rateSeverity(value: number, target: number): string {
+  if (value >= target) return 'Good';
+  if (value >= target * 0.6) return 'Warning';
+  return 'Critical';
 }
 
 function rateBg(value: number, target: number): string {
@@ -161,14 +168,31 @@ export function TeacherDashboard() {
 
   if (!data) return null;
 
-  // ── Determine current period (rough heuristic: period index by order) ──
+  // ── Determine current period ──
+  // NOTE: TeacherScheduleSlot does not include startTime/endTime fields,
+  // so we cannot compare against actual schedule times. This heuristic
+  // assumes school runs ~8:00-15:00 with roughly equal period lengths.
+  // When the backend adds startTime/endTime to TeacherScheduleSlot,
+  // replace this with time-range comparison logic.
   const now = new Date();
   const currentHour = now.getHours();
-  // Simple heuristic: school runs 8am-3pm, ~7 periods, first period at hour 8
-  const estimatedPeriod = Math.max(
-    1,
-    Math.min(data.todaySchedule.length, currentHour - 7),
-  );
+  const currentMinutes = now.getMinutes();
+  const totalPeriods = data.todaySchedule.length;
+
+  let estimatedPeriod: number;
+  if (totalPeriods === 0 || currentHour < 8) {
+    estimatedPeriod = 1;
+  } else if (currentHour >= 15) {
+    estimatedPeriod = totalPeriods;
+  } else {
+    // Distribute periods evenly across 8:00-15:00 (420 minutes)
+    const minutesSinceStart = (currentHour - 8) * 60 + currentMinutes;
+    const minutesPerPeriod = 420 / totalPeriods;
+    estimatedPeriod = Math.max(
+      1,
+      Math.min(totalPeriods, Math.floor(minutesSinceStart / minutesPerPeriod) + 1),
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -277,6 +301,7 @@ export function TeacherDashboard() {
                   className={`text-3xl font-bold tracking-tight ${rateColor(data.todayAttendanceRate, 80)}`}
                 >
                   {data.todayAttendanceRate}%
+                  <span className="sr-only">({rateSeverity(data.todayAttendanceRate, 80)})</span>
                 </p>
                 <p className="text-xs text-muted-foreground">
                   <span className="text-emerald-600">
@@ -381,7 +406,8 @@ export function TeacherDashboard() {
             Students Needing Attention
           </CardTitle>
           <CardDescription>
-            Students flagged based on attendance, homework, and grades
+            Students flagged based on attendance, homework, and grades.
+            Risk score &ge;70 indicates a student needs follow-up based on attendance, homework, and grade factors.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -433,11 +459,13 @@ export function TeacherDashboard() {
                           className={`py-2.5 pr-4 text-right font-medium ${rateColor(student.attendanceRate, 80)}`}
                         >
                           {student.attendanceRate}%
+                          <span className="sr-only">({rateSeverity(student.attendanceRate, 80)})</span>
                         </td>
                         <td
                           className={`py-2.5 pr-4 text-right font-medium ${rateColor(student.homeworkCompletionRate, 70)}`}
                         >
                           {student.homeworkCompletionRate}%
+                          <span className="sr-only">({rateSeverity(student.homeworkCompletionRate, 70)})</span>
                         </td>
                         <td className="py-2.5 pr-4 text-right font-medium">
                           {student.avgScore !== null ? (
@@ -447,10 +475,11 @@ export function TeacherDashboard() {
                                 student.scoreTrend !== 0 && (
                                   <span>
                                     {student.scoreTrend > 0 ? (
-                                      <TrendingUp className="h-3 w-3 text-emerald-500" />
+                                      <TrendingUp className="h-4 w-4 text-emerald-500" aria-hidden="true" />
                                     ) : (
-                                      <TrendingDown className="h-3 w-3 text-red-500" />
+                                      <TrendingDown className="h-4 w-4 text-red-500" aria-hidden="true" />
                                     )}
+                                    <span className="sr-only">{student.scoreTrend > 0 ? '(Improving)' : '(Declining)'}</span>
                                   </span>
                                 )}
                             </span>
@@ -480,6 +509,13 @@ export function TeacherDashboard() {
                   })}
                 </tbody>
               </table>
+            </div>
+          )}
+          {data.atRiskStudents.length > 5 && (
+            <div className="mt-3 flex justify-end">
+              <Link href="/students" className="text-sm text-primary hover:underline">
+                View all &rarr;
+              </Link>
             </div>
           )}
         </CardContent>
@@ -542,6 +578,13 @@ export function TeacherDashboard() {
                     </div>
                   </button>
                 ))}
+                {data.pendingGrading.length > 5 && (
+                  <div className="mt-1 flex justify-end">
+                    <Link href="/homework" className="text-sm text-primary hover:underline">
+                      View all &rarr;
+                    </Link>
+                  </div>
+                )}
               </div>
             )}
           </CardContent>
@@ -599,6 +642,13 @@ export function TeacherDashboard() {
                     </div>
                   );
                 })}
+                {data.recentAssignments.length > 5 && (
+                  <div className="mt-1 flex justify-end">
+                    <Link href="/homework" className="text-sm text-primary hover:underline">
+                      View all &rarr;
+                    </Link>
+                  </div>
+                )}
               </div>
             )}
           </CardContent>
@@ -669,6 +719,7 @@ export function TeacherDashboard() {
                           className={`inline-block rounded px-2 py-0.5 text-xs font-medium border ${rateBg(cls.attendanceRate, 80)} ${rateColor(cls.attendanceRate, 80)}`}
                         >
                           {cls.attendanceRate}%
+                          <span className="sr-only">({rateSeverity(cls.attendanceRate, 80)})</span>
                         </span>
                       </td>
                       <td className="py-2.5 pr-4 text-right">
@@ -676,6 +727,7 @@ export function TeacherDashboard() {
                           className={`inline-block rounded px-2 py-0.5 text-xs font-medium border ${rateBg(cls.homeworkSubmissionRate, 70)} ${rateColor(cls.homeworkSubmissionRate, 70)}`}
                         >
                           {cls.homeworkSubmissionRate}%
+                          <span className="sr-only">({rateSeverity(cls.homeworkSubmissionRate, 70)})</span>
                         </span>
                       </td>
                       <td className="py-2.5 pr-4 text-right font-medium">

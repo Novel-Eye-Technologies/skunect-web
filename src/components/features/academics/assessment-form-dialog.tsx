@@ -18,6 +18,7 @@ import {
   FormItem,
   FormLabel,
   FormControl,
+  FormDescription,
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -321,6 +322,9 @@ export function AssessmentFormDialog({
                         <SelectItem value="EXAM">Exam</SelectItem>
                       </SelectContent>
                     </Select>
+                    <FormDescription>
+                      CA1/CA2/CA3 are continuous assessments. EXAM is the end-of-term examination.
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

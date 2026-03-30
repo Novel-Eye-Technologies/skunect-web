@@ -1,6 +1,54 @@
 import Link from 'next/link';
 import { GraduationCap } from 'lucide-react';
 
+interface FooterLink {
+  label: string;
+  href: string;
+  disabled?: boolean;
+}
+
+const productLinks: FooterLink[] = [
+  { label: 'Features', href: '/features' },
+  { label: 'Beta Program', href: '/beta' },
+  { label: 'For Schools', href: '#', disabled: true },
+  { label: 'For Parents', href: '#', disabled: true },
+];
+
+const companyLinks: FooterLink[] = [
+  { label: 'About Us', href: '#', disabled: true },
+  { label: 'Blog', href: '#', disabled: true },
+  { label: 'Careers', href: '#', disabled: true },
+  { label: 'Contact', href: '#', disabled: true },
+];
+
+const supportLinks: FooterLink[] = [
+  { label: 'Help Center', href: '#', disabled: true },
+  { label: 'Privacy Policy', href: '#', disabled: true },
+  { label: 'Terms of Service', href: '#', disabled: true },
+];
+
+function FooterLinkItem({ link }: { link: FooterLink }) {
+  if (link.disabled) {
+    return (
+      <span
+        aria-disabled="true"
+        className="text-sm text-white/40 pointer-events-none opacity-50"
+      >
+        {link.label} <span className="text-[10px] text-white/30">(Coming Soon)</span>
+      </span>
+    );
+  }
+
+  return (
+    <Link
+      href={link.href}
+      className="text-sm text-white/40 transition-colors hover:text-white/70"
+    >
+      {link.label}
+    </Link>
+  );
+}
+
 export function SiteFooter() {
   return (
     <footer className="border-t bg-navy px-4 py-12 sm:px-6 sm:py-16">
@@ -24,19 +72,9 @@ export function SiteFooter() {
           <div>
             <h4 className="mb-3 text-sm font-semibold text-white/80">Product</h4>
             <ul className="space-y-2">
-              {[
-                { label: 'Features', href: '/features' },
-                { label: 'Beta Program', href: '/beta' },
-                { label: 'For Schools', href: '/' },
-                { label: 'For Parents', href: '/' },
-              ].map((link) => (
+              {productLinks.map((link) => (
                 <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-white/40 transition-colors hover:text-white/70"
-                  >
-                    {link.label}
-                  </Link>
+                  <FooterLinkItem link={link} />
                 </li>
               ))}
             </ul>
@@ -46,19 +84,9 @@ export function SiteFooter() {
           <div>
             <h4 className="mb-3 text-sm font-semibold text-white/80">Company</h4>
             <ul className="space-y-2">
-              {[
-                { label: 'About Us', href: '/' },
-                { label: 'Blog', href: '/' },
-                { label: 'Careers', href: '/' },
-                { label: 'Contact', href: '/' },
-              ].map((link) => (
+              {companyLinks.map((link) => (
                 <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-white/40 transition-colors hover:text-white/70"
-                  >
-                    {link.label}
-                  </Link>
+                  <FooterLinkItem link={link} />
                 </li>
               ))}
             </ul>
@@ -68,18 +96,9 @@ export function SiteFooter() {
           <div>
             <h4 className="mb-3 text-sm font-semibold text-white/80">Support</h4>
             <ul className="space-y-2">
-              {[
-                { label: 'Help Center', href: '/' },
-                { label: 'Privacy Policy', href: '/' },
-                { label: 'Terms of Service', href: '/' },
-              ].map((link) => (
+              {supportLinks.map((link) => (
                 <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-white/40 transition-colors hover:text-white/70"
-                  >
-                    {link.label}
-                  </Link>
+                  <FooterLinkItem link={link} />
                 </li>
               ))}
             </ul>

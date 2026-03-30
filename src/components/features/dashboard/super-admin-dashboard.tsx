@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { getSystemDashboard } from '@/lib/api/admin';
 import type { SystemDashboardResponse, DashboardAlert } from '@/lib/types/admin';
 
@@ -77,8 +78,16 @@ export function SuperAdminDashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <div className="space-y-6">
+        <div className="grid gap-4 md:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-28 rounded-lg" />)}
+        </div>
+        <div className="grid gap-4 md:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-24 rounded-lg" />)}
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          {Array.from({ length: 2 }).map((_, i) => <Skeleton key={i} className="h-32 rounded-lg" />)}
+        </div>
       </div>
     );
   }
@@ -137,7 +146,7 @@ export function SuperAdminDashboard() {
                 <TrendingUp className="h-5 w-5 text-[#E9C46A]" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">MRR</p>
+                <p className="text-sm text-muted-foreground">MRR (Monthly Recurring Revenue)</p>
                 <p className="text-3xl font-bold">{formatNaira(data.mrr)}</p>
                 <p className="text-xs text-muted-foreground">{formatNaira(data.revenuePerStudent)}/student</p>
               </div>

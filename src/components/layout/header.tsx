@@ -1,6 +1,7 @@
 'use client';
 
-import { Menu } from 'lucide-react';
+import { Menu, Moon, Sun } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import { useUIStore } from '@/lib/stores/ui-store';
 import { Breadcrumbs } from '@/components/layout/breadcrumbs';
 import { NotificationBell } from '@/components/layout/notification-bell';
@@ -11,6 +12,7 @@ import { Separator } from '@/components/ui/separator';
 
 export function Header() {
   const toggleMobileSidebar = useUIStore((s) => s.toggleMobileSidebar);
+  const { theme, setTheme } = useTheme();
 
   return (
     <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center gap-4 border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 lg:px-6">
@@ -36,6 +38,18 @@ export function Header() {
       <div className="flex items-center gap-2">
         <SchoolSwitcher />
         <ChildSwitcher />
+        <button
+          type="button"
+          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          aria-label="Toggle dark mode"
+        >
+          {theme === 'dark' ? (
+            <Sun className="h-5 w-5" />
+          ) : (
+            <Moon className="h-5 w-5" />
+          )}
+        </button>
         <NotificationBell />
         <Separator orientation="vertical" className="mx-1 h-6" />
         <UserMenu />

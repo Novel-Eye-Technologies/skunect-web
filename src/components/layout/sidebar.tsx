@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { PanelLeftClose, PanelLeft, User } from 'lucide-react';
-import { TooltipProvider } from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useUIStore } from '@/lib/stores/ui-store';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useSchoolSettings } from '@/lib/hooks/use-school-settings';
@@ -65,20 +65,38 @@ export function Sidebar() {
             collapsed ? 'justify-center' : 'gap-3',
           )}
         >
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-teal text-sm font-bold text-white overflow-hidden">
-            {schoolSettings?.logo ? (
-              <img src={schoolSettings.logo} alt="" className="h-full w-full object-cover" />
-            ) : (
-              'S'
-            )}
-          </div>
-          {!collapsed && (
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-white">
-                {headerName}
-              </p>
-              <p className="truncate text-xs text-white/50">{headerSubtitle}</p>
-            </div>
+          {collapsed ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-teal text-sm font-bold text-white overflow-hidden">
+                  {schoolSettings?.logo ? (
+                    <img src={schoolSettings.logo} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    'S'
+                  )}
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p className="font-semibold">{headerName}</p>
+                <p className="text-xs text-muted-foreground">{headerSubtitle}</p>
+              </TooltipContent>
+            </Tooltip>
+          ) : (
+            <>
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-teal text-sm font-bold text-white overflow-hidden">
+                {schoolSettings?.logo ? (
+                  <img src={schoolSettings.logo} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  'S'
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-semibold text-white">
+                  {headerName}
+                </p>
+                <p className="truncate text-xs text-white/50">{headerSubtitle}</p>
+              </div>
+            </>
           )}
         </div>
 

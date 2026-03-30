@@ -1,6 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Users,
   GraduationCap,
@@ -55,6 +57,12 @@ function rateBg(value: number, target: number): string {
   return 'bg-red-50 border-red-200';
 }
 
+function rateSeverity(value: number, target: number): string {
+  if (value >= target) return 'Good';
+  if (value >= target * 0.6) return 'Warning';
+  return 'Critical';
+}
+
 function formatRate(value: number): string {
   return `${value.toFixed(1)}%`;
 }
@@ -69,9 +77,28 @@ function formatNaira(value: number): string {
 // Component
 // ---------------------------------------------------------------------------
 
+function isValidPhase(value: string | null): value is Phase {
+  return value !== null && value in PHASE_LABELS;
+}
+
 export function AdminDashboard() {
   const currentSchoolId = useAuthStore((s) => s.currentSchoolId);
-  const [phase, setPhase] = useState<Phase>('MID_TERM');
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const phaseParam = searchParams.get('phase');
+  const [phase, setPhaseState] = useState<Phase>(
+    isValidPhase(phaseParam) ? phaseParam : 'MID_TERM',
+  );
+
+  const setPhase = useCallback(
+    (newPhase: Phase) => {
+      setPhaseState(newPhase);
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('phase', newPhase);
+      router.replace(`?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams],
+  );
   const [data, setData] = useState<EnhancedAdminDashboard | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -198,6 +225,7 @@ export function AdminDashboard() {
                 <p className="text-sm text-muted-foreground">Today&apos;s Attendance</p>
                 <p className={`text-3xl font-bold ${rateColor(data.todayAttendanceRate, 80)}`}>
                   {formatRate(data.todayAttendanceRate)}
+                  <span className="sr-only">({rateSeverity(data.todayAttendanceRate, 80)})</span>
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {data.todayPresentCount} present &middot; {data.todayAbsentCount} absent &middot; {data.todayLateCount} late
@@ -218,6 +246,7 @@ export function AdminDashboard() {
                 <p className="text-sm text-muted-foreground">Teacher Accountability</p>
                 <p className={`text-3xl font-bold ${rateColor(teacherAccountabilityRate, 80)}`}>
                   {data.teachersMarkedAttendance}/{data.totalTeachersWithClasses}
+                  <span className="sr-only">({rateSeverity(teacherAccountabilityRate, 80)})</span>
                 </p>
                 <p className="text-xs text-muted-foreground">
                   teachers marked attendance today
@@ -258,6 +287,7 @@ export function AdminDashboard() {
                 <p className="text-sm text-muted-foreground">Fee Collection</p>
                 <p className={`text-3xl font-bold ${rateColor(data.feeCollectionRate, 70)}`}>
                   {formatRate(data.feeCollectionRate)}
+                  <span className="sr-only">({rateSeverity(data.feeCollectionRate, 70)})</span>
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {formatNaira(data.totalFeesOutstanding)} outstanding
@@ -317,6 +347,7 @@ export function AdminDashboard() {
             <p className="text-sm text-muted-foreground">Parent Engagement</p>
             <p className={`text-2xl font-bold ${rateColor(data.parentEngagementRate, 50)}`}>
               {formatRate(data.parentEngagementRate)}
+              <span className="sr-only">({rateSeverity(data.parentEngagementRate, 50)})</span>
             </p>
             <p className="text-xs text-muted-foreground">active this week</p>
           </CardContent>
@@ -368,7 +399,11 @@ export function AdminDashboard() {
                   ) : (
                     data.worstTeachers.map((t) => (
                       <tr key={t.teacherId} className="hover:bg-muted/50">
-                        <td className="py-2 font-medium">{t.teacherName}</td>
+                        <td className="py-2 font-medium">
+                          <Link href={`/teachers/${t.teacherId}`} className="text-primary hover:underline">
+                            {t.teacherName}
+                          </Link>
+                        </td>
                         <td className="py-2 text-right">{t.daysAttendanceMarked}</td>
                         <td className="py-2 text-right">{t.homeworkAssigned}</td>
                         <td className="py-2 text-right">
@@ -379,6 +414,7 @@ export function AdminDashboard() {
                         <td className="py-2 text-right">
                           <span className={rateColor(t.activityScore, 70)}>
                             {t.activityScore.toFixed(0)}
+                            <span className="sr-only">({rateSeverity(t.activityScore, 70)})</span>
                           </span>
                         </td>
                       </tr>
@@ -386,6 +422,11 @@ export function AdminDashboard() {
                   )}
                 </tbody>
               </table>
+            </div>
+            <div className="mt-3 flex justify-end">
+              <Link href="/teachers" className="text-sm text-primary hover:underline">
+                View all &rarr;
+              </Link>
             </div>
           </CardContent>
         </Card>
@@ -419,6 +460,7 @@ export function AdminDashboard() {
                         <td className="py-2 text-right">
                           <span className={rateColor(c.attendanceRate, 80)}>
                             {formatRate(c.attendanceRate)}
+                            <span className="sr-only">({rateSeverity(c.attendanceRate, 80)})</span>
                           </span>
                         </td>
                         <td className="py-2 text-right">{c.studentCount}</td>
@@ -427,6 +469,11 @@ export function AdminDashboard() {
                   )}
                 </tbody>
               </table>
+            </div>
+            <div className="mt-3 flex justify-end">
+              <Link href="/attendance" className="text-sm text-primary hover:underline">
+                View all &rarr;
+              </Link>
             </div>
           </CardContent>
         </Card>
@@ -462,6 +509,7 @@ export function AdminDashboard() {
                         <td className="py-2 text-right">
                           <span className={rateColor(s.attendanceRate, 80)}>
                             {formatRate(s.attendanceRate)}
+                            <span className="sr-only">({rateSeverity(s.attendanceRate, 80)})</span>
                           </span>
                         </td>
                         <td className="py-2 text-right text-red-500 font-medium">
@@ -472,6 +520,11 @@ export function AdminDashboard() {
                   )}
                 </tbody>
               </table>
+            </div>
+            <div className="mt-3 flex justify-end">
+              <Link href="/students" className="text-sm text-primary hover:underline">
+                View all &rarr;
+              </Link>
             </div>
           </CardContent>
         </Card>
@@ -511,6 +564,11 @@ export function AdminDashboard() {
                   )}
                 </tbody>
               </table>
+            </div>
+            <div className="mt-3 flex justify-end">
+              <Link href="/homework" className="text-sm text-primary hover:underline">
+                View all &rarr;
+              </Link>
             </div>
           </CardContent>
         </Card>
@@ -556,6 +614,11 @@ export function AdminDashboard() {
                   )}
                 </tbody>
               </table>
+            </div>
+            <div className="mt-3 flex justify-end">
+              <Link href="/communication/messages" className="text-sm text-primary hover:underline">
+                View all &rarr;
+              </Link>
             </div>
           </CardContent>
         </Card>
@@ -625,13 +688,14 @@ function PhaseMetricsRow({
           <Card>
             <CardContent className="pt-6">
               {(pm.termAttendanceTrend ?? 0) >= 0 ? (
-                <TrendingUp className="h-4 w-4 text-emerald-600 mb-2" />
+                <TrendingUp className="h-4 w-4 text-emerald-600 mb-2" aria-hidden="true" />
               ) : (
-                <TrendingDown className="h-4 w-4 text-red-500 mb-2" />
+                <TrendingDown className="h-4 w-4 text-red-500 mb-2" aria-hidden="true" />
               )}
               <p className="text-sm text-muted-foreground">Attendance Trend</p>
               <p className={`text-2xl font-bold ${(pm.termAttendanceTrend ?? 0) >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
                 {pm.termAttendanceTrend != null ? `${pm.termAttendanceTrend >= 0 ? '+' : ''}${formatRate(pm.termAttendanceTrend)}` : '—'}
+                <span className="sr-only">{(pm.termAttendanceTrend ?? 0) >= 0 ? '(Improving)' : '(Declining)'}</span>
               </p>
             </CardContent>
           </Card>
@@ -641,6 +705,7 @@ function PhaseMetricsRow({
               <p className="text-sm text-muted-foreground">Homework Completion</p>
               <p className={`text-2xl font-bold ${rateColor(pm.homeworkCompletionRate ?? 0, 70)}`}>
                 {pm.homeworkCompletionRate != null ? formatRate(pm.homeworkCompletionRate) : '—'}
+                {pm.homeworkCompletionRate != null && <span className="sr-only">({rateSeverity(pm.homeworkCompletionRate, 70)})</span>}
               </p>
             </CardContent>
           </Card>
@@ -650,6 +715,7 @@ function PhaseMetricsRow({
               <p className="text-sm text-muted-foreground">Parent Weekly Engagement</p>
               <p className={`text-2xl font-bold ${rateColor(pm.parentWeeklyEngagement ?? 0, 50)}`}>
                 {pm.parentWeeklyEngagement != null ? formatRate(pm.parentWeeklyEngagement) : '—'}
+                {pm.parentWeeklyEngagement != null && <span className="sr-only">({rateSeverity(pm.parentWeeklyEngagement, 50)})</span>}
               </p>
             </CardContent>
           </Card>
@@ -679,6 +745,7 @@ function PhaseMetricsRow({
               <p className="text-sm text-muted-foreground">Assessment Coverage</p>
               <p className={`text-2xl font-bold ${rateColor(pm.assessmentCoverage ?? 0, 80)}`}>
                 {pm.assessmentCoverage != null ? formatRate(pm.assessmentCoverage) : '—'}
+                {pm.assessmentCoverage != null && <span className="sr-only">({rateSeverity(pm.assessmentCoverage, 80)})</span>}
               </p>
             </CardContent>
           </Card>
@@ -694,6 +761,7 @@ function PhaseMetricsRow({
               <p className="text-sm text-muted-foreground">Term Fee Collection</p>
               <p className={`text-2xl font-bold ${rateColor(pm.termFeeCollectionRate ?? 0, 70)}`}>
                 {pm.termFeeCollectionRate != null ? formatRate(pm.termFeeCollectionRate) : '—'}
+                {pm.termFeeCollectionRate != null && <span className="sr-only">({rateSeverity(pm.termFeeCollectionRate, 70)})</span>}
               </p>
             </CardContent>
           </Card>

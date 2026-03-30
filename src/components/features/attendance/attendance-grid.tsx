@@ -243,6 +243,7 @@ export function AttendanceGrid() {
                       </TableCell>
                       <TableCell className="font-medium">
                         {row.studentName}
+                        <span className="sr-only"> - {row.status.toLowerCase()}</span>
                       </TableCell>
                       <TableCell>{row.admissionNumber}</TableCell>
                       <TableCell className="text-center">
@@ -251,6 +252,7 @@ export function AttendanceGrid() {
                           name={`status-${row.studentId}`}
                           checked={row.status === 'PRESENT'}
                           onChange={() => updateStatus(index, 'PRESENT')}
+                          aria-label={`Mark ${row.studentName} as present`}
                           className="h-4 w-4 accent-green-600"
                         />
                       </TableCell>
@@ -260,6 +262,7 @@ export function AttendanceGrid() {
                           name={`status-${row.studentId}`}
                           checked={row.status === 'ABSENT'}
                           onChange={() => updateStatus(index, 'ABSENT')}
+                          aria-label={`Mark ${row.studentName} as absent`}
                           className="h-4 w-4 accent-red-600"
                         />
                       </TableCell>
@@ -269,6 +272,7 @@ export function AttendanceGrid() {
                           name={`status-${row.studentId}`}
                           checked={row.status === 'LATE'}
                           onChange={() => updateStatus(index, 'LATE')}
+                          aria-label={`Mark ${row.studentName} as late`}
                           className="h-4 w-4 accent-amber-600"
                         />
                       </TableCell>
