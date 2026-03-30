@@ -1609,6 +1609,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/beta/signups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit a beta signup application */
+        post: operations["createSignup"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/beta/invitations/{token}/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Accept a beta invitation and submit enrollment details */
+        post: operations["acceptInvitation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/verify-otp": {
         parameters: {
             query?: never;
@@ -1912,6 +1946,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/beta/signups/invite": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Send beta invitations to selected signups */
+        post: operations["sendInvitations"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/super-admins/{userId}/deactivate": {
         parameters: {
             query?: never;
@@ -2060,6 +2111,23 @@ export interface paths {
         head?: never;
         /** Activate a school */
         patch: operations["activateSchool"];
+        trace?: never;
+    };
+    "/api/v1/admin/beta/signups/{id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update a beta signup's status */
+        patch: operations["updateStatus"];
         trace?: never;
     };
     "/api/v1/students/{studentId}/parents": {
@@ -2942,6 +3010,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/beta/invitations/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Validate a beta invitation token */
+        get: operations["validateInvitation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/me": {
         parameters: {
             query?: never;
@@ -3065,6 +3150,57 @@ export interface paths {
         };
         /** Get system-wide dashboard statistics */
         get: operations["getSystemDashboard"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/beta/signups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List all beta signups with optional filters */
+        get: operations["getSignups"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/beta/signups/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a single beta signup by ID */
+        get: operations["getSignup"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/beta/signups/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get beta signup statistics */
+        get: operations["getStats"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3370,10 +3506,10 @@ export interface components {
             relationship: string;
             isEmergencyContact: boolean;
             isApproved: boolean;
-            firstName: string;
-            lastName: string;
             phone: string;
             email: string;
+            firstName: string;
+            lastName: string;
         };
         StudentResponse: {
             /** Format: uuid */
@@ -4799,6 +4935,75 @@ export interface components {
             /** Format: int64 */
             fileSize: number;
         };
+        /** @description Request to create a beta signup */
+        CreateBetaSignupRequest: {
+            /** @example Ade */
+            firstName: string;
+            /** @example Johnson */
+            lastName: string;
+            /** @example ade@school.ng */
+            email: string;
+            /** @example +234 800 000 0000 */
+            phone?: string;
+            /** @example SCHOOL_OWNER */
+            role: string;
+            /** @example Kings Academy Lagos */
+            schoolName: string;
+            /** @example 201-500 */
+            schoolSize?: string;
+            /** @example Lagos */
+            city?: string;
+            /** @example true */
+            hasExistingSystem?: boolean;
+        };
+        ApiResponseBetaSignupResponse: {
+            status?: string;
+            message?: string;
+            data?: components["schemas"]["BetaSignupResponse"];
+            errors?: components["schemas"]["ErrorDetail"][];
+            meta?: components["schemas"]["PageMeta"];
+        };
+        /** @description Beta signup response */
+        BetaSignupResponse: {
+            /** Format: uuid */
+            id: string;
+            firstName: string;
+            lastName: string;
+            email: string;
+            phone: string;
+            role: string;
+            schoolName: string;
+            schoolSize: string;
+            city: string;
+            status: string;
+            /** Format: date-time */
+            invitationSentAt: string;
+            /** Format: date-time */
+            invitationAcceptedAt: string;
+            notes: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            hasExistingSystem: boolean;
+            /** Format: uuid */
+            invitationToken: string;
+        };
+        /** @description Request to accept a beta invitation and enroll a school */
+        AcceptBetaInvitationRequest: {
+            schoolName: string;
+            schoolEmail: string;
+            schoolPhone?: string;
+            schoolAddress?: string;
+            schoolCity?: string;
+            schoolState?: string;
+            adminFirstName: string;
+            adminLastName: string;
+            adminEmail: string;
+            adminPhone?: string;
+            /** Format: int32 */
+            studentCount: number;
+        };
         VerifyOtpRequest: {
             otpReference: string;
             otp: string;
@@ -5039,6 +5244,17 @@ export interface components {
             firstName: string;
             lastName: string;
         };
+        /** @description Request to send beta invitations to selected signups */
+        SendBetaInvitationRequest: {
+            signupIds: string[];
+        };
+        ApiResponseListBetaSignupResponse: {
+            status?: string;
+            message?: string;
+            data?: components["schemas"]["BetaSignupResponse"][];
+            errors?: components["schemas"]["ErrorDetail"][];
+            meta?: components["schemas"]["PageMeta"];
+        };
         ApiResponseListParentLinkResponse: {
             status?: string;
             message?: string;
@@ -5145,10 +5361,10 @@ export interface components {
             meta?: components["schemas"]["PageMeta"];
         };
         PageSubscriptionPaymentResponse: {
-            /** Format: int64 */
-            totalElements: number;
             /** Format: int32 */
             totalPages: number;
+            /** Format: int64 */
+            totalElements: number;
             /** Format: int32 */
             size: number;
             content: components["schemas"]["SubscriptionPaymentResponse"][];
@@ -5166,12 +5382,12 @@ export interface components {
             /** Format: int64 */
             offset?: number;
             sort?: components["schemas"]["SortObject"][];
+            unpaged?: boolean;
+            paged?: boolean;
             /** Format: int32 */
             pageNumber?: number;
             /** Format: int32 */
             pageSize?: number;
-            paged?: boolean;
-            unpaged?: boolean;
         };
         SortObject: {
             direction?: string;
@@ -5484,10 +5700,10 @@ export interface components {
             createdAt: string;
         };
         PageAuditLogResponse: {
-            /** Format: int64 */
-            totalElements: number;
             /** Format: int32 */
             totalPages: number;
+            /** Format: int64 */
+            totalElements: number;
             /** Format: int32 */
             size: number;
             content: components["schemas"]["AuditLogResponse"][];
@@ -6319,6 +6535,31 @@ export interface components {
             messagesToday: number;
             schoolSummaries: components["schemas"]["SchoolHealthSummary"][];
             alerts: components["schemas"]["DashboardAlert"][];
+        };
+        ApiResponseBetaSignupStatsResponse: {
+            status?: string;
+            message?: string;
+            data?: components["schemas"]["BetaSignupStatsResponse"];
+            errors?: components["schemas"]["ErrorDetail"][];
+            meta?: components["schemas"]["PageMeta"];
+        };
+        /** @description Beta signup statistics */
+        BetaSignupStatsResponse: {
+            /** Format: int64 */
+            total: number;
+            /** Format: int64 */
+            pending: number;
+            /** Format: int64 */
+            contacted: number;
+            /** Format: int64 */
+            invited: number;
+            /** Format: int64 */
+            accepted: number;
+            /** Format: int64 */
+            enrolled: number;
+            byRole: {
+                [key: string]: number;
+            };
         };
     };
     responses: never;
@@ -10169,6 +10410,56 @@ export interface operations {
             };
         };
     };
+    createSignup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateBetaSignupRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseBetaSignupResponse"];
+                };
+            };
+        };
+    };
+    acceptInvitation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AcceptBetaInvitationRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseBetaSignupResponse"];
+                };
+            };
+        };
+    };
     verifyOtp: {
         parameters: {
             query?: never;
@@ -10727,6 +11018,30 @@ export interface operations {
             };
         };
     };
+    sendInvitations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SendBetaInvitationRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseListBetaSignupResponse"];
+                };
+            };
+        };
+    };
     deactivateSuperAdmin: {
         parameters: {
             query?: never;
@@ -10923,6 +11238,30 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApiResponseSchoolResponse"];
+                };
+            };
+        };
+    };
+    updateStatus: {
+        parameters: {
+            query: {
+                status: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseBetaSignupResponse"];
                 };
             };
         };
@@ -12135,6 +12474,28 @@ export interface operations {
             };
         };
     };
+    validateInvitation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseBetaSignupResponse"];
+                };
+            };
+        };
+    };
     getCurrentUser_1: {
         parameters: {
             query?: never;
@@ -12298,6 +12659,73 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApiResponseSystemDashboardResponse"];
+                };
+            };
+        };
+    };
+    getSignups: {
+        parameters: {
+            query: {
+                status?: string;
+                role?: string;
+                search?: string;
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseListBetaSignupResponse"];
+                };
+            };
+        };
+    };
+    getSignup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseBetaSignupResponse"];
+                };
+            };
+        };
+    };
+    getStats: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseBetaSignupStatsResponse"];
                 };
             };
         };

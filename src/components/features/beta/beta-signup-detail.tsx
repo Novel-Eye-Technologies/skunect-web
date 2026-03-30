@@ -223,6 +223,14 @@ export function BetaSignupDetail() {
                 <span className="text-sm">{signup.city}</span>
               </div>
             )}
+            {signup.hasExistingSystem !== null && (
+              <div className="flex items-center gap-3">
+                <School className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm">
+                  Existing system: {signup.hasExistingSystem ? 'Yes' : 'No'}
+                </span>
+              </div>
+            )}
             {!signup.schoolName && !signup.schoolSize && !signup.city && (
               <p className="text-sm text-muted-foreground">
                 No school information provided
