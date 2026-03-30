@@ -1130,6 +1130,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/schools/{schoolId}/migrations/{jobId}/rollback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Rollback a completed migration job */
+        post: operations["rollbackJob"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/schools/{schoolId}/migrations/{jobId}/import": {
         parameters: {
             query?: never;
@@ -1773,6 +1790,40 @@ export interface paths {
         put?: never;
         /** Login with email - sends OTP */
         post: operations["loginByEmail"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/change-email": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Request email change - sends OTP to the new email */
+        post: operations["requestEmailChange"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/change-email/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Verify OTP to complete email change */
+        post: operations["verifyEmailChange"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2696,6 +2747,23 @@ export interface paths {
         };
         /** Get attendance overview for a date */
         get: operations["getAttendanceOverview"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/schools/{schoolId}/announcements/{announcementId}/readers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the list of users who have read an announcement */
+        get: operations["getAnnouncementReaders"];
         put?: never;
         post?: never;
         delete?: never;
@@ -4200,6 +4268,8 @@ export interface components {
             /** Format: int64 */
             readCount: number;
             /** Format: date-time */
+            scheduledPublishAt?: string | null;
+            /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
             updatedAt: string;
@@ -4692,12 +4762,15 @@ export interface components {
             failedRecords: number;
             errorReportUrl?: string | null;
             fieldMapping?: string | null;
+            importedRecordIds?: string | null;
             /** Format: uuid */
             initiatedBy: string;
             /** Format: date-time */
             startedAt?: string | null;
             /** Format: date-time */
             completedAt?: string | null;
+            /** Format: date-time */
+            rolledBackAt?: string | null;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
@@ -4849,6 +4922,11 @@ export interface components {
             targetAudience: string;
             /** Format: uuid */
             targetClassId?: string;
+            /**
+             * Format: date-time
+             * @description Schedule announcement for future publishing
+             */
+            scheduledPublishAt?: string;
         };
         DeviceTokenRequest: {
             token: string;
@@ -5086,6 +5164,9 @@ export interface components {
         };
         LoginEmailRequest: {
             email: string;
+        };
+        ChangeEmailRequest: {
+            newEmail: string;
         };
         CreateSuperAdminRequest: {
             email: string;
@@ -5361,33 +5442,33 @@ export interface components {
             meta?: components["schemas"]["PageMeta"];
         };
         PageSubscriptionPaymentResponse: {
-            /** Format: int32 */
-            totalPages: number;
             /** Format: int64 */
             totalElements: number;
+            /** Format: int32 */
+            totalPages: number;
+            pageable: components["schemas"]["PageableObject"];
+            first: boolean;
+            /** Format: int32 */
+            numberOfElements: number;
             /** Format: int32 */
             size: number;
             content: components["schemas"]["SubscriptionPaymentResponse"][];
             /** Format: int32 */
             number: number;
             sort: components["schemas"]["SortObject"][];
-            pageable: components["schemas"]["PageableObject"];
-            /** Format: int32 */
-            numberOfElements: number;
-            first: boolean;
             last: boolean;
             empty: boolean;
         };
         PageableObject: {
-            /** Format: int64 */
-            offset?: number;
-            sort?: components["schemas"]["SortObject"][];
-            unpaged?: boolean;
             paged?: boolean;
             /** Format: int32 */
             pageNumber?: number;
             /** Format: int32 */
             pageSize?: number;
+            unpaged?: boolean;
+            /** Format: int64 */
+            offset?: number;
+            sort?: components["schemas"]["SortObject"][];
         };
         SortObject: {
             direction?: string;
@@ -5700,20 +5781,20 @@ export interface components {
             createdAt: string;
         };
         PageAuditLogResponse: {
-            /** Format: int32 */
-            totalPages: number;
             /** Format: int64 */
             totalElements: number;
+            /** Format: int32 */
+            totalPages: number;
+            pageable: components["schemas"]["PageableObject"];
+            first: boolean;
+            /** Format: int32 */
+            numberOfElements: number;
             /** Format: int32 */
             size: number;
             content: components["schemas"]["AuditLogResponse"][];
             /** Format: int32 */
             number: number;
             sort: components["schemas"]["SortObject"][];
-            pageable: components["schemas"]["PageableObject"];
-            /** Format: int32 */
-            numberOfElements: number;
-            first: boolean;
             last: boolean;
             empty: boolean;
         };
@@ -5788,6 +5869,22 @@ export interface components {
             status?: string;
             message?: string;
             data?: components["schemas"]["AnnouncementResponse"][];
+            errors?: components["schemas"]["ErrorDetail"][];
+            meta?: components["schemas"]["PageMeta"];
+        };
+        AnnouncementReaderResponse: {
+            /** Format: uuid */
+            userId: string;
+            firstName: string;
+            lastName: string;
+            role: string;
+            /** Format: date-time */
+            readAt: string;
+        };
+        ApiResponseListAnnouncementReaderResponse: {
+            status?: string;
+            message?: string;
+            data?: components["schemas"]["AnnouncementReaderResponse"][];
             errors?: components["schemas"]["ErrorDetail"][];
             meta?: components["schemas"]["PageMeta"];
         };
@@ -9235,6 +9332,29 @@ export interface operations {
             };
         };
     };
+    rollbackJob: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                schoolId: string;
+                jobId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseMigrationJobResponse"];
+                };
+            };
+        };
+    };
     importJob: {
         parameters: {
             query?: never;
@@ -10644,6 +10764,54 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApiResponseOtpResponse"];
+                };
+            };
+        };
+    };
+    requestEmailChange: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangeEmailRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseOtpResponse"];
+                };
+            };
+        };
+    };
+    verifyEmailChange: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VerifyOtpRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseVoid"];
                 };
             };
         };
@@ -12062,6 +12230,29 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApiResponseAttendanceOverviewResponse"];
+                };
+            };
+        };
+    };
+    getAnnouncementReaders: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                schoolId: string;
+                announcementId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseListAnnouncementReaderResponse"];
                 };
             };
         };
