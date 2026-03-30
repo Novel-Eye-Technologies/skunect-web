@@ -119,19 +119,25 @@ export default function StudentsPage() {
     {
       accessorKey: 'admissionNumber',
       header: 'Admission No',
+      meta: { className: 'hidden md:table-cell' },
     },
     {
       accessorKey: 'name',
       header: 'Name',
       cell: ({ row }) => (
-        <div className="font-medium">
+        <button
+          type="button"
+          className="font-medium text-left hover:underline text-primary"
+          onClick={() => router.push(`/students/${row.original.id}`)}
+        >
           {row.original.firstName} {row.original.lastName}
-        </div>
+        </button>
       ),
     },
     {
       accessorKey: 'gender',
       header: 'Gender',
+      meta: { className: 'hidden md:table-cell' },
       cell: ({ row }) => (
         <span className="capitalize">
           {row.original.gender.toLowerCase()}

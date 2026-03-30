@@ -139,6 +139,7 @@ export default function AttendancePage() {
     {
       accessorKey: 'admissionNumber',
       header: 'Admission No',
+      meta: { className: 'hidden md:table-cell' },
     },
     {
       accessorKey: 'className',
@@ -166,6 +167,7 @@ export default function AttendancePage() {
     {
       accessorKey: 'markedBy',
       header: 'Marked By',
+      meta: { className: 'hidden md:table-cell' },
     },
   ];
 

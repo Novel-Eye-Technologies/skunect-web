@@ -48,11 +48,13 @@ export function LoginForm() {
 
   const emailForm = useForm<EmailFormValues>({
     resolver: zodResolver(emailSchema),
+    mode: 'onBlur',
     defaultValues: { email: "" },
   });
 
   const phoneForm = useForm<PhoneFormValues>({
     resolver: zodResolver(phoneSchema),
+    mode: 'onBlur',
     defaultValues: { phone: "" },
   });
 

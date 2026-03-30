@@ -65,6 +65,7 @@ export interface InvoiceListParams extends PaginatedParams {
   status?: string;
   classId?: string;
   studentId?: string;
+  search?: string;
 }
 
 export async function getInvoices(

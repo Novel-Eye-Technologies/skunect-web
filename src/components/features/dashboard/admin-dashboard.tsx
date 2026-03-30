@@ -25,6 +25,12 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { getEnhancedAdminDashboard } from '@/lib/api/dashboard';
 import type {
@@ -370,259 +376,295 @@ export function AdminDashboard() {
         </Card>
       </div>
 
-      {/* ── Row 5: Worst 5 Tables ── */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Teachers Needing Follow-up */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Teachers Needing Follow-up</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b text-left text-muted-foreground">
-                    <th className="pb-2 font-medium">Name</th>
-                    <th className="pb-2 font-medium text-right">Att. Days</th>
-                    <th className="pb-2 font-medium text-right">HW</th>
-                    <th className="pb-2 font-medium text-right">Unans.</th>
-                    <th className="pb-2 font-medium text-right">Score</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y">
-                  {data.worstTeachers.length === 0 ? (
-                    <tr>
-                      <td colSpan={5} className="py-6 text-center text-muted-foreground">
-                        All teachers are on track
-                      </td>
-                    </tr>
-                  ) : (
-                    data.worstTeachers.map((t) => (
-                      <tr key={t.teacherId} className="hover:bg-muted/50">
-                        <td className="py-2 font-medium">
-                          <Link href={`/teachers/${t.teacherId}`} className="text-primary hover:underline">
-                            {t.teacherName}
-                          </Link>
-                        </td>
-                        <td className="py-2 text-right">{t.daysAttendanceMarked}</td>
-                        <td className="py-2 text-right">{t.homeworkAssigned}</td>
-                        <td className="py-2 text-right">
-                          <span className={t.unansweredMessages > 0 ? 'text-red-500 font-medium' : ''}>
-                            {t.unansweredMessages}
-                          </span>
-                        </td>
-                        <td className="py-2 text-right">
-                          <span className={rateColor(t.activityScore, 70)}>
-                            {t.activityScore.toFixed(0)}
-                            <span className="sr-only">({rateSeverity(t.activityScore, 70)})</span>
-                          </span>
-                        </td>
+      {/* ── Row 5: Detail Tables (Collapsible) ── */}
+      <Accordion type="multiple" defaultValue={["teachers", "attendance"]}>
+        {/* Teacher Performance */}
+        <AccordionItem value="teachers">
+          <AccordionTrigger className="text-base font-semibold">
+            <span className="flex items-center gap-2">
+              <Users className="h-4 w-4 text-navy" />
+              Teacher Performance
+            </span>
+          </AccordionTrigger>
+          <AccordionContent>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Teachers Needing Follow-up</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b text-left text-muted-foreground">
+                        <th className="pb-2 font-medium">Name</th>
+                        <th className="pb-2 font-medium text-right">Att. Days</th>
+                        <th className="pb-2 font-medium text-right">HW</th>
+                        <th className="pb-2 font-medium text-right">Unans.</th>
+                        <th className="pb-2 font-medium text-right">Score</th>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-            <div className="mt-3 flex justify-end">
-              <Link href="/teachers" className="text-sm text-primary hover:underline">
-                View all &rarr;
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
+                    </thead>
+                    <tbody className="divide-y">
+                      {data.worstTeachers.length === 0 ? (
+                        <tr>
+                          <td colSpan={5} className="py-6 text-center text-muted-foreground">
+                            All teachers are on track
+                          </td>
+                        </tr>
+                      ) : (
+                        data.worstTeachers.map((t) => (
+                          <tr key={t.teacherId} className="hover:bg-muted/50">
+                            <td className="py-2 font-medium">
+                              <Link href={`/teachers/${t.teacherId}`} className="text-primary hover:underline">
+                                {t.teacherName}
+                              </Link>
+                            </td>
+                            <td className="py-2 text-right">{t.daysAttendanceMarked}</td>
+                            <td className="py-2 text-right">{t.homeworkAssigned}</td>
+                            <td className="py-2 text-right">
+                              <span className={t.unansweredMessages > 0 ? 'text-red-500 font-medium' : ''}>
+                                {t.unansweredMessages}
+                              </span>
+                            </td>
+                            <td className="py-2 text-right">
+                              <span className={rateColor(t.activityScore, 70)}>
+                                {t.activityScore.toFixed(0)}
+                                <span className="sr-only">({rateSeverity(t.activityScore, 70)})</span>
+                              </span>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="mt-3 flex justify-end">
+                  <Link href="/teachers" className="text-sm text-primary hover:underline">
+                    View all &rarr;
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          </AccordionContent>
+        </AccordionItem>
 
-        {/* Classes - Lowest Attendance */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Classes - Lowest Attendance</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b text-left text-muted-foreground">
-                    <th className="pb-2 font-medium">Class</th>
-                    <th className="pb-2 font-medium text-right">Rate</th>
-                    <th className="pb-2 font-medium text-right">Students</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y">
-                  {data.worstClassesAttendance.length === 0 ? (
-                    <tr>
-                      <td colSpan={3} className="py-6 text-center text-muted-foreground">
-                        No data available
-                      </td>
-                    </tr>
-                  ) : (
-                    data.worstClassesAttendance.map((c) => (
-                      <tr key={c.classId} className="hover:bg-muted/50">
-                        <td className="py-2 font-medium">{c.className}</td>
-                        <td className="py-2 text-right">
-                          <span className={rateColor(c.attendanceRate, 80)}>
-                            {formatRate(c.attendanceRate)}
-                            <span className="sr-only">({rateSeverity(c.attendanceRate, 80)})</span>
-                          </span>
-                        </td>
-                        <td className="py-2 text-right">{c.studentCount}</td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-            <div className="mt-3 flex justify-end">
-              <Link href="/attendance" className="text-sm text-primary hover:underline">
-                View all &rarr;
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Attendance Overview */}
+        <AccordionItem value="attendance">
+          <AccordionTrigger className="text-base font-semibold">
+            <span className="flex items-center gap-2">
+              <ClipboardCheck className="h-4 w-4 text-teal" />
+              Attendance Overview
+            </span>
+          </AccordionTrigger>
+          <AccordionContent>
+            <div className="grid gap-6 lg:grid-cols-2">
+              {/* Classes - Lowest Attendance */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Classes - Lowest Attendance</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b text-left text-muted-foreground">
+                          <th className="pb-2 font-medium">Class</th>
+                          <th className="pb-2 font-medium text-right">Rate</th>
+                          <th className="pb-2 font-medium text-right">Students</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y">
+                        {data.worstClassesAttendance.length === 0 ? (
+                          <tr>
+                            <td colSpan={3} className="py-6 text-center text-muted-foreground">
+                              No data available
+                            </td>
+                          </tr>
+                        ) : (
+                          data.worstClassesAttendance.map((c) => (
+                            <tr key={c.classId} className="hover:bg-muted/50">
+                              <td className="py-2 font-medium">{c.className}</td>
+                              <td className="py-2 text-right">
+                                <span className={rateColor(c.attendanceRate, 80)}>
+                                  {formatRate(c.attendanceRate)}
+                                  <span className="sr-only">({rateSeverity(c.attendanceRate, 80)})</span>
+                                </span>
+                              </td>
+                              <td className="py-2 text-right">{c.studentCount}</td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="mt-3 flex justify-end">
+                    <Link href="/attendance" className="text-sm text-primary hover:underline">
+                      View all &rarr;
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
 
-        {/* Students - Lowest Attendance */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Students - Lowest Attendance</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b text-left text-muted-foreground">
-                    <th className="pb-2 font-medium">Name</th>
-                    <th className="pb-2 font-medium">Class</th>
-                    <th className="pb-2 font-medium text-right">Rate</th>
-                    <th className="pb-2 font-medium text-right">Absent</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y">
-                  {data.worstStudentsAttendance.length === 0 ? (
-                    <tr>
-                      <td colSpan={4} className="py-6 text-center text-muted-foreground">
-                        No data available
-                      </td>
-                    </tr>
-                  ) : (
-                    data.worstStudentsAttendance.map((s) => (
-                      <tr key={s.studentId} className="hover:bg-muted/50">
-                        <td className="py-2 font-medium">{s.studentName}</td>
-                        <td className="py-2 text-muted-foreground">{s.className}</td>
-                        <td className="py-2 text-right">
-                          <span className={rateColor(s.attendanceRate, 80)}>
-                            {formatRate(s.attendanceRate)}
-                            <span className="sr-only">({rateSeverity(s.attendanceRate, 80)})</span>
-                          </span>
-                        </td>
-                        <td className="py-2 text-right text-red-500 font-medium">
-                          {s.daysAbsent}
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+              {/* Students - Lowest Attendance */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Students - Lowest Attendance</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b text-left text-muted-foreground">
+                          <th className="pb-2 font-medium">Name</th>
+                          <th className="pb-2 font-medium">Class</th>
+                          <th className="pb-2 font-medium text-right">Rate</th>
+                          <th className="pb-2 font-medium text-right">Absent</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y">
+                        {data.worstStudentsAttendance.length === 0 ? (
+                          <tr>
+                            <td colSpan={4} className="py-6 text-center text-muted-foreground">
+                              No data available
+                            </td>
+                          </tr>
+                        ) : (
+                          data.worstStudentsAttendance.map((s) => (
+                            <tr key={s.studentId} className="hover:bg-muted/50">
+                              <td className="py-2 font-medium">{s.studentName}</td>
+                              <td className="py-2 text-muted-foreground">{s.className}</td>
+                              <td className="py-2 text-right">
+                                <span className={rateColor(s.attendanceRate, 80)}>
+                                  {formatRate(s.attendanceRate)}
+                                  <span className="sr-only">({rateSeverity(s.attendanceRate, 80)})</span>
+                                </span>
+                              </td>
+                              <td className="py-2 text-right text-red-500 font-medium">
+                                {s.daysAbsent}
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="mt-3 flex justify-end">
+                    <Link href="/students" className="text-sm text-primary hover:underline">
+                      View all &rarr;
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-            <div className="mt-3 flex justify-end">
-              <Link href="/students" className="text-sm text-primary hover:underline">
-                View all &rarr;
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
+          </AccordionContent>
+        </AccordionItem>
 
-        {/* Classes - No Homework This Week */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Classes - No Homework This Week</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b text-left text-muted-foreground">
-                    <th className="pb-2 font-medium">Class</th>
-                    <th className="pb-2 font-medium">Teacher</th>
-                    <th className="pb-2 font-medium text-right">Days Since</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y">
-                  {data.classesNoHomework.length === 0 ? (
-                    <tr>
-                      <td colSpan={3} className="py-6 text-center text-muted-foreground">
-                        All classes have recent homework
-                      </td>
-                    </tr>
-                  ) : (
-                    data.classesNoHomework.map((c) => (
-                      <tr key={c.classId} className="hover:bg-muted/50">
-                        <td className="py-2 font-medium">{c.className}</td>
-                        <td className="py-2 text-muted-foreground">{c.classTeacherName ?? '—'}</td>
-                        <td className="py-2 text-right text-amber-500 font-medium">
-                          {c.daysSinceLastHomework}d
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-            <div className="mt-3 flex justify-end">
-              <Link href="/homework" className="text-sm text-primary hover:underline">
-                View all &rarr;
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Homework & Engagement */}
+        <AccordionItem value="homework">
+          <AccordionTrigger className="text-base font-semibold">
+            <span className="flex items-center gap-2">
+              <BookOpen className="h-4 w-4 text-amber-500" />
+              Homework &amp; Engagement
+            </span>
+          </AccordionTrigger>
+          <AccordionContent>
+            <div className="grid gap-6 lg:grid-cols-2">
+              {/* Classes - No Homework This Week */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Classes - No Homework This Week</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b text-left text-muted-foreground">
+                          <th className="pb-2 font-medium">Class</th>
+                          <th className="pb-2 font-medium">Teacher</th>
+                          <th className="pb-2 font-medium text-right">Days Since</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y">
+                        {data.classesNoHomework.length === 0 ? (
+                          <tr>
+                            <td colSpan={3} className="py-6 text-center text-muted-foreground">
+                              All classes have recent homework
+                            </td>
+                          </tr>
+                        ) : (
+                          data.classesNoHomework.map((c) => (
+                            <tr key={c.classId} className="hover:bg-muted/50">
+                              <td className="py-2 font-medium">{c.className}</td>
+                              <td className="py-2 text-muted-foreground">{c.classTeacherName ?? '—'}</td>
+                              <td className="py-2 text-right text-amber-500 font-medium">
+                                {c.daysSinceLastHomework}d
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="mt-3 flex justify-end">
+                    <Link href="/homework" className="text-sm text-primary hover:underline">
+                      View all &rarr;
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
 
-        {/* Unanswered Parent Messages - full width */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="text-base">Unanswered Parent Messages</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b text-left text-muted-foreground">
-                    <th className="pb-2 font-medium">Parent</th>
-                    <th className="pb-2 font-medium">Message</th>
-                    <th className="pb-2 font-medium text-right">Hours Ago</th>
-                    <th className="pb-2 font-medium">Teacher</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y">
-                  {data.unansweredThreads.length === 0 ? (
-                    <tr>
-                      <td colSpan={4} className="py-6 text-center text-muted-foreground">
-                        No unanswered messages
-                      </td>
-                    </tr>
-                  ) : (
-                    data.unansweredThreads.map((t) => (
-                      <tr key={t.conversationId} className="hover:bg-muted/50">
-                        <td className="py-2 font-medium">{t.parentName}</td>
-                        <td className="py-2 text-muted-foreground max-w-[200px] truncate">
-                          {t.lastMessage}
-                        </td>
-                        <td className="py-2 text-right">
-                          <span className={t.hoursUnanswered > 24 ? 'text-red-500 font-medium' : 'text-amber-500'}>
-                            {t.hoursUnanswered.toFixed(0)}h
-                          </span>
-                        </td>
-                        <td className="py-2 text-muted-foreground">{t.teacherName ?? '—'}</td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+              {/* Unanswered Parent Messages */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Unanswered Parent Messages</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b text-left text-muted-foreground">
+                          <th className="pb-2 font-medium">Parent</th>
+                          <th className="pb-2 font-medium">Message</th>
+                          <th className="pb-2 font-medium text-right">Hours Ago</th>
+                          <th className="pb-2 font-medium">Teacher</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y">
+                        {data.unansweredThreads.length === 0 ? (
+                          <tr>
+                            <td colSpan={4} className="py-6 text-center text-muted-foreground">
+                              No unanswered messages
+                            </td>
+                          </tr>
+                        ) : (
+                          data.unansweredThreads.map((t) => (
+                            <tr key={t.conversationId} className="hover:bg-muted/50">
+                              <td className="py-2 font-medium">{t.parentName}</td>
+                              <td className="py-2 text-muted-foreground max-w-[200px] truncate">
+                                {t.lastMessage}
+                              </td>
+                              <td className="py-2 text-right">
+                                <span className={t.hoursUnanswered > 24 ? 'text-red-500 font-medium' : 'text-amber-500'}>
+                                  {t.hoursUnanswered.toFixed(0)}h
+                                </span>
+                              </td>
+                              <td className="py-2 text-muted-foreground">{t.teacherName ?? '—'}</td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="mt-3 flex justify-end">
+                    <Link href="/communication/messages" className="text-sm text-primary hover:underline">
+                      View all &rarr;
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-            <div className="mt-3 flex justify-end">
-              <Link href="/communication/messages" className="text-sm text-primary hover:underline">
-                View all &rarr;
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </div>
   );
 }

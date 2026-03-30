@@ -7,6 +7,7 @@ export interface AuditLogParams {
   size?: number;
   entityType?: string;
   action?: string;
+  search?: string;
 }
 
 export async function getAuditLogs(
