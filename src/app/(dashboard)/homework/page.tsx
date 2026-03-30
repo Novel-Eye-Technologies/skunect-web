@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { type ColumnDef, type PaginationState } from '@tanstack/react-table';
-import { MoreHorizontal, Trash2, Eye, Pencil, Plus, BookOpen } from 'lucide-react';
+import { MoreHorizontal, Trash2, Eye, Pencil, Plus, BookOpen, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -31,6 +31,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getClasses, getSubjects } from '@/lib/api/school-settings';
 import { formatDate } from '@/lib/utils/format-date';
 import { QueryErrorBanner } from '@/components/shared/query-error-banner';
+import { Input } from '@/components/ui/input';
 import { EmptyState } from '@/components/shared/empty-state';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -155,6 +156,7 @@ export default function HomeworkPage() {
   const [classFilter, setClassFilter] = useState<string>('');
   const [subjectFilter, setSubjectFilter] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<HomeworkListItem | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<HomeworkListItem | null>(
@@ -170,6 +172,7 @@ export default function HomeworkPage() {
     classId: classFilter || undefined,
     subjectId: subjectFilter || undefined,
     status: statusFilter || undefined,
+    search: searchQuery || undefined,
   });
   const deleteHomework = useDeleteHomework();
 
@@ -366,6 +369,18 @@ export default function HomeworkPage() {
             onPaginationChange={handlePaginationChange}
             toolbarActions={
               <div className="flex items-center gap-2">
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search homework..."
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+                    }}
+                    className="h-8 w-[200px] pl-8"
+                  />
+                </div>
                 <Select
                   value={classFilter}
                   onValueChange={(value) => {

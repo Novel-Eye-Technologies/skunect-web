@@ -11,9 +11,11 @@ import {
   Send,
   EyeOff,
   FileIcon,
+  Search,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -73,6 +75,7 @@ export default function AnnouncementsPage() {
     pageSize: 10,
   });
   const [statusFilter, setStatusFilter] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<Announcement | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Announcement | null>(null);
@@ -85,6 +88,7 @@ export default function AnnouncementsPage() {
     page: pagination.pageIndex,
     size: pagination.pageSize,
     published: statusFilter === 'PUBLISHED' ? true : statusFilter === 'DRAFT' ? false : undefined,
+    search: searchQuery || undefined,
   });
 
   const deleteAnnouncement = useDeleteAnnouncement();
@@ -236,6 +240,18 @@ export default function AnnouncementsPage() {
         onPaginationChange={handlePaginationChange}
         toolbarActions={
           <div className="flex items-center gap-2">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search announcements..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+                }}
+                className="h-8 w-[200px] pl-8"
+              />
+            </div>
             <Select
               value={statusFilter}
               onValueChange={(value) => {

@@ -348,14 +348,14 @@ export default function AllSchoolsPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>School Name</TableHead>
-                    <TableHead>Code</TableHead>
-                    <TableHead>Location</TableHead>
+                    <TableHead className="hidden md:table-cell">Code</TableHead>
+                    <TableHead className="hidden md:table-cell">Location</TableHead>
                     <TableHead>Tier</TableHead>
                     <TableHead className="text-center">Students</TableHead>
-                    <TableHead className="text-center">Teachers</TableHead>
-                    <TableHead className="text-center">Admins</TableHead>
+                    <TableHead className="hidden md:table-cell text-center">Teachers</TableHead>
+                    <TableHead className="hidden md:table-cell text-center">Admins</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Created</TableHead>
+                    <TableHead className="hidden md:table-cell">Created</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -370,22 +370,22 @@ export default function AllSchoolsPage() {
                           {school.name}
                         </Link>
                       </TableCell>
-                      <TableCell className="text-muted-foreground">{school.code}</TableCell>
-                      <TableCell>
+                      <TableCell className="hidden md:table-cell text-muted-foreground">{school.code}</TableCell>
+                      <TableCell className="hidden md:table-cell">
                         {[school.city, school.state].filter(Boolean).join(', ') || '—'}
                       </TableCell>
                       <TableCell>
                         <Badge variant="outline">{school.subscriptionTier ?? 'STANDARD'}</Badge>
                       </TableCell>
                       <TableCell className="text-center">{school.studentCount}</TableCell>
-                      <TableCell className="text-center">{school.teacherCount}</TableCell>
-                      <TableCell className="text-center">{school.adminCount}</TableCell>
+                      <TableCell className="hidden md:table-cell text-center">{school.teacherCount}</TableCell>
+                      <TableCell className="hidden md:table-cell text-center">{school.adminCount}</TableCell>
                       <TableCell>
                         <Badge variant={school.isActive ? 'default' : 'secondary'}>
                           {school.isActive ? 'Active' : 'Inactive'}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
+                      <TableCell className="hidden md:table-cell text-muted-foreground">
                         {new Date(school.createdAt).toLocaleDateString('en-NG', {
                           day: 'numeric',
                           month: 'short',

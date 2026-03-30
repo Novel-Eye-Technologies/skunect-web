@@ -132,6 +132,8 @@ export default function HealthRecordsPage() {
         columns={columns}
         data={filteredRecords}
         isLoading={isLoading}
+        searchKey="studentName"
+        searchPlaceholder="Search students..."
         toolbarActions={
           <div className="flex items-center gap-2">
             <Select

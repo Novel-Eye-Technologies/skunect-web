@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { type ColumnDef, type PaginationState } from '@tanstack/react-table';
 import {
   MoreHorizontal,
@@ -11,6 +12,7 @@ import {
   Receipt,
   DollarSign,
   Wallet,
+  Search,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -27,6 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { PageHeader } from '@/components/shared/page-header';
@@ -50,6 +53,7 @@ import type { FeeStructure } from '@/lib/types/fees';
 import type { Invoice } from '@/lib/types/fees';
 
 export default function FeesPage() {
+  const router = useRouter();
   const schoolId = useAuthStore((s) => s.currentSchoolId);
   const currentRole = useAuthStore((s) => s.currentRole);
   const isParent = currentRole === 'PARENT';
@@ -74,6 +78,7 @@ export default function FeesPage() {
   });
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [classFilter, setClassFilter] = useState<string>('');
+  const [invoiceSearchQuery, setInvoiceSearchQuery] = useState<string>('');
   const [generateDialogOpen, setGenerateDialogOpen] = useState(false);
   const [paymentTarget, setPaymentTarget] = useState<Invoice | null>(null);
 
@@ -92,6 +97,7 @@ export default function FeesPage() {
     size: invoicePagination.pageSize,
     status: statusFilter || undefined,
     classId: classFilter || undefined,
+    search: invoiceSearchQuery || undefined,
   });
 
   const { data: classesResponse } = useQuery({
@@ -212,8 +218,14 @@ export default function FeesPage() {
       header: 'Student',
       cell: ({ row }) => (
         <div>
-          <div className="font-medium">{row.original.studentName}</div>
-          <div className="text-xs text-muted-foreground">
+          <button
+            type="button"
+            className="font-medium text-left hover:underline text-primary"
+            onClick={() => router.push(`/students/${row.original.studentId}`)}
+          >
+            {row.original.studentName}
+          </button>
+          <div className="hidden md:block text-xs text-muted-foreground">
             {row.original.admissionNumber}
           </div>
         </div>
@@ -222,6 +234,7 @@ export default function FeesPage() {
     {
       accessorKey: 'className',
       header: 'Class',
+      meta: { className: 'hidden md:table-cell' },
     },
     {
       accessorKey: 'totalAmount',
@@ -289,7 +302,7 @@ export default function FeesPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={isParent ? 'Fees' : 'Fees Management'}
+        title="Fees Management"
         description={isParent ? 'View your fee invoices and payment status.' : 'Manage fee structures, invoices, and payments.'}
       />
 
@@ -362,6 +375,21 @@ export default function FeesPage() {
             onPaginationChange={handleInvoicePaginationChange}
             toolbarActions={
               <div className="flex items-center gap-2">
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search invoices..."
+                    value={invoiceSearchQuery}
+                    onChange={(e) => {
+                      setInvoiceSearchQuery(e.target.value);
+                      setInvoicePagination((prev) => ({
+                        ...prev,
+                        pageIndex: 0,
+                      }));
+                    }}
+                    className="h-8 w-[200px] pl-8"
+                  />
+                </div>
                 <Select
                   value={statusFilter}
                   onValueChange={(value) => {

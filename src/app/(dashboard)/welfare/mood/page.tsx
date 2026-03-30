@@ -110,6 +110,8 @@ export default function MoodTrackerPage() {
         columns={columns}
         data={filteredEntries}
         isLoading={isLoading}
+        searchKey="studentName"
+        searchPlaceholder="Search students..."
         toolbarActions={
           <Select
             value={moodFilter}

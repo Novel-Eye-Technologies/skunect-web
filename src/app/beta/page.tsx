@@ -75,8 +75,8 @@ export default function BetaPage() {
           <div
             className="absolute inset-0"
             style={{
-              backgroundImage: `radial-gradient(circle at 25% 25%, #2A9D8F 1px, transparent 1px),
-                radial-gradient(circle at 75% 75%, #2A9D8F 1px, transparent 1px)`,
+              backgroundImage: `radial-gradient(circle at 25% 25%, var(--color-teal) 1px, transparent 1px),
+                radial-gradient(circle at 75% 75%, var(--color-teal) 1px, transparent 1px)`,
               backgroundSize: '48px 48px',
             }}
           />

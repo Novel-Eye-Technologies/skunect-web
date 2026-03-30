@@ -12,6 +12,7 @@ import type {
 
 export interface AnnouncementListParams extends PaginatedParams {
   published?: boolean;
+  search?: string;
 }
 
 export async function getAnnouncements(

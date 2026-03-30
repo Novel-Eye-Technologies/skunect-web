@@ -14,6 +14,7 @@ import type {
 export interface UserListParams extends PaginatedParams {
   role?: string;
   status?: string;
+  search?: string;
 }
 
 export async function getUsers(
