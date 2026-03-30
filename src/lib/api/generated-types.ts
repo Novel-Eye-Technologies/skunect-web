@@ -11547,9 +11547,9 @@ export interface operations {
     };
     getStudentAttendance: {
         parameters: {
-            query: {
-                from: string;
-                to: string;
+            query?: {
+                from?: string;
+                to?: string;
             };
             header?: never;
             path: {
@@ -12203,9 +12203,9 @@ export interface operations {
     };
     getAttendanceSummary: {
         parameters: {
-            query: {
-                from: string;
-                to: string;
+            query?: {
+                from?: string;
+                to?: string;
                 classId?: string;
             };
             header?: never;

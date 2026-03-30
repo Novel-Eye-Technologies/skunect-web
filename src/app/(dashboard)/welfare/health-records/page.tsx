@@ -140,7 +140,7 @@ export default function HealthRecordsPage() {
                 setTypeFilter(value === 'ALL' ? '' : value)
               }
             >
-              <SelectTrigger className="h-8 w-[160px]">
+              <SelectTrigger className="h-8 w-[140px]">
                 <SelectValue placeholder="All Types" />
               </SelectTrigger>
               <SelectContent>

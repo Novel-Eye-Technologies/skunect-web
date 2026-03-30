@@ -100,11 +100,11 @@ export function SuperAdminDashboard() {
     <div className="space-y-6">
       {/* ── Hero Metrics ── */}
       <div className="grid gap-4 sm:grid-cols-3">
-        <Card className="border-l-4 border-l-[#2A9D8F]">
+        <Card className="border-l-4 border-l-teal">
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-[#2A9D8F]/10 p-2.5">
-                <Building2 className="h-5 w-5 text-[#2A9D8F]" />
+              <div className="rounded-lg bg-teal/10 p-2.5">
+                <Building2 className="h-5 w-5 text-teal" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Schools</p>
@@ -115,11 +115,11 @@ export function SuperAdminDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-[#264653]">
+        <Card className="border-l-4 border-l-navy">
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-[#264653]/10 p-2.5">
-                <GraduationCap className="h-5 w-5 text-[#264653]" />
+              <div className="rounded-lg bg-navy/10 p-2.5">
+                <GraduationCap className="h-5 w-5 text-navy" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Students</p>

@@ -24,9 +24,9 @@ import { useFeeSummary } from '@/lib/hooks/use-analytics';
 import { formatCurrency, formatCurrencyShort } from '@/lib/utils/format-currency';
 
 const STATUS_COLORS: Record<string, string> = {
-  PAID: '#2A9D8F',
+  PAID: 'var(--color-teal)',
   PARTIAL: '#f59e0b',
-  PENDING: '#1B2A4A',
+  PENDING: 'var(--color-navy)',
   OVERDUE: '#ef4444',
 };
 
@@ -133,7 +133,7 @@ export function FeeAnalytics() {
                   <Bar
                     dataKey="collected"
                     name="Collected"
-                    fill="#2A9D8F"
+                    fill="var(--color-teal)"
                     radius={[4, 4, 0, 0]}
                     maxBarSize={40}
                   />

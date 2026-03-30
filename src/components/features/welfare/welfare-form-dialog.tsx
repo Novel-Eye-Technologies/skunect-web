@@ -101,7 +101,7 @@ export function WelfareFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px]">
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Record Welfare Observation</DialogTitle>
           <DialogDescription>

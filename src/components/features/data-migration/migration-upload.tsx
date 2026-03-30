@@ -235,7 +235,7 @@ export function MigrationUpload() {
           {selectedFile ? (
             <div className="flex items-center justify-between rounded-lg border bg-muted/50 p-4">
               <div className="flex items-center gap-3">
-                <FileText className="h-8 w-8 text-[#2A9D8F]" />
+                <FileText className="h-8 w-8 text-teal" />
                 <div>
                   <p className="text-sm font-medium">{selectedFile.name}</p>
                   <p className="text-xs text-muted-foreground">
@@ -256,7 +256,7 @@ export function MigrationUpload() {
               className={cn(
                 'flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-10 transition-colors',
                 isDragOver
-                  ? 'border-[#2A9D8F] bg-[#2A9D8F]/5'
+                  ? 'border-teal bg-teal/5'
                   : 'border-muted-foreground/25 hover:border-muted-foreground/50',
               )}
             >
@@ -303,7 +303,7 @@ export function MigrationUpload() {
             <CardTitle className="flex items-center gap-2 text-base">
               {migrationJob.failedRecords === 0 ? (
                 <>
-                  <CheckCircle2 className="h-5 w-5 text-[#2A9D8F]" />
+                  <CheckCircle2 className="h-5 w-5 text-teal" />
                   Validation Passed
                 </>
               ) : (
@@ -321,7 +321,7 @@ export function MigrationUpload() {
               </Badge>
               <Badge
                 variant="outline"
-                className="border-[#2A9D8F] text-[#2A9D8F]"
+                className="border-teal text-teal"
               >
                 Valid: {migrationJob.totalRecords - migrationJob.failedRecords}
               </Badge>

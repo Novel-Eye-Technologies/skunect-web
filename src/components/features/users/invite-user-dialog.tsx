@@ -168,7 +168,7 @@ export function InviteUserDialog({ defaultRole, buttonLabel }: InviteUserDialogP
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Phone</FormLabel>
+                  <FormLabel>Phone (Optional)</FormLabel>
                   <FormControl>
                     <Input
                       type="tel"

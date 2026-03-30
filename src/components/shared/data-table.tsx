@@ -61,6 +61,8 @@ interface DataTableProps<TData, TValue> {
   isLoading?: boolean;
   // Toolbar extras
   toolbarActions?: React.ReactNode;
+  // Custom empty state (replaces default "No results found.")
+  emptyState?: React.ReactNode;
 }
 
 export function DataTable<TData, TValue>({
@@ -74,6 +76,7 @@ export function DataTable<TData, TValue>({
   onPaginationChange,
   isLoading = false,
   toolbarActions,
+  emptyState,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -240,6 +243,12 @@ export function DataTable<TData, TValue>({
                   ))}
                 </TableRow>
               ))
+            ) : emptyState ? (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="p-0 border-0">
+                  {emptyState}
+                </TableCell>
+              </TableRow>
             ) : (
               <TableRow>
                 <TableCell

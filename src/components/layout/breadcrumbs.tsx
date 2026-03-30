@@ -45,7 +45,7 @@ export function Breadcrumbs() {
         <Fragment key={crumb.href}>
           <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/50" />
           {crumb.isLast ? (
-            <span className="font-medium text-foreground">{crumb.label}</span>
+            <span aria-current="page" className="font-medium text-foreground">{crumb.label}</span>
           ) : (
             <Link
               href={crumb.href}

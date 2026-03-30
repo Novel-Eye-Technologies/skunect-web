@@ -128,7 +128,7 @@ export function MigrationJobDetail({ jobId, onBack }: MigrationJobDetailProps) {
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Successful</p>
-              <p className="mt-0.5 text-sm font-medium text-[#2A9D8F]">
+              <p className="mt-0.5 text-sm font-medium text-teal">
                 {job.totalRecords - job.failedRecords}
               </p>
             </div>

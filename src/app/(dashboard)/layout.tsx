@@ -22,6 +22,13 @@ export default function DashboardLayout({
       <ErrorBoundary fallback={<DashboardErrorFallback />}>
         <AuthProvider>
           <div className="relative min-h-screen bg-background">
+            <a
+              href="#main-content"
+              className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:p-4 focus:bg-background focus:text-foreground focus:underline"
+            >
+              Skip to content
+            </a>
+
             {/* Desktop sidebar */}
             <div className="hidden lg:block">
               <Sidebar />
@@ -38,7 +45,7 @@ export default function DashboardLayout({
               )}
             >
               <Header />
-              <main className="flex-1 p-4 lg:p-6">{children}</main>
+              <main id="main-content" className="flex-1 p-4 lg:p-6">{children}</main>
             </div>
           </div>
         </AuthProvider>

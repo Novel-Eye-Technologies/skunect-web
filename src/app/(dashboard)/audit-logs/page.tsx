@@ -125,7 +125,7 @@ export default function AuditLogsPage() {
                 setPagination((p) => ({ ...p, pageIndex: 0 }));
               }}
             >
-              <SelectTrigger className="h-8 w-[120px]">
+              <SelectTrigger className="h-8 w-[140px]">
                 <SelectValue placeholder="All Actions" />
               </SelectTrigger>
               <SelectContent>

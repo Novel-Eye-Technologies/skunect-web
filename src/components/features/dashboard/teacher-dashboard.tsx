@@ -176,7 +176,7 @@ export function TeacherDashboard() {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2">
-            <Clock className="h-5 w-5 text-[#2A9D8F]" />
+            <Clock className="h-5 w-5 text-teal" />
             Today&apos;s Schedule
           </CardTitle>
           <CardDescription>
@@ -201,7 +201,7 @@ export function TeacherDashboard() {
                     key={slot.periodNumber}
                     className={`flex-shrink-0 w-44 rounded-lg border-2 p-3 transition-all ${
                       isCurrent
-                        ? 'border-[#2A9D8F] bg-[#2A9D8F]/5 ring-1 ring-[#2A9D8F]/20'
+                        ? 'border-teal bg-teal/5 ring-1 ring-teal/20'
                         : isNext
                           ? 'border-blue-300 bg-blue-50/50'
                           : needsAttendance
@@ -243,7 +243,7 @@ export function TeacherDashboard() {
                       </div>
                     )}
                     {isCurrent && (
-                      <Badge className="mt-2 bg-[#2A9D8F] text-white text-[10px]">
+                      <Badge className="mt-2 bg-teal text-white text-[10px]">
                         Current
                       </Badge>
                     )}
@@ -292,8 +292,8 @@ export function TeacherDashboard() {
                   </span>
                 </p>
               </div>
-              <div className="rounded-lg bg-[#2A9D8F]/10 p-3">
-                <ClipboardCheck className="h-5 w-5 text-[#2A9D8F]" />
+              <div className="rounded-lg bg-teal/10 p-3">
+                <ClipboardCheck className="h-5 w-5 text-teal" />
               </div>
             </div>
           </CardContent>
@@ -318,8 +318,8 @@ export function TeacherDashboard() {
                   <p className="text-xs text-muted-foreground">All on track</p>
                 )}
               </div>
-              <div className="rounded-lg bg-[#2A9D8F]/10 p-3">
-                <BookOpen className="h-5 w-5 text-[#2A9D8F]" />
+              <div className="rounded-lg bg-teal/10 p-3">
+                <BookOpen className="h-5 w-5 text-teal" />
               </div>
             </div>
           </CardContent>
@@ -342,8 +342,8 @@ export function TeacherDashboard() {
                   unanswered &gt;24h
                 </p>
               </div>
-              <div className="rounded-lg bg-[#2A9D8F]/10 p-3">
-                <MessageSquare className="h-5 w-5 text-[#2A9D8F]" />
+              <div className="rounded-lg bg-teal/10 p-3">
+                <MessageSquare className="h-5 w-5 text-teal" />
               </div>
             </div>
           </CardContent>
@@ -365,8 +365,8 @@ export function TeacherDashboard() {
                   {data.myClassesCount !== 1 ? 'es' : ''}
                 </p>
               </div>
-              <div className="rounded-lg bg-[#2A9D8F]/10 p-3">
-                <Users className="h-5 w-5 text-[#2A9D8F]" />
+              <div className="rounded-lg bg-teal/10 p-3">
+                <Users className="h-5 w-5 text-teal" />
               </div>
             </div>
           </CardContent>
@@ -491,7 +491,7 @@ export function TeacherDashboard() {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2">
-              <GraduationCap className="h-5 w-5 text-[#2A9D8F]" />
+              <GraduationCap className="h-5 w-5 text-teal" />
               Pending Grading
             </CardTitle>
             <CardDescription>
@@ -551,7 +551,7 @@ export function TeacherDashboard() {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2">
-              <BookOpen className="h-5 w-5 text-[#2A9D8F]" />
+              <BookOpen className="h-5 w-5 text-teal" />
               Recent Assignments
             </CardTitle>
             <CardDescription>
@@ -609,7 +609,7 @@ export function TeacherDashboard() {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2">
-            <GraduationCap className="h-5 w-5 text-[#2A9D8F]" />
+            <GraduationCap className="h-5 w-5 text-teal" />
             Class Performance
           </CardTitle>
           <CardDescription>
