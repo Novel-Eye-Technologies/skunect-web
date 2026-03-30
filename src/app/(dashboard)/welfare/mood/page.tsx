@@ -117,7 +117,7 @@ export default function MoodTrackerPage() {
               setMoodFilter(value === 'ALL' ? '' : value)
             }
           >
-            <SelectTrigger className="h-8 w-[160px]">
+            <SelectTrigger className="h-8 w-[140px]">
               <SelectValue placeholder="All Moods" />
             </SelectTrigger>
             <SelectContent>

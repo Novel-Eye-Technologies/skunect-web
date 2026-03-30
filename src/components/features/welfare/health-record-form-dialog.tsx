@@ -96,7 +96,7 @@ export function HealthRecordFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px]">
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Add Health Record</DialogTitle>
           <DialogDescription>

@@ -67,8 +67,8 @@ const JOB_STATUS_MAP: Record<
 // Data type badge colors
 // ---------------------------------------------------------------------------
 const TYPE_COLORS: Record<string, string> = {
-  STUDENTS: 'bg-[#2A9D8F]/10 text-[#2A9D8F]',
-  TEACHERS: 'bg-[#1B2A4A]/10 text-[#1B2A4A]',
+  STUDENTS: 'bg-teal/10 text-teal',
+  TEACHERS: 'bg-navy/10 text-navy',
   CLASSES: 'bg-amber-100 text-amber-800',
   SUBJECTS: 'bg-purple-100 text-purple-800',
   FEES: 'bg-emerald-100 text-emerald-800',
@@ -184,7 +184,7 @@ function DataMigrationContent() {
         id: 'successCount',
         header: 'Success',
         cell: ({ row }) => (
-          <span className="text-[#2A9D8F]">{(row.original.totalRecords ?? 0) - (row.original.failedRecords ?? 0)}</span>
+          <span className="text-teal">{(row.original.totalRecords ?? 0) - (row.original.failedRecords ?? 0)}</span>
         ),
       },
       {

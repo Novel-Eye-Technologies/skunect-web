@@ -191,8 +191,8 @@ export function AdminDashboard() {
         <Card className={`border ${rateBg(data.todayAttendanceRate, 80)}`}>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-[#2A9D8F]/10 p-2.5">
-                <ClipboardCheck className="h-5 w-5 text-[#2A9D8F]" />
+              <div className="rounded-lg bg-teal/10 p-2.5">
+                <ClipboardCheck className="h-5 w-5 text-teal" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Today&apos;s Attendance</p>
@@ -211,8 +211,8 @@ export function AdminDashboard() {
         <Card className={`border ${rateBg(teacherAccountabilityRate, 80)}`}>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-[#264653]/10 p-2.5">
-                <Users className="h-5 w-5 text-[#264653]" />
+              <div className="rounded-lg bg-navy/10 p-2.5">
+                <Users className="h-5 w-5 text-navy" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Teacher Accountability</p>

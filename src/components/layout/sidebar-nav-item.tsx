@@ -64,7 +64,7 @@ export function SidebarNavItem({
             className={cn(
               'relative flex h-10 w-10 items-center justify-center rounded-lg transition-colors',
               isActive || isChildActive
-                ? 'bg-[#2A9D8F]/20 text-[#2A9D8F]'
+                ? 'bg-teal/20 text-teal'
                 : 'text-white/70 hover:bg-white/10 hover:text-white',
             )}
           >
@@ -93,7 +93,7 @@ export function SidebarNavItem({
           className={cn(
             'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
             isActive || isChildActive
-              ? 'bg-[#2A9D8F]/20 text-[#2A9D8F]'
+              ? 'bg-teal/20 text-teal'
               : 'text-white/70 hover:bg-white/10 hover:text-white',
           )}
         >
@@ -136,7 +136,7 @@ export function SidebarNavItem({
                     className={cn(
                       'flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors',
                       isSubActive
-                        ? 'bg-[#2A9D8F]/15 text-[#2A9D8F] font-medium'
+                        ? 'bg-teal/15 text-teal font-medium'
                         : 'text-white/60 hover:bg-white/5 hover:text-white/90',
                     )}
                   >
@@ -164,7 +164,7 @@ export function SidebarNavItem({
       className={cn(
         'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
         isActive
-          ? 'bg-[#2A9D8F]/20 text-[#2A9D8F]'
+          ? 'bg-teal/20 text-teal'
           : 'text-white/70 hover:bg-white/10 hover:text-white',
       )}
     >

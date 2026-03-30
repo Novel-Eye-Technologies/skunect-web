@@ -33,7 +33,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getClasses } from '@/lib/api/school-settings';
 
 const COLORS = {
-  present: '#2A9D8F',
+  present: 'var(--color-teal)',
   absent: '#ef4444',
   late: '#f59e0b',
 };

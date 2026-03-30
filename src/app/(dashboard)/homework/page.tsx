@@ -31,6 +31,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getClasses, getSubjects } from '@/lib/api/school-settings';
 import { formatDate } from '@/lib/utils/format-date';
 import { QueryErrorBanner } from '@/components/shared/query-error-banner';
+import { EmptyState } from '@/components/shared/empty-state';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { HomeworkListItem } from '@/lib/types/homework';
@@ -110,15 +111,11 @@ function ChildHomeworkList({ classId }: ChildHomeworkListProps) {
 
   if (homeworkList.length === 0 && !isLoading) {
     return (
-      <Card className="flex flex-col items-center justify-center py-12 text-center">
-        <div className="mb-4 rounded-full bg-muted p-4">
-          <BookOpen className="h-8 w-8 text-muted-foreground" />
-        </div>
-        <h3 className="text-lg font-semibold">No homework assigned</h3>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Assignments for this child will appear here once they are posted.
-        </p>
-      </Card>
+      <EmptyState
+        icon={BookOpen}
+        title="No homework assigned"
+        description="Assignments for this child will appear here once they are posted."
+      />
     );
   }
 
@@ -409,7 +406,7 @@ export default function HomeworkPage() {
                     setPagination((prev) => ({ ...prev, pageIndex: 0 }));
                   }}
                 >
-                  <SelectTrigger className="h-8 w-[130px]">
+                  <SelectTrigger className="h-8 w-[140px]">
                     <SelectValue placeholder="All Statuses" />
                   </SelectTrigger>
                   <SelectContent>

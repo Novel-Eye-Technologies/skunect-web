@@ -102,7 +102,7 @@ export function GenerateInvoicesDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[450px]">
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Generate Invoices</DialogTitle>
           <DialogDescription>
@@ -147,7 +147,7 @@ export function GenerateInvoicesDialog({
               name="classId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Class</FormLabel>
+                  <FormLabel>Class (Optional)</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     value={field.value}
