@@ -69,17 +69,19 @@ export function AttendanceGrid() {
     enabled: !!schoolId && !!selectedClassId,
   });
 
-  // Build rows when students load
+  // Build rows when students load — only include active students
   useEffect(() => {
     const students = studentsResponse?.data ?? [];
     setRows(
-      students.map((s) => ({
-        studentId: s.id,
-        studentName: `${s.firstName} ${s.lastName}`,
-        admissionNumber: s.admissionNumber,
-        status: 'PRESENT' as AttendanceStatus,
-        note: '',
-      })),
+      students
+        .filter((s) => s.status === 'ACTIVE')
+        .map((s) => ({
+          studentId: s.id,
+          studentName: `${s.firstName} ${s.lastName}`,
+          admissionNumber: s.admissionNumber,
+          status: 'PRESENT' as AttendanceStatus,
+          note: '',
+        })),
     );
   }, [studentsResponse]);
 
@@ -109,7 +111,7 @@ export function AttendanceGrid() {
     const records: BulkAttendanceEntry[] = rows.map((row) => ({
       studentId: row.studentId,
       status: row.status,
-      ...(row.note ? { note: row.note } : {}),
+      ...(row.note ? { notes: row.note } : {}),
     }));
 
     submitAttendance.mutate({
@@ -156,7 +158,7 @@ export function AttendanceGrid() {
                   {classes.map((cls) => (
                     <SelectItem key={cls.id} value={cls.id}>
                       {cls.name}
-                      {cls.section ? ` (${cls.section})` : ''}
+                      {cls.gradeLevel ? ` (${cls.gradeLevel})` : ''}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -241,6 +243,7 @@ export function AttendanceGrid() {
                       </TableCell>
                       <TableCell className="font-medium">
                         {row.studentName}
+                        <span className="sr-only"> - {row.status.toLowerCase()}</span>
                       </TableCell>
                       <TableCell>{row.admissionNumber}</TableCell>
                       <TableCell className="text-center">
@@ -249,6 +252,7 @@ export function AttendanceGrid() {
                           name={`status-${row.studentId}`}
                           checked={row.status === 'PRESENT'}
                           onChange={() => updateStatus(index, 'PRESENT')}
+                          aria-label={`Mark ${row.studentName} as present`}
                           className="h-4 w-4 accent-green-600"
                         />
                       </TableCell>
@@ -258,6 +262,7 @@ export function AttendanceGrid() {
                           name={`status-${row.studentId}`}
                           checked={row.status === 'ABSENT'}
                           onChange={() => updateStatus(index, 'ABSENT')}
+                          aria-label={`Mark ${row.studentName} as absent`}
                           className="h-4 w-4 accent-red-600"
                         />
                       </TableCell>
@@ -267,6 +272,7 @@ export function AttendanceGrid() {
                           name={`status-${row.studentId}`}
                           checked={row.status === 'LATE'}
                           onChange={() => updateStatus(index, 'LATE')}
+                          aria-label={`Mark ${row.studentName} as late`}
                           className="h-4 w-4 accent-amber-600"
                         />
                       </TableCell>

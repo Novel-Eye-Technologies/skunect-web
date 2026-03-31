@@ -1,24 +1,8 @@
-export interface Announcement {
-  id: string;
-  title: string;
-  content: string;
-  targetAudience: 'ALL' | 'TEACHERS' | 'PARENTS' | 'STUDENTS';
-  priority: 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT';
-  status: 'DRAFT' | 'PUBLISHED';
-  publishedAt: string | null;
-  expiresAt: string | null;
-  attachmentUrls?: string[];
-  createdBy: string;
-  createdAt: string;
-}
+import type { Api } from '@/lib/api/schema';
 
-export interface CreateAnnouncementRequest {
-  title: string;
-  content: string;
-  targetAudience: 'ALL' | 'TEACHERS' | 'PARENTS' | 'STUDENTS';
-  priority: 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT';
-  expiresAt?: string;
-  attachmentUrls?: string[];
-}
+// Request types from generated OpenAPI schemas
+export type CreateAnnouncementRequest = Api['CreateAnnouncementRequest'];
+export type UpdateAnnouncementRequest = Api['UpdateAnnouncementRequest'];
 
-export interface UpdateAnnouncementRequest extends Partial<CreateAnnouncementRequest> {}
+// Response types from generated OpenAPI schemas
+export type Announcement = Api['AnnouncementResponse'];

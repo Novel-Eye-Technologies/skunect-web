@@ -75,6 +75,7 @@ export async function updateSchoolSettings(
   if (data.email !== undefined) updatePayload.email = data.email;
   if (data.state !== undefined) updatePayload.state = data.state;
   if (data.lga !== undefined) updatePayload.city = data.lga;
+  if (data.logoUrl !== undefined) updatePayload.logoUrl = data.logoUrl;
 
   const response = await apiClient.put<ApiResponse<Record<string, unknown>>>(
     `/schools/${schoolId}`,

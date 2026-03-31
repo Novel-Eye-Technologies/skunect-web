@@ -1,11 +1,13 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { PanelLeftClose, PanelLeft, User } from 'lucide-react';
-import { TooltipProvider } from '@/components/ui/tooltip';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useUIStore } from '@/lib/stores/ui-store';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { useSchoolSettings } from '@/lib/hooks/use-school-settings';
 import { navigationConfig } from '@/lib/utils/navigation';
 import { SidebarNavItem } from '@/components/layout/sidebar-nav-item';
 import { cn } from '@/lib/utils';
@@ -17,11 +19,26 @@ export function Sidebar() {
   const user = useAuthStore((s) => s.user);
 
   const isSuperAdmin = useAuthStore((s) => s.isSuperAdmin);
+  const { data: schoolSettings } = useSchoolSettings();
+  const pathname = usePathname();
 
   // Filter nav items by the user's current role
   const filteredNav = navigationConfig.filter((item) =>
     currentRole ? item.roles.includes(currentRole as 'ADMIN' | 'TEACHER' | 'PARENT' | 'SUPER_ADMIN') : false,
   );
+
+  // Track which parent nav item is expanded (only one at a time)
+  const [expandedHref, setExpandedHref] = useState<string | null>(
+    filteredNav.find((item) =>
+      item.children?.some(
+        (child) => pathname === child.href || pathname.startsWith(`${child.href}/`),
+      ),
+    )?.href ?? null,
+  );
+
+  function handleToggle(href: string) {
+    setExpandedHref((prev) => (prev === href ? null : href));
+  }
 
   // Get current school name
   const currentSchoolId = useAuthStore((s) => s.currentSchoolId);
@@ -35,8 +52,8 @@ export function Sidebar() {
     <TooltipProvider delayDuration={100}>
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-30 flex flex-col border-r border-white/10 bg-[#1B2A4A] transition-all duration-300',
-          collapsed ? 'w-[68px]' : 'w-64',
+          'fixed inset-y-0 left-0 z-30 flex flex-col border-r border-white/10 bg-navy transition-all duration-300',
+          collapsed ? 'w-17' : 'w-64',
         )}
       >
         {/* ---------------------------------------------------------------- */}
@@ -48,23 +65,45 @@ export function Sidebar() {
             collapsed ? 'justify-center' : 'gap-3',
           )}
         >
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#2A9D8F] text-sm font-bold text-white">
-            S
-          </div>
-          {!collapsed && (
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-white">
-                {headerName}
-              </p>
-              <p className="truncate text-xs text-white/50">{headerSubtitle}</p>
-            </div>
+          {collapsed ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-teal text-sm font-bold text-white overflow-hidden">
+                  {schoolSettings?.logo ? (
+                    <img src={schoolSettings.logo} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    'S'
+                  )}
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p className="font-semibold">{headerName}</p>
+                <p className="text-xs text-muted-foreground">{headerSubtitle}</p>
+              </TooltipContent>
+            </Tooltip>
+          ) : (
+            <>
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-teal text-sm font-bold text-white overflow-hidden">
+                {schoolSettings?.logo ? (
+                  <img src={schoolSettings.logo} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  'S'
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-semibold text-white">
+                  {headerName}
+                </p>
+                <p className="truncate text-xs text-white/50">{headerSubtitle}</p>
+              </div>
+            </>
           )}
         </div>
 
         {/* ---------------------------------------------------------------- */}
         {/* Navigation                                                       */}
         {/* ---------------------------------------------------------------- */}
-        <ScrollArea className="flex-1 py-4">
+        <div className="mt-5 flex-1 overflow-y-auto scrollbar-hidden">
           <nav
             className={cn(
               'space-y-1',
@@ -76,10 +115,12 @@ export function Sidebar() {
                 key={item.href}
                 item={item}
                 collapsed={collapsed}
+                expanded={expandedHref === item.href}
+                onToggle={() => handleToggle(item.href)}
               />
             ))}
           </nav>
-        </ScrollArea>
+        </div>
 
         {/* ---------------------------------------------------------------- */}
         {/* Bottom section: user link + collapse toggle                       */}

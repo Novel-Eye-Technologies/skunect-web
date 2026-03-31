@@ -5,10 +5,12 @@ import {
   Upload,
   FileText,
   CheckCircle2,
-  XCircle,
   AlertTriangle,
   Download,
   X,
+  FileDown,
+  ShieldCheck,
+  ShieldAlert,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,22 +23,16 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import {
+  useUploadMigration,
   useValidateMigration,
   useImportMigration,
 } from '@/lib/hooks/use-data-migration';
-import type { MigrationDataType, ValidationResult } from '@/lib/types/data-migration';
+import { uploadFile } from '@/lib/api/files';
+import { toast } from 'sonner';
+import type { MigrationDataType, MigrationJob } from '@/lib/types/data-migration';
 
 const DATA_TYPES: { value: MigrationDataType; label: string }[] = [
   { value: 'STUDENTS', label: 'Students' },
@@ -59,10 +55,11 @@ export function MigrationUpload() {
 
   const [dataType, setDataType] = useState<MigrationDataType | ''>('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [validationResult, setValidationResult] =
-    useState<ValidationResult | null>(null);
+  const [migrationJob, setMigrationJob] = useState<MigrationJob | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
+  const uploadMigration = useUploadMigration();
   const validateMutation = useValidateMigration();
   const importMutation = useImportMigration();
 
@@ -75,7 +72,7 @@ export function MigrationUpload() {
         return;
       }
       setSelectedFile(file);
-      setValidationResult(null);
+      setMigrationJob(null);
     },
     [],
   );
@@ -101,51 +98,78 @@ export function MigrationUpload() {
 
   const removeFile = useCallback(() => {
     setSelectedFile(null);
-    setValidationResult(null);
+    setMigrationJob(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
   }, []);
 
   // ---------------------------------------------------------------------------
-  // Validate
+  // Upload file, then create migration job, then validate
   // ---------------------------------------------------------------------------
-  const handleValidate = useCallback(() => {
+  const handleValidate = useCallback(async () => {
     if (!selectedFile || !dataType) return;
 
-    validateMutation.mutate(
-      { file: selectedFile, type: dataType },
-      {
-        onSuccess: (response) => {
-          setValidationResult(response.data);
+    try {
+      // Step 1: Upload the file to get a URL
+      setIsUploading(true);
+      const fileUrl = await uploadFile(selectedFile, 'migrations');
+      setIsUploading(false);
+
+      // Step 2: Create migration job with type + fileUrl
+      uploadMigration.mutate(
+        { type: dataType, fileUrl },
+        {
+          onSuccess: (response) => {
+            const job = response.data;
+            // Step 3: Validate the migration job
+            validateMutation.mutate(job.id, {
+              onSuccess: (validateResponse) => {
+                setMigrationJob(validateResponse.data);
+              },
+            });
+          },
         },
-      },
-    );
-  }, [selectedFile, dataType, validateMutation]);
+      );
+    } catch {
+      setIsUploading(false);
+      toast.error('Failed to upload file. Please try again.');
+    }
+  }, [selectedFile, dataType, uploadMigration, validateMutation]);
 
   // ---------------------------------------------------------------------------
   // Import
   // ---------------------------------------------------------------------------
   const handleImport = useCallback(() => {
-    if (!selectedFile || !dataType) return;
+    if (!migrationJob) return;
 
-    importMutation.mutate(
-      { file: selectedFile, type: dataType },
-      {
-        onSuccess: () => {
-          setSelectedFile(null);
-          setValidationResult(null);
-          setDataType('');
-          if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-          }
-        },
+    importMutation.mutate(migrationJob.id, {
+      onSuccess: () => {
+        setSelectedFile(null);
+        setMigrationJob(null);
+        setDataType('');
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
       },
-    );
-  }, [selectedFile, dataType, importMutation]);
+    });
+  }, [migrationJob, importMutation]);
 
+  // ---------------------------------------------------------------------------
+  // Download validation errors as CSV
+  // ---------------------------------------------------------------------------
+  const handleDownloadErrorsCsv = useCallback(() => {
+    if (!migrationJob?.errorReportUrl) return;
+    // If the backend provides an error report URL, open it directly
+    window.open(migrationJob.errorReportUrl, '_blank');
+  }, [migrationJob]);
+
+  const isValidating =
+    isUploading || uploadMigration.isPending || validateMutation.isPending;
   const canValidate = !!selectedFile && !!dataType;
-  const canImport = validationResult?.valid === true;
+  const isValidated = migrationJob?.status === 'VALIDATED';
+  const hasErrors = (migrationJob?.failedRecords ?? 0) > 0;
+  const canImport = isValidated && !hasErrors;
 
   return (
     <div className="space-y-6">
@@ -161,7 +185,7 @@ export function MigrationUpload() {
               value={dataType}
               onValueChange={(v) => {
                 setDataType(v as MigrationDataType);
-                setValidationResult(null);
+                setMigrationJob(null);
               }}
             >
               <SelectTrigger className="w-[240px]">
@@ -214,7 +238,7 @@ export function MigrationUpload() {
           {selectedFile ? (
             <div className="flex items-center justify-between rounded-lg border bg-muted/50 p-4">
               <div className="flex items-center gap-3">
-                <FileText className="h-8 w-8 text-[#2A9D8F]" />
+                <FileText className="h-8 w-8 text-teal" />
                 <div>
                   <p className="text-sm font-medium">{selectedFile.name}</p>
                   <p className="text-xs text-muted-foreground">
@@ -235,7 +259,7 @@ export function MigrationUpload() {
               className={cn(
                 'flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-10 transition-colors',
                 isDragOver
-                  ? 'border-[#2A9D8F] bg-[#2A9D8F]/5'
+                  ? 'border-teal bg-teal/5'
                   : 'border-muted-foreground/25 hover:border-muted-foreground/50',
               )}
             >
@@ -262,9 +286,9 @@ export function MigrationUpload() {
       <div className="flex gap-3">
         <Button
           onClick={handleValidate}
-          disabled={!canValidate || validateMutation.isPending}
+          disabled={!canValidate || isValidating}
         >
-          {validateMutation.isPending ? 'Validating...' : 'Validate'}
+          {isValidating ? 'Validating...' : 'Validate'}
         </Button>
         <Button
           onClick={handleImport}
@@ -276,90 +300,95 @@ export function MigrationUpload() {
       </div>
 
       {/* Validation Results */}
-      {validationResult && (
+      {migrationJob && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
-              {validationResult.valid ? (
+              {!hasErrors ? (
                 <>
-                  <CheckCircle2 className="h-5 w-5 text-[#2A9D8F]" />
+                  <ShieldCheck className="h-5 w-5 text-teal" />
                   Validation Passed
                 </>
               ) : (
                 <>
-                  <XCircle className="h-5 w-5 text-red-500" />
-                  Validation Failed
+                  <ShieldAlert className="h-5 w-5 text-red-500" />
+                  Validation Complete &mdash; Errors Found
                 </>
               )}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex gap-4">
-              <Badge variant="outline">
-                Total Records: {validationResult.totalRecords}
-              </Badge>
-              <Badge
-                variant="outline"
-                className="border-[#2A9D8F] text-[#2A9D8F]"
+            {/* Summary Badges */}
+            <div className="grid grid-cols-3 gap-4">
+              <div className="rounded-lg border p-3 text-center">
+                <p className="text-2xl font-bold">{migrationJob.totalRecords}</p>
+                <p className="text-xs text-muted-foreground">Total Records</p>
+              </div>
+              <div className="rounded-lg border border-teal/30 bg-teal/5 p-3 text-center">
+                <p className="text-2xl font-bold text-teal">
+                  {migrationJob.totalRecords - migrationJob.failedRecords}
+                </p>
+                <p className="text-xs text-muted-foreground">Valid</p>
+              </div>
+              <div
+                className={cn(
+                  'rounded-lg border p-3 text-center',
+                  hasErrors
+                    ? 'border-red-300 bg-red-50'
+                    : 'border-muted',
+                )}
               >
-                Valid: {validationResult.validRecords}
-              </Badge>
-              {validationResult.errors.length > 0 && (
-                <Badge variant="destructive">
-                  Errors: {validationResult.errors.length}
-                </Badge>
-              )}
+                <p
+                  className={cn(
+                    'text-2xl font-bold',
+                    hasErrors ? 'text-red-600' : 'text-muted-foreground',
+                  )}
+                >
+                  {migrationJob.failedRecords}
+                </p>
+                <p className="text-xs text-muted-foreground">Errors</p>
+              </div>
             </div>
 
-            {validationResult.valid && (
-              <Alert>
-                <CheckCircle2 className="h-4 w-4" />
+            <Separator />
+
+            {/* Success banner */}
+            {!hasErrors && (
+              <Alert className="border-teal/30 bg-teal/5">
+                <CheckCircle2 className="h-4 w-4 text-teal" />
                 <AlertTitle>Ready to import</AlertTitle>
                 <AlertDescription>
-                  All {validationResult.validRecords} records are valid.
-                  Click the &quot;Import&quot; button to proceed.
+                  All {migrationJob.totalRecords} records passed validation.
+                  Click the &quot;Import&quot; button above to proceed.
                 </AlertDescription>
               </Alert>
             )}
 
-            {validationResult.errors.length > 0 && (
+            {/* Error warning banner */}
+            {hasErrors && (
               <>
                 <Alert variant="destructive">
                   <AlertTriangle className="h-4 w-4" />
-                  <AlertTitle>Errors found</AlertTitle>
+                  <AlertTitle>
+                    {migrationJob.failedRecords} record{migrationJob.failedRecords !== 1 ? 's' : ''} failed validation
+                  </AlertTitle>
                   <AlertDescription>
-                    Fix the following errors in your CSV file and re-upload.
+                    The import cannot proceed until all errors are fixed.
+                    Please download the error report, correct the issues in your CSV file, and re-upload.
                   </AlertDescription>
                 </Alert>
 
-                <div className="max-h-[300px] overflow-auto rounded-md border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-20">Row</TableHead>
-                        <TableHead className="w-32">Field</TableHead>
-                        <TableHead>Error</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {validationResult.errors.map((error, index) => (
-                        <TableRow key={`error-${index}`}>
-                          <TableCell className="font-mono text-xs">
-                            {error.row}
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant="outline" className="font-mono text-xs">
-                              {error.field}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-sm">
-                            {error.message}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
+                {/* Download Errors Button */}
+                {migrationJob.errorReportUrl && (
+                  <Button
+                    variant="outline"
+                    onClick={handleDownloadErrorsCsv}
+                    className="gap-2"
+                  >
+                    <FileDown className="h-4 w-4" />
+                    Download Error Report (CSV)
+                  </Button>
+                )}
               </>
             )}
           </CardContent>

@@ -12,6 +12,8 @@ import {
   XCircle,
   ChevronLeft,
   ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -31,7 +33,7 @@ import {
   useMarkAllAsRead,
   useUnreadCount,
 } from '@/lib/hooks/use-notifications';
-import { formatRelative } from '@/lib/utils/format-date';
+import { formatRelativeTime } from '@/lib/utils/format-relative-time';
 import { cn } from '@/lib/utils';
 import type { NotificationItem } from '@/lib/types/notifications';
 
@@ -94,7 +96,7 @@ export default function NotificationsPage() {
   // Handlers
   // ---------------------------------------------------------------------------
   function handleNotificationClick(notification: NotificationItem) {
-    if (!notification.read) {
+    if (!notification.isRead) {
       markAsRead.mutate(notification.id);
     }
     if (notification.actionUrl) {
@@ -184,11 +186,19 @@ export default function NotificationsPage() {
             return (
               <Card
                 key={notification.id}
+                role="button"
+                tabIndex={0}
                 className={cn(
                   'cursor-pointer transition-colors hover:bg-accent/50',
-                  !notification.read && 'border-l-4 border-l-primary',
+                  !notification.isRead && 'border-l-4 border-l-primary',
                 )}
                 onClick={() => handleNotificationClick(notification)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleNotificationClick(notification);
+                  }
+                }}
               >
                 <CardContent className="flex items-start gap-4 p-4">
                   {/* Icon */}
@@ -207,7 +217,7 @@ export default function NotificationsPage() {
                       <h3
                         className={cn(
                           'text-sm',
-                          !notification.read
+                          !notification.isRead
                             ? 'font-semibold text-foreground'
                             : 'font-medium text-foreground/80',
                         )}
@@ -215,15 +225,17 @@ export default function NotificationsPage() {
                         {notification.title}
                       </h3>
                       {/* Unread indicator */}
-                      {!notification.read && (
-                        <span className="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full bg-primary" />
+                      {!notification.isRead && (
+                        <span className="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full bg-primary">
+                          <span className="sr-only">Unread</span>
+                        </span>
                       )}
                     </div>
                     <p className="mt-0.5 text-sm text-muted-foreground line-clamp-2">
-                      {notification.message}
+                      {notification.body}
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {formatRelative(notification.createdAt)}
+                      {formatRelativeTime(notification.createdAt)}
                     </p>
                   </div>
                 </CardContent>
@@ -233,30 +245,77 @@ export default function NotificationsPage() {
         </div>
       )}
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-4 pt-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => goToPage(pagination.pageIndex - 1)}
-            disabled={pagination.pageIndex === 0}
-          >
-            <ChevronLeft className="mr-1 h-4 w-4" />
-            Previous
-          </Button>
-          <span className="text-sm text-muted-foreground">
-            Page {pagination.pageIndex + 1} of {totalPages}
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => goToPage(pagination.pageIndex + 1)}
-            disabled={pagination.pageIndex >= totalPages - 1}
-          >
-            Next
-            <ChevronRight className="ml-1 h-4 w-4" />
-          </Button>
+      {/* Pagination — matches DataTable pattern */}
+      {totalPages > 0 && (
+        <div className="flex items-center justify-between px-2">
+          <div className="flex-1 text-sm text-muted-foreground" />
+          <div className="flex items-center space-x-6 lg:space-x-8">
+            <div className="flex items-center space-x-2">
+              <p className="text-sm font-medium">Per page</p>
+              <Select
+                value={`${pagination.pageSize}`}
+                onValueChange={(value) => {
+                  setPagination({ pageIndex: 0, pageSize: Number(value) });
+                }}
+              >
+                <SelectTrigger className="h-8 w-[70px]">
+                  <SelectValue placeholder={pagination.pageSize} />
+                </SelectTrigger>
+                <SelectContent side="top">
+                  {[10, 20, 30, 50].map((size) => (
+                    <SelectItem key={size} value={`${size}`}>
+                      {size}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex w-[100px] items-center justify-center text-sm font-medium">
+              Page {pagination.pageIndex + 1} of {totalPages || 1}
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="icon"
+                className="hidden h-8 w-8 lg:flex"
+                onClick={() => goToPage(0)}
+                disabled={pagination.pageIndex === 0}
+              >
+                <span className="sr-only">Go to first page</span>
+                <ChevronsLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => goToPage(pagination.pageIndex - 1)}
+                disabled={pagination.pageIndex === 0}
+              >
+                <span className="sr-only">Go to previous page</span>
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => goToPage(pagination.pageIndex + 1)}
+                disabled={pagination.pageIndex >= totalPages - 1}
+              >
+                <span className="sr-only">Go to next page</span>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="hidden h-8 w-8 lg:flex"
+                onClick={() => goToPage(totalPages - 1)}
+                disabled={pagination.pageIndex >= totalPages - 1}
+              >
+                <span className="sr-only">Go to last page</span>
+                <ChevronsRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </div>

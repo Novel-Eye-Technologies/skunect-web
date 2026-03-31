@@ -11,9 +11,12 @@ import {
   Send,
   EyeOff,
   FileIcon,
+  Search,
+  BookOpen,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,49 +51,7 @@ import {
 } from '@/lib/hooks/use-announcements';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { formatDate, formatDateTime } from '@/lib/utils/format-date';
-import { cn } from '@/lib/utils';
 import type { Announcement } from '@/lib/types/announcements';
-
-// ---------------------------------------------------------------------------
-// Priority badge color helper
-// ---------------------------------------------------------------------------
-const priorityConfig: Record<string, { label: string; className: string }> = {
-  LOW: {
-    label: 'Low',
-    className:
-      'bg-gray-100 text-gray-800 hover:bg-gray-100 dark:bg-gray-900/30 dark:text-gray-400',
-  },
-  NORMAL: {
-    label: 'Normal',
-    className:
-      'bg-blue-100 text-blue-800 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400',
-  },
-  HIGH: {
-    label: 'High',
-    className:
-      'bg-orange-100 text-orange-800 hover:bg-orange-100 dark:bg-orange-900/30 dark:text-orange-400',
-  },
-  URGENT: {
-    label: 'Urgent',
-    className:
-      'bg-red-100 text-red-800 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-400',
-  },
-};
-
-function PriorityBadge({ priority }: { priority: string }) {
-  const config = priorityConfig[priority] ?? {
-    label: priority,
-    className: 'bg-gray-100 text-gray-800',
-  };
-  return (
-    <Badge
-      variant="secondary"
-      className={cn('font-medium', config.className)}
-    >
-      {config.label}
-    </Badge>
-  );
-}
 
 // ---------------------------------------------------------------------------
 // Audience label helper
@@ -99,12 +60,13 @@ const audienceLabels: Record<string, string> = {
   ALL: 'All',
   TEACHERS: 'Teachers',
   PARENTS: 'Parents',
-  STUDENTS: 'Students',
+  CLASS_SPECIFIC: 'Class Specific',
 };
 
 export default function AnnouncementsPage() {
   const currentRole = useAuthStore((s) => s.currentRole);
   const isAdmin = currentRole === 'ADMIN';
+  const isTeacher = currentRole === 'TEACHER';
 
   // ---------------------------------------------------------------------------
   // State
@@ -114,6 +76,7 @@ export default function AnnouncementsPage() {
     pageSize: 10,
   });
   const [statusFilter, setStatusFilter] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<Announcement | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Announcement | null>(null);
@@ -125,7 +88,8 @@ export default function AnnouncementsPage() {
   const { data: response, isLoading } = useAnnouncements({
     page: pagination.pageIndex,
     size: pagination.pageSize,
-    status: statusFilter || undefined,
+    published: statusFilter === 'PUBLISHED' ? true : statusFilter === 'DRAFT' ? false : undefined,
+    search: searchQuery || undefined,
   });
 
   const deleteAnnouncement = useDeleteAnnouncement();
@@ -169,11 +133,6 @@ export default function AnnouncementsPage() {
       ),
     },
     {
-      accessorKey: 'priority',
-      header: 'Priority',
-      cell: ({ row }) => <PriorityBadge priority={row.original.priority} />,
-    },
-    {
       accessorKey: 'targetAudience',
       header: 'Audience',
       cell: ({ row }) =>
@@ -181,9 +140,25 @@ export default function AnnouncementsPage() {
         row.original.targetAudience,
     },
     {
-      accessorKey: 'status',
+      id: 'status',
       header: 'Status',
-      cell: ({ row }) => <StatusBadge status={row.original.status} />,
+      cell: ({ row }) => <StatusBadge status={row.original.isPublished ? 'PUBLISHED' : 'DRAFT'} />,
+    },
+    {
+      accessorKey: 'readCount',
+      header: 'Reads',
+      cell: ({ row }) => {
+        const announcement = row.original;
+        if (!announcement.isPublished) {
+          return <span className="text-muted-foreground">-</span>;
+        }
+        return (
+          <Badge variant="secondary" className="gap-1">
+            <BookOpen className="h-3 w-3" />
+            {announcement.readCount ?? 0}
+          </Badge>
+        );
+      },
     },
     {
       accessorKey: 'publishedAt',
@@ -218,7 +193,7 @@ export default function AnnouncementsPage() {
                     <Pencil className="mr-2 h-4 w-4" />
                     Edit
                   </DropdownMenuItem>
-                  {announcement.status === 'DRAFT' ? (
+                  {!announcement.isPublished ? (
                     <DropdownMenuItem
                       onClick={() =>
                         publishAnnouncement.mutate(announcement.id)
@@ -263,7 +238,7 @@ export default function AnnouncementsPage() {
         title="Announcements"
         description="Create and manage school-wide announcements."
         actions={
-          isAdmin ? (
+          isTeacher || isAdmin ? (
             <Button onClick={() => setCreateDialogOpen(true)}>
               <Plus className="mr-2 h-4 w-4" />
               Create Announcement
@@ -282,6 +257,18 @@ export default function AnnouncementsPage() {
         onPaginationChange={handlePaginationChange}
         toolbarActions={
           <div className="flex items-center gap-2">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search announcements..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+                }}
+                className="h-8 w-[200px] pl-8"
+              />
+            </div>
             <Select
               value={statusFilter}
               onValueChange={(value) => {
@@ -336,16 +323,21 @@ export default function AnnouncementsPage() {
           {viewTarget && (
             <div className="space-y-4">
               <div className="flex flex-wrap items-center gap-2">
-                <PriorityBadge priority={viewTarget.priority} />
-                <StatusBadge status={viewTarget.status} />
+                <StatusBadge status={viewTarget.isPublished ? 'PUBLISHED' : 'DRAFT'} />
                 <Badge variant="outline">
                   {audienceLabels[viewTarget.targetAudience] ??
                     viewTarget.targetAudience}
                 </Badge>
+                {viewTarget.isPublished && (
+                  <Badge variant="secondary" className="gap-1">
+                    <BookOpen className="h-3 w-3" />
+                    {viewTarget.readCount ?? 0} {(viewTarget.readCount ?? 0) === 1 ? 'read' : 'reads'}
+                  </Badge>
+                )}
               </div>
-              {viewTarget.expiresAt && (
+              {viewTarget.publishedAt && (
                 <p className="text-sm text-muted-foreground">
-                  Expires: {formatDate(viewTarget.expiresAt)}
+                  Published: {formatDate(viewTarget.publishedAt)}
                 </p>
               )}
               <div className="rounded-md border p-4">
@@ -358,7 +350,7 @@ export default function AnnouncementsPage() {
                   <div className="space-y-2">
                     <p className="text-sm font-medium">Attachments</p>
                     <ul className="space-y-1.5">
-                      {viewTarget.attachmentUrls.map((url, index) => {
+                      {viewTarget.attachmentUrls.filter((url): url is string => url !== null).map((url, index) => {
                         const fileName = (() => {
                           try {
                             const pathname = new URL(url).pathname;

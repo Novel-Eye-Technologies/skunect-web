@@ -64,12 +64,12 @@ export function useTeacherDashboard() {
   });
 }
 
-export function useParentDashboard() {
+export function useParentDashboard(studentId?: string) {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
 
   return useQuery({
-    queryKey: dashboardKeys.parent(schoolId!),
-    queryFn: () => getParentDashboard(schoolId!),
+    queryKey: [...dashboardKeys.parent(schoolId!), studentId].filter(Boolean),
+    queryFn: () => getParentDashboard(schoolId!, studentId),
     enabled: !!schoolId,
   });
 }

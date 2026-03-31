@@ -64,7 +64,7 @@ export function MigrationJobDetail({ jobId, onBack }: MigrationJobDetailProps) {
     );
   }
 
-  const statusConfig = STATUS_CONFIG[job.status];
+  const statusConfig = STATUS_CONFIG[job.status as MigrationJobStatus];
   const StatusIcon = statusConfig.icon;
   const progressPercent =
     job.totalRecords > 0
@@ -89,7 +89,7 @@ export function MigrationJobDetail({ jobId, onBack }: MigrationJobDetailProps) {
             <div className="flex items-center gap-3">
               <FileText className="h-8 w-8 text-muted-foreground" />
               <div>
-                <CardTitle className="text-lg">{job.fileName}</CardTitle>
+                <CardTitle className="text-lg">{(() => { const u = job.fileUrl; return u.split("/").pop() ?? u; })()}</CardTitle>
                 <p className="mt-0.5 text-sm text-muted-foreground">
                   Job ID: {job.id}
                 </p>
@@ -128,14 +128,14 @@ export function MigrationJobDetail({ jobId, onBack }: MigrationJobDetailProps) {
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Successful</p>
-              <p className="mt-0.5 text-sm font-medium text-[#2A9D8F]">
-                {job.successCount}
+              <p className="mt-0.5 text-sm font-medium text-teal">
+                {job.totalRecords - job.failedRecords}
               </p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Errors</p>
               <p className="mt-0.5 text-sm font-medium text-red-500">
-                {job.errorCount}
+                {job.failedRecords}
               </p>
             </div>
             <div>
@@ -158,43 +158,30 @@ export function MigrationJobDetail({ jobId, onBack }: MigrationJobDetailProps) {
       </Card>
 
       {/* Error List */}
-      {job.errors.length > 0 && (
+      {job.failedRecords > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <XCircle className="h-4 w-4 text-red-500" />
-              Import Errors ({job.errors.length})
+              Import Errors ({job.failedRecords})
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="max-h-[400px] overflow-auto rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-20">Row</TableHead>
-                    <TableHead className="w-32">Field</TableHead>
-                    <TableHead>Error Message</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {job.errors.map((error, index) => (
-                    <TableRow key={`error-${index}`}>
-                      <TableCell className="font-mono text-xs">
-                        {error.row}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="font-mono text-xs">
-                          {error.field}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-sm">
-                        {error.message}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+            {job.errorReportUrl ? (
+              <a
+                href={job.errorReportUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-sm font-medium text-primary underline-offset-4 hover:underline"
+              >
+                <FileText className="h-4 w-4" />
+                Download Error Report
+              </a>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                {job.failedRecords} record{job.failedRecords !== 1 ? 's' : ''} failed to import.
+              </p>
+            )}
           </CardContent>
         </Card>
       )}

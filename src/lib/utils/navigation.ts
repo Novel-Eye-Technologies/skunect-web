@@ -29,6 +29,7 @@ import {
   CreditCard,
   Tag,
   Layers,
+  ArrowUpDown,
 } from 'lucide-react';
 
 export type NavItem = {
@@ -99,11 +100,11 @@ export const navigationConfig: NavItem[] = [
   },
   {
     title: 'People',
-    href: '/users',
+    href: '/admins',
     icon: Users,
     roles: ['ADMIN'],
     children: [
-      { title: 'All Users', href: '/users', icon: Users, roles: ['ADMIN'] },
+      { title: 'Admins', href: '/admins', icon: Shield, roles: ['ADMIN'] },
       { title: 'Teachers', href: '/teachers', icon: UserCheck, roles: ['ADMIN'] },
       { title: 'Parents', href: '/parents', icon: UserRound, roles: ['ADMIN'] },
       { title: 'Students', href: '/students', icon: GraduationCap, roles: ['ADMIN'] },
@@ -133,17 +134,30 @@ export const navigationConfig: NavItem[] = [
     icon: BookOpen,
     roles: ['ADMIN', 'TEACHER'],
     children: [
-      { title: 'Overview', href: '/academics', icon: BookOpen, roles: ['ADMIN', 'TEACHER'] },
-      { title: 'Timetable', href: '/timetable', icon: Calendar, roles: ['ADMIN'] },
-      { title: 'Attendance', href: '/attendance', icon: ClipboardCheck, roles: ['ADMIN', 'TEACHER'] },
-      { title: 'Homework', href: '/homework', icon: FileText, roles: ['ADMIN', 'TEACHER'] },
+      { title: 'Classes', href: '/academics/classes', icon: GraduationCap, roles: ['ADMIN'] },
+      { title: 'Timetable', href: '/timetable', icon: Calendar, roles: ['ADMIN', 'TEACHER'] },
+      { title: 'Attendance Marking', href: '/attendance', icon: ClipboardCheck, roles: ['ADMIN', 'TEACHER'] },
+      { title: 'Homework Management', href: '/homework', icon: FileText, roles: ['ADMIN', 'TEACHER'] },
+      { title: 'Assessments & Grading', href: '/academics?tab=assessments', icon: ClipboardCheck, roles: ['ADMIN', 'TEACHER'] },
+      { title: 'Report Cards', href: '/academics?tab=report-cards', icon: ScrollText, roles: ['ADMIN', 'TEACHER'] },
     ],
   },
   {
-    title: 'Homework',
-    href: '/homework',
-    icon: FileText,
+    title: 'Academics',
+    href: '/academics',
+    icon: BookOpen,
     roles: ['PARENT'],
+    children: [
+      { title: 'Attendance', href: '/attendance', icon: ClipboardCheck, roles: ['PARENT'] },
+      { title: 'Homework', href: '/homework', icon: FileText, roles: ['PARENT'] },
+      { title: 'Grades', href: '/academics/grades', icon: FileText, roles: ['PARENT'] },
+    ],
+  },
+  {
+    title: 'Promotions',
+    href: '/promotions',
+    icon: ArrowUpDown,
+    roles: ['ADMIN'],
   },
   {
     title: 'Calendar',
@@ -159,7 +173,7 @@ export const navigationConfig: NavItem[] = [
     children: [
       { title: 'Messages', href: '/communication/messages', icon: MessageSquare, roles: ['ADMIN', 'TEACHER', 'PARENT'] },
       { title: 'Announcements', href: '/communication/announcements', icon: Bell, roles: ['ADMIN', 'TEACHER', 'PARENT'] },
-      { title: 'Events', href: '/events', icon: CalendarDays, roles: ['ADMIN', 'TEACHER', 'PARENT'] },
+      // { title: 'Events', href: '/events', icon: CalendarDays, roles: ['ADMIN', 'TEACHER', 'PARENT'] },
     ],
   },
   {

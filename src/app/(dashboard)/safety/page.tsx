@@ -7,10 +7,6 @@ import {
   Shield,
   ShieldAlert,
   ShieldCheck,
-  CloudLightning,
-  Cross,
-  Lock,
-  Users,
   Plus,
   CheckCircle,
 } from 'lucide-react';
@@ -54,13 +50,6 @@ const severityBorderColors: Record<string, string> = {
   CRITICAL: 'border-red-500 dark:border-red-600',
 };
 
-const alertTypeIcons: Record<string, React.ElementType> = {
-  LOCKDOWN: Lock,
-  EVACUATION: Users,
-  MEDICAL: Cross,
-  WEATHER: CloudLightning,
-  OTHER: AlertTriangle,
-};
 
 // ---------------------------------------------------------------------------
 // Page
@@ -100,10 +89,10 @@ export default function SafetyPage() {
   const pickupLogs = pickupResponse?.data ?? [];
   const pickupPageCount = pickupResponse?.meta?.totalPages ?? 0;
 
-  // Sort alerts: ACTIVE first, then by createdAt desc
+  // Sort alerts: active first, then by createdAt desc
   const sortedAlerts = [...alerts].sort((a, b) => {
-    if (a.status === 'ACTIVE' && b.status !== 'ACTIVE') return -1;
-    if (a.status !== 'ACTIVE' && b.status === 'ACTIVE') return 1;
+    if (a.isActive && !b.isActive) return -1;
+    if (!a.isActive && b.isActive) return 1;
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
@@ -245,15 +234,12 @@ export default function SafetyPage() {
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
               {sortedAlerts.map((alert) => {
-                const IconComponent = alertTypeIcons[alert.type] ?? AlertTriangle;
-                const isActive = alert.status === 'ACTIVE';
-
                 return (
                   <Card
                     key={alert.id}
                     className={cn(
                       'border-2 transition-colors',
-                      isActive
+                      alert.isActive
                         ? severityBorderColors[alert.severity]
                         : 'border-border',
                     )}
@@ -264,15 +250,15 @@ export default function SafetyPage() {
                           <div
                             className={cn(
                               'flex h-8 w-8 items-center justify-center rounded-full',
-                              isActive
+                              alert.isActive
                                 ? 'bg-red-100 dark:bg-red-900/30'
                                 : 'bg-muted',
                             )}
                           >
-                            <IconComponent
+                            <AlertTriangle
                               className={cn(
                                 'h-4 w-4',
-                                isActive
+                                alert.isActive
                                   ? 'text-red-600 dark:text-red-400'
                                   : 'text-muted-foreground',
                               )}
@@ -283,29 +269,29 @@ export default function SafetyPage() {
                               {alert.title}
                             </CardTitle>
                             <CardDescription className="text-xs">
-                              {alert.type} - {formatRelative(alert.createdAt)}
+                              {formatRelative(alert.createdAt)}
                             </CardDescription>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
                           <StatusBadge status={alert.severity} />
-                          <StatusBadge status={alert.status} />
+                          <StatusBadge status={alert.isActive ? 'ACTIVE' : 'RESOLVED'} />
                         </div>
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-3">
                       <p className="text-sm text-muted-foreground">
-                        {alert.description}
+                        {alert.message}
                       </p>
                       <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <span>Created by: {alert.createdBy}</span>
+                        <span>Initiated by: {alert.initiatedBy}</span>
                         {alert.resolvedAt && (
                           <span>
                             Resolved: {formatDateTime(alert.resolvedAt)}
                           </span>
                         )}
                       </div>
-                      {isAdmin && isActive && (
+                      {isAdmin && alert.isActive && (
                         <div className="flex justify-end">
                           <Button
                             variant="outline"

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
 import { ChevronDown, GraduationCap } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -40,8 +41,9 @@ export function ChildSwitcher() {
         id: s.id,
         firstName: s.firstName,
         lastName: s.lastName,
-        className: s.className,
-        photo: s.photo,
+        classId: s.classId ?? null,
+        className: s.className ?? null,
+        photo: s.photo ?? null,
       }));
       setChildren(mapped);
     }
@@ -75,7 +77,10 @@ export function ChildSwitcher() {
           return (
             <DropdownMenuItem
               key={child.id}
-              onClick={() => setSelectedChild(child.id)}
+              onClick={() => {
+                setSelectedChild(child.id);
+                toast.success(`Viewing ${child.firstName}'s data`);
+              }}
               className={cn('gap-3', isSelected && 'bg-accent')}
             >
               <Avatar className="h-7 w-7">

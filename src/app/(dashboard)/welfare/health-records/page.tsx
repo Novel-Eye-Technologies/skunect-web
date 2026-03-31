@@ -2,10 +2,16 @@
 
 import { useState } from 'react';
 import { format } from 'date-fns';
-import { Plus } from 'lucide-react';
+import { Plus, MoreHorizontal, Pencil } from 'lucide-react';
 import { type ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   Select,
   SelectContent,
@@ -40,6 +46,7 @@ export default function HealthRecordsPage() {
   const [typeFilter, setTypeFilter] = useState('');
   const [severityFilter, setSeverityFilter] = useState('');
   const [formOpen, setFormOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState<HealthRecord | null>(null);
 
   const { data: response, isLoading } = useHealthRecords({
     recordType: typeFilter || undefined,
@@ -113,6 +120,28 @@ export default function HealthRecordsPage() {
       accessorKey: 'recordedByName',
       header: 'Recorded By',
     },
+    {
+      id: 'actions',
+      cell: ({ row }) => {
+        const record = row.original;
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setEditTarget(record)}>
+                <Pencil className="mr-2 h-4 w-4" />
+                Edit
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
   ];
 
   return (
@@ -132,6 +161,8 @@ export default function HealthRecordsPage() {
         columns={columns}
         data={filteredRecords}
         isLoading={isLoading}
+        searchKey="studentName"
+        searchPlaceholder="Search students..."
         toolbarActions={
           <div className="flex items-center gap-2">
             <Select
@@ -140,7 +171,7 @@ export default function HealthRecordsPage() {
                 setTypeFilter(value === 'ALL' ? '' : value)
               }
             >
-              <SelectTrigger className="h-8 w-[160px]">
+              <SelectTrigger className="h-8 w-[140px]">
                 <SelectValue placeholder="All Types" />
               </SelectTrigger>
               <SelectContent>
@@ -175,6 +206,15 @@ export default function HealthRecordsPage() {
       />
 
       <HealthRecordFormDialog open={formOpen} onOpenChange={setFormOpen} />
+
+      {/* Edit Health Record Dialog */}
+      <HealthRecordFormDialog
+        open={!!editTarget}
+        onOpenChange={(open) => {
+          if (!open) setEditTarget(null);
+        }}
+        record={editTarget ?? undefined}
+      />
     </div>
   );
 }

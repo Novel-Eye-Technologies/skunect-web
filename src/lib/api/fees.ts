@@ -65,6 +65,7 @@ export interface InvoiceListParams extends PaginatedParams {
   status?: string;
   classId?: string;
   studentId?: string;
+  search?: string;
 }
 
 export async function getInvoices(
@@ -94,7 +95,8 @@ export async function generateInvoices(
 ): Promise<ApiResponse<Invoice[]>> {
   const response = await apiClient.post<ApiResponse<Invoice[]>>(
     `/schools/${schoolId}/fees/invoices/generate`,
-    data,
+    null,
+    { params: { termId: data.termId, classId: data.classId } },
   );
   return response.data;
 }

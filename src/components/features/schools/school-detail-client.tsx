@@ -456,7 +456,7 @@ export function SchoolDetailClient() {
 
       {/* Create Admin Dialog */}
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Add School Admin</DialogTitle>
             <DialogDescription>
@@ -466,7 +466,7 @@ export function SchoolDetailClient() {
           <form onSubmit={handleCreateAdmin} className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="create-firstName">First Name *</Label>
+                <Label htmlFor="create-firstName">First Name</Label>
                 <Input
                   id="create-firstName"
                   value={adminForm.firstName}
@@ -475,7 +475,7 @@ export function SchoolDetailClient() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="create-lastName">Last Name *</Label>
+                <Label htmlFor="create-lastName">Last Name</Label>
                 <Input
                   id="create-lastName"
                   value={adminForm.lastName}
@@ -484,7 +484,7 @@ export function SchoolDetailClient() {
                 />
               </div>
               <div className="col-span-full space-y-2">
-                <Label htmlFor="create-email">Email *</Label>
+                <Label htmlFor="create-email">Email</Label>
                 <Input
                   id="create-email"
                   type="email"
@@ -494,7 +494,7 @@ export function SchoolDetailClient() {
                 />
               </div>
               <div className="col-span-full space-y-2">
-                <Label htmlFor="create-phone">Phone</Label>
+                <Label htmlFor="create-phone">Phone (Optional)</Label>
                 <Input
                   id="create-phone"
                   type="tel"
@@ -520,7 +520,7 @@ export function SchoolDetailClient() {
 
       {/* Edit Admin Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Edit School Admin</DialogTitle>
             <DialogDescription>
@@ -530,7 +530,7 @@ export function SchoolDetailClient() {
           <form onSubmit={handleEditAdmin} className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="edit-firstName">First Name *</Label>
+                <Label htmlFor="edit-firstName">First Name</Label>
                 <Input
                   id="edit-firstName"
                   value={editForm.firstName}
@@ -539,7 +539,7 @@ export function SchoolDetailClient() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-lastName">Last Name *</Label>
+                <Label htmlFor="edit-lastName">Last Name</Label>
                 <Input
                   id="edit-lastName"
                   value={editForm.lastName}

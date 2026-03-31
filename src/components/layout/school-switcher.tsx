@@ -1,5 +1,6 @@
 'use client';
 
+import { toast } from 'sonner';
 import { ChevronsUpDown, School, Check } from 'lucide-react';
 import {
   DropdownMenu,
@@ -50,7 +51,12 @@ export function SchoolSwitcher() {
         {schools.map((schoolRole) => (
           <DropdownMenuItem
             key={schoolRole.schoolId}
-            onClick={() => schoolRole.schoolId && setCurrentSchool(schoolRole.schoolId)}
+            onClick={() => {
+              if (schoolRole.schoolId) {
+                setCurrentSchool(schoolRole.schoolId);
+                toast.success(`Switched to ${schoolRole.schoolName}`);
+              }
+            }}
             className="cursor-pointer"
           >
             <div className="flex w-full items-center justify-between">
@@ -65,7 +71,7 @@ export function SchoolSwitcher() {
               {schoolRole.schoolId === currentSchoolId && (
                 <Check
                   className={cn(
-                    'ml-2 h-4 w-4 shrink-0 text-[#2A9D8F]',
+                    'ml-2 h-4 w-4 shrink-0 text-teal',
                   )}
                 />
               )}

@@ -1,10 +1,13 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Upload, X } from 'lucide-react';
+import { uploadFile } from '@/lib/api/students';
+import { toast } from 'sonner';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -76,6 +79,9 @@ export function SchoolSettingsForm() {
     },
   });
 
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+
   // Populate form when settings load
   useEffect(() => {
     if (settings) {
@@ -90,8 +96,31 @@ export function SchoolSettingsForm() {
         lga: settings.lga ?? '',
         country: settings.country ?? '',
       });
+      setLogoUrl(settings.logo ?? null);
     }
   }, [settings, form]);
+
+  async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Logo must be under 2MB');
+      return;
+    }
+
+    setIsUploadingLogo(true);
+    try {
+      const response = await uploadFile(file, 'logos');
+      const url = response.data.fileUrl;
+      setLogoUrl(url);
+      toast.success('Logo uploaded');
+    } catch {
+      toast.error('Failed to upload logo');
+    } finally {
+      setIsUploadingLogo(false);
+    }
+  }
 
   function onSubmit(values: SchoolSettingsFormValues) {
     updateSettings.mutate({
@@ -104,6 +133,7 @@ export function SchoolSettingsForm() {
       state: values.state || undefined,
       lga: values.lga || undefined,
       country: values.country,
+      logoUrl: logoUrl || undefined,
     });
   }
 
@@ -137,6 +167,61 @@ export function SchoolSettingsForm() {
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {/* School Logo */}
+            <div className="flex items-center gap-6">
+              <Avatar className="h-20 w-20">
+                {logoUrl ? (
+                  <AvatarImage src={logoUrl} alt="School logo" />
+                ) : null}
+                <AvatarFallback className="text-2xl">
+                  {form.watch('schoolName')?.[0] ?? 'S'}
+                </AvatarFallback>
+              </Avatar>
+              <div className="space-y-2">
+                <p className="text-sm font-medium">School Logo</p>
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={isUploadingLogo}
+                    asChild
+                  >
+                    <label className="cursor-pointer">
+                      {isUploadingLogo ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Upload className="mr-2 h-4 w-4" />
+                      )}
+                      Upload Logo
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleLogoUpload}
+                      />
+                    </label>
+                  </Button>
+                  {logoUrl && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setLogoUrl(null)}
+                    >
+                      <X className="mr-1 h-4 w-4" />
+                      Remove
+                    </Button>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Recommended: 200x200px, PNG or JPG, max 2MB
+                </p>
+              </div>
+            </div>
+
+            <Separator />
+
             {/* School Identity */}
             <div className="grid gap-4 sm:grid-cols-2">
               <FormField

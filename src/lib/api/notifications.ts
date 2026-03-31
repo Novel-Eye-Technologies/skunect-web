@@ -11,40 +11,34 @@ export interface NotificationListParams extends PaginatedParams {
 }
 
 export async function getNotifications(
-  schoolId: string,
   params?: NotificationListParams,
 ): Promise<ApiResponse<NotificationItem[]>> {
   const response = await apiClient.get<ApiResponse<NotificationItem[]>>(
-    `/schools/${schoolId}/notifications`,
+    `/notifications`,
     { params },
   );
   return response.data;
 }
 
 export async function markNotificationAsRead(
-  schoolId: string,
   notificationId: string,
 ): Promise<ApiResponse<null>> {
   const response = await apiClient.put<ApiResponse<null>>(
-    `/schools/${schoolId}/notifications/${notificationId}/read`,
+    `/notifications/${notificationId}/read`,
   );
   return response.data;
 }
 
-export async function markAllNotificationsAsRead(
-  schoolId: string,
-): Promise<ApiResponse<null>> {
+export async function markAllNotificationsAsRead(): Promise<ApiResponse<null>> {
   const response = await apiClient.put<ApiResponse<null>>(
-    `/schools/${schoolId}/notifications/read-all`,
+    `/notifications/read-all`,
   );
   return response.data;
 }
 
-export async function getUnreadCount(
-  schoolId: string,
-): Promise<ApiResponse<{ count: number }>> {
+export async function getUnreadCount() : Promise<ApiResponse<{ count: number }>> {
   const response = await apiClient.get<ApiResponse<{ count: number }>>(
-    `/schools/${schoolId}/notifications/unread-count`,
+    `/notifications/unread-count`,
   );
   return response.data;
 }

@@ -14,6 +14,7 @@ import type {
 export interface UserListParams extends PaginatedParams {
   role?: string;
   status?: string;
+  search?: string;
 }
 
 export async function getUsers(
@@ -25,6 +26,15 @@ export async function getUsers(
     { params },
   );
   return response.data;
+}
+
+export function getContacts(
+  schoolId: string,
+  params?: UserListParams,
+): Promise<ApiResponse<UserListItem[]>> {
+  return apiClient
+    .get<ApiResponse<UserListItem[]>>(`/messaging/schools/${schoolId}/contacts`, { params })
+    .then((response) => response.data);
 }
 
 export async function inviteUser(

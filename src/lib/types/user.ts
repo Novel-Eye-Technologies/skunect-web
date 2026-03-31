@@ -1,36 +1,10 @@
-export interface UserRoleItem {
-  schoolId: string;
-  role: string;
-  isActive: boolean;
-}
+import type { Api } from '@/lib/api/schema';
 
-export interface UserListItem {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string | null;
-  isActive: boolean;
-  status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
-  lastLogin: string | null;
-  createdAt: string;
-  roles: UserRoleItem[];
-}
+// Response types from generated OpenAPI schemas
+export type UserRoleItem = Api['UserRoleResponse'];
+export type UserListItem = Api['UserResponse'];
 
-export interface InviteUserRequest {
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: 'ADMIN' | 'TEACHER';
-  phone?: string;
-}
-
-export interface UpdateUserStatusRequest {
-  status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
-}
-
-export interface UpdateSchoolUserRequest {
-  firstName: string;
-  lastName: string;
-  phone?: string;
-}
+// Request types from generated OpenAPI schemas
+export type InviteUserRequest = Api['InviteUserRequest'];
+export type UpdateUserStatusRequest = Api['UpdateUserStatusRequest'];
+export type UpdateSchoolUserRequest = Api['UpdateUserRequest'];

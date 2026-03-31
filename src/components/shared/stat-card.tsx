@@ -9,11 +9,14 @@ interface StatCardProps {
   value: string | number;
   description?: React.ReactNode;
   icon?: LucideIcon;
+  iconBgClassName?: string;
+  iconClassName?: string;
   trend?: {
     value: number;
     direction: 'up' | 'down';
   };
   className?: string;
+  onClick?: () => void;
 }
 
 export function StatCard({
@@ -21,11 +24,32 @@ export function StatCard({
   value,
   description,
   icon: Icon,
+  iconBgClassName,
+  iconClassName,
   trend,
   className,
+  onClick,
 }: StatCardProps) {
   return (
-    <Card className={cn('relative overflow-hidden', className)}>
+    <Card
+      className={cn(
+        'relative overflow-hidden',
+        onClick && 'cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors',
+        className
+      )}
+      onClick={onClick}
+      {...(onClick && {
+        role: 'button',
+        tabIndex: 0,
+        'aria-label': title,
+        onKeyDown: (e: React.KeyboardEvent) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onClick();
+          }
+        },
+      })}
+    >
       <CardContent className="p-6">
         <div className="flex items-start justify-between">
           <div className="space-y-2">
@@ -43,10 +67,11 @@ export function StatCard({
                     )}
                   >
                     {trend.direction === 'up' ? (
-                      <TrendingUp className="h-3 w-3" />
+                      <TrendingUp className="h-3 w-3" aria-hidden="true" />
                     ) : (
-                      <TrendingDown className="h-3 w-3" />
+                      <TrendingDown className="h-3 w-3" aria-hidden="true" />
                     )}
+                    <span className="sr-only">{trend.direction === 'up' ? 'Increased' : 'Decreased'}</span>
                     {trend.value}%
                   </span>
                 )}
@@ -57,8 +82,8 @@ export function StatCard({
             )}
           </div>
           {Icon && (
-            <div className="rounded-lg bg-[#2A9D8F]/10 p-3">
-              <Icon className="h-5 w-5 text-[#2A9D8F]" />
+            <div className={cn('rounded-lg p-3', iconBgClassName ?? 'bg-teal/10')}>
+              <Icon className={cn('h-5 w-5', iconClassName ?? 'text-teal')} />
             </div>
           )}
         </div>

@@ -97,6 +97,8 @@ export default function WelfarePage() {
         columns={columns}
         data={records}
         isLoading={isLoading}
+        searchKey="studentName"
+        searchPlaceholder="Search students..."
         toolbarActions={
           <div className="flex items-center gap-2">
             <Select
@@ -105,7 +107,7 @@ export default function WelfarePage() {
                 setClassFilter(value === 'ALL' ? '' : value)
               }
             >
-              <SelectTrigger className="h-8 w-[160px]">
+              <SelectTrigger className="h-8 w-[140px]">
                 <SelectValue placeholder="All Classes" />
               </SelectTrigger>
               <SelectContent>

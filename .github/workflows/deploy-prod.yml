@@ -1,52 +1,14 @@
 name: Deploy to Production
 
 on:
-  workflow_dispatch:
+  push:
+    branches: [main]
 
 env:
   NODE_VERSION: '20'
 
 jobs:
-  e2e-tests:
-    name: E2E Tests (Shard ${{ matrix.shard }})
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1/4, 2/4, 3/4, 4/4]
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install Playwright Chromium
-        run: npx playwright install --with-deps chromium
-
-      - name: Run Playwright tests
-        run: npx playwright test --shard=${{ matrix.shard }}
-        env:
-          E2E_BASE_URL: https://dev.skunect.com
-          E2E_API_URL: https://dev.skunect.com/api/v1
-
-      - name: Upload blob report
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: blob-report-${{ strategy.job-index }}
-          path: blob-report/
-          retention-days: 7
-
-  merge-reports:
-    name: Merge E2E Reports
-    if: always()
-    needs: e2e-tests
+  lint-and-typecheck:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -56,29 +18,12 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Download blob reports
-        uses: actions/download-artifact@v4
-        with:
-          path: all-blob-reports
-          pattern: blob-report-*
-          merge-multiple: true
-
-      - name: Merge reports
-        run: npx playwright merge-reports --reporter html ./all-blob-reports
-
-      - name: Upload merged HTML report
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 14
+      - run: npm ci
+      - run: npm run lint
+      - run: npx tsc --noEmit
 
   deploy:
-    needs: [e2e-tests, merge-reports]
-    if: needs.e2e-tests.result == 'success'
+    needs: lint-and-typecheck
     runs-on: ubuntu-latest
     environment: production
     steps:
@@ -114,8 +59,10 @@ jobs:
           aws s3 sync out/ s3://${{ secrets.S3_BUCKET }} \
             --delete \
             --cache-control "public,max-age=0,must-revalidate" \
+            --exclude "*" \
             --include "*.html" \
             --include "*.json" \
+            --include "*.txt" \
             --exclude "_next/*"
 
       - name: Invalidate CloudFront

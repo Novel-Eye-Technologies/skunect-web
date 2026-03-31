@@ -1,30 +1,19 @@
-export interface Assessment {
-  id: string;
-  schoolId: string;
-  classId: string;
-  className: string;
-  subjectId: string;
-  subjectName: string;
-  termId: string;
-  termName: string;
-  type: 'CA1' | 'CA2' | 'CA3' | 'EXAM';
-  title: string;
-  maxScore: number;
-  date: string;
-  createdBy: string;
-  createdAt: string;
-}
+import type { Api } from '@/lib/api/schema';
 
-export interface CreateAssessmentRequest {
-  classId: string;
-  subjectId: string;
-  termId: string;
-  type: 'CA1' | 'CA2' | 'CA3' | 'EXAM';
-  title: string;
-  maxScore: number;
-  date: string;
-}
+// Request types from generated OpenAPI schemas
+export type CreateAssessmentRequest = Api['CreateAssessmentRequest'];
+export type BulkGradeRequest = Api['BulkGradeRequest'];
+export type GradeEntry = Api['GradeEntry'];
+export type GenerateReportCardsRequest = Api['GenerateReportCardsRequest'];
+export type AssessmentCommentRequest = Api['AssessmentCommentRequest'];
 
+// Response types from generated OpenAPI schemas
+export type GradeResponse = Api['GradeResponse'];
+export type AssessmentCommentResponse = Api['AssessmentCommentResponse'];
+export type Assessment = Api['AssessmentResponse'];
+export type ReportCard = Api['ReportCardResponse'];
+
+// No generated schema — keep hand-written
 export interface UpdateAssessmentRequest extends Partial<CreateAssessmentRequest> {}
 
 export interface StudentScore {
@@ -40,28 +29,5 @@ export interface BulkScoreEntry {
 }
 
 export interface BulkScoreRequest {
-  scores: BulkScoreEntry[];
-}
-
-export interface ReportCard {
-  id: string;
-  studentId: string;
-  studentName: string;
-  admissionNumber: string;
-  classId: string;
-  className: string;
-  termId: string;
-  termName: string;
-  sessionName: string;
-  status: 'DRAFT' | 'PUBLISHED';
-  totalScore: number;
-  average: number;
-  position: number;
-  totalStudents: number;
-  generatedAt: string;
-}
-
-export interface GenerateReportCardsRequest {
-  classId: string;
-  termId: string;
+  grades: BulkScoreEntry[];
 }

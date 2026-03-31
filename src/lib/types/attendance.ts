@@ -1,29 +1,19 @@
-export interface AttendanceRecord {
-  id: string;
-  studentId: string;
-  studentName: string;
-  admissionNumber: string;
-  classId: string;
-  className: string;
-  date: string;
-  status: 'PRESENT' | 'ABSENT' | 'LATE';
-  note: string | null;
-  markedBy: string;
-  createdAt: string;
-}
+import type { Api } from '@/lib/api/schema';
 
-export interface BulkAttendanceEntry {
-  studentId: string;
-  status: 'PRESENT' | 'ABSENT' | 'LATE';
-  note?: string;
-}
+// Request/entry types from generated OpenAPI schemas
+export type AttendanceEntry = Api['AttendanceEntry'];
+export type RecordAttendanceRequest = Api['RecordAttendanceRequest'];
 
-export interface BulkAttendanceRequest {
-  classId: string;
-  date: string;
-  records: BulkAttendanceEntry[];
-}
+// Response types from generated OpenAPI schemas
+export type WelfareResponse = Api['WelfareResponse'];
+export type AttendanceRecord = Api['AttendanceResponse'];
+export type AttendanceOverviewResponse = Api['AttendanceOverviewResponse'];
 
+// Aliases used in hand-written code
+export type BulkAttendanceEntry = AttendanceEntry;
+export type BulkAttendanceRequest = RecordAttendanceRequest;
+
+// No generated schema — keep hand-written
 export interface AttendanceSummaryResponse {
   totalDays: number;
   presentCount: number;

@@ -97,7 +97,7 @@ export function GradeSubmissionDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[450px]">
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Grade Submission</DialogTitle>
           <DialogDescription>
@@ -114,16 +114,8 @@ export function GradeSubmissionDialog({
               <StatusBadge status={submission.status} />
             </div>
             <div className="text-xs text-muted-foreground">
-              Admission No: {submission.admissionNumber}
+              Submitted: {formatDateTime(submission.submittedAt ?? '')}
             </div>
-            <div className="text-xs text-muted-foreground">
-              Submitted: {formatDateTime(submission.submittedAt)}
-            </div>
-            {(submission.attachmentUrls?.length ?? submission.attachments?.length ?? 0) > 0 && (
-              <div className="text-xs text-muted-foreground">
-                {submission.attachmentUrls?.length ?? submission.attachments?.length ?? 0} attachment(s)
-              </div>
-            )}
           </div>
         )}
 

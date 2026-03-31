@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -21,6 +22,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
 import {
   Select,
   SelectContent,
@@ -28,9 +30,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useCreateHealthRecord } from '@/lib/hooks/use-health-records';
+import {
+  useCreateHealthRecord,
+  useUpdateHealthRecord,
+} from '@/lib/hooks/use-health-records';
 import { useStudents } from '@/lib/hooks/use-students';
 import { RECORD_TYPES, SEVERITY_OPTIONS } from '@/lib/types/health-record';
+import type { HealthRecord } from '@/lib/types/health-record';
 
 const recordTypeLabels: Record<string, string> = {
   ALLERGY: 'Allergy',
@@ -47,6 +53,7 @@ const healthRecordSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().optional(),
   severity: z.string().optional(),
+  isActive: z.boolean().optional(),
 });
 
 type HealthRecordFormValues = z.infer<typeof healthRecordSchema>;
@@ -54,13 +61,19 @@ type HealthRecordFormValues = z.infer<typeof healthRecordSchema>;
 interface HealthRecordFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** When provided, the dialog opens in edit mode and pre-fills the form. */
+  record?: HealthRecord;
 }
 
 export function HealthRecordFormDialog({
   open,
   onOpenChange,
+  record,
 }: HealthRecordFormDialogProps) {
+  const isEdit = !!record;
   const createRecord = useCreateHealthRecord();
+  const updateRecord = useUpdateHealthRecord();
+  const isPending = isEdit ? updateRecord.isPending : createRecord.isPending;
 
   const form = useForm<HealthRecordFormValues>({
     resolver: zodResolver(healthRecordSchema),
@@ -70,37 +83,83 @@ export function HealthRecordFormDialog({
       title: '',
       description: '',
       severity: '',
+      isActive: true,
     },
   });
+
+  // Pre-fill form when editing
+  useEffect(() => {
+    if (record && open) {
+      form.reset({
+        studentId: record.studentId ?? '',
+        recordType: record.recordType ?? '',
+        title: record.title ?? '',
+        description: record.description ?? '',
+        severity: record.severity ?? '',
+        isActive: record.isActive !== false,
+      });
+    } else if (!record && open) {
+      form.reset({
+        studentId: '',
+        recordType: '',
+        title: '',
+        description: '',
+        severity: '',
+        isActive: true,
+      });
+    }
+  }, [record, open, form]);
 
   const { data: studentsRes } = useStudents({ size: 100 });
   const students = studentsRes?.data ?? [];
 
   function onSubmit(values: HealthRecordFormValues) {
-    createRecord.mutate(
-      {
-        studentId: values.studentId,
-        recordType: values.recordType,
-        title: values.title,
-        description: values.description || undefined,
-        severity: values.severity || undefined,
-      },
-      {
-        onSuccess: () => {
-          form.reset();
-          onOpenChange(false);
+    if (isEdit) {
+      updateRecord.mutate(
+        {
+          recordId: record.id,
+          data: {
+            recordType: values.recordType,
+            title: values.title,
+            description: values.description || undefined,
+            severity: values.severity || undefined,
+            isActive: values.isActive,
+          },
         },
-      },
-    );
+        {
+          onSuccess: () => {
+            onOpenChange(false);
+          },
+        },
+      );
+    } else {
+      createRecord.mutate(
+        {
+          studentId: values.studentId,
+          recordType: values.recordType,
+          title: values.title,
+          description: values.description || undefined,
+          severity: values.severity || undefined,
+        },
+        {
+          onSuccess: () => {
+            form.reset();
+            onOpenChange(false);
+          },
+        },
+      );
+    }
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px]">
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Add Health Record</DialogTitle>
+          <DialogTitle>{isEdit ? 'Edit Health Record' : 'Add Health Record'}</DialogTitle>
           <DialogDescription>
-            Record a student&apos;s health information, allergy, or medical note.
+            {isEdit
+              ? 'Update the health record details below.'
+              : 'Record a student\u0027s health information, allergy, or medical note.'}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -111,7 +170,11 @@ export function HealthRecordFormDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Student</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    disabled={isEdit}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a student" />
@@ -215,6 +278,29 @@ export function HealthRecordFormDialog({
               )}
             />
 
+            {isEdit && (
+              <FormField
+                control={form.control}
+                name="isActive"
+                render={({ field }) => (
+                  <FormItem className="flex items-center justify-between rounded-lg border p-3">
+                    <div>
+                      <FormLabel className="text-base">Active</FormLabel>
+                      <p className="text-sm text-muted-foreground">
+                        Mark this record as active or resolved.
+                      </p>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            )}
+
             <div className="flex justify-end gap-2 pt-4">
               <Button
                 type="button"
@@ -223,8 +309,8 @@ export function HealthRecordFormDialog({
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={createRecord.isPending}>
-                {createRecord.isPending ? 'Saving...' : 'Add Record'}
+              <Button type="submit" disabled={isPending}>
+                {isPending ? 'Saving...' : isEdit ? 'Save Changes' : 'Add Record'}
               </Button>
             </div>
           </form>

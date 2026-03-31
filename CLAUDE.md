@@ -12,9 +12,32 @@ npm run test:e2e                        # Playwright E2E tests (against dev.skun
 npm run test:e2e:ui                     # Interactive Playwright UI
 npx playwright test path/to/spec.ts    # Single E2E test file
 E2E_BASE_URL=http://localhost:3000 npm run test:e2e  # E2E against local dev
+npm run api:sync                        # Regenerate API types from backend OpenAPI spec
 ```
 
-After code changes, run E2E tests against local dev to verify no regressions.
+### Pre-PR Workflow (MANDATORY)
+1. Create feature branch from `develop` and merge `develop` into it BEFORE updating or running tests — ensures tests validate against the latest codebase.
+2. Update or add E2E and lifecycle tests for any code changes.
+3. Run all checks: `npm run lint && npx tsc --noEmit && npm run build`
+4. Run ALL tests including E2E and lifecycle: `E2E_BASE_URL=http://localhost:3000 E2E_API_URL=http://localhost:8080/api/v1 npm run test:e2e`
+5. Confirm all tests pass before creating the PR.
+
+## API Type Generation
+
+Backend types are auto-generated from the OpenAPI spec using `openapi-typescript`.
+
+- **Spec**: `src/lib/api/openapi.json` — downloaded from backend `/api-docs` endpoint
+- **Generated types**: `src/lib/api/generated-types.ts` — DO NOT edit manually
+- **Schema helper**: `src/lib/api/schema.ts` — re-exports with `Api['SchemaName']` shorthand
+- **Sync command**: `npm run api:sync` — fetches spec and regenerates types
+- **CI check**: The E2E full workflow verifies types are in sync with the running backend
+
+When backend DTOs change, run `npm run api:sync` and commit the updated files. CI will fail if types drift.
+
+**MANDATORY:** Never hand-write DTOs/types for API requests or responses. Always use the generated types via `import type { Api } from '@/lib/api/schema'` (e.g., `Api['BetaSignupResponse']`). If the backend code has not been pushed to dev yet, sync against the local API instead:
+```bash
+curl -L http://localhost:8080/api-docs -o src/lib/api/openapi.json && npm run api:generate-types
+```
 
 ## Architecture
 

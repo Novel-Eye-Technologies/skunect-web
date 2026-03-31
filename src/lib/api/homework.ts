@@ -17,6 +17,7 @@ export interface HomeworkListParams extends PaginatedParams {
   classId?: string;
   subjectId?: string;
   status?: string;
+  search?: string;
 }
 
 export async function getHomeworkList(

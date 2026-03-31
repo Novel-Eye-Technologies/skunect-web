@@ -2,8 +2,8 @@
 
 import { useRouter } from 'next/navigation';
 import { Bell, CheckCheck, ExternalLink } from 'lucide-react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { formatDistanceToNow } from 'date-fns';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { formatRelativeTime } from '@/lib/utils/format-relative-time';
 import { Button } from '@/components/ui/button';
 import {
   Popover,
@@ -23,19 +23,18 @@ import {
   getUnreadCount,
 } from '@/lib/api/notifications';
 import type { NotificationItem } from '@/lib/types/notifications';
+import { queryClient } from '@/lib/query-client';
 
 export function NotificationBell() {
   const router = useRouter();
   const schoolId = useAuthStore((s) => s.currentSchoolId);
   const unreadCount = useNotificationStore((s) => s.unreadCount);
   const setUnreadCount = useNotificationStore((s) => s.setUnreadCount);
-  const queryClient = useQueryClient();
-
-  // Fetch unread count on interval
+// Fetch unread count on interval
   useQuery({
-    queryKey: ['notifications', 'unread-count', schoolId],
+    queryKey: ['notifications', 'unread-count'],
     queryFn: async () => {
-      const res = await getUnreadCount(schoolId!);
+      const res = await getUnreadCount();
       setUnreadCount(res.data?.count ?? 0);
       return res;
     },
@@ -46,7 +45,7 @@ export function NotificationBell() {
   // Fetch recent notifications for dropdown
   const { data: notifRes, isLoading } = useQuery({
     queryKey: ['notifications', 'recent', schoolId],
-    queryFn: () => getNotifications(schoolId!, { size: 8, page: 0 }),
+    queryFn: () => getNotifications({ size: 8, page: 0 }),
     enabled: !!schoolId,
     refetchInterval: 30_000,
   });
@@ -55,14 +54,14 @@ export function NotificationBell() {
 
   const markRead = useMutation({
     mutationFn: (notificationId: string) =>
-      markNotificationAsRead(schoolId!, notificationId),
+      markNotificationAsRead(notificationId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
     },
   });
 
   const markAllRead = useMutation({
-    mutationFn: () => markAllNotificationsAsRead(schoolId!),
+    mutationFn: () => markAllNotificationsAsRead(),
     onSuccess: () => {
       setUnreadCount(0);
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
@@ -70,7 +69,7 @@ export function NotificationBell() {
   });
 
   function handleNotificationClick(notification: NotificationItem) {
-    if (!notification.read) {
+    if (!notification.isRead) {
       markRead.mutate(notification.id);
     }
     if (notification.actionUrl) {
@@ -139,11 +138,11 @@ export function NotificationBell() {
                   onClick={() => handleNotificationClick(notification)}
                   className={cn(
                     'flex w-full gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/50',
-                    !notification.read && 'bg-muted/30',
+                    !notification.isRead && 'bg-muted/30',
                   )}
                 >
                   <div className="mt-1.5 shrink-0">
-                    {!notification.read ? (
+                    {!notification.isRead ? (
                       <div className="h-2 w-2 rounded-full bg-blue-500" />
                     ) : (
                       <div className="h-2 w-2" />
@@ -154,12 +153,10 @@ export function NotificationBell() {
                       {notification.title}
                     </p>
                     <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2">
-                      {notification.message}
+                      {notification.body}
                     </p>
                     <p className="mt-1 text-[10px] text-muted-foreground/70">
-                      {formatDistanceToNow(new Date(notification.createdAt), {
-                        addSuffix: true,
-                      })}
+                      {formatRelativeTime(notification.createdAt)}
                     </p>
                   </div>
                 </button>

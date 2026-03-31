@@ -119,7 +119,7 @@ export function ClassesManager() {
     setEditingClass(cls);
     form.reset({
       name: cls.name,
-      section: cls.section ?? '',
+      section: cls.gradeLevel ?? '',
       capacity: cls.capacity,
       classTeacherId: cls.classTeacherId ?? '',
     });
@@ -127,12 +127,12 @@ export function ClassesManager() {
   }
 
   function onSubmit(values: ClassFormValues) {
+    if (!currentSessionId) return;
     const payload = {
       name: values.name,
-      capacity: values.capacity,
-      section: values.section || undefined,
-      classTeacherId: values.classTeacherId,
       sessionId: currentSessionId,
+      capacity: values.capacity || undefined,
+      classTeacherId: values.classTeacherId || undefined,
     };
 
     if (editingClass) {
@@ -221,12 +221,12 @@ export function ClassesManager() {
                 {classes.map((cls) => (
                   <TableRow key={cls.id}>
                     <TableCell className="font-medium">{cls.name}</TableCell>
-                    <TableCell>{cls.section ?? '—'}</TableCell>
+                    <TableCell>{cls.gradeLevel ?? '—'}</TableCell>
                     <TableCell>{cls.capacity}</TableCell>
                     <TableCell>
                       {cls.classTeacherName ?? '—'}
                     </TableCell>
-                    <TableCell>{cls.studentCount}</TableCell>
+                    <TableCell>{cls.studentCount ?? 0}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">
                         <Button

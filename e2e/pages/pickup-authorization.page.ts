@@ -10,7 +10,7 @@ export class PickupAuthorizationPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.heading = page.getByRole('heading', { name: /pickup authorization/i });
+    this.heading = page.getByRole('heading', { name: 'Pickup Authorization', exact: true });
     this.description = page.getByText(
       'Manage authorized pickup persons for your children.'
     );

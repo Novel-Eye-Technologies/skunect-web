@@ -1,85 +1,39 @@
-// Types matching the Spring Boot backend DTOs
+import type { Api } from '@/lib/api/schema';
 
-export interface AcademicSession {
-  id: string;
-  schoolId: string;
-  name: string; // e.g. "2024/2025"
-  startDate: string;
-  endDate: string;
-  isCurrent: boolean;
-  createdAt: string;
-}
+// Request types from generated OpenAPI schemas
+export type CreateSessionRequest = Api['CreateSessionRequest'];
+export type CreateTermRequest = Api['CreateTermRequest'];
+export type CreateSubjectRequest = Api['CreateSubjectRequest'];
+export type BulkAssignSubjectsRequest = Api['BulkAssignSubjectsRequest'];
+export type CreateClassRequest = Api['CreateClassRequest'];
+export type CreateGradingSystemRequest = Api['CreateGradingSystemRequest'];
 
-export interface Term {
-  id: string;
-  sessionId: string;
-  name: string; // e.g. "First Term"
-  startDate: string;
-  endDate: string;
-  isCurrent: boolean;
-  isClosed: boolean;
-  createdAt: string;
-}
+export type ClassSubject = Api['ClassSubjectResponse'];
 
-export interface SchoolClass {
-  id: string;
-  schoolId: string;
-  name: string;
-  section: string | null;
-  capacity: number;
-  classTeacherId: string | null;
-  classTeacherName: string | null;
-  studentCount: number;
-  createdAt: string;
-}
-
-export interface Subject {
-  id: string;
-  schoolId: string;
-  name: string;
-  code: string;
-  description: string | null;
-  createdAt: string;
-}
-
-export interface ClassSubject {
-  id: string;
-  classId: string;
-  subjectId: string;
-  subjectName: string;
-  subjectCode: string;
-  teacherId: string | null;
-  teacherName: string | null;
-  termId: string;
-  termName: string | null;
-  isClassTeacher: boolean;
-}
-
+// AssignSubjectTeacherRequest — generated uses `teacherId?: string`, hand-written uses
+// `teacherId: string | null`. Keep hand-written for null support (unassign teacher).
 export interface AssignSubjectTeacherRequest {
   teacherId: string | null;
 }
 
-export interface BulkAssignSubjectsRequest {
-  subjectIds: string[];
-}
+// Response types from generated OpenAPI schemas
+export type AcademicSession = Api['SessionResponse'];
+export type Term = Api['TermResponse'];
+export type SchoolClass = Api['ClassResponse'] & {
+  /** Alias: backend may also return section alongside gradeLevel */
+  section?: string | null;
+};
+export type Subject = Api['SubjectResponse'] & {
+  /** Backend returns description but OpenAPI spec omits it */
+  description?: string | null;
+};
+export type GradingSystem = Api['GradingSystemResponse'] & {
+  /** Backend returns createdAt but OpenAPI spec omits it */
+  createdAt?: string;
+};
+export type GradeDefinition = Api['GradingScaleResponse'];
 
-export interface GradingSystem {
-  id: string;
-  schoolId: string;
-  name: string;
-  scales: GradeDefinition[];
-  isDefault: boolean;
-  createdAt: string;
-}
-
-export interface GradeDefinition {
-  id?: string;
-  gradeLabel: string; // e.g. "A", "B", etc.
-  minScore: number;
-  maxScore: number;
-  remark: string; // e.g. "Excellent"
-}
-
+// No generated schema — keep hand-written
 export interface SchoolSettings {
   id: string;
   schoolId: string;
@@ -97,51 +51,18 @@ export interface SchoolSettings {
   currentTermId: string | null;
 }
 
-// Request types
-export interface CreateSessionRequest {
-  name: string;
-  startDate: string;
-  endDate: string;
-}
-
+// No generated schema for these Update types — keep hand-written
 export interface UpdateSessionRequest extends CreateSessionRequest {
   isCurrent?: boolean;
-}
-
-export interface CreateTermRequest {
-  sessionId: string;
-  name: string;
-  startDate: string;
-  endDate: string;
 }
 
 export interface UpdateTermRequest extends CreateTermRequest {
   isCurrent?: boolean;
 }
 
-export interface CreateClassRequest {
-  name: string;
-  section?: string;
-  capacity: number;
-  classTeacherId: string;
-  sessionId?: string;
-}
-
 export interface UpdateClassRequest extends CreateClassRequest {}
 
-export interface CreateSubjectRequest {
-  name: string;
-  code: string;
-  description?: string;
-}
-
 export interface UpdateSubjectRequest extends CreateSubjectRequest {}
-
-export interface CreateGradingSystemRequest {
-  name: string;
-  scales: Omit<GradeDefinition, 'id'>[];
-  isDefault?: boolean;
-}
 
 export interface UpdateGradingSystemRequest extends CreateGradingSystemRequest {}
 
@@ -157,4 +78,5 @@ export interface UpdateSchoolSettingsRequest {
   country?: string;
   currentSessionId?: string;
   currentTermId?: string;
+  logoUrl?: string;
 }

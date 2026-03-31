@@ -1,48 +1,18 @@
-export interface FeeStructure {
-  id: string;
-  name: string;
-  description: string | null;
-  amount: number;
-  classId: string | null;
-  className: string | null;
-  termId: string | null;
-  termName: string | null;
-  sessionId: string | null;
-  sessionName: string | null;
-  isActive: boolean;
-  createdAt: string;
-}
+import type { Api } from '@/lib/api/schema';
 
-export interface CreateFeeStructureRequest {
-  name: string;
-  description?: string;
-  amount: number;
-  classId?: string;
-  termId?: string;
-  sessionId?: string;
-}
+// Request types from generated OpenAPI schemas
+export type CreateFeeStructureRequest = Api['CreateFeeStructureRequest'];
 
-export interface UpdateFeeStructureRequest extends Partial<CreateFeeStructureRequest> {
-  isActive?: boolean;
-}
+// Response types from generated OpenAPI schemas
+export type FeeStructure = Api['FeeStructureResponse'];
+export type Invoice = Api['FeeInvoiceResponse'];
 
-export interface Invoice {
-  id: string;
-  invoiceNumber: string;
-  studentId: string;
-  studentName: string;
-  admissionNumber: string;
-  classId: string;
-  className: string;
-  feeStructureId: string;
-  feeStructureName: string;
+// RecordPaymentRequest — keep hand-written because consumer code
+// (school-subscription-client) adds fields not in generated schema.
+export interface RecordPaymentRequest {
   amount: number;
-  amountPaid: number;
-  balance: number;
-  status: 'PENDING' | 'PARTIAL' | 'PAID' | 'OVERDUE';
-  dueDate: string;
-  payments: Payment[];
-  createdAt: string;
+  paymentMethod: 'CASH' | 'BANK_TRANSFER' | 'CARD' | 'OTHER';
+  reference?: string;
 }
 
 export interface Payment {
@@ -54,13 +24,12 @@ export interface Payment {
   recordedBy: string;
 }
 
-export interface GenerateInvoicesRequest {
-  feeStructureId: string;
-  classId: string;
+// No generated schema — keep hand-written
+export interface UpdateFeeStructureRequest extends Partial<CreateFeeStructureRequest> {
+  isActive?: boolean;
 }
 
-export interface RecordPaymentRequest {
-  amount: number;
-  paymentMethod: 'CASH' | 'BANK_TRANSFER' | 'CARD' | 'OTHER';
-  reference?: string;
+export interface GenerateInvoicesRequest {
+  termId: string;
+  classId?: string;
 }

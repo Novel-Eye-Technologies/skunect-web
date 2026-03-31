@@ -75,7 +75,7 @@ export function EnrollStudentDialog({
       {
         busId: values.busId,
         studentId: values.studentId,
-        pickupPoint: values.pickupPoint || undefined,
+        pickupPoint: values.pickupPoint || '',
       },
       {
         onSuccess: () => {

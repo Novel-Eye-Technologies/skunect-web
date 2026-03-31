@@ -1,5 +1,6 @@
 import apiClient from '@/lib/api/client';
 import type { ApiResponse, PaginatedParams } from '@/lib/api/types';
+import type { Api } from '@/lib/api/schema';
 import type {
   StudentListItem,
   StudentDetail,
@@ -78,20 +79,24 @@ export async function getParentChildren(): Promise<ApiResponse<StudentListItem[]
   const raw = response.data;
 
   // Map the backend shape to the frontend StudentListItem shape
-  const mapped: StudentListItem[] = (raw.data ?? []).map((child) => ({
+  const mapped = (raw.data ?? []).map((child) => ({
     id: child.studentId,
     admissionNumber: child.admissionNumber,
     firstName: child.firstName,
     lastName: child.lastName,
-    otherName: null,
+    otherName: '',
     dateOfBirth: '',
-    gender: (child.gender as StudentListItem['gender']) ?? 'MALE',
+    enrolledDate: '',
+    gender: (child.gender as string) ?? 'MALE',
     classId: child.classId,
     className: child.className ?? '',
-    status: (child.status as StudentListItem['status']) ?? 'ACTIVE',
-    photo: child.photo ?? null,
+    status: (child.status as string) ?? 'ACTIVE',
+    photo: child.photo ?? '',
+    parents: [] as StudentListItem['parents'],
+    isActive: true,
     createdAt: '',
-  }));
+    schoolId: '',
+  })) as StudentListItem[];
 
   return { ...raw, data: mapped };
 }
@@ -193,18 +198,53 @@ export async function deleteDocument(
 // Profile API
 // ---------------------------------------------------------------------------
 
-export interface UpdateProfileRequest {
-  firstName?: string;
-  lastName?: string;
-  phone?: string;
-}
+export type UpdateProfileRequest = Api['UpdateUserRequest'];
 
 export async function updateProfile(
   data: UpdateProfileRequest,
 ): Promise<ApiResponse<null>> {
   const response = await apiClient.put<ApiResponse<null>>(
-    '/users/profile',
+    '/users/me',
     data,
+  );
+  return response.data;
+}
+
+// ---------------------------------------------------------------------------
+// Student Usage
+// ---------------------------------------------------------------------------
+
+export type StudentUsageResponse = Api['StudentUsageResponse'];
+
+export async function getStudentUsage(
+  schoolId: string,
+): Promise<ApiResponse<StudentUsageResponse>> {
+  const response = await apiClient.get<ApiResponse<StudentUsageResponse>>(
+    `/schools/${schoolId}/student-usage`,
+  );
+  return response.data;
+}
+
+// ---------------------------------------------------------------------------
+// Student Activation
+// ---------------------------------------------------------------------------
+
+export async function activateStudent(
+  schoolId: string,
+  studentId: string,
+): Promise<ApiResponse<StudentDetail>> {
+  const response = await apiClient.post<ApiResponse<StudentDetail>>(
+    `/schools/${schoolId}/students/${studentId}/activate`,
+  );
+  return response.data;
+}
+
+export async function deactivateStudent(
+  schoolId: string,
+  studentId: string,
+): Promise<ApiResponse<StudentDetail>> {
+  const response = await apiClient.post<ApiResponse<StudentDetail>>(
+    `/schools/${schoolId}/students/${studentId}/deactivate`,
   );
   return response.data;
 }

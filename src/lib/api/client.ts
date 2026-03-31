@@ -55,6 +55,14 @@ apiClient.interceptors.response.use(
       _retry?: boolean;
     };
 
+    // Handle 403 Forbidden — user lacks permission for this resource
+    if (error.response?.status === 403) {
+      const message =
+        (error.response.data as { message?: string })?.message ||
+        'You do not have permission to access this resource';
+      return Promise.reject(new Error(message));
+    }
+
     // Only attempt refresh for 401 errors that haven't been retried yet
     if (error.response?.status !== 401 || originalRequest._retry) {
       return Promise.reject(error);
@@ -98,7 +106,8 @@ apiClient.interceptors.response.use(
         { headers: { 'Content-Type': 'application/json' } }
       );
 
-      const { accessToken, refreshToken: newRefreshToken } = data.data;
+      const accessToken = data.data.accessToken!;
+      const newRefreshToken = data.data.refreshToken!;
 
       useAuthStore.getState().setTokens(accessToken, newRefreshToken);
 

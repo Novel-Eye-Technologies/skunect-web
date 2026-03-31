@@ -33,7 +33,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getClasses } from '@/lib/api/school-settings';
 
 const COLORS = {
-  present: '#2A9D8F',
+  present: 'var(--color-teal)',
   absent: '#ef4444',
   late: '#f59e0b',
 };
@@ -55,8 +55,8 @@ export function AttendanceAnalytics() {
   const classes = classesResponse ?? [];
 
   const { data, isLoading } = useAttendanceSummary({
-    startDate: startDate || undefined,
-    endDate: endDate || undefined,
+    from: startDate || undefined,
+    to: endDate || undefined,
     classId: classId || undefined,
   });
 
@@ -113,7 +113,7 @@ export function AttendanceAnalytics() {
                 {classes.map((cls) => (
                   <SelectItem key={cls.id} value={cls.id}>
                     {cls.name}
-                    {cls.section ? ` (${cls.section})` : ''}
+                    {cls.gradeLevel ? ` (${cls.gradeLevel})` : ''}
                   </SelectItem>
                 ))}
               </SelectContent>

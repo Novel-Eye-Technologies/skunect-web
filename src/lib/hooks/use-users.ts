@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { getApiErrorMessage } from '@/lib/utils/get-error-message';
@@ -11,8 +11,10 @@ import {
   updateSchoolUser,
   removeUser,
   type UserListParams,
+  getContacts,
 } from '@/lib/api/users';
 import type { InviteUserRequest, UpdateUserStatusRequest, UpdateSchoolUserRequest } from '@/lib/types/user';
+import { queryClient } from '@/lib/query-client';
 
 // ---------------------------------------------------------------------------
 // Query keys
@@ -22,6 +24,8 @@ const userKeys = {
   all: ['users'] as const,
   list: (schoolId: string, params?: UserListParams) =>
     [...userKeys.all, 'list', schoolId, params] as const,
+  contacts: (schoolId: string, params?: UserListParams) =>
+    [...userKeys.all, 'contacts', schoolId, params] as const,
 };
 
 // ---------------------------------------------------------------------------
@@ -37,6 +41,15 @@ export function useUsers(params?: UserListParams) {
     enabled: !!schoolId,
   });
 }
+export function useContacts(params?: UserListParams) {
+  const schoolId = useAuthStore((s) => s.currentSchoolId);
+
+  return useQuery({
+    queryKey: userKeys.contacts(schoolId ?? '', params),
+    queryFn: () => getContacts(schoolId!, params),
+    enabled: !!schoolId,
+  });
+}
 
 // ---------------------------------------------------------------------------
 // Mutations
@@ -44,8 +57,6 @@ export function useUsers(params?: UserListParams) {
 
 export function useInviteUser() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (data: InviteUserRequest) => inviteUser(schoolId!, data),
     onSuccess: () => {
@@ -60,8 +71,6 @@ export function useInviteUser() {
 
 export function useUpdateUserStatus() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: ({
       userId,
@@ -82,8 +91,6 @@ export function useUpdateUserStatus() {
 
 export function useUpdateSchoolUser() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: ({
       userId,
@@ -105,8 +112,6 @@ export function useUpdateSchoolUser() {
 
 export function useRemoveUser() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (userId: string) => removeUser(schoolId!, userId),
     onSuccess: () => {

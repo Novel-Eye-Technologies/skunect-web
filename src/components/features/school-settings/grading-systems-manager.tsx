@@ -121,7 +121,7 @@ export function GradingSystemsManager() {
         gradeLabel: g.gradeLabel,
         minScore: g.minScore,
         maxScore: g.maxScore,
-        remark: g.remark,
+        remark: g.remark ?? undefined,
       })),
       isDefault: system.isDefault,
     });

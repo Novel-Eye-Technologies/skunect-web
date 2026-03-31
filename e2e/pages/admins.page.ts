@@ -1,6 +1,6 @@
 import { type Page, type Locator, expect } from '@playwright/test';
 
-export class UsersPage {
+export class AdminsPage {
   readonly page: Page;
   readonly heading: Locator;
   readonly inviteButton: Locator;
@@ -8,25 +8,23 @@ export class UsersPage {
   readonly dialog: Locator;
   readonly alertDialog: Locator;
 
-  // Filter selects
-  readonly roleFilter: Locator;
+  // Filter selects (admins page only has status filter)
   readonly statusFilter: Locator;
 
   constructor(page: Page) {
     this.page = page;
-    this.heading = page.getByRole('heading', { name: 'User Management' });
-    this.inviteButton = page.getByRole('button', { name: 'Invite User' });
+    this.heading = page.getByRole('heading', { name: 'Admins' });
+    this.inviteButton = page.getByRole('button', { name: 'Add Admin' });
     this.dataTable = page.locator('table');
     this.dialog = page.getByRole('dialog');
     this.alertDialog = page.locator('[role="alertdialog"]');
 
-    // The role filter is the first select, status is the second
-    this.roleFilter = page.getByRole('combobox').first();
-    this.statusFilter = page.getByRole('combobox').last();
+    // The admins page only has a status filter (no role filter)
+    this.statusFilter = page.getByRole('combobox').first();
   }
 
   async goto() {
-    await this.page.goto('/users');
+    await this.page.goto('/admins');
   }
 
   async expectVisible() {
@@ -54,8 +52,35 @@ export class UsersPage {
     return this.dataTable.locator('tbody tr', { hasText: name });
   }
 
+  async findRowByNameAcrossPages(name: string, maxPageHops = 10) {
+    const nextPageButton = this.page.getByRole('button', {
+      name: /go to next page/i,
+    });
+
+    for (let hop = 0; hop <= maxPageHops; hop++) {
+      const row = this.getRowByName(name).first();
+      if ((await row.count()) > 0) {
+        await expect(row).toBeVisible({ timeout: 10_000 });
+        return row;
+      }
+
+      if (await nextPageButton.isDisabled()) {
+        break;
+      }
+
+      await nextPageButton.click();
+      await expect(this.dataTable.locator('tbody tr').first()).toBeVisible({
+        timeout: 10_000,
+      });
+    }
+
+    throw new Error(
+      `Could not find user row for "${name}" after checking multiple pages.`
+    );
+  }
+
   async openActionsMenu(name: string) {
-    const row = this.getRowByName(name);
+    const row = await this.findRowByNameAcrossPages(name);
     await row.getByRole('button', { name: /open menu/i }).click();
   }
 
@@ -73,7 +98,7 @@ export class UsersPage {
 
   async clickRemoveUser(name: string) {
     await this.openActionsMenu(name);
-    await this.page.getByRole('menuitem', { name: /remove user/i }).click();
+    await this.page.getByRole('menuitem', { name: /remove admin/i }).click();
     await expect(this.alertDialog).toBeVisible({ timeout: 3_000 });
   }
 

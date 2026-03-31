@@ -18,6 +18,7 @@ import {
   FormItem,
   FormLabel,
   FormControl,
+  FormDescription,
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -39,7 +40,7 @@ import { useSchoolSettings, useMySubjects } from '@/lib/hooks/use-school-setting
 import type { Assessment } from '@/lib/types/academics';
 
 const assessmentFormSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
+  title: z.string().optional(),
   classId: z.string().min(1, 'Please select a class'),
   subjectId: z.string().min(1, 'Please select a subject'),
   termId: z.string().min(1, 'Please select a term'),
@@ -47,7 +48,6 @@ const assessmentFormSchema = z.object({
     message: 'Please select an assessment type',
   }),
   maxScore: z.number().min(1, 'Max score must be at least 1'),
-  date: z.string().min(1, 'Date is required'),
 });
 
 type AssessmentFormValues = z.infer<typeof assessmentFormSchema>;
@@ -115,7 +115,6 @@ export function AssessmentFormDialog({
       termId: '',
       type: undefined,
       maxScore: 100,
-      date: '',
     },
   });
 
@@ -145,9 +144,8 @@ export function AssessmentFormDialog({
         classId: assessment.classId,
         subjectId: assessment.subjectId,
         termId: assessment.termId,
-        type: assessment.type,
+        type: assessment.type as 'CA1' | 'CA2' | 'CA3' | 'EXAM',
         maxScore: assessment.maxScore,
-        date: assessment.date,
       });
     } else if (!open) {
       form.reset({
@@ -157,7 +155,6 @@ export function AssessmentFormDialog({
         termId: '',
         type: undefined,
         maxScore: 100,
-        date: '',
       });
     }
   }, [assessment, open, form]);
@@ -236,7 +233,7 @@ export function AssessmentFormDialog({
                         {classes.map((cls) => (
                           <SelectItem key={cls.id} value={cls.id}>
                             {cls.name}
-                            {cls.section ? ` (${cls.section})` : ''}
+                            {cls.gradeLevel ? ` (${cls.gradeLevel})` : ''}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -325,48 +322,36 @@ export function AssessmentFormDialog({
                         <SelectItem value="EXAM">Exam</SelectItem>
                       </SelectContent>
                     </Select>
+                    <FormDescription>
+                      CA1/CA2/CA3 are continuous assessments. EXAM is the end-of-term examination.
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
 
-            {/* Max Score & Date */}
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="maxScore"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Max Score</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="100"
-                        value={field.value}
-                        onChange={(e) =>
-                          field.onChange(e.target.valueAsNumber || 0)
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="date"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Date</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            {/* Max Score */}
+            <FormField
+              control={form.control}
+              name="maxScore"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Max Score</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      placeholder="100"
+                      value={field.value}
+                      onChange={(e) =>
+                        field.onChange(e.target.valueAsNumber || 0)
+                      }
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* Actions */}
             <div className="flex justify-end gap-2 pt-4">

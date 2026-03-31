@@ -29,6 +29,10 @@ import {
 } from '@/components/ui/accordion';
 import { useAuthStore } from '@/lib/stores/auth-store';
 
+// Tiny 1x1 pixel base64 placeholder for blur effect on images
+const BLUR_PLACEHOLDER =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN88P/BfwAJhAPk2iLajgAAAABJRU5ErkJggg==';
+
 const features = [
   {
     icon: BarChart3,
@@ -177,6 +181,25 @@ export default function HomePage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
+      {/* SEO: FAQPage structured data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            mainEntity: faqs.map((faq) => ({
+              '@type': 'Question',
+              name: faq.question,
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: faq.answer,
+              },
+            })),
+          }),
+        }}
+      />
+
       {/* Navigation */}
       <nav className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -261,8 +284,8 @@ export default function HomePage() {
           <div
             className="absolute inset-0"
             style={{
-              backgroundImage: `radial-gradient(circle at 25% 25%, #2A9D8F 1px, transparent 1px),
-                radial-gradient(circle at 75% 75%, #2A9D8F 1px, transparent 1px)`,
+              backgroundImage: `radial-gradient(circle at 25% 25%, var(--color-teal) 1px, transparent 1px),
+                radial-gradient(circle at 75% 75%, var(--color-teal) 1px, transparent 1px)`,
               backgroundSize: '48px 48px',
             }}
           />
@@ -297,7 +320,7 @@ export default function HomePage() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-white/20 text-white hover:bg-white/10"
+                  className="border-white/20 text-white hover:bg-white/10 bg-[#1C2B49]"
                 >
                   Explore Features
                 </Button>
@@ -346,6 +369,8 @@ export default function HomePage() {
                 height={720}
                 className="w-full"
                 priority
+                placeholder="blur"
+                blurDataURL={BLUR_PLACEHOLDER}
               />
             </div>
           </div>
@@ -413,7 +438,7 @@ export default function HomePage() {
           <div className="mx-auto mt-16 max-w-4xl">
             <div className="relative">
               {/* Vertical line connecting steps */}
-              <div className="absolute left-6 top-0 hidden h-full w-px bg-border sm:block" />
+              <div className="absolute left-6 top-0 block h-full w-px bg-border" />
 
               <div className="space-y-12 sm:space-y-16">
                 {steps.map((step, index) => (
@@ -436,6 +461,8 @@ export default function HomePage() {
                             width={1280}
                             height={720}
                             className="w-full"
+                            placeholder="blur"
+                            blurDataURL={BLUR_PLACEHOLDER}
                           />
                         </div>
                       )}
@@ -470,15 +497,14 @@ export default function HomePage() {
                     <ChevronRight className="ml-1 h-4 w-4" />
                   </Button>
                 </Link>
-                <Link href="/">
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="border-white/20 text-white hover:bg-white/10"
-                  >
-                    Contact Sales
-                  </Button>
-                </Link>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-white/20 text-white pointer-events-none opacity-50"
+                  aria-disabled="true"
+                >
+                  Contact Sales (Coming Soon)
+                </Button>
               </div>
             </div>
           </div>
@@ -516,6 +542,8 @@ export default function HomePage() {
                 width={1280}
                 height={960}
                 className="w-full"
+                placeholder="blur"
+                blurDataURL={BLUR_PLACEHOLDER}
               />
             </div>
           </div>
@@ -550,6 +578,8 @@ export default function HomePage() {
                     width={390}
                     height={844}
                     className="w-full"
+                    placeholder="blur"
+                    blurDataURL={BLUR_PLACEHOLDER}
                   />
                 </div>
                 <div className="overflow-hidden rounded-2xl border shadow-sm">
@@ -559,6 +589,8 @@ export default function HomePage() {
                     width={390}
                     height={844}
                     className="w-full"
+                    placeholder="blur"
+                    blurDataURL={BLUR_PLACEHOLDER}
                   />
                 </div>
               </div>
@@ -578,6 +610,8 @@ export default function HomePage() {
                     width={390}
                     height={844}
                     className="w-full"
+                    placeholder="blur"
+                    blurDataURL={BLUR_PLACEHOLDER}
                   />
                 </div>
                 <div className="overflow-hidden rounded-2xl border shadow-sm">
@@ -587,6 +621,8 @@ export default function HomePage() {
                     width={390}
                     height={844}
                     className="w-full"
+                    placeholder="blur"
+                    blurDataURL={BLUR_PLACEHOLDER}
                   />
                 </div>
               </div>
@@ -648,19 +684,37 @@ export default function HomePage() {
                 Product
               </h4>
               <ul className="space-y-2">
+                <li>
+                  <Link
+                    href="/features"
+                    className="text-sm text-white/40 transition-colors hover:text-white/70"
+                  >
+                    Features
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/beta"
+                    className="text-sm text-white/40 transition-colors hover:text-white/70"
+                  >
+                    Beta Program
+                  </Link>
+                </li>
                 {[
-                  { label: 'Features', href: '/features' },
-                  { label: 'For Schools', href: '/' },
-                  { label: 'For Parents', href: '/' },
-                  { label: 'Pricing', href: '/' },
+                  { label: 'For Schools' },
+                  { label: 'For Parents' },
+                  { label: 'Pricing' },
                 ].map((link) => (
                   <li key={link.label}>
-                    <Link
-                      href={link.href}
-                      className="text-sm text-white/40 transition-colors hover:text-white/70"
+                    <span
+                      aria-disabled="true"
+                      className="text-sm text-white/40 pointer-events-none opacity-50"
                     >
-                      {link.label}
-                    </Link>
+                      {link.label}{' '}
+                      <span className="text-[10px] text-white/30">
+                        (Coming Soon)
+                      </span>
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -673,18 +727,21 @@ export default function HomePage() {
               </h4>
               <ul className="space-y-2">
                 {[
-                  { label: 'About Us', href: '/' },
-                  { label: 'Blog', href: '/' },
-                  { label: 'Careers', href: '/' },
-                  { label: 'Contact', href: '/' },
+                  { label: 'About Us' },
+                  { label: 'Blog' },
+                  { label: 'Careers' },
+                  { label: 'Contact' },
                 ].map((link) => (
                   <li key={link.label}>
-                    <Link
-                      href={link.href}
-                      className="text-sm text-white/40 transition-colors hover:text-white/70"
+                    <span
+                      aria-disabled="true"
+                      className="text-sm text-white/40 pointer-events-none opacity-50"
                     >
-                      {link.label}
-                    </Link>
+                      {link.label}{' '}
+                      <span className="text-[10px] text-white/30">
+                        (Coming Soon)
+                      </span>
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -697,17 +754,20 @@ export default function HomePage() {
               </h4>
               <ul className="space-y-2">
                 {[
-                  { label: 'Help Center', href: '/' },
-                  { label: 'Privacy Policy', href: '/' },
-                  { label: 'Terms of Service', href: '/' },
+                  { label: 'Help Center' },
+                  { label: 'Privacy Policy' },
+                  { label: 'Terms of Service' },
                 ].map((link) => (
                   <li key={link.label}>
-                    <Link
-                      href={link.href}
-                      className="text-sm text-white/40 transition-colors hover:text-white/70"
+                    <span
+                      aria-disabled="true"
+                      className="text-sm text-white/40 pointer-events-none opacity-50"
                     >
-                      {link.label}
-                    </Link>
+                      {link.label}{' '}
+                      <span className="text-[10px] text-white/30">
+                        (Coming Soon)
+                      </span>
+                    </span>
                   </li>
                 ))}
               </ul>

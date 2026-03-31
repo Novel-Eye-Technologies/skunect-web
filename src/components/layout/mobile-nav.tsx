@@ -30,12 +30,12 @@ export function MobileNav() {
     <Sheet open={open} onOpenChange={(isOpen) => !isOpen && closeMobileSidebar()}>
       <SheetContent
         side="left"
-        className="w-72 border-r-0 bg-[#1B2A4A] p-0 text-white [&>button]:text-white/70 [&>button]:hover:text-white"
+        className="w-72 border-r-0 bg-navy p-0 text-white [&>button]:text-white/70 [&>button]:hover:text-white"
         showCloseButton
       >
         <SheetHeader className="border-b border-white/10 p-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#2A9D8F] text-sm font-bold text-white">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-teal text-sm font-bold text-white">
               S
             </div>
             <div className="min-w-0 flex-1">

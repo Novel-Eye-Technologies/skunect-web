@@ -1,11 +1,12 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { getApiErrorMessage } from '@/lib/utils/get-error-message';
 import { getEvents, getCalendarEvents, createEvent, updateEvent, deleteEvent } from '@/lib/api/events';
 import type { CreateEventRequest, UpdateEventRequest } from '@/lib/types/event';
+import { queryClient } from '@/lib/query-client';
 
 export const eventKeys = {
   all: ['events'] as const,
@@ -34,7 +35,6 @@ export function useCalendarEvents(from: string, to: string) {
 
 export function useCreateEvent() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: CreateEventRequest) => createEvent(schoolId!, data),
     onSuccess: () => {
@@ -47,7 +47,6 @@ export function useCreateEvent() {
 
 export function useUpdateEvent() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ eventId, data }: { eventId: string; data: UpdateEventRequest }) =>
       updateEvent(schoolId!, eventId, data),
@@ -61,7 +60,6 @@ export function useUpdateEvent() {
 
 export function useDeleteEvent() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (eventId: string) => deleteEvent(schoolId!, eventId),
     onSuccess: () => {

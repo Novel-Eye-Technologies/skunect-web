@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+
+if [ "$SKIP_PR_SIMULATION" = "1" ]; then
+  echo "SKIP_PR_SIMULATION=1 set, skipping PR simulation checks."
+  exit 0
+fi
+
+echo "Running pre-push checks (lint + typecheck)..."
+npm run ci:pr

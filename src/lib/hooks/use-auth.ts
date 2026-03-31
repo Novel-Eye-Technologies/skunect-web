@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import {
   getCurrentUser,
@@ -20,7 +20,9 @@ import type {
   VerifyOtpRequest,
   GoogleOAuthRequest,
   RefreshTokenRequest,
+  UserInfo,
 } from '@/lib/types/auth';
+import { queryClient } from '@/lib/query-client';
 
 // ---------------------------------------------------------------------------
 // Query keys
@@ -75,15 +77,13 @@ export function useRegister() {
 export function useVerifyOtp() {
   const setTokens = useAuthStore((s) => s.setTokens);
   const setUser = useAuthStore((s) => s.setUser);
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (data: VerifyOtpRequest) => verifyOtp(data),
     onSuccess: (response) => {
       if (response.status === 'SUCCESS') {
-        const { accessToken, refreshToken, user } = response.data;
-        setTokens(accessToken, refreshToken);
-        setUser(user);
+        const data = response.data;
+        setTokens(data.accessToken!, data.refreshToken!);
+        setUser(data.user as UserInfo);
         queryClient.invalidateQueries({ queryKey: authKeys.me() });
       }
     },
@@ -94,16 +94,15 @@ export function useVerifyOtp() {
 export function useGoogleOAuth() {
   const setTokens = useAuthStore((s) => s.setTokens);
   const setUser = useAuthStore((s) => s.setUser);
-  const queryClient = useQueryClient();
   const router = useRouter();
 
   return useMutation({
     mutationFn: (data: GoogleOAuthRequest) => googleOAuth(data),
     onSuccess: (response) => {
       if (response.status === 'SUCCESS') {
-        const { accessToken, refreshToken, user } = response.data;
-        setTokens(accessToken, refreshToken);
-        setUser(user);
+        const data = response.data;
+        setTokens(data.accessToken!, data.refreshToken!);
+        setUser(data.user as UserInfo);
         queryClient.invalidateQueries({ queryKey: authKeys.me() });
         router.push('/dashboard');
       }
@@ -119,8 +118,7 @@ export function useRefreshToken() {
     mutationFn: (data: RefreshTokenRequest) => refreshTokenApi(data),
     onSuccess: (response) => {
       if (response.status === 'SUCCESS') {
-        const { accessToken, refreshToken } = response.data;
-        setTokens(accessToken, refreshToken);
+        setTokens(response.data.accessToken!, response.data.refreshToken!);
       }
     },
   });
@@ -128,7 +126,6 @@ export function useRefreshToken() {
 
 /** Log the user out and redirect to login. */
 export function useLogout() {
-  const queryClient = useQueryClient();
   const router = useRouter();
 
   return useMutation({

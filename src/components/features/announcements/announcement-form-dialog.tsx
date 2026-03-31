@@ -36,20 +36,31 @@ import {
 } from '@/lib/hooks/use-announcements';
 import { uploadFile } from '@/lib/api/files';
 import type { Announcement } from '@/lib/types/announcements';
+import { useAuthStore } from '@/lib/stores/auth-store';
+import { useClasses } from '@/lib/queries/useClasses';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 const MAX_FILES = 5;
 
+
 const announcementFormSchema = z.object({
   title: z.string().min(1, { message: 'Title is required' }),
   content: z.string().min(1, { message: 'Content is required' }),
-  targetAudience: z.enum(['ALL', 'TEACHERS', 'PARENTS', 'STUDENTS'], {
+  targetAudience: z.enum(['ALL', 'TEACHERS', 'PARENTS', 'CLASS_SPECIFIC'], {
     message: 'Please select a target audience',
   }),
-  priority: z.enum(['LOW', 'NORMAL', 'HIGH', 'URGENT'], {
-    message: 'Please select a priority',
-  }),
-  expiresAt: z.string().optional(),
+  targetClassId: z.string().optional(),
+}).superRefine((values, ctx) => {
+  const requiresClass =
+    values.targetAudience === 'CLASS_SPECIFIC' || values.targetAudience === 'PARENTS';
+
+  if (requiresClass && !values.targetClassId?.trim()) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['targetClassId'],
+      message: 'Please select a target class',
+    });
+  }
 });
 
 type AnnouncementFormValues = z.infer<typeof announcementFormSchema>;
@@ -84,7 +95,8 @@ export function AnnouncementFormDialog({
   announcement,
 }: AnnouncementFormDialogProps) {
   const isEdit = !!announcement;
-
+  const currentRole = useAuthStore((s) => s.currentRole);
+  const isTeacher = currentRole === 'TEACHER';
   const createAnnouncement = useCreateAnnouncement();
   const updateAnnouncement = useUpdateAnnouncement();
 
@@ -97,31 +109,32 @@ export function AnnouncementFormDialog({
     defaultValues: {
       title: '',
       content: '',
-      targetAudience: 'ALL',
-      priority: 'NORMAL',
-      expiresAt: '',
+      targetAudience: isTeacher ? 'PARENTS' : 'ALL',
+      targetClassId: '',
     },
   });
+
+  const { data: classesResponse } = useClasses();
+
+  const targetAudience = form.watch('targetAudience');
 
   useEffect(() => {
     if (announcement && open) {
       form.reset({
         title: announcement.title,
         content: announcement.content,
-        targetAudience: announcement.targetAudience,
-        priority: announcement.priority,
-        expiresAt: announcement.expiresAt
-          ? announcement.expiresAt.split('T')[0]
-          : '',
+        targetAudience: announcement.targetAudience as 'ALL' | 'TEACHERS' | 'PARENTS' | 'CLASS_SPECIFIC',
       });
       if (announcement.attachmentUrls?.length) {
         setAttachments(
-          announcement.attachmentUrls.map((url) => ({
-            id: crypto.randomUUID(),
-            url,
-            name: getFileNameFromUrl(url),
-            status: 'done' as const,
-          })),
+          announcement.attachmentUrls
+            .filter((u): u is string => u !== null)
+            .map((url) => ({
+              id: crypto.randomUUID(),
+              url,
+              name: getFileNameFromUrl(url),
+              status: 'done' as const,
+            })),
         );
       } else {
         setAttachments([]);
@@ -130,13 +143,11 @@ export function AnnouncementFormDialog({
       form.reset({
         title: '',
         content: '',
-        targetAudience: 'ALL',
-        priority: 'NORMAL',
-        expiresAt: '',
+        targetAudience: isTeacher ? 'PARENTS' : 'ALL',
       });
       setAttachments([]);
     }
-  }, [announcement, open, form]);
+  }, [announcement, open, form, isTeacher]);
 
   const handleFilesSelected = useCallback(
     (files: FileList | null) => {
@@ -196,7 +207,6 @@ export function AnnouncementFormDialog({
 
       const payload = {
         ...values,
-        expiresAt: values.expiresAt || undefined,
         attachmentUrls: attachmentUrls.length > 0 ? attachmentUrls : undefined,
       };
 
@@ -224,6 +234,8 @@ export function AnnouncementFormDialog({
       setIsUploadingFiles(false);
     }
   }
+
+
 
   const isPending =
     createAnnouncement.isPending ||
@@ -268,61 +280,68 @@ export function AnnouncementFormDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Target Audience</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value);
+
+                        if (value !== 'CLASS_SPECIFIC' && value !== 'PARENTS') {
+                          form.setValue('targetClassId', '');
+                          form.clearErrors('targetClassId');
+                          return;
+                        }
+
+                        form.trigger('targetClassId');
+                      }}
+                      value={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select audience" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="ALL">All</SelectItem>
+                        {!isTeacher && <SelectItem value="ALL">All</SelectItem>}
                         <SelectItem value="TEACHERS">Teachers</SelectItem>
                         <SelectItem value="PARENTS">Parents</SelectItem>
-                        <SelectItem value="STUDENTS">Students</SelectItem>
+                        <SelectItem value="CLASS_SPECIFIC">Class Specific</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="priority"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Priority</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select priority" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="LOW">Low</SelectItem>
-                        <SelectItem value="NORMAL">Normal</SelectItem>
-                        <SelectItem value="HIGH">High</SelectItem>
-                        <SelectItem value="URGENT">Urgent</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {(targetAudience === 'CLASS_SPECIFIC' || targetAudience === 'PARENTS') && (
+                <FormField
+                  control={form.control}
+                  name="targetClassId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Target Class</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value ?? ''}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select class" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {classesResponse?.map((classItem: { id: string; name: string }) => (
+                            <SelectItem key={classItem.id} value={classItem.id}>
+                              {classItem.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {form.formState.errors.targetClassId?.message && (
+                        <p className="text-sm font-medium text-destructive">
+                          {form.formState.errors.targetClassId.message}
+                        </p>
+                      )}
+                    </FormItem>
+                  )}
+                />
+              )}
             </div>
 
-            <FormField
-              control={form.control}
-              name="expiresAt"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Expires At (Optional)</FormLabel>
-                  <FormControl>
-                    <Input type="date" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
             <FormField
               control={form.control}

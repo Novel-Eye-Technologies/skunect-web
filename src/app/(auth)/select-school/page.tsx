@@ -80,7 +80,7 @@ export default function SelectSchoolPage() {
         disabled={!selectedSchoolId}
         onClick={handleContinue}
       >
-        Continue
+        Continue to Dashboard
         <ArrowRight className="w-4 h-4 ml-1" />
       </Button>
     </div>

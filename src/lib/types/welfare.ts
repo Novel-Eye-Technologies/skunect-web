@@ -1,24 +1,6 @@
-export interface WelfareEntry {
-  studentId: string;
-  status: string;
-  notes: string;
-}
+import type { Api } from '@/lib/api/schema';
 
-export interface RecordWelfareRequest {
-  classId: string;
-  date: string;
-  records: WelfareEntry[];
-}
-
-export interface WelfareRecord {
-  id: string;
-  studentId: string;
-  studentName: string;
-  classId: string;
-  className: string;
-  status: string;
-  notes: string;
-  date: string;
-  recordedBy: string;
-  createdAt: string;
-}
+// Types from generated OpenAPI schemas
+export type WelfareEntry = Api['WelfareEntry'];
+export type RecordWelfareRequest = Api['RecordWelfareRequest'];
+export type WelfareRecord = Api['WelfareResponse'];

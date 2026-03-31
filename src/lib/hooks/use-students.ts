@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { getApiErrorMessage } from '@/lib/utils/get-error-message';
@@ -16,6 +16,9 @@ import {
   uploadDocument,
   deleteDocument,
   updateProfile,
+  getStudentUsage,
+  activateStudent,
+  deactivateStudent,
   type StudentListParams,
   type UpdateProfileRequest,
 } from '@/lib/api/students';
@@ -24,6 +27,7 @@ import type {
   UpdateStudentRequest,
   LinkParentRequest,
 } from '@/lib/types/student';
+import { queryClient } from '@/lib/query-client';
 
 // ---------------------------------------------------------------------------
 // Query keys
@@ -72,9 +76,7 @@ export function useStudent(studentId: string) {
 
 export function useCreateStudent() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (data: CreateStudentRequest) => createStudent(schoolId!, data),
     onSuccess: () => {
       toast.success('Student created successfully');
@@ -88,9 +90,7 @@ export function useCreateStudent() {
 
 export function useUpdateStudent() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: ({
       studentId,
       data,
@@ -110,9 +110,7 @@ export function useUpdateStudent() {
 
 export function useDeleteStudent() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (studentId: string) => deleteStudent(schoolId!, studentId),
     onSuccess: () => {
       toast.success('Student deleted');
@@ -130,9 +128,7 @@ export function useDeleteStudent() {
 
 export function useLinkParent() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: ({
       studentId,
       data,
@@ -152,9 +148,7 @@ export function useLinkParent() {
 
 export function useUnlinkParent() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: ({
       studentId,
       parentId,
@@ -178,9 +172,7 @@ export function useUnlinkParent() {
 
 export function useUploadDocument() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: ({
       studentId,
       file,
@@ -200,9 +192,7 @@ export function useUploadDocument() {
 
 export function useDeleteDocument() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: ({
       studentId,
       documentId,
@@ -221,13 +211,59 @@ export function useDeleteDocument() {
 }
 
 // ---------------------------------------------------------------------------
+// Student Usage
+// ---------------------------------------------------------------------------
+
+export function useStudentUsage() {
+  const schoolId = useAuthStore((s) => s.currentSchoolId);
+  const role = useAuthStore((s) => s.currentRole);
+
+  return useQuery({
+    queryKey: [...studentKeys.all, 'usage', schoolId],
+    queryFn: () => getStudentUsage(schoolId!),
+    enabled: !!schoolId && role === 'ADMIN',
+    select: (response) => response.data,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Activation mutations
+// ---------------------------------------------------------------------------
+
+export function useActivateStudent() {
+  const schoolId = useAuthStore((s) => s.currentSchoolId);
+  return useMutation({
+    mutationFn: (studentId: string) => activateStudent(schoolId!, studentId),
+    onSuccess: () => {
+      toast.success('Student activated successfully');
+      queryClient.invalidateQueries({ queryKey: studentKeys.all });
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to activate student'));
+    },
+  });
+}
+
+export function useDeactivateStudent() {
+  const schoolId = useAuthStore((s) => s.currentSchoolId);
+  return useMutation({
+    mutationFn: (studentId: string) => deactivateStudent(schoolId!, studentId),
+    onSuccess: () => {
+      toast.success('Student deactivated successfully');
+      queryClient.invalidateQueries({ queryKey: studentKeys.all });
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to deactivate student'));
+    },
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Profile mutation
 // ---------------------------------------------------------------------------
 
 export function useUpdateProfile() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
+return useMutation({
     mutationFn: (data: UpdateProfileRequest) => updateProfile(data),
     onSuccess: () => {
       toast.success('Profile updated successfully');

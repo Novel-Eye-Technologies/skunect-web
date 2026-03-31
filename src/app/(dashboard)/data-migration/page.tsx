@@ -67,8 +67,8 @@ const JOB_STATUS_MAP: Record<
 // Data type badge colors
 // ---------------------------------------------------------------------------
 const TYPE_COLORS: Record<string, string> = {
-  STUDENTS: 'bg-[#2A9D8F]/10 text-[#2A9D8F]',
-  TEACHERS: 'bg-[#1B2A4A]/10 text-[#1B2A4A]',
+  STUDENTS: 'bg-teal/10 text-teal',
+  TEACHERS: 'bg-navy/10 text-navy',
   CLASSES: 'bg-amber-100 text-amber-800',
   SUBJECTS: 'bg-purple-100 text-purple-800',
   FEES: 'bg-emerald-100 text-emerald-800',
@@ -101,10 +101,7 @@ function DataMigrationContent() {
     pageSize: 10,
   });
 
-  const { data: response, isLoading } = useMigrationJobs({
-    page: pagination.pageIndex,
-    size: pagination.pageSize,
-  });
+  const { data: response, isLoading } = useMigrationJobs();
 
   const jobs = response?.data ?? [];
   const pageCount = response?.meta?.totalPages ?? 0;
@@ -122,17 +119,17 @@ function DataMigrationContent() {
   const columns: ColumnDef<MigrationJob>[] = useMemo(
     () => [
       {
-        accessorKey: 'fileName',
+        accessorKey: 'fileUrl',
         header: 'File Name',
         cell: ({ row }) => (
-          <span className="font-medium">{row.original.fileName}</span>
+          <span className="font-medium">{(() => { const u = row.original.fileUrl ?? ''; return u.split('/').pop() ?? u; })()}</span>
         ),
       },
       {
         accessorKey: 'type',
         header: 'Type',
         cell: ({ row }) => {
-          const type = row.original.type;
+          const type = row.original.type!;
           return (
             <Badge
               variant="secondary"
@@ -147,7 +144,7 @@ function DataMigrationContent() {
         accessorKey: 'status',
         header: 'Status',
         cell: ({ row }) => {
-          const status = row.original.status;
+          const status = row.original.status as MigrationJobStatus;
           const config = JOB_STATUS_MAP[status];
           const Icon = config.icon;
           const isSpinning =
@@ -170,7 +167,7 @@ function DataMigrationContent() {
         cell: ({ row }) => {
           const job = row.original;
           const pct =
-            job.totalRecords > 0
+            (job.totalRecords ?? 0) > 0
               ? Math.round((job.processedRecords / job.totalRecords) * 100)
               : 0;
           return (
@@ -184,24 +181,24 @@ function DataMigrationContent() {
         },
       },
       {
-        accessorKey: 'successCount',
+        id: 'successCount',
         header: 'Success',
         cell: ({ row }) => (
-          <span className="text-[#2A9D8F]">{row.original.successCount}</span>
+          <span className="text-teal">{(row.original.totalRecords ?? 0) - (row.original.failedRecords ?? 0)}</span>
         ),
       },
       {
-        accessorKey: 'errorCount',
+        accessorKey: 'failedRecords',
         header: 'Errors',
         cell: ({ row }) => (
           <span
             className={
-              row.original.errorCount > 0
+              row.original.failedRecords ?? 0 > 0
                 ? 'font-medium text-red-500'
                 : 'text-muted-foreground'
             }
           >
-            {row.original.errorCount}
+            {row.original.failedRecords ?? 0}
           </span>
         ),
       },
@@ -274,7 +271,7 @@ function DataMigrationContent() {
                 pageIndex={pagination.pageIndex}
                 pageSize={pagination.pageSize}
                 onPaginationChange={handlePaginationChange}
-                searchKey="fileName"
+                searchKey="fileUrl"
                 searchPlaceholder="Search by file name..."
               />
             )}

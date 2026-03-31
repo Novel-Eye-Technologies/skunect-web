@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { type ColumnDef, type PaginationState } from '@tanstack/react-table';
 import {
   MoreHorizontal,
@@ -10,6 +11,8 @@ import {
   CreditCard,
   Receipt,
   DollarSign,
+  Wallet,
+  Search,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -26,7 +29,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent } from '@/components/ui/card';
 import { PageHeader } from '@/components/shared/page-header';
 import { DataTable } from '@/components/shared/data-table';
 import { StatusBadge } from '@/components/shared/status-badge';
@@ -48,7 +53,10 @@ import type { FeeStructure } from '@/lib/types/fees';
 import type { Invoice } from '@/lib/types/fees';
 
 export default function FeesPage() {
+  const router = useRouter();
   const schoolId = useAuthStore((s) => s.currentSchoolId);
+  const currentRole = useAuthStore((s) => s.currentRole);
+  const isParent = currentRole === 'PARENT';
 
   // ---------------------------------------------------------------------------
   // Fee Structures state
@@ -70,6 +78,7 @@ export default function FeesPage() {
   });
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [classFilter, setClassFilter] = useState<string>('');
+  const [invoiceSearchQuery, setInvoiceSearchQuery] = useState<string>('');
   const [generateDialogOpen, setGenerateDialogOpen] = useState(false);
   const [paymentTarget, setPaymentTarget] = useState<Invoice | null>(null);
 
@@ -88,6 +97,7 @@ export default function FeesPage() {
     size: invoicePagination.pageSize,
     status: statusFilter || undefined,
     classId: classFilter || undefined,
+    search: invoiceSearchQuery || undefined,
   });
 
   const { data: classesResponse } = useQuery({
@@ -102,6 +112,9 @@ export default function FeesPage() {
   const invoices = invoicesResponse?.data ?? [];
   const invoicePageCount = invoicesResponse?.meta?.totalPages ?? 0;
   const classes = classesResponse ?? [];
+
+  // Total balance across all loaded invoices (used for parent summary)
+  const totalBalance = invoices.reduce((sum, inv) => sum + (inv.balance ?? 0), 0);
 
   // ---------------------------------------------------------------------------
   // Handlers
@@ -139,35 +152,21 @@ export default function FeesPage() {
       ),
     },
     {
-      accessorKey: 'description',
-      header: 'Description',
-      cell: ({ row }) => (
-        <span className="text-muted-foreground">
-          {row.original.description ?? '-'}
-        </span>
-      ),
-    },
-    {
       accessorKey: 'amount',
       header: 'Amount',
       cell: ({ row }) => formatCurrency(row.original.amount),
     },
     {
-      accessorKey: 'className',
-      header: 'Class',
-      cell: ({ row }) => row.original.className ?? 'All Classes',
-    },
-    {
-      accessorKey: 'termName',
-      header: 'Term',
-      cell: ({ row }) => row.original.termName ?? '-',
-    },
-    {
-      id: 'status',
-      header: 'Status',
+      id: 'mandatory',
+      header: 'Mandatory',
       cell: ({ row }) => (
-        <StatusBadge status={row.original.isActive ? 'ACTIVE' : 'INACTIVE'} />
+        <StatusBadge status={row.original.isMandatory ? 'MANDATORY' : 'OPTIONAL'} />
       ),
+    },
+    {
+      accessorKey: 'deadline',
+      header: 'Deadline',
+      cell: ({ row }) => row.original.deadline ?? '-',
     },
     {
       id: 'actions',
@@ -219,8 +218,14 @@ export default function FeesPage() {
       header: 'Student',
       cell: ({ row }) => (
         <div>
-          <div className="font-medium">{row.original.studentName}</div>
-          <div className="text-xs text-muted-foreground">
+          <button
+            type="button"
+            className="font-medium text-left hover:underline text-primary"
+            onClick={() => router.push(`/students/${row.original.studentId}`)}
+          >
+            {row.original.studentName}
+          </button>
+          <div className="hidden md:block text-xs text-muted-foreground">
             {row.original.admissionNumber}
           </div>
         </div>
@@ -229,15 +234,12 @@ export default function FeesPage() {
     {
       accessorKey: 'className',
       header: 'Class',
+      meta: { className: 'hidden md:table-cell' },
     },
     {
-      accessorKey: 'feeStructureName',
-      header: 'Fee',
-    },
-    {
-      accessorKey: 'amount',
+      accessorKey: 'totalAmount',
       header: 'Amount',
-      cell: ({ row }) => formatCurrency(row.original.amount),
+      cell: ({ row }) => formatCurrency(row.original.totalAmount),
     },
     {
       accessorKey: 'amountPaid',
@@ -301,10 +303,26 @@ export default function FeesPage() {
     <div className="space-y-6">
       <PageHeader
         title="Fees Management"
-        description="Manage fee structures, invoices, and payments."
+        description={isParent ? 'View your fee invoices and payment status.' : 'Manage fee structures, invoices, and payments.'}
       />
 
-      <Tabs defaultValue="structures" className="space-y-4">
+      {isParent && (
+        <Card className="border-primary/20 bg-primary/5">
+          <CardContent className="flex items-center gap-4 p-5">
+            <div className="rounded-lg bg-primary/10 p-3">
+              <Wallet className="h-6 w-6 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Total Balance</p>
+              <p className="text-2xl font-bold">
+                {formatCurrency(totalBalance)}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <Tabs defaultValue={isParent ? 'invoices' : 'structures'} className="space-y-4">
         <TabsList>
           <TabsTrigger value="structures">
             <DollarSign className="mr-2 h-4 w-4" />
@@ -357,6 +375,21 @@ export default function FeesPage() {
             onPaginationChange={handleInvoicePaginationChange}
             toolbarActions={
               <div className="flex items-center gap-2">
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search invoices..."
+                    value={invoiceSearchQuery}
+                    onChange={(e) => {
+                      setInvoiceSearchQuery(e.target.value);
+                      setInvoicePagination((prev) => ({
+                        ...prev,
+                        pageIndex: 0,
+                      }));
+                    }}
+                    className="h-8 w-[200px] pl-8"
+                  />
+                </div>
                 <Select
                   value={statusFilter}
                   onValueChange={(value) => {
@@ -396,7 +429,7 @@ export default function FeesPage() {
                     {classes.map((cls) => (
                       <SelectItem key={cls.id} value={cls.id}>
                         {cls.name}
-                        {cls.section ? ` (${cls.section})` : ''}
+                        {cls.gradeLevel ? ` (${cls.gradeLevel})` : ''}
                       </SelectItem>
                     ))}
                   </SelectContent>

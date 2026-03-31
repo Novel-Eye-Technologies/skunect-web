@@ -33,6 +33,7 @@ import { ConfirmDialog } from '@/components/shared/confirm-dialog';
 import { AssessmentFormDialog } from '@/components/features/academics/assessment-form-dialog';
 import { GradeEntryGrid } from '@/components/features/academics/grade-entry-grid';
 import { ReportCardDialog } from '@/components/features/academics/report-card-dialog';
+import { useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useQuery } from '@tanstack/react-query';
 import { getClasses, getSubjects, getTerms } from '@/lib/api/school-settings';
@@ -49,7 +50,11 @@ import { QueryErrorBanner } from '@/components/shared/query-error-banner';
 import type { Assessment, ReportCard } from '@/lib/types/academics';
 
 export default function AcademicsPage() {
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get('tab');
   const schoolId = useAuthStore((s) => s.currentSchoolId);
+  const currentRole = useAuthStore((s) => s.currentRole);
+  const isParent = currentRole === 'PARENT';
 
   // ---------------------------------------------------------------------------
   // Shared data
@@ -126,7 +131,7 @@ export default function AcademicsPage() {
   // ---------------------------------------------------------------------------
   const [reportCardPagination, setReportCardPagination] =
     useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
-  const [rcClassFilter, setRcClassFilter] = useState('');
+  const [rcClassFilter, setRcClassFilter] = useState(classes.length > 0 ? classes[0].id : '');
   const [rcTermFilter, setRcTermFilter] = useState('');
   const [generateDialogOpen, setGenerateDialogOpen] = useState(false);
 
@@ -187,6 +192,7 @@ export default function AcademicsPage() {
     {
       accessorKey: 'termName',
       header: 'Term',
+      meta: { className: 'hidden md:table-cell' },
     },
     {
       accessorKey: 'type',
@@ -198,14 +204,16 @@ export default function AcademicsPage() {
       header: 'Max Score',
     },
     {
-      accessorKey: 'date',
+      accessorKey: 'createdAt',
       header: 'Date',
-      cell: ({ row }) => formatDate(row.original.date),
+      cell: ({ row }) => formatDate(row.original.createdAt),
+      meta: { className: 'hidden md:table-cell' },
     },
     {
       id: 'actions',
       cell: ({ row }) => {
         const assessment = row.original;
+        if (isParent) return null;
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -253,6 +261,7 @@ export default function AcademicsPage() {
     {
       accessorKey: 'admissionNumber',
       header: 'Admission No',
+      meta: { className: 'hidden md:table-cell' },
     },
     {
       accessorKey: 'className',
@@ -261,29 +270,30 @@ export default function AcademicsPage() {
     {
       accessorKey: 'termName',
       header: 'Term',
+      meta: { className: 'hidden md:table-cell' },
     },
     {
       accessorKey: 'totalScore',
       header: 'Total Score',
     },
     {
-      accessorKey: 'average',
+      accessorKey: 'averageScore',
       header: 'Average',
-      cell: ({ row }) => row.original.average.toFixed(1),
+      cell: ({ row }) => row.original.averageScore.toFixed(1),
     },
     {
-      accessorKey: 'position',
+      accessorKey: 'positionInClass',
       header: 'Position',
       cell: ({ row }) => (
         <span>
-          {row.original.position}/{row.original.totalStudents}
+          {row.original.positionInClass ?? '-'}/{row.original.totalStudents ?? '-'}
         </span>
       ),
     },
     {
-      accessorKey: 'status',
+      accessorKey: 'isPublished',
       header: 'Status',
-      cell: ({ row }) => <StatusBadge status={row.original.status} />,
+      cell: ({ row }) => <StatusBadge status={row.original.isPublished ? 'PUBLISHED' : 'DRAFT'} />,
     },
     {
       id: 'actions',
@@ -291,7 +301,7 @@ export default function AcademicsPage() {
         const card = row.original;
         return (
           <div className="flex items-center gap-1">
-            {card.status === 'DRAFT' ? (
+            {!isParent && !card.isPublished ? (
               <Button
                 variant="outline"
                 size="sm"
@@ -301,7 +311,7 @@ export default function AcademicsPage() {
                 <Send className="mr-1 h-3 w-3" />
                 Publish
               </Button>
-            ) : (
+            ) : !isParent && (
               <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
                 Published
               </Badge>
@@ -325,17 +335,23 @@ export default function AcademicsPage() {
   // ---------------------------------------------------------------------------
   // Render
   // ---------------------------------------------------------------------------
+  const activeTab = tabParam || 'assessments';
+
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Academics"
-        description="Manage assessments, grades, and report cards."
+        title={isParent ? 'My Children\'s Academics' : 'Academics'}
+        description={isParent 
+          ? 'View your children\'s assessments and report cards.' 
+          : 'Manage assessments, grades, and report cards.'}
       />
 
-      <Tabs defaultValue="assessments" className="space-y-6">
+      <Tabs defaultValue={activeTab} key={activeTab} className="space-y-6">
         <TabsList>
-          <TabsTrigger value="assessments">Assessments</TabsTrigger>
-          <TabsTrigger value="grades">Grade Entry</TabsTrigger>
+          <TabsTrigger value="assessments">
+            {isParent ? 'Exam Results' : 'Assessments'}
+          </TabsTrigger>
+          {!isParent && <TabsTrigger value="grades">Grade Entry</TabsTrigger>}
           <TabsTrigger value="report-cards">Report Cards</TabsTrigger>
         </TabsList>
 
@@ -344,7 +360,7 @@ export default function AcademicsPage() {
         {/* ----------------------------------------------------------------- */}
         <TabsContent value="assessments" className="space-y-6">
           {isAssessmentsError && <QueryErrorBanner onRetry={refetchAssessments} />}
-          <DataTable
+          {  <DataTable
             columns={assessmentColumns}
             data={assessments}
             isLoading={isLoadingAssessments}
@@ -372,7 +388,7 @@ export default function AcademicsPage() {
                     {classes.map((cls) => (
                       <SelectItem key={cls.id} value={cls.id}>
                         {cls.name}
-                        {cls.section ? ` (${cls.section})` : ''}
+                        {cls.gradeLevel ? ` (${cls.gradeLevel})` : ''}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -421,18 +437,20 @@ export default function AcademicsPage() {
                     ))}
                   </SelectContent>
                 </Select>
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    setEditTarget(undefined);
-                    setCreateDialogOpen(true);
-                  }}
-                >
-                  Create Assessment
-                </Button>
+                {!isParent && (
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      setEditTarget(undefined);
+                      setCreateDialogOpen(true);
+                    }}
+                  >
+                    Create Assessment
+                  </Button>
+                )}
               </div>
             }
-          />
+          />}
         </TabsContent>
 
         {/* ----------------------------------------------------------------- */}
@@ -467,15 +485,15 @@ export default function AcademicsPage() {
                     }));
                   }}
                 >
-                  <SelectTrigger className="h-8 w-[140px]">
-                    <SelectValue placeholder="All Classes" />
+                  <SelectTrigger className="h-8 w-35">
+                    <SelectValue/>
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="ALL">All Classes</SelectItem>
+                    {/* <SelectItem value="ALL">All Classes</SelectItem> */}
                     {classes.map((cls) => (
                       <SelectItem key={cls.id} value={cls.id}>
                         {cls.name}
-                        {cls.section ? ` (${cls.section})` : ''}
+                        {cls.gradeLevel ? ` (${cls.gradeLevel})` : ''}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -502,12 +520,14 @@ export default function AcademicsPage() {
                     ))}
                   </SelectContent>
                 </Select>
-                <Button
-                  size="sm"
-                  onClick={() => setGenerateDialogOpen(true)}
-                >
-                  Generate Report Cards
-                </Button>
+                {!isParent && (
+                  <Button
+                    size="sm"
+                    onClick={() => setGenerateDialogOpen(true)}
+                  >
+                    Generate Report Cards
+                  </Button>
+                )}
               </div>
             }
           />

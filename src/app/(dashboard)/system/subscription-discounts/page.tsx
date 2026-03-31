@@ -101,7 +101,7 @@ export default function SubscriptionDiscountsPage() {
       maxUses: discount.maxUses ?? undefined,
       validFrom: discount.validFrom,
       validUntil: discount.validUntil ?? undefined,
-      applicableTiers: discount.applicableTiers ?? undefined,
+      applicableTiers: discount.applicableTiers?.filter((t): t is string => t !== null) ?? undefined,
       minStudents: discount.minStudents ?? undefined,
     });
     setDialogOpen(true);

@@ -178,7 +178,7 @@ export default function AdminSubscriptionPage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <StatCard title="Status" value={subscription.status.replace('_', ' ')} />
             <StatCard title="Students" value={`${subscription.activeStudentCount} / ${subscription.studentLimit}`} />
-            <StatCard title="Days Until Expiry" value={subscription.daysUntilExpiry.toString()} />
+            <StatCard title="Days Until Expiry" value={(subscription.daysUntilExpiry ?? 0).toString()} />
             <StatCard title="Outstanding" value={formatCurrency(subscription.outstandingBalance)} />
           </div>
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { getApiErrorMessage } from '@/lib/utils/get-error-message';
@@ -12,6 +12,7 @@ import {
   getUnreadCount,
   type NotificationListParams,
 } from '@/lib/api/notifications';
+import { queryClient } from '@/lib/query-client';
 
 // ---------------------------------------------------------------------------
 // Query keys
@@ -34,7 +35,7 @@ export function useNotifications(params?: NotificationListParams) {
 
   return useQuery({
     queryKey: notificationKeys.list(schoolId ?? '', params),
-    queryFn: () => getNotifications(schoolId!, params),
+    queryFn: () => getNotifications(params),
     enabled: !!schoolId,
   });
 }
@@ -46,7 +47,7 @@ export function useUnreadCount() {
   return useQuery({
     queryKey: notificationKeys.unreadCount(schoolId ?? ''),
     queryFn: async () => {
-      const response = await getUnreadCount(schoolId!);
+      const response = await getUnreadCount();
       setUnreadCount(response.data.count);
       return response;
     },
@@ -61,12 +62,11 @@ export function useUnreadCount() {
 
 export function useMarkAsRead() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-  const decrementUnread = useNotificationStore((s) => s.decrementUnread);
+const decrementUnread = useNotificationStore((s) => s.decrementUnread);
 
   return useMutation({
     mutationFn: (notificationId: string) =>
-      markNotificationAsRead(schoolId!, notificationId),
+      markNotificationAsRead(notificationId),
     onSuccess: () => {
       decrementUnread();
       queryClient.invalidateQueries({ queryKey: notificationKeys.all });
@@ -79,11 +79,10 @@ export function useMarkAsRead() {
 
 export function useMarkAllAsRead() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
-  const queryClient = useQueryClient();
-  const setUnreadCount = useNotificationStore((s) => s.setUnreadCount);
+const setUnreadCount = useNotificationStore((s) => s.setUnreadCount);
 
   return useMutation({
-    mutationFn: () => markAllNotificationsAsRead(schoolId!),
+    mutationFn: () => markAllNotificationsAsRead(),
     onSuccess: () => {
       setUnreadCount(0);
       toast.success('All notifications marked as read');

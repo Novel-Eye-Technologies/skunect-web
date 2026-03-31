@@ -21,6 +21,7 @@ import { DataTable } from '@/components/shared/data-table';
 import { HomeworkFormDialog } from '@/components/features/homework/homework-form-dialog';
 import { GradeSubmissionDialog } from '@/components/features/homework/grade-submission-dialog';
 import { useHomework, useSubmissions } from '@/lib/hooks/use-homework';
+import { useAuthStore } from '@/lib/stores/auth-store';
 import { formatDate, formatDateTime } from '@/lib/utils/format-date';
 import type { Submission } from '@/lib/types/homework';
 
@@ -37,6 +38,10 @@ export function HomeworkDetailClient() {
     !rawParam || rawParam === '_'
       ? pathname.split('/').filter(Boolean)[1] ?? rawParam
       : rawParam;
+
+  const currentRole = useAuthStore((s) => s.currentRole);
+  const isParent = currentRole === 'PARENT';
+  const canManage = currentRole === 'TEACHER' || currentRole === 'ADMIN';
 
   // ---------------------------------------------------------------------------
   // Data fetching
@@ -106,12 +111,11 @@ export function HomeworkDetailClient() {
       cell: ({ row }) => formatDateTime(row.original.submittedAt),
     },
     {
-      id: 'attachments',
-      header: 'Attachments',
-      cell: ({ row }) => {
-        const count = row.original.attachmentUrls?.length ?? row.original.attachments?.length ?? 0;
-        return <span>{count} file(s)</span>;
-      },
+      id: 'feedback',
+      header: 'Feedback',
+      cell: ({ row }) => (
+        <span className="text-muted-foreground">{row.original.feedback ?? '-'}</span>
+      ),
     },
     {
       accessorKey: 'score',
@@ -203,15 +207,120 @@ export function HomeworkDetailClient() {
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back
             </Button>
-            <Button onClick={() => setEditDialogOpen(true)}>
-              <Edit className="mr-2 h-4 w-4" />
-              Edit
-            </Button>
+            {canManage && (
+              <Button onClick={() => setEditDialogOpen(true)}>
+                <Edit className="mr-2 h-4 w-4" />
+                Edit
+              </Button>
+            )}
           </div>
         }
       />
 
-      <Tabs defaultValue="details" className="space-y-4">
+      {isParent ? (
+        <div className="space-y-4">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Assignment Information</CardTitle>
+                {homework.status ? <StatusBadge status={homework.status} /> : null}
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <InfoRow label="Class" value={homework.className ?? null} />
+                <InfoRow label="Subject" value={homework.subjectName ?? null} />
+                <InfoRow
+                  label="Max Score"
+                  value={String(homework.maxScore)}
+                />
+                <InfoRow
+                  label="Assigned Date"
+                  value={formatDate(homework.assignedDate)}
+                />
+                <InfoRow
+                  label="Due Date"
+                  value={formatDate(homework.dueDate)}
+                />
+                <InfoRow label="Created By" value={homework.createdBy ?? null} />
+              </div>
+
+              <Separator className="my-4" />
+
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-muted-foreground">
+                  Description
+                </p>
+                <p className="whitespace-pre-wrap text-sm">
+                  {homework.description}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Attachments */}
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                Attachments ({homework.attachmentUrls?.filter(Boolean).length ?? 0})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {!homework.attachmentUrls || homework.attachmentUrls.filter(Boolean).length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No attachments.
+                </p>
+              ) : (
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {homework.attachmentUrls.filter((url): url is string => url !== null).map((url, index) => {
+                    const fileName = (() => {
+                      try {
+                        const pathname = new URL(url).pathname;
+                        return decodeURIComponent(pathname.split('/').pop() || url);
+                      } catch {
+                        return url.split('/').pop() || url;
+                      }
+                    })();
+                    return (
+                      <div
+                        key={index}
+                        className="flex items-start justify-between rounded-md border p-3"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="rounded-md bg-muted p-2">
+                            <FileText className="h-5 w-5 text-muted-foreground" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium">
+                              {fileName}
+                            </p>
+                          </div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          aria-label="Download attachment"
+                          asChild
+                        >
+                          <a
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <Download className="h-4 w-4" />
+                          </a>
+                        </Button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      ) : (
+        <Tabs defaultValue="details" className="space-y-4">
         <TabsList>
           <TabsTrigger value="details">Details</TabsTrigger>
           <TabsTrigger value="submissions">
@@ -265,17 +374,17 @@ export function HomeworkDetailClient() {
             <Card>
               <CardHeader>
                 <CardTitle>
-                  Attachments ({homework.attachmentUrls?.length ?? 0})
+                  Attachments ({homework.attachmentUrls?.filter(Boolean).length ?? 0})
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {!homework.attachmentUrls?.length ? (
+                {!homework.attachmentUrls || homework.attachmentUrls.filter(Boolean).length === 0 ? (
                   <p className="text-sm text-muted-foreground">
                     No attachments.
                   </p>
                 ) : (
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {homework.attachmentUrls.map((url, index) => (
+                    {homework.attachmentUrls.filter((u): u is string => u !== null).map((url, index) => (
                       <div
                         key={`${url}-${index}`}
                         className="flex items-start justify-between rounded-md border p-3"
@@ -326,7 +435,8 @@ export function HomeworkDetailClient() {
             onPaginationChange={handleSubmissionPaginationChange}
           />
         </TabsContent>
-      </Tabs>
+        </Tabs>
+      )}
 
       {/* Edit Dialog */}
       <HomeworkFormDialog

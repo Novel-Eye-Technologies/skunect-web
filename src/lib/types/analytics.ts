@@ -2,14 +2,9 @@
 // Dashboard & analytics types
 // ---------------------------------------------------------------------------
 
-export interface DashboardResponse {
-  totalStudents: number;
-  totalTeachers: number;
-  totalFees: number;
-  totalFeesPaid: number;
-  attendanceRate: number;
-  academicPerformance: number;
-}
+import type { Api } from '@/lib/api/schema';
+
+export type DashboardResponse = Api['DashboardResponse'];
 
 export interface AttendanceSummary {
   presentCount: number;

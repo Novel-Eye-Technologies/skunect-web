@@ -39,8 +39,8 @@ import { useQuery } from '@tanstack/react-query';
 import { getClasses } from '@/lib/api/school-settings';
 
 const GRADE_COLORS: Record<string, string> = {
-  A: '#2A9D8F',
-  B: '#1B2A4A',
+  A: 'var(--color-teal)',
+  B: 'var(--color-navy)',
   C: '#f59e0b',
   D: '#f97316',
   F: '#ef4444',
@@ -112,7 +112,7 @@ export function AcademicAnalytics() {
                 {classes.map((cls) => (
                   <SelectItem key={cls.id} value={cls.id}>
                     {cls.name}
-                    {cls.section ? ` (${cls.section})` : ''}
+                    {cls.gradeLevel ? ` (${cls.gradeLevel})` : ''}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -174,7 +174,7 @@ export function AcademicAnalytics() {
                   <Bar
                     dataKey="averageScore"
                     name="Average Score"
-                    fill="#2A9D8F"
+                    fill="var(--color-teal)"
                     radius={[4, 4, 0, 0]}
                     maxBarSize={50}
                   />

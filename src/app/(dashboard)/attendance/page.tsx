@@ -1,27 +1,21 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { type ColumnDef, type PaginationState } from '@tanstack/react-table';
-import { Users, UserCheck, UserX, Clock } from 'lucide-react';
+import { Users, UserCheck, UserX, Clock, Calendar } from 'lucide-react';
 import { PageHeader } from '@/components/shared/page-header';
 import { DataTable } from '@/components/shared/data-table';
 import { StatusBadge } from '@/components/shared/status-badge';
 import { AttendanceGrid } from '@/components/features/attendance/attendance-grid';
 import { useAttendanceRecords } from '@/lib/hooks/use-attendance';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { useChildStore } from '@/lib/stores/child-store';
 import { useQuery } from '@tanstack/react-query';
 import { getClasses } from '@/lib/api/school-settings';
 import { getAttendanceOverview } from '@/lib/api/attendance';
 import { formatDate } from '@/lib/utils/format-date';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent } from '@/components/ui/card';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { QueryErrorBanner } from '@/components/shared/query-error-banner';
@@ -29,6 +23,14 @@ import type { AttendanceRecord } from '@/lib/types/attendance';
 
 export default function AttendancePage() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
+  const currentRole = useAuthStore((s) => s.currentRole);
+  const isParent = currentRole === 'PARENT';
+
+  // ---------------------------------------------------------------------------
+  // Parent Data (from store)
+  // ---------------------------------------------------------------------------
+  const { children, selectedChildId } = useChildStore();
+  const selectedChild = children.find((c) => c.id === selectedChildId);
 
   // ---------------------------------------------------------------------------
   // State
@@ -42,12 +44,17 @@ export default function AttendancePage() {
     () => new Date().toISOString().split('T')[0],
   );
 
+  // Sync classFilter for parents
+  useEffect(() => {
+    if (isParent && selectedChild) {
+      setClassFilter(selectedChild.classId ?? '');
+    }
+  }, [isParent, selectedChild]);
+
   // ---------------------------------------------------------------------------
   // Data fetching
   // ---------------------------------------------------------------------------
   const { data: response, isLoading, isError, refetch } = useAttendanceRecords({
-    page: pagination.pageIndex,
-    size: pagination.pageSize,
     classId: classFilter || undefined,
     date: dateFilter || undefined,
   });
@@ -55,20 +62,34 @@ export default function AttendancePage() {
   const { data: classesResponse } = useQuery({
     queryKey: ['classes', schoolId ?? ''],
     queryFn: () => getClasses(schoolId!),
-    enabled: !!schoolId,
+    enabled: !!schoolId && !isParent,
     select: (res) => res.data,
   });
 
-  const { data: overview, isLoading: isLoadingOverview } = useQuery({
+  const { data: schoolOverview, isLoading: isLoadingOverview } = useQuery({
     queryKey: ['attendance', 'overview', schoolId ?? '', dateFilter],
     queryFn: () => getAttendanceOverview(schoolId!, dateFilter),
-    enabled: !!schoolId && !!dateFilter,
+    enabled: !!schoolId && !!dateFilter && !isParent,
     select: (res) => res.data,
   });
 
-  const records = response?.data ?? [];
-  const pageCount = response?.meta?.totalPages ?? 0;
+  const rawRecords = response?.data ?? [];
+  // Filter records for parents to only show the selected child
+  const records = isParent 
+    ? rawRecords.filter(r => r.studentId === selectedChildId)
+    : rawRecords;
+  const pageCount = isParent ? (records.length > 0 ? 1 : 0) : (response?.meta?.totalPages ?? 0);
   const classes = classesResponse ?? [];
+
+  // Child-specific overview for parents based on the selected child's record today
+  const childRecord = isParent ? records[0] : null;
+  const overview = isParent ? {
+    presentCount: childRecord?.status === 'PRESENT' ? 1 : 0,
+    absentCount: childRecord?.status === 'ABSENT' ? 1 : 0,
+    lateCount: childRecord?.status === 'LATE' ? 1 : 0,
+    totalStudents: 1,
+    attendanceRate: childRecord ? (childRecord.status === 'ABSENT' ? 0 : 100) : 0
+  } : schoolOverview;
 
   const handlePaginationChange = useCallback(
     (newPagination: PaginationState) => {
@@ -109,7 +130,7 @@ export default function AttendancePage() {
       color: 'text-yellow-600',
       bgColor: 'bg-yellow-50 dark:bg-yellow-950/30',
     },
-  ];
+  ].filter((stat) => !isParent || stat.label !== 'Total Students');
 
   // ---------------------------------------------------------------------------
   // Columns
@@ -125,6 +146,7 @@ export default function AttendancePage() {
     {
       accessorKey: 'admissionNumber',
       header: 'Admission No',
+      meta: { className: 'hidden md:table-cell' },
     },
     {
       accessorKey: 'className',
@@ -141,145 +163,159 @@ export default function AttendancePage() {
       cell: ({ row }) => <StatusBadge status={row.original.status} />,
     },
     {
-      accessorKey: 'note',
+      accessorKey: 'notes',
       header: 'Note',
       cell: ({ row }) => (
         <span className="text-muted-foreground">
-          {row.original.note ?? '-'}
+          {row.original.notes ?? '-'}
         </span>
       ),
     },
     {
       accessorKey: 'markedBy',
       header: 'Marked By',
+      meta: { className: 'hidden md:table-cell' },
     },
   ];
 
-  // ---------------------------------------------------------------------------
-  // Render
-  // ---------------------------------------------------------------------------
+  const renderRecords = () => (
+    <div className="space-y-6">
+      {isError && <QueryErrorBanner onRetry={refetch} />}
+      {records.length === 0 && !isLoading ? (
+        <Card className="flex flex-col items-center justify-center py-12 text-center">
+          <div className="mb-4 rounded-full bg-muted p-4">
+            <Calendar className="h-8 w-8 text-muted-foreground" />
+          </div>
+          <h3 className="text-lg font-semibold">No attendance records</h3>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Attendance records will appear here once they are marked by the teacher.
+          </p>
+        </Card>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={records}
+          isLoading={isLoading}
+          pageCount={pageCount}
+          pageIndex={pagination.pageIndex}
+          pageSize={pagination.pageSize}
+          onPaginationChange={handlePaginationChange}
+        />
+      )}
+    </div>
+  );
+
   return (
     <div className="space-y-6">
       <PageHeader
         title="Attendance"
-        description="Mark and view student attendance records."
+        description={isParent ? 'View student attendance records.' : 'Mark and view student attendance records.'}
       />
 
-      {/* Daily Overview - always visible at top */}
-      {isLoadingOverview ? (
-        <div className="grid gap-4 md:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Card key={i}>
-              <CardContent className="p-4">
-                <Skeleton className="h-12 w-full rounded" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <div className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-4">
-            {overviewStats.map((stat) => (
-              <Card key={stat.label}>
-                <CardContent className="flex items-center gap-3 p-4">
-                  <div className={`rounded-lg p-2 ${stat.bgColor}`}>
-                    <stat.icon className={`h-6 w-6 ${stat.color}`} />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold">{stat.value}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {stat.label}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+      {isParent && !selectedChild ? (
+        <Card className="flex flex-col items-center justify-center py-12 text-center">
+          <div className="mb-4 rounded-full bg-muted p-4">
+            <Calendar className="h-8 w-8 text-muted-foreground" />
           </div>
+          <h3 className="text-lg font-semibold">No child selected</h3>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Please select a child from the switcher in the navbar.
+          </p>
+        </Card>
+      ) : (
+        <>
+          {/* Daily Overview */}
+          {isLoadingOverview || (isParent && isLoading) ? (
+            <div className={`grid gap-4 ${isParent ? 'md:grid-cols-3' : 'md:grid-cols-4'}`}>
+              {Array.from({ length: isParent ? 3 : 4 }).map((_, i) => (
+                <Card key={i}>
+                  <CardContent className="p-4">
+                    <Skeleton className="h-12 w-full rounded" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className={`grid gap-4 ${isParent ? 'md:grid-cols-3' : 'md:grid-cols-4'}`}>
+                {overviewStats.map((stat) => (
+                  <Card key={stat.label}>
+                    <CardContent className="flex items-center gap-3 p-4">
+                      <div className={`rounded-lg p-2 ${stat.bgColor}`}>
+                        <stat.icon className={`h-6 w-6 ${stat.color}`} />
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold">{stat.value}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {stat.label}
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
 
-          {overview?.attendanceRate !== undefined && (
+              {overview?.attendanceRate !== undefined && (
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">
+                        Attendance Rate
+                      </span>
+                      <span className="text-lg font-bold">
+                        {overview.attendanceRate}%
+                      </span>
+                    </div>
+                    <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted">
+                      <div
+                        className="h-full rounded-full bg-green-500 transition-all"
+                        style={{
+                          width: `${Math.min(overview.attendanceRate, 100)}%`,
+                        }}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
+
+          {isParent ? (
             <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">
-                    Attendance Rate
-                  </span>
-                  <span className="text-lg font-bold">
-                    {overview.attendanceRate}%
-                  </span>
-                </div>
-                <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted">
-                  <div
-                    className="h-full rounded-full bg-green-500 transition-all"
-                    style={{
-                      width: `${Math.min(overview.attendanceRate, 100)}%`,
-                    }}
-                  />
-                </div>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+                <CardTitle className="text-xl font-bold">History of Attendance</CardTitle>
+                <Input
+                  type="date"
+                  value={dateFilter}
+                  onChange={(e) => {
+                    setDateFilter(e.target.value);
+                    setPagination((p) => ({ ...p, pageIndex: 0 }));
+                  }}
+                  className="h-9 w-45"
+                />
+              </CardHeader>
+              <CardContent>
+                {renderRecords()}
               </CardContent>
             </Card>
+          ) : (
+            <Tabs defaultValue={isParent ? 'records' : 'mark'} className="space-y-6">
+              <TabsList>
+                <TabsTrigger value="mark">Mark Attendance</TabsTrigger>
+                <TabsTrigger value="records">Records</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="mark" className="space-y-6">
+                <AttendanceGrid />
+              </TabsContent>
+
+              <TabsContent value="records" className="space-y-6">
+                {renderRecords()}
+              </TabsContent>
+            </Tabs>
           )}
-        </div>
+        </>
       )}
-
-      {/* Filters - below overview, above tabs */}
-      <div className="flex flex-wrap items-center gap-3">
-        <Select
-          value={classFilter || 'ALL'}
-          onValueChange={(value) => {
-            setClassFilter(value === 'ALL' ? '' : value);
-            setPagination((prev) => ({ ...prev, pageIndex: 0 }));
-          }}
-        >
-          <SelectTrigger className="h-9 w-[180px]">
-            <SelectValue placeholder="All Classes" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="ALL">All Classes</SelectItem>
-            {classes.map((cls) => (
-              <SelectItem key={cls.id} value={cls.id}>
-                {cls.name}
-                {cls.section ? ` (${cls.section})` : ''}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Input
-          type="date"
-          value={dateFilter}
-          onChange={(e) => {
-            setDateFilter(e.target.value);
-            setPagination((prev) => ({ ...prev, pageIndex: 0 }));
-          }}
-          className="h-9 w-[180px]"
-        />
-      </div>
-
-      {/* Two tabs only: Mark Attendance and Records */}
-      <Tabs defaultValue="mark" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="mark">Mark Attendance</TabsTrigger>
-          <TabsTrigger value="records">Records</TabsTrigger>
-        </TabsList>
-
-        {/* Mark Attendance Tab */}
-        <TabsContent value="mark" className="space-y-6">
-          <AttendanceGrid />
-        </TabsContent>
-
-        {/* Records Tab */}
-        <TabsContent value="records" className="space-y-6">
-          {isError && <QueryErrorBanner onRetry={refetch} />}
-          <DataTable
-            columns={columns}
-            data={records}
-            isLoading={isLoading}
-            pageCount={pageCount}
-            pageIndex={pagination.pageIndex}
-            pageSize={pagination.pageSize}
-            onPaginationChange={handlePaginationChange}
-          />
-        </TabsContent>
-      </Tabs>
     </div>
   );
 }
