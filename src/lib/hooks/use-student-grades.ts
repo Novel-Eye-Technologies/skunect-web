@@ -38,25 +38,16 @@ function determineGradeLabel(
   scales: GradeScale[],
 ): string {
   if (score === null || maxScore === 0) return '—';
+  if (scales.length === 0) return '—';
+  
   const percentage = (score / maxScore) * 100;
 
-  // If school has configured grading scales, use them
-  if (scales.length > 0) {
-    // Scales use min/max percentage ranges
-    const match = scales.find(
-      (s) => percentage >= s.minScore && percentage <= s.maxScore,
-    );
-    if (match) return match.gradeLabel;
-    return '—';
-  }
-
-  // Fallback: standard Nigerian grading
-  if (percentage >= 70) return 'A';
-  if (percentage >= 60) return 'B';
-  if (percentage >= 50) return 'C';
-  if (percentage >= 40) return 'D';
-  if (percentage >= 35) return 'E';
-  return 'F';
+  // Scales use min/max percentage ranges
+  const match = scales.find(
+    (s) => percentage >= s.minScore && percentage <= s.maxScore,
+  );
+  
+  return match?.gradeLabel ?? '—';
 }
 
 // Limit concurrent score fetches to avoid overwhelming the backend

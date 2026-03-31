@@ -14,14 +14,6 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { useMigrationJob } from '@/lib/hooks/use-data-migration';
 import { formatDateTime } from '@/lib/utils/format-date';
 import type { MigrationJobStatus } from '@/lib/types/data-migration';
