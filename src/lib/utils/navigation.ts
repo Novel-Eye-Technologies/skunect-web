@@ -148,6 +148,7 @@ export const navigationConfig: NavItem[] = [
     icon: BookOpen,
     roles: ['PARENT'],
     children: [
+      { title: 'Subjects', href: '/academics/subjects', icon: BookOpen, roles: ['PARENT'] },
       { title: 'Attendance', href: '/attendance', icon: ClipboardCheck, roles: ['PARENT'] },
       { title: 'Homework', href: '/homework', icon: FileText, roles: ['PARENT'] },
       { title: 'Grades', href: '/academics/grades', icon: FileText, roles: ['PARENT'] },

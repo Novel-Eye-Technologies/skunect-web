@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import {
   ShieldCheck,
   Plus,
@@ -10,6 +11,7 @@ import {
   QrCode,
   CalendarDays,
   XCircle,
+  Download,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -81,6 +83,34 @@ export default function PickupAuthorizationPage() {
     }
     return map;
   }, [children]);
+
+  const getQrImageUrl = useCallback(
+    (qrCode: string) =>
+      `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrCode)}`,
+    [],
+  );
+
+  const handleDownloadQr = useCallback(
+    async (auth: PickupAuthorization) => {
+      try {
+        const url = getQrImageUrl(auth.qrCode);
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Failed to fetch QR code image');
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = `pickup-qr-${auth.pickupPersonName.replace(/\s+/g, '-').toLowerCase()}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(blobUrl);
+      } catch {
+        toast.error('Failed to download QR code');
+      }
+    },
+    [getQrImageUrl],
+  );
 
   function confirmRevoke() {
     if (!revokeTarget) return;
@@ -196,12 +226,33 @@ export default function PickupAuthorizationPage() {
                       )}
 
                       {/* QR Code */}
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <QrCode className="h-3.5 w-3.5" />
-                        <span className="truncate font-mono text-xs">
-                          {auth.qrCode}
-                        </span>
-                      </div>
+                      {auth.qrCode && (
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <QrCode className="h-3.5 w-3.5" />
+                            <span className="text-xs font-medium">
+                              Pickup QR Code
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <img
+                              src={getQrImageUrl(auth.qrCode)}
+                              alt={`QR code for ${auth.pickupPersonName}`}
+                              width={80}
+                              height={80}
+                              className="rounded border"
+                            />
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleDownloadQr(auth)}
+                            >
+                              <Download className="mr-1 h-4 w-4" />
+                              Download QR
+                            </Button>
+                          </div>
+                        </div>
+                      )}
 
                       {/* Dates */}
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">

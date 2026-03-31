@@ -14,6 +14,12 @@ import { HomeworkDetailClient } from '@/components/features/homework/homework-de
  * client directly.  HomeworkDetailClient already has a usePathname() fallback
  * that extracts the real homework ID from the URL, so it works correctly.
  */
-export default function HomeworkDetailError() {
+export default function HomeworkDetailError({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
   return <HomeworkDetailClient />;
 }

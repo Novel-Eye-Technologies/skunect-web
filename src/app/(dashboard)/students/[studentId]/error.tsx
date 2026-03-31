@@ -14,6 +14,12 @@ import { StudentDetailClient } from '@/components/features/students/student-deta
  * client directly.  StudentDetailClient already has a usePathname() fallback
  * that extracts the real student ID from the URL, so it works correctly.
  */
-export default function StudentDetailError() {
+export default function StudentDetailError({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
   return <StudentDetailClient />;
 }
