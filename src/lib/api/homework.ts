@@ -101,6 +101,7 @@ export async function gradeSubmission(
   studentId: string,
   data: GradeSubmissionRequest,
 ): Promise<ApiResponse<Submission>> {
+  // Backend endpoint expects studentId, not submissionId
   const response = await apiClient.put<ApiResponse<Submission>>(
     `/schools/${schoolId}/homework/${homeworkId}/submissions/${studentId}`,
     data,
