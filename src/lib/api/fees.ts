@@ -112,3 +112,15 @@ export async function recordPayment(
   );
   return response.data;
 }
+
+export async function cancelInvoice(
+  schoolId: string,
+  invoiceId: string,
+  data: { reason: string },
+): Promise<ApiResponse<Invoice>> {
+  const response = await apiClient.post<ApiResponse<Invoice>>(
+    `/schools/${schoolId}/fees/invoices/${invoiceId}/cancel`,
+    data,
+  );
+  return response.data;
+}

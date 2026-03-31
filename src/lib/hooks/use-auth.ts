@@ -9,6 +9,7 @@ import {
   register,
   verifyOtp,
   googleOAuth,
+  appleOAuth,
   refreshToken as refreshTokenApi,
   logout as logoutApi,
 } from '@/lib/api/auth';
@@ -98,6 +99,31 @@ export function useGoogleOAuth() {
 
   return useMutation({
     mutationFn: (data: GoogleOAuthRequest) => googleOAuth(data),
+    onSuccess: (response) => {
+      if (response.status === 'SUCCESS') {
+        const data = response.data;
+        setTokens(data.accessToken!, data.refreshToken!);
+        setUser(data.user as UserInfo);
+        queryClient.invalidateQueries({ queryKey: authKeys.me() });
+        router.push('/dashboard');
+      }
+    },
+  });
+}
+
+/** Sign in with Apple identity token. */
+export function useAppleOAuth() {
+  const setTokens = useAuthStore((s) => s.setTokens);
+  const setUser = useAuthStore((s) => s.setUser);
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: (data: {
+      identityToken: string;
+      authorizationCode: string;
+      firstName?: string;
+      lastName?: string;
+    }) => appleOAuth(data),
     onSuccess: (response) => {
       if (response.status === 'SUCCESS') {
         const data = response.data;

@@ -108,3 +108,15 @@ export async function gradeSubmission(
   );
   return response.data;
 }
+
+export async function submitHomeworkForChild(
+  studentId: string,
+  homeworkId: string,
+  data?: { attachmentUrls?: string[]; notes?: string },
+): Promise<ApiResponse<Submission>> {
+  const response = await apiClient.post<ApiResponse<Submission>>(
+    `/parents/me/children/${studentId}/homework/${homeworkId}/submit`,
+    data || {},
+  );
+  return response.data;
+}

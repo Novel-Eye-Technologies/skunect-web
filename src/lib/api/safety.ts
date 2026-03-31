@@ -131,3 +131,14 @@ export async function verifyPickupByQrCode(
   );
   return response.data;
 }
+
+export async function recordPickup(
+  schoolId: string,
+  data: { studentId: string; authorizationId: string; verificationMethod: string },
+): Promise<ApiResponse<PickupLog>> {
+  const response = await apiClient.post<ApiResponse<PickupLog>>(
+    `/schools/${schoolId}/pickup-logs`,
+    data,
+  );
+  return response.data;
+}

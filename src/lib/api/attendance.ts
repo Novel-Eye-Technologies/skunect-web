@@ -88,3 +88,15 @@ export async function getAttendanceOverview(
   );
   return response.data;
 }
+
+export async function updateAttendanceRecord(
+  schoolId: string,
+  recordId: string,
+  data: { status: string; notes?: string },
+): Promise<ApiResponse<AttendanceRecord>> {
+  const response = await apiClient.put<ApiResponse<AttendanceRecord>>(
+    `/schools/${schoolId}/attendance/${recordId}`,
+    data,
+  );
+  return response.data;
+}

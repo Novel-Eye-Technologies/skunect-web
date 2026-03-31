@@ -13,6 +13,7 @@ import {
   getInvoice,
   generateInvoices,
   recordPayment,
+  cancelInvoice,
   type InvoiceListParams,
 } from '@/lib/api/fees';
 import type {
@@ -158,6 +159,21 @@ export function useRecordPayment() {
     },
     onError: (error) => {
       toast.error(getApiErrorMessage(error, 'Failed to record payment'));
+    },
+  });
+}
+
+export function useCancelInvoice() {
+  const schoolId = useAuthStore((s) => s.currentSchoolId);
+  return useMutation({
+    mutationFn: (data: { invoiceId: string; reason: string }) =>
+      cancelInvoice(schoolId!, data.invoiceId, { reason: data.reason }),
+    onSuccess: () => {
+      toast.success('Invoice cancelled');
+      queryClient.invalidateQueries({ queryKey: feesKeys.all });
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to cancel invoice'));
     },
   });
 }
