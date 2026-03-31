@@ -15,8 +15,8 @@ import { HomeworkDetailClient } from '@/components/features/homework/homework-de
  * that extracts the real homework ID from the URL, so it works correctly.
  */
 export default function HomeworkDetailError({
-  error,
-  reset,
+  error: _error,
+  reset: _reset,
 }: {
   error: Error & { digest?: string };
   reset: () => void;

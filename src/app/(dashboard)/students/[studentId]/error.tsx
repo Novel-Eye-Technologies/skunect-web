@@ -15,8 +15,8 @@ import { StudentDetailClient } from '@/components/features/students/student-deta
  * that extracts the real student ID from the URL, so it works correctly.
  */
 export default function StudentDetailError({
-  error,
-  reset,
+  error: _error,
+  reset: _reset,
 }: {
   error: Error & { digest?: string };
   reset: () => void;
