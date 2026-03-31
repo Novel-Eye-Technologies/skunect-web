@@ -1,5 +1,6 @@
 import apiClient from '@/lib/api/client';
 import type { ApiResponse, PaginatedParams } from '@/lib/api/types';
+import type { Api } from '@/lib/api/schema';
 import type {
   FeeStructure,
   CreateFeeStructureRequest,
@@ -116,7 +117,7 @@ export async function recordPayment(
 export async function cancelInvoice(
   schoolId: string,
   invoiceId: string,
-  data: { reason: string },
+  data: Api['CancelInvoiceRequest'],
 ): Promise<ApiResponse<Invoice>> {
   const response = await apiClient.post<ApiResponse<Invoice>>(
     `/schools/${schoolId}/fees/invoices/${invoiceId}/cancel`,

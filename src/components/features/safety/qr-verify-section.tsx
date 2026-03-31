@@ -50,7 +50,8 @@ export function QrVerifySection() {
       recordPickup(schoolId!, {
         studentId: verifiedAuth!.studentId,
         authorizationId: verifiedAuth!.id,
-        verificationMethod: 'QR_CODE',
+        pickedUpByName: verifiedAuth!.pickupPersonName || 'Unknown',
+        notes: 'Verified via QR code',
       }),
     onSuccess: () => {
       toast.success('Pickup recorded successfully');

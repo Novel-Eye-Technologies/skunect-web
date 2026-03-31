@@ -1,5 +1,6 @@
 import apiClient from '@/lib/api/client';
 import type { ApiResponse } from '@/lib/api/types';
+import type { Api } from '@/lib/api/schema';
 import type {
   AuthResponse,
   GoogleOAuthRequest,
@@ -63,12 +64,7 @@ export async function googleOAuth(
   return response.data;
 }
 
-export async function appleOAuth(data: {
-  identityToken: string;
-  authorizationCode: string;
-  firstName?: string;
-  lastName?: string;
-}): Promise<ApiResponse<AuthResponse>> {
+export async function appleOAuth(data: Api['AppleOAuthRequest']): Promise<ApiResponse<AuthResponse>> {
   const response = await apiClient.post<ApiResponse<AuthResponse>>(
     '/auth/oauth/apple',
     data,
@@ -100,9 +96,9 @@ export async function getCurrentUser(): Promise<ApiResponse<UserInfo>> {
   } as ApiResponse<UserInfo>;
 }
 
-export async function deleteAccount(reason?: string): Promise<ApiResponse<void>> {
+export async function deleteAccount(data?: Api['DeleteAccountRequest']): Promise<ApiResponse<void>> {
   const response = await apiClient.delete<ApiResponse<void>>('/auth/me', {
-    data: reason ? { reason } : undefined,
+    data,
   });
   return response.data;
 }

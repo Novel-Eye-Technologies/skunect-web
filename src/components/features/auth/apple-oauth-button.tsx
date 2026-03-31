@@ -69,8 +69,10 @@ export function AppleOAuthButton() {
         {
           identityToken: response.authorization.id_token,
           authorizationCode: response.authorization.code,
-          firstName: response.user?.name?.firstName,
-          lastName: response.user?.name?.lastName,
+          fullName: {
+            firstName: response.user?.name?.firstName,
+            lastName: response.user?.name?.lastName,
+          },
         },
         {
           onError: () => {

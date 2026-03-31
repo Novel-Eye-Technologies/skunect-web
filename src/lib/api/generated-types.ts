@@ -485,6 +485,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/schools/{schoolId}/attendance/{recordId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update an individual attendance record */
+        put: operations["updateAttendanceRecord"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/schools/{schoolId}/assessments/{id}": {
         parameters: {
             query?: never;
@@ -1270,6 +1287,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/schools/{schoolId}/fees/invoices/{invoiceId}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel a fee invoice */
+        post: operations["cancelInvoice"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/schools/{schoolId}/fees/invoices/generate": {
         parameters: {
             query?: never;
@@ -1549,6 +1583,23 @@ export interface paths {
         put?: never;
         /** Mark an announcement as read by the current user */
         post: operations["markAsRead_2"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/parents/me/children/{studentId}/homework/{homeworkId}/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit homework on behalf of a child */
+        post: operations["submitHomework"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3106,7 +3157,8 @@ export interface paths {
         get: operations["getCurrentUser_1"];
         put?: never;
         post?: never;
-        delete?: never;
+        /** Delete (soft-delete) the current user account */
+        delete: operations["deleteAccount"];
         options?: never;
         head?: never;
         patch?: never;
@@ -3797,6 +3849,8 @@ export interface components {
             feedback?: string | null;
             /** Format: date-time */
             submittedAt?: string | null;
+            attachmentUrls?: (string | null)[] | null;
+            parentNotes?: string | null;
         };
         UpdateHealthRecordRequest: {
             recordType?: string;
@@ -3932,6 +3986,11 @@ export interface components {
             className?: string | null;
             /** Format: date-time */
             createdAt: string;
+            cancellationReason?: string | null;
+            /** Format: uuid */
+            cancelledBy?: string | null;
+            /** Format: date-time */
+            cancelledAt?: string | null;
         };
         UpdateEventRequest: {
             title?: string;
@@ -4200,6 +4259,42 @@ export interface components {
             /** Format: date-time */
             updatedAt: string;
             isActive: boolean;
+        };
+        UpdateAttendanceRequest: {
+            status: string;
+            notes?: string;
+        };
+        ApiResponseAttendanceResponse: {
+            status?: string;
+            message?: string;
+            data?: components["schemas"]["AttendanceResponse"];
+            errors?: components["schemas"]["ErrorDetail"][];
+            meta?: components["schemas"]["PageMeta"];
+        };
+        AttendanceResponse: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            studentId: string;
+            /** Format: uuid */
+            classId: string;
+            studentName: string;
+            admissionNumber?: string | null;
+            className?: string | null;
+            markedBy?: string | null;
+            status: string;
+            notes?: string | null;
+            /** Format: date */
+            date: string;
+            syncedFromOffline: boolean;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: uuid */
+            modifiedBy?: string | null;
+            modifiedByName?: string | null;
+            /** Format: date-time */
+            modifiedAt?: string | null;
+            previousStatus?: string | null;
         };
         CreateAssessmentRequest: {
             /** Format: uuid */
@@ -4790,6 +4885,9 @@ export interface components {
             reference?: string;
             notes?: string;
         };
+        CancelInvoiceRequest: {
+            reason: string;
+        };
         ApiResponseListFeeInvoiceResponse: {
             status?: string;
             message?: string;
@@ -4927,6 +5025,10 @@ export interface components {
              * @description Schedule announcement for future publishing
              */
             scheduledPublishAt?: string;
+        };
+        ParentSubmitHomeworkRequest: {
+            attachmentUrls?: string[];
+            notes?: string;
         };
         DeviceTokenRequest: {
             token: string;
@@ -5446,26 +5548,26 @@ export interface components {
             totalElements: number;
             /** Format: int32 */
             totalPages: number;
-            pageable: components["schemas"]["PageableObject"];
-            first: boolean;
             /** Format: int32 */
             numberOfElements: number;
+            first: boolean;
+            pageable: components["schemas"]["PageableObject"];
+            last: boolean;
             /** Format: int32 */
             size: number;
             content: components["schemas"]["SubscriptionPaymentResponse"][];
             /** Format: int32 */
             number: number;
             sort: components["schemas"]["SortObject"][];
-            last: boolean;
             empty: boolean;
         };
         PageableObject: {
+            unpaged?: boolean;
             paged?: boolean;
             /** Format: int32 */
             pageNumber?: number;
             /** Format: int32 */
             pageSize?: number;
-            unpaged?: boolean;
             /** Format: int64 */
             offset?: number;
             sort?: components["schemas"]["SortObject"][];
@@ -5504,25 +5606,6 @@ export interface components {
             data?: components["schemas"]["AttendanceResponse"][];
             errors?: components["schemas"]["ErrorDetail"][];
             meta?: components["schemas"]["PageMeta"];
-        };
-        AttendanceResponse: {
-            /** Format: uuid */
-            id: string;
-            /** Format: uuid */
-            studentId: string;
-            /** Format: uuid */
-            classId: string;
-            studentName: string;
-            admissionNumber?: string | null;
-            className?: string | null;
-            markedBy?: string | null;
-            status: string;
-            notes?: string | null;
-            /** Format: date */
-            date: string;
-            syncedFromOffline: boolean;
-            /** Format: date-time */
-            createdAt: string;
         };
         ApiResponseStudentUsageResponse: {
             status?: string;
@@ -5785,17 +5868,17 @@ export interface components {
             totalElements: number;
             /** Format: int32 */
             totalPages: number;
-            pageable: components["schemas"]["PageableObject"];
-            first: boolean;
             /** Format: int32 */
             numberOfElements: number;
+            first: boolean;
+            pageable: components["schemas"]["PageableObject"];
+            last: boolean;
             /** Format: int32 */
             size: number;
             content: components["schemas"]["AuditLogResponse"][];
             /** Format: int32 */
             number: number;
             sort: components["schemas"]["SortObject"][];
-            last: boolean;
             empty: boolean;
         };
         ApiResponseAttendanceOverviewResponse: {
@@ -6657,6 +6740,9 @@ export interface components {
             byRole: {
                 [key: string]: number;
             };
+        };
+        DeleteAccountRequest: {
+            reason?: string;
         };
     };
     responses: never;
@@ -7873,6 +7959,33 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApiResponseBusResponse"];
+                };
+            };
+        };
+    };
+    updateAttendanceRecord: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                schoolId: string;
+                recordId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateAttendanceRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseAttendanceResponse"];
                 };
             };
         };
@@ -9628,6 +9741,33 @@ export interface operations {
             };
         };
     };
+    cancelInvoice: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                schoolId: string;
+                invoiceId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CancelInvoiceRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseFeeInvoiceResponse"];
+                };
+            };
+        };
+    };
     generateInvoices: {
         parameters: {
             query: {
@@ -10355,6 +10495,33 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApiResponseVoid"];
+                };
+            };
+        };
+    };
+    submitHomework: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                studentId: string;
+                homeworkId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["ParentSubmitHomeworkRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseSubmissionResponse"];
                 };
             };
         };
@@ -12703,6 +12870,30 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApiResponseAuthResponse"];
+                };
+            };
+        };
+    };
+    deleteAccount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["DeleteAccountRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseVoid"];
                 };
             };
         };

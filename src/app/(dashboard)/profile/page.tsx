@@ -130,7 +130,7 @@ export default function ProfilePage() {
   async function handleDeleteAccount() {
     setIsDeletingAccount(true);
     try {
-      await deleteAccount(deleteReason || undefined);
+      await deleteAccount(deleteReason ? { reason: deleteReason } : undefined);
       logout();
       router.push('/login');
     } catch (error) {

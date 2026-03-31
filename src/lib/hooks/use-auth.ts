@@ -20,6 +20,7 @@ import type {
   RegisterRequest,
   VerifyOtpRequest,
   GoogleOAuthRequest,
+  AppleOAuthRequest,
   RefreshTokenRequest,
   UserInfo,
 } from '@/lib/types/auth';
@@ -118,12 +119,7 @@ export function useAppleOAuth() {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: (data: {
-      identityToken: string;
-      authorizationCode: string;
-      firstName?: string;
-      lastName?: string;
-    }) => appleOAuth(data),
+    mutationFn: (data: AppleOAuthRequest) => appleOAuth(data),
     onSuccess: (response) => {
       if (response.status === 'SUCCESS') {
         const data = response.data;
