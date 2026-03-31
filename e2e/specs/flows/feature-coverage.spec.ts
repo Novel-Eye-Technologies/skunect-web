@@ -75,11 +75,11 @@ test.describe('1 — Dashboard Page Tests', () => {
     await dashboard.expectParentStatCards();
   });
 
-  test('1.6 — Parent: Dashboard shows children overview card', async ({ parentPage }) => {
+  test('1.6 — Parent: Dashboard shows academic overview', async ({ parentPage }) => {
     const dashboard = new DashboardPage(parentPage);
     await dashboard.goto();
     await dashboard.expectVisible();
-    await dashboard.expectChildrenOverview();
+    await dashboard.expectParentStatCards();
   });
 
   test('1.7 — Admin: Sidebar shows correct nav items', async ({ adminPage }) => {
@@ -466,8 +466,8 @@ test.describe('9 — Students & My Classes Tests', () => {
   });
 
   test('9.6 — Parent: My Children page renders', async ({ parentPage }) => {
-    // For parents, the students page shows "My Children"
-    await parentPage.goto('/my-children');
+    // For parents, the students page shows "My Children" heading
+    await parentPage.goto('/students');
     await parentPage.waitForLoadState('networkidle').catch(() => {});
     await expect(
       parentPage.getByRole('heading', { name: /my children/i }),

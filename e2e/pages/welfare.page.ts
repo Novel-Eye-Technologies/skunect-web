@@ -18,7 +18,7 @@ export class WelfarePage {
 
   constructor(page: Page) {
     this.page = page;
-    this.heading = page.getByRole('heading', { name: /welfare/i });
+    this.heading = page.getByRole('heading', { name: /student wellness|welfare/i });
     this.recordWelfareButton = page.getByRole('button', { name: /record welfare/i });
     this.dataTable = page.locator('table');
     this.classFilter = page.locator('button').filter({ hasText: /all classes/i });
