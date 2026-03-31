@@ -33,8 +33,7 @@ import { formatDate } from '@/lib/utils/format-date';
 import { QueryErrorBanner } from '@/components/shared/query-error-banner';
 import { Input } from '@/components/ui/input';
 import { EmptyState } from '@/components/shared/empty-state';
-import { Card, CardContent } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Card } from '@/components/ui/card';
 import type { HomeworkListItem } from '@/lib/types/homework';
 
 interface ChildHomeworkListProps {

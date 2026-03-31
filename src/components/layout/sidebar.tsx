@@ -70,6 +70,7 @@ export function Sidebar() {
               <TooltipTrigger asChild>
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-teal text-sm font-bold text-white overflow-hidden">
                   {schoolSettings?.logo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img src={schoolSettings.logo} alt="" className="h-full w-full object-cover" />
                   ) : (
                     'S'
@@ -85,6 +86,7 @@ export function Sidebar() {
             <>
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-teal text-sm font-bold text-white overflow-hidden">
                 {schoolSettings?.logo ? (
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img src={schoolSettings.logo} alt="" className="h-full w-full object-cover" />
                 ) : (
                   'S'

@@ -441,7 +441,7 @@ export default function HomePage() {
               <div className="absolute left-6 top-0 block h-full w-px bg-border" />
 
               <div className="space-y-12 sm:space-y-16">
-                {steps.map((step, index) => (
+                {steps.map((step) => (
                   <div key={step.number} className="relative flex gap-6">
                     {/* Step number circle */}
                     <div className="relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-navy text-sm font-bold text-white shadow-md">

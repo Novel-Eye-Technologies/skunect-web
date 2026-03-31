@@ -1,5 +1,5 @@
 import apiClient from '@/lib/api/client';
-import type { ApiResponse, PaginatedParams } from '@/lib/api/types';
+import type { ApiResponse } from '@/lib/api/types';
 import type {
   AttendanceRecord,
   BulkAttendanceRequest,
