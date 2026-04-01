@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { type ColumnDef, type PaginationState } from '@tanstack/react-table';
-import { MoreHorizontal, Shield, UserX, Mail, Phone, BookOpen, Pencil } from 'lucide-react';
+import { MoreHorizontal, Shield, UserX, Mail, Phone, BookOpen, Pencil, ClipboardList } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
@@ -29,6 +29,7 @@ import { InviteUserDialog } from '@/components/features/users/invite-user-dialog
 import { UserStatusDialog } from '@/components/features/users/user-status-dialog';
 import { EditUserDialog } from '@/components/features/users/edit-user-dialog';
 import { AssignClassDialog } from '@/components/features/teachers/assign-class-dialog';
+import { AssignSubjectsDialog } from '@/components/features/teachers/assign-subjects-dialog';
 import { TeacherOverviewCards } from '@/components/features/teachers/teacher-overview';
 import { useTeachers } from '@/lib/hooks/use-teachers';
 import { useRemoveUser } from '@/lib/hooks/use-users';
@@ -51,6 +52,8 @@ export default function TeachersPage() {
   const [removeDialogUser, setRemoveDialogUser] = useState<UserListItem | null>(null);
   const [assignDialogUser, setAssignDialogUser] = useState<UserListItem | null>(null);
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
+  const [assignSubjectsDialogUser, setAssignSubjectsDialogUser] = useState<UserListItem | null>(null);
+  const [assignSubjectsDialogOpen, setAssignSubjectsDialogOpen] = useState(false);
 
   const { data: response, isLoading } = useTeachers({
     page: pagination.pageIndex,
@@ -168,6 +171,15 @@ export default function TeachersPage() {
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
+                  setAssignSubjectsDialogUser(user);
+                  setAssignSubjectsDialogOpen(true);
+                }}
+              >
+                <ClipboardList className="mr-2 h-4 w-4" />
+                Assign Subject
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
                   setStatusDialogUser(user);
                   setStatusDialogOpen(true);
                 }}
@@ -253,6 +265,12 @@ export default function TeachersPage() {
         teacher={assignDialogUser}
         open={assignDialogOpen}
         onOpenChange={setAssignDialogOpen}
+      />
+
+      <AssignSubjectsDialog
+        teacher={assignSubjectsDialogUser}
+        open={assignSubjectsDialogOpen}
+        onOpenChange={setAssignSubjectsDialogOpen}
       />
 
       <UserStatusDialog

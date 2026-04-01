@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import Image from 'next/image';
 import { useParams, useRouter, usePathname } from 'next/navigation';
 import { type ColumnDef, type PaginationState } from '@tanstack/react-table';
 import {
@@ -295,12 +296,13 @@ export function HomeworkDetailClient() {
                         href={url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="group block overflow-hidden rounded-md border"
+                        className="group relative block h-40 overflow-hidden rounded-md border"
                       >
-                        <img
+                        <Image
                           src={url}
                           alt={fileName}
-                          className="h-40 w-full object-cover transition-opacity group-hover:opacity-80"
+                          fill
+                          className="object-cover transition-opacity group-hover:opacity-80"
                         />
                         <div className="flex items-center justify-between px-3 py-2">
                           <p className="truncate text-xs text-muted-foreground">
@@ -466,12 +468,13 @@ export function HomeworkDetailClient() {
                           href={url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="group block overflow-hidden rounded-md border"
+                          className="group relative block h-40 overflow-hidden rounded-md border"
                         >
-                          <img
+                          <Image
                             src={url}
                             alt={fileName}
-                            className="h-40 w-full object-cover transition-opacity group-hover:opacity-80"
+                            fill
+                            className="object-cover transition-opacity group-hover:opacity-80"
                           />
                           <div className="flex items-center justify-between px-3 py-2">
                             <p className="truncate text-xs text-muted-foreground">
