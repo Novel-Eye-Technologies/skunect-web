@@ -15,13 +15,10 @@ const productLinks: FooterLink[] = [
 
 const companyLinks: FooterLink[] = [
   { label: 'About Us', href: '#', disabled: true },
-  { label: 'Blog', href: '#', disabled: true },
-  { label: 'Careers', href: '#', disabled: true },
   { label: 'Contact', href: '#', disabled: true },
 ];
 
-const supportLinks: FooterLink[] = [
-  { label: 'Help Center', href: '#', disabled: true },
+const legalLinks: FooterLink[] = [
   { label: 'Privacy Policy', href: '#', disabled: true },
   { label: 'Terms of Service', href: '#', disabled: true },
 ];
@@ -33,7 +30,8 @@ function FooterLinkItem({ link }: { link: FooterLink }) {
         aria-disabled="true"
         className="text-sm text-white/40 pointer-events-none opacity-50"
       >
-        {link.label} <span className="text-[10px] text-white/30">(Coming Soon)</span>
+        {link.label}{' '}
+        <span className="text-[10px] text-white/30">(Coming Soon)</span>
       </span>
     );
   }
@@ -56,10 +54,14 @@ export function SiteFooter() {
           {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-1">
             <Link href="/" className="flex items-center gap-2.5">
-              <img src="/logo.png" alt="Skunect" className="h-9 w-9 rounded-lg" />
+              <img
+                src="/logo.png"
+                alt="Skunect"
+                className="h-9 w-9 rounded-lg"
+              />
               <span className="text-xl font-bold text-white">Skunect</span>
             </Link>
-            <p className="mt-3 max-w-xs text-sm text-white/50 leading-relaxed">
+            <p className="mt-3 max-w-xs text-sm leading-relaxed text-white/50">
               School Management &amp; Parent Engagement Platform — connecting
               schools and families across Africa.
             </p>
@@ -67,7 +69,9 @@ export function SiteFooter() {
 
           {/* Product */}
           <div>
-            <h4 className="mb-3 text-sm font-semibold text-white/80">Product</h4>
+            <h4 className="mb-3 text-sm font-semibold text-white/80">
+              Product
+            </h4>
             <ul className="space-y-2">
               {productLinks.map((link) => (
                 <li key={link.label}>
@@ -79,7 +83,9 @@ export function SiteFooter() {
 
           {/* Company */}
           <div>
-            <h4 className="mb-3 text-sm font-semibold text-white/80">Company</h4>
+            <h4 className="mb-3 text-sm font-semibold text-white/80">
+              Company
+            </h4>
             <ul className="space-y-2">
               {companyLinks.map((link) => (
                 <li key={link.label}>
@@ -89,11 +95,11 @@ export function SiteFooter() {
             </ul>
           </div>
 
-          {/* Support */}
+          {/* Legal */}
           <div>
-            <h4 className="mb-3 text-sm font-semibold text-white/80">Support</h4>
+            <h4 className="mb-3 text-sm font-semibold text-white/80">Legal</h4>
             <ul className="space-y-2">
-              {supportLinks.map((link) => (
+              {legalLinks.map((link) => (
                 <li key={link.label}>
                   <FooterLinkItem link={link} />
                 </li>
@@ -103,7 +109,9 @@ export function SiteFooter() {
         </div>
 
         <div className="mt-12 border-t border-white/10 pt-8 text-center text-sm text-white/30">
-          <p>&copy; {new Date().getFullYear()} Skunect. All rights reserved.</p>
+          <p>
+            &copy; {new Date().getFullYear()} Skunect. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>

@@ -64,7 +64,7 @@ function EnrollContent() {
     return (
       <div>
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+          <h1 className="font-display text-3xl tracking-tight sm:text-4xl">
             Complete Your Enrollment
           </h1>
           <p className="mt-2 text-muted-foreground">
@@ -84,7 +84,7 @@ export default function EnrollPage() {
     <div className="flex min-h-screen flex-col bg-background">
       <SiteNavbar />
 
-      <main className="flex-1 px-4 py-12 sm:px-6 sm:py-20">
+      <main id="main-content" className="flex-1 px-4 py-12 sm:px-6 sm:py-20">
         <Suspense
           fallback={
             <div className="flex flex-col items-center justify-center gap-4 py-20">

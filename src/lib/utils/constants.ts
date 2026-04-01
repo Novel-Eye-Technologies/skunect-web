@@ -1,3 +1,7 @@
+/** Tiny 1x1 pixel base64 placeholder for blur effect on Next.js images */
+export const BLUR_PLACEHOLDER =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN88P/BfwAJhAPk2iLajgAAAABJRU5ErkJggg==';
+
 export const ROLES = {
   ADMIN: 'ADMIN',
   TEACHER: 'TEACHER',

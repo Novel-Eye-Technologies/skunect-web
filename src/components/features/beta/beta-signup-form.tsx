@@ -647,10 +647,12 @@ export function BetaSignupForm() {
         </form>
       </Form>
 
-      <p className="mt-4 text-center text-xs text-muted-foreground">
-        By submitting, you agree to be contacted about the Skunect beta
-        program.
-      </p>
+      {step === 2 && (
+        <p className="mt-4 text-center text-xs text-muted-foreground">
+          By submitting, you agree to be contacted about the Skunect beta
+          program.
+        </p>
+      )}
     </div>
   );
 }

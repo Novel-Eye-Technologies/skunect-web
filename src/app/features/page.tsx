@@ -24,13 +24,11 @@ import { Button } from '@/components/ui/button';
 import { SiteNavbar } from '@/components/shared/site-navbar';
 import { SiteFooter } from '@/components/shared/site-footer';
 import { Reveal } from '@/components/shared/scroll-reveal';
+import { BLUR_PLACEHOLDER } from '@/lib/utils/constants';
 
 // ---------------------------------------------------------------------------
 // Data
 // ---------------------------------------------------------------------------
-
-const BLUR_PLACEHOLDER =
-  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN88P/BfwAJhAPk2iLajgAAAABJRU5ErkJggg==';
 
 type RoleTab = 'admin' | 'teacher' | 'parent';
 
@@ -276,7 +274,7 @@ export default function FeaturesPage() {
       <SiteNavbar />
 
       {/* ── Hero ── */}
-      <section className="relative overflow-hidden bg-navy px-4 py-16 text-center sm:px-6 sm:py-24">
+      <section id="main-content" className="relative overflow-hidden bg-navy px-4 py-16 text-center sm:px-6 sm:py-24">
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_20%_40%,rgba(42,157,143,0.15),transparent)]" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_80%_60%,rgba(212,168,67,0.06),transparent)]" />
@@ -299,10 +297,14 @@ export default function FeaturesPage() {
       {/* ── Role Tabs ── */}
       <section className="sticky top-16 z-40 border-b bg-background/95 backdrop-blur-sm">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-center">
+          <div className="flex justify-center" role="tablist" aria-label="Features by role">
             {(Object.keys(roleInfo) as RoleTab[]).map((role) => (
               <button
                 key={role}
+                role="tab"
+                aria-selected={activeRole === role}
+                aria-controls={`tabpanel-${role}`}
+                id={`tab-${role}`}
                 onClick={() => setActiveRole(role)}
                 className={`relative px-6 py-4 text-sm font-medium transition-colors sm:px-8 ${
                   activeRole === role
@@ -331,7 +333,13 @@ export default function FeaturesPage() {
 
       {/* ── Feature Cards ── */}
       <section className="bg-cream px-4 py-20 sm:px-6 sm:py-28">
-        <div key={activeRole} className="animate-fade-in mx-auto max-w-7xl">
+        <div
+          key={activeRole}
+          role="tabpanel"
+          id={`tabpanel-${activeRole}`}
+          aria-labelledby={`tab-${activeRole}`}
+          className="animate-fade-in mx-auto max-w-7xl"
+        >
           <div className="grid gap-8 sm:grid-cols-2">
             {currentFeatures.map((feature, i) => (
               <Reveal key={feature.title} delay={i * 60}>

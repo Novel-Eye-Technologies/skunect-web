@@ -14,9 +14,7 @@ import { SiteNavbar } from '@/components/shared/site-navbar';
 import { SiteFooter } from '@/components/shared/site-footer';
 import { BetaSignupForm } from '@/components/features/beta/beta-signup-form';
 import { Reveal } from '@/components/shared/scroll-reveal';
-
-const BLUR_PLACEHOLDER =
-  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN88P/BfwAJhAPk2iLajgAAAABJRU5ErkJggg==';
+import { BLUR_PLACEHOLDER } from '@/lib/utils/constants';
 
 const painPoints = [
   {
@@ -58,7 +56,7 @@ export default function BetaPage() {
       <SiteNavbar ctaLabel="Apply for Beta" ctaHref="/beta#signup" />
 
       {/* ── Hero ── */}
-      <section className="relative overflow-hidden bg-navy px-4 py-20 text-center sm:px-6 sm:py-28">
+      <section id="main-content" className="relative overflow-hidden bg-navy px-4 py-20 text-center sm:px-6 sm:py-28">
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_20%_40%,rgba(42,157,143,0.15),transparent)]" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_80%_60%,rgba(212,168,67,0.06),transparent)]" />

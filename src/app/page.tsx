@@ -24,9 +24,7 @@ import { useAuthStore } from '@/lib/stores/auth-store';
 import { SiteNavbar } from '@/components/shared/site-navbar';
 import { SiteFooter } from '@/components/shared/site-footer';
 import { Reveal } from '@/components/shared/scroll-reveal';
-
-const BLUR_PLACEHOLDER =
-  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN88P/BfwAJhAPk2iLajgAAAABJRU5ErkJggg==';
+import { BLUR_PLACEHOLDER } from '@/lib/utils/constants';
 
 const features = [
   {
@@ -170,7 +168,7 @@ export default function HomePage() {
       <SiteNavbar />
 
       {/* ── Hero ─────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-navy px-4 py-24 sm:px-6 sm:py-32 lg:py-40">
+      <section id="main-content" className="relative overflow-hidden bg-navy px-4 py-24 sm:px-6 sm:py-32 lg:py-40">
         {/* Background mesh gradients */}
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_20%_40%,rgba(42,157,143,0.15),transparent)]" />

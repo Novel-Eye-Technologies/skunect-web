@@ -9,6 +9,13 @@ interface RevealProps {
   direction?: 'up' | 'down' | 'left' | 'right';
 }
 
+const HIDDEN_TRANSFORM: Record<string, string> = {
+  up: 'translate-y-6',
+  down: '-translate-y-6',
+  left: 'translate-x-6',
+  right: '-translate-x-6',
+};
+
 export function Reveal({
   children,
   className = '',
@@ -36,20 +43,13 @@ export function Reveal({
     return () => observer.disconnect();
   }, []);
 
-  const hiddenTransform: Record<string, string> = {
-    up: 'translate-y-6',
-    down: '-translate-y-6',
-    left: 'translate-x-6',
-    right: '-translate-x-6',
-  };
-
   return (
     <div
       ref={ref}
       className={`transition-all duration-700 ease-out ${
         isVisible
           ? 'opacity-100 translate-x-0 translate-y-0'
-          : `opacity-0 ${hiddenTransform[direction]}`
+          : `opacity-0 ${HIDDEN_TRANSFORM[direction]}`
       } ${className}`}
       style={{ transitionDelay: `${delay}ms` }}
     >
