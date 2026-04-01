@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import Image from 'next/image';
 import {
   MessageSquare,
   Plus,
@@ -434,9 +435,11 @@ const [activeConversationId, setActiveConversationId] = useState<
                                         rel="noopener noreferrer"
                                         className="block"
                                       >
-                                        <img
+                                        <Image
                                           src={url}
                                           alt={fileName}
+                                          width={200}
+                                          height={160}
                                           className="max-w-[200px] max-h-[160px] rounded-lg object-cover"
                                         />
                                       </a>

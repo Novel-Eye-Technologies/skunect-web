@@ -19,8 +19,6 @@ import {
   UserRound,
   HeartPulse,
   Settings2,
-  Smile,
-  Stethoscope,
   HelpCircle,
   Calendar,
   CalendarDays,
@@ -123,7 +121,7 @@ export const navigationConfig: NavItem[] = [
     roles: ['TEACHER'],
   },
   {
-    title: 'My Children',
+    title: 'Children Profile',
     href: '/students',
     icon: GraduationCap,
     roles: ['PARENT'],
@@ -148,6 +146,7 @@ export const navigationConfig: NavItem[] = [
     icon: BookOpen,
     roles: ['PARENT'],
     children: [
+      { title: 'Subjects', href: '/academics/subjects', icon: BookOpen, roles: ['PARENT'] },
       { title: 'Attendance', href: '/attendance', icon: ClipboardCheck, roles: ['PARENT'] },
       { title: 'Homework', href: '/homework', icon: FileText, roles: ['PARENT'] },
       { title: 'Grades', href: '/academics/grades', icon: FileText, roles: ['PARENT'] },
@@ -183,10 +182,8 @@ export const navigationConfig: NavItem[] = [
     roles: ['ADMIN', 'TEACHER', 'PARENT'],
     children: [
       { title: 'Emergency Alerts', href: '/safety', icon: Shield, roles: ['ADMIN', 'TEACHER'] },
-      { title: 'Pickup Authorization', href: '/safety/pickup', icon: UserCheck, roles: ['PARENT'] },
-      { title: 'Welfare Logs', href: '/welfare', icon: HeartPulse, roles: ['ADMIN', 'TEACHER'] },
-      { title: 'Mood Tracker', href: '/welfare/mood', icon: Smile, roles: ['ADMIN', 'TEACHER'] },
-      { title: 'Health Records', href: '/welfare/health-records', icon: Stethoscope, roles: ['ADMIN', 'TEACHER'] },
+      { title: 'Pickup Authorization', href: '/safety/pickup', icon: UserCheck, roles: ['ADMIN', 'TEACHER', 'PARENT'] },
+      { title: 'Student Wellness', href: '/welfare', icon: HeartPulse, roles: ['ADMIN', 'TEACHER'] },
     ],
   },
   {
@@ -208,7 +205,7 @@ export const navigationConfig: NavItem[] = [
     title: 'Fees',
     href: '/fees',
     icon: DollarSign,
-    roles: ['ADMIN', 'PARENT'],
+    roles: ['ADMIN', 'TEACHER', 'PARENT'],
   },
   {
     title: 'Subscription',

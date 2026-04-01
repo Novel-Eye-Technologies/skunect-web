@@ -36,7 +36,7 @@ type SlotOptionValue =
 export default function TimetablePage() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
   const [sessionId, setSessionId] = useState('');
-  const { data: subjects, isLoading } = useSubjects();
+  const { data: subjects } = useSubjects();
 
   const [classId, setClassId] = useState('');
   const [slotDialog, setSlotDialog] = useState<{

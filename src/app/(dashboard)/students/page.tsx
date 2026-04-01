@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { type ColumnDef, type PaginationState } from '@tanstack/react-table';
 import { MoreHorizontal, Trash2, Eye, CheckCircle, XCircle } from 'lucide-react';
@@ -29,6 +29,7 @@ import { ConfirmDialog } from '@/components/shared/confirm-dialog';
 import { StudentFormDialog } from '@/components/features/students/student-form-dialog';
 import { useStudents, useDeleteStudent, useActivateStudent, useDeactivateStudent } from '@/lib/hooks/use-students';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { useChildStore } from '@/lib/stores/child-store';
 import { useQuery } from '@tanstack/react-query';
 import { getClasses } from '@/lib/api/school-settings';
 import { QueryErrorBanner } from '@/components/shared/query-error-banner';
@@ -40,6 +41,13 @@ export default function StudentsPage() {
   const role = useAuthStore((s) => s.currentRole);
   const isParent = role === 'PARENT';
   const isTeacher = role === 'TEACHER';
+  const selectedChildId = useChildStore((s) => s.selectedChildId);
+
+  useEffect(() => {
+    if (isParent && selectedChildId) {
+      router.replace(`/students/${selectedChildId}`);
+    }
+  }, [isParent, selectedChildId, router]);
 
   // ---------------------------------------------------------------------------
   // Pagination, filter, and search state
@@ -210,10 +218,12 @@ export default function StudentsPage() {
   // ---------------------------------------------------------------------------
   // Render
   // ---------------------------------------------------------------------------
+  if (isParent && selectedChildId) return null;
+
   return (
     <div className="space-y-6">
       <PageHeader
-        title={isParent ? 'My Children' : 'Students'}
+        title={isParent ? 'Children Profile' : 'Students'}
         description={
           isParent
             ? 'View your children and their school information.'

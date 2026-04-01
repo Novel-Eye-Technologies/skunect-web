@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import Image from 'next/image';
 import { useParams, useRouter, usePathname } from 'next/navigation';
 import { type ColumnDef, type PaginationState } from '@tanstack/react-table';
 import {
@@ -9,6 +10,7 @@ import {
   Download,
   FileText,
   ClipboardCheck,
+  Send,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,10 +20,13 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { PageHeader } from '@/components/shared/page-header';
 import { StatusBadge } from '@/components/shared/status-badge';
 import { DataTable } from '@/components/shared/data-table';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { HomeworkFormDialog } from '@/components/features/homework/homework-form-dialog';
 import { GradeSubmissionDialog } from '@/components/features/homework/grade-submission-dialog';
-import { useHomework, useSubmissions } from '@/lib/hooks/use-homework';
+import { useHomework, useSubmissions, useSubmitHomework } from '@/lib/hooks/use-homework';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { useChildStore } from '@/lib/stores/child-store';
 import { formatDate, formatDateTime } from '@/lib/utils/format-date';
 import type { Submission } from '@/lib/types/homework';
 
@@ -42,6 +47,9 @@ export function HomeworkDetailClient() {
   const currentRole = useAuthStore((s) => s.currentRole);
   const isParent = currentRole === 'PARENT';
   const canManage = currentRole === 'TEACHER' || currentRole === 'ADMIN';
+  const selectedChildId = useChildStore((s) => s.selectedChildId);
+  const submitHomework = useSubmitHomework();
+  const [submissionNotes, setSubmissionNotes] = useState('');
 
   // ---------------------------------------------------------------------------
   // Data fetching
@@ -275,13 +283,35 @@ export function HomeworkDetailClient() {
                   {homework.attachmentUrls.filter((url): url is string => url !== null).map((url, index) => {
                     const fileName = (() => {
                       try {
-                        const pathname = new URL(url).pathname;
-                        return decodeURIComponent(pathname.split('/').pop() || url);
+                        const pn = new URL(url).pathname;
+                        return decodeURIComponent(pn.split('/').pop() || url);
                       } catch {
                         return url.split('/').pop() || url;
                       }
                     })();
-                    return (
+                    const isImage = /\.(png|jpe?g|gif|webp)$/i.test(url);
+                    return isImage ? (
+                      <a
+                        key={index}
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group relative block h-40 overflow-hidden rounded-md border"
+                      >
+                        <Image
+                          src={url}
+                          alt={fileName}
+                          fill
+                          className="object-cover transition-opacity group-hover:opacity-80"
+                        />
+                        <div className="flex items-center justify-between px-3 py-2">
+                          <p className="truncate text-xs text-muted-foreground">
+                            {fileName}
+                          </p>
+                          <Download className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                        </div>
+                      </a>
+                    ) : (
                       <div
                         key={index}
                         className="flex items-start justify-between rounded-md border p-3"
@@ -318,6 +348,51 @@ export function HomeworkDetailClient() {
               )}
             </CardContent>
           </Card>
+
+          {/* Submit Homework (Parent) */}
+          {selectedChildId && homework.status !== 'CLOSED' && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Submit Homework</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="submission-notes">Notes (optional)</Label>
+                    <Textarea
+                      id="submission-notes"
+                      placeholder="Add any notes about this submission..."
+                      className="min-h-[80px] resize-none"
+                      value={submissionNotes}
+                      onChange={(e) => setSubmissionNotes(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex justify-end">
+                    <Button
+                      disabled={submitHomework.isPending}
+                      onClick={() => {
+                        submitHomework.mutate(
+                          {
+                            studentId: selectedChildId,
+                            homeworkId,
+                            notes: submissionNotes || undefined,
+                          },
+                          {
+                            onSuccess: () => {
+                              setSubmissionNotes('');
+                            },
+                          },
+                        );
+                      }}
+                    >
+                      <Send className="mr-2 h-4 w-4" />
+                      {submitHomework.isPending ? 'Submitting...' : 'Submit Homework'}
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       ) : (
         <Tabs defaultValue="details" className="space-y-4">
@@ -384,38 +459,63 @@ export function HomeworkDetailClient() {
                   </p>
                 ) : (
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {homework.attachmentUrls.filter((u): u is string => u !== null).map((url, index) => (
-                      <div
-                        key={`${url}-${index}`}
-                        className="flex items-start justify-between rounded-md border p-3"
-                      >
-                        <div className="flex items-start gap-3">
-                          <div className="rounded-md bg-muted p-2">
-                            <FileText className="h-5 w-5 text-muted-foreground" />
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium truncate max-w-[160px]">
-                              {getFileNameFromUrl(url)}
-                            </p>
-                          </div>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          aria-label="Download attachment"
-                          asChild
+                    {homework.attachmentUrls.filter((u): u is string => u !== null).map((url, index) => {
+                      const fileName = getFileNameFromUrl(url);
+                      const isImage = /\.(png|jpe?g|gif|webp)$/i.test(url);
+                      return isImage ? (
+                        <a
+                          key={`${url}-${index}`}
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="group relative block h-40 overflow-hidden rounded-md border"
                         >
-                          <a
-                            href={url}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                          <Image
+                            src={url}
+                            alt={fileName}
+                            fill
+                            className="object-cover transition-opacity group-hover:opacity-80"
+                          />
+                          <div className="flex items-center justify-between px-3 py-2">
+                            <p className="truncate text-xs text-muted-foreground">
+                              {fileName}
+                            </p>
+                            <Download className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                          </div>
+                        </a>
+                      ) : (
+                        <div
+                          key={`${url}-${index}`}
+                          className="flex items-start justify-between rounded-md border p-3"
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="rounded-md bg-muted p-2">
+                              <FileText className="h-5 w-5 text-muted-foreground" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium truncate max-w-[160px]">
+                                {fileName}
+                              </p>
+                            </div>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            aria-label="Download attachment"
+                            asChild
                           >
-                            <Download className="h-4 w-4" />
-                          </a>
-                        </Button>
-                      </div>
-                    ))}
+                            <a
+                              href={url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <Download className="h-4 w-4" />
+                            </a>
+                          </Button>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </CardContent>

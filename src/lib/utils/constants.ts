@@ -1,3 +1,7 @@
+/** Tiny 1x1 pixel base64 placeholder for blur effect on Next.js images */
+export const BLUR_PLACEHOLDER =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN88P/BfwAJhAPk2iLajgAAAABJRU5ErkJggg==';
+
 export const ROLES = {
   ADMIN: 'ADMIN',
   TEACHER: 'TEACHER',
@@ -62,9 +66,7 @@ export const PAYMENT_TYPES = {
  * Routes that teachers cannot access (but parents can).
  * These are not admin-only — they're shared between ADMIN and PARENT roles.
  */
-export const TEACHER_BLOCKED_ROUTES: string[] = [
-  '/fees',
-];
+export const TEACHER_BLOCKED_ROUTES: string[] = [];
 
 /**
  * Routes that require the SUPER_ADMIN role.

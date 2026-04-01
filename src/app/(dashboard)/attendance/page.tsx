@@ -2,21 +2,23 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { type ColumnDef, type PaginationState } from '@tanstack/react-table';
-import { Users, UserCheck, UserX, Clock, Calendar } from 'lucide-react';
+import { Users, UserCheck, UserX, Clock, Calendar, Pencil } from 'lucide-react';
 import { PageHeader } from '@/components/shared/page-header';
 import { DataTable } from '@/components/shared/data-table';
 import { StatusBadge } from '@/components/shared/status-badge';
 import { AttendanceGrid } from '@/components/features/attendance/attendance-grid';
+import { EditAttendanceDialog } from '@/components/features/attendance/edit-attendance-dialog';
 import { useAttendanceRecords } from '@/lib/hooks/use-attendance';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useChildStore } from '@/lib/stores/child-store';
 import { useQuery } from '@tanstack/react-query';
-import { getClasses } from '@/lib/api/school-settings';
+
 import { getAttendanceOverview } from '@/lib/api/attendance';
 import { formatDate } from '@/lib/utils/format-date';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { QueryErrorBanner } from '@/components/shared/query-error-banner';
 import type { AttendanceRecord } from '@/lib/types/attendance';
@@ -25,6 +27,7 @@ export default function AttendancePage() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
   const currentRole = useAuthStore((s) => s.currentRole);
   const isParent = currentRole === 'PARENT';
+  const canEdit = currentRole === 'ADMIN' || currentRole === 'TEACHER';
 
   // ---------------------------------------------------------------------------
   // Parent Data (from store)
@@ -39,6 +42,7 @@ export default function AttendancePage() {
     pageIndex: 0,
     pageSize: 10,
   });
+  const [editTarget, setEditTarget] = useState<AttendanceRecord | null>(null);
   const [classFilter, setClassFilter] = useState('');
   const [dateFilter, setDateFilter] = useState(
     () => new Date().toISOString().split('T')[0],
@@ -59,12 +63,6 @@ export default function AttendancePage() {
     date: dateFilter || undefined,
   });
 
-  const { data: classesResponse } = useQuery({
-    queryKey: ['classes', schoolId ?? ''],
-    queryFn: () => getClasses(schoolId!),
-    enabled: !!schoolId && !isParent,
-    select: (res) => res.data,
-  });
 
   const { data: schoolOverview, isLoading: isLoadingOverview } = useQuery({
     queryKey: ['attendance', 'overview', schoolId ?? '', dateFilter],
@@ -79,7 +77,6 @@ export default function AttendancePage() {
     ? rawRecords.filter(r => r.studentId === selectedChildId)
     : rawRecords;
   const pageCount = isParent ? (records.length > 0 ? 1 : 0) : (response?.meta?.totalPages ?? 0);
-  const classes = classesResponse ?? [];
 
   // Child-specific overview for parents based on the selected child's record today
   const childRecord = isParent ? records[0] : null;
@@ -176,6 +173,24 @@ export default function AttendancePage() {
       header: 'Marked By',
       meta: { className: 'hidden md:table-cell' },
     },
+    ...(canEdit
+      ? [
+          {
+            id: 'actions',
+            cell: ({ row }: { row: { original: AttendanceRecord } }) => (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => setEditTarget(row.original)}
+              >
+                <Pencil className="h-4 w-4" />
+                <span className="sr-only">Edit</span>
+              </Button>
+            ),
+          } as ColumnDef<AttendanceRecord>,
+        ]
+      : []),
   ];
 
   const renderRecords = () => (
@@ -316,6 +331,15 @@ export default function AttendancePage() {
           )}
         </>
       )}
+
+      {/* Edit Attendance Dialog */}
+      <EditAttendanceDialog
+        open={!!editTarget}
+        onOpenChange={(open) => {
+          if (!open) setEditTarget(null);
+        }}
+        record={editTarget}
+      />
     </div>
   );
 }

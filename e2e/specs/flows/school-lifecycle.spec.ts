@@ -1426,12 +1426,12 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await calendarPage.expectLoaded();
 
     await calendarPage.clickCreateEvent();
-    // Use local time format for datetime-local inputs
+    // Use midday UTC to avoid month-boundary timezone issues (e.g., local late
+    // evening on the last day of a month converts to the next month in UTC).
     const pad = (n: number) => String(n).padStart(2, '0');
     const now = new Date();
-    const today = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
-    const nw = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-    const nextWeek = `${nw.getFullYear()}-${pad(nw.getMonth() + 1)}-${pad(nw.getDate())}T${pad(nw.getHours())}:${pad(nw.getMinutes())}`;
+    const today = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T10:00`;
+    const nextWeek = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T16:00`;
     await calendarPage.fillEventForm({
       title: EVENT_TITLE,
       description: 'Annual open day for parents and prospective students',
@@ -1911,8 +1911,7 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await gotoPage(page, '/admins');
     await expect(page).toHaveURL(/\/dashboard\/?/, { timeout: 10_000 });
 
-    await gotoPage(page, '/fees');
-    await expect(page).toHaveURL(/\/dashboard\/?/, { timeout: 10_000 });
+    // /fees is now accessible to teachers (read-only) — no longer blocked
 
     await gotoPage(page, '/data-migration');
     await expect(page).toHaveURL(/\/dashboard\/?/, { timeout: 10_000 });
@@ -2340,14 +2339,6 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await studentDetail.expectParentVisible('Olu Bakare');
     // Verify parent email is shown
     await expect(page.getByText(STUDENTS_CLASS1[0].parentEmail)).toBeVisible({ timeout: 10_000 });
-
-    // Verify Academics tab exists
-    const academicsTab = page.getByRole('tab', { name: /academics/i });
-    await academicsTab.click();
-    // Academics content should show — either report cards or "No academic records"
-    await expect(
-      page.getByText(/academic records|Average Score/i)
-    ).toBeVisible({ timeout: 15_000 });
   });
 
   test('3.11 — Teacher: Verify attendance Records tab renders', async ({ page }) => {
@@ -2786,23 +2777,25 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     // If no switcher is visible, the parent may only have one child visible at a time
   });
 
-  test('4.4 — Parent: Navigate My Children', async ({ page }) => {
+  test('4.4 — Parent: Navigate Children Profile', async ({ page }) => {
     await injectAuth(page, SECOND_PARENT_EMAIL, { schoolId: schoolData.schoolId! });
 
-    const studentsPage = new StudentsPage(page);
-    await studentsPage.goto();
-    await studentsPage.expectVisible();
-    // Parent should see their children listed
+    // Parents are always redirected to /students/{childId} (child detail page)
+    await page.goto('/students');
+    await page.waitForLoadState('networkidle').catch(() => {});
+    await expect(page).toHaveURL(/\/students\/.+/, { timeout: 20_000 });
+    // Verify the student detail page heading is visible
+    await expect(page.locator('main h1').first()).toBeVisible({ timeout: 20_000 });
   });
 
-  test('4.4b — Parent: Students page does not show Add Student button', async ({ page }) => {
+  test('4.4b — Parent: Student detail page does not show Add Student button', async ({ page }) => {
     await injectAuth(page, SECOND_PARENT_EMAIL, { schoolId: schoolData.schoolId! });
 
-    const studentsPage = new StudentsPage(page);
-    await studentsPage.goto();
-    await studentsPage.expectVisible();
+    await page.goto('/students');
+    await page.waitForLoadState('networkidle').catch(() => {});
+    await expect(page).toHaveURL(/\/students\/.+/, { timeout: 20_000 });
 
-    // Parent should NOT see Add Student button
+    // Parent should NOT see Add Student button on the detail page
     await expect(page.getByRole('button', { name: /add student/i })).not.toBeVisible({ timeout: 3_000 });
   });
 

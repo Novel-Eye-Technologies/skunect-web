@@ -22,6 +22,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { GoogleOAuthButton } from "@/components/features/auth/google-oauth-button";
+import { AppleOAuthButton } from "@/components/features/auth/apple-oauth-button";
 import { useLogin, useLoginPhone } from "@/lib/hooks/use-auth";
 
 const emailSchema = z.object({
@@ -104,8 +105,11 @@ export function LoginForm() {
         </p>
       </div>
 
-      {/* Google OAuth */}
-      <GoogleOAuthButton />
+      {/* OAuth Providers */}
+      <div className="space-y-3">
+        <GoogleOAuthButton />
+        <AppleOAuthButton />
+      </div>
 
       {/* Divider */}
       <div className="relative">

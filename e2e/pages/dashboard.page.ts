@@ -82,7 +82,7 @@ export class DashboardPage {
 
   async expectChildrenOverview() {
     await expect(
-      this.page.locator('[data-slot="card-title"]').filter({ hasText: 'My Children' })
+      this.page.locator('[data-slot="card-title"]').filter({ hasText: 'Children Profile' })
     ).toBeVisible();
   }
 

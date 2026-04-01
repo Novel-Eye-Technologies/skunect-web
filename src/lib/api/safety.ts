@@ -1,5 +1,6 @@
 import apiClient from '@/lib/api/client';
 import type { ApiResponse, PaginatedParams } from '@/lib/api/types';
+import type { Api } from '@/lib/api/schema';
 import type {
   EmergencyAlert,
   CreateEmergencyAlertRequest,
@@ -128,6 +129,17 @@ export async function verifyPickupByQrCode(
   const response = await apiClient.get<ApiResponse<PickupAuthorization>>(
     `/schools/${schoolId}/pickup-authorizations/verify`,
     { params: { qrCode } },
+  );
+  return response.data;
+}
+
+export async function recordPickup(
+  schoolId: string,
+  data: Api['RecordPickupRequest'],
+): Promise<ApiResponse<PickupLog>> {
+  const response = await apiClient.post<ApiResponse<PickupLog>>(
+    `/schools/${schoolId}/pickup-logs`,
+    data,
   );
   return response.data;
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo, useCallback } from 'react';
+import Image from 'next/image';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import {
@@ -33,15 +34,20 @@ import { StatusBadge } from '@/components/shared/status-badge';
 import { EmptyState } from '@/components/shared/empty-state';
 import { ConfirmDialog } from '@/components/shared/confirm-dialog';
 import { CreateAuthorizationDialog } from '@/components/features/safety/create-authorization-dialog';
+import { QrVerifySection } from '@/components/features/safety/qr-verify-section';
 import {
   usePickupAuthorizations,
   useRevokePickupAuthorization,
 } from '@/lib/hooks/use-safety';
+import { useAuthStore } from '@/lib/stores/auth-store';
 import { getParentChildren } from '@/lib/api/students';
 import { formatDateTime } from '@/lib/utils/format-date';
 import type { PickupAuthorization } from '@/lib/types/safety';
 
 export default function PickupAuthorizationPage() {
+  const currentRole = useAuthStore((s) => s.currentRole);
+  const isStaff = currentRole === 'ADMIN' || currentRole === 'TEACHER';
+
   const [createOpen, setCreateOpen] = useState(false);
   const [selectedChildId, setSelectedChildId] = useState<string>('all');
   const [revokeTarget, setRevokeTarget] = useState<PickupAuthorization | null>(
@@ -53,14 +59,14 @@ export default function PickupAuthorizationPage() {
     queryKey: ['parent', 'children'],
     queryFn: getParentChildren,
   });
-  const children = childrenResponse?.data ?? [];
+  const children = useMemo(() => childrenResponse?.data ?? [], [childrenResponse?.data]);
 
   // Fetch authorizations (optionally filtered by child)
   const filterStudentId =
     selectedChildId === 'all' ? undefined : selectedChildId;
   const { data: authResponse, isLoading: authLoading } =
     usePickupAuthorizations(filterStudentId);
-  const authorizations = authResponse?.data ?? [];
+  const authorizations = useMemo(() => authResponse?.data ?? [], [authResponse?.data]);
 
   const revokeAuthorization = useRevokePickupAuthorization();
 
@@ -120,6 +126,19 @@ export default function PickupAuthorizationPage() {
   }
 
   const isLoading = childrenLoading || authLoading;
+
+  // Staff (ADMIN/TEACHER) see QR verification; parents see authorization management
+  if (isStaff) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          title="Pickup Verification"
+          description="Verify pickup QR codes and record student pickups."
+        />
+        <QrVerifySection />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -235,7 +254,7 @@ export default function PickupAuthorizationPage() {
                             </span>
                           </div>
                           <div className="flex items-center gap-3">
-                            <img
+                            <Image
                               src={getQrImageUrl(auth.qrCode)}
                               alt={`QR code for ${auth.pickupPersonName}`}
                               width={80}
