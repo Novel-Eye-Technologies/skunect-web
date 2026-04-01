@@ -466,12 +466,12 @@ test.describe('9 — Students & My Classes Tests', () => {
   });
 
   test('9.6 — Parent: Children Profile page renders', async ({ parentPage }) => {
-    // For parents, the students page shows "Children Profile" heading
+    // Parents are always redirected to /students/{childId} (child detail page)
     await parentPage.goto('/students');
     await parentPage.waitForLoadState('networkidle').catch(() => {});
-    await expect(
-      parentPage.getByRole('heading', { name: /children profile/i }),
-    ).toBeVisible({ timeout: 20_000 });
+    await expect(parentPage).toHaveURL(/\/students\/.+/, { timeout: 20_000 });
+    // Verify the student detail page heading is visible
+    await expect(parentPage.locator('main h1').first()).toBeVisible({ timeout: 20_000 });
   });
 });
 
