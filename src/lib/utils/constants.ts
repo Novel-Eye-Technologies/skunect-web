@@ -62,9 +62,7 @@ export const PAYMENT_TYPES = {
  * Routes that teachers cannot access (but parents can).
  * These are not admin-only — they're shared between ADMIN and PARENT roles.
  */
-export const TEACHER_BLOCKED_ROUTES: string[] = [
-  '/fees',
-];
+export const TEACHER_BLOCKED_ROUTES: string[] = [];
 
 /**
  * Routes that require the SUPER_ADMIN role.

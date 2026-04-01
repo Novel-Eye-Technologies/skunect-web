@@ -139,24 +139,45 @@ test.describe.serial('Subscription Lifecycle E2E', () => {
   // PHASE 2: ACTIVE -> GRACE_PERIOD TRANSITION
   // =========================================================================
 
-  test('2.1 — Super Admin: Update subscription endDate to past via API', async () => {
-    // Re-authenticate to get a fresh token (in case the previous one expired)
+  test('2.1 — Super Admin: Update subscription to GRACE_PERIOD via API', async () => {
+    // Re-authenticate to get a fresh token
     const auth = await authenticateAccount('superadmin@skunect.com', TEST_OTP);
     data.superAdminToken = auth.accessToken;
 
-    // Set endDate to yesterday to trigger grace period
+    // Re-resolve schoolId if it was lost during retry
+    if (!data.kingsSchoolId) {
+      const adminAuth = await authenticateAccount(TEST_ACCOUNTS.adminKings.email, TEST_OTP);
+      const kingsRole = adminAuth.user.roles.find(
+        (r: { role: string; schoolName?: string }) => r.role === 'ADMIN' && r.schoolName === 'Kings Academy Lagos',
+      );
+      data.kingsSchoolId = kingsRole?.schoolId ?? undefined;
+    }
+    expect(data.kingsSchoolId).toBeTruthy();
+
+    // If no subscription was created (test 1.3 failed entirely), get existing one
+    if (!data.subscriptionId) {
+      try {
+        const existing = await apiGet<{ id: string; status: string }>(
+          `/admin/schools/${data.kingsSchoolId}/subscription`,
+          data.superAdminToken!,
+        );
+        if (existing.data?.id) {
+          data.subscriptionId = existing.data.id;
+        }
+      } catch {
+        // No existing subscription — skip
+      }
+    }
+
+    // Set endDate to yesterday and status to GRACE_PERIOD
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    const startDate = formatDate(new Date(yesterday.getFullYear() - 1, yesterday.getMonth(), yesterday.getDate()));
 
     const response = await apiPut(
       `/admin/schools/${data.kingsSchoolId}/subscription`,
       data.superAdminToken!,
       {
-        planId: data.planId,
-        startDate,
         endDate: formatDate(yesterday),
-        studentLimit: 100,
         status: 'GRACE_PERIOD',
       },
     );
