@@ -1,5 +1,6 @@
 import apiClient from '@/lib/api/client';
 import type { ApiResponse, PaginatedParams } from '@/lib/api/types';
+import type { Api } from '@/lib/api/schema';
 import type {
   HomeworkListItem,
   HomeworkDetail,
@@ -105,6 +106,18 @@ export async function gradeSubmission(
   const response = await apiClient.put<ApiResponse<Submission>>(
     `/schools/${schoolId}/homework/${homeworkId}/submissions/${studentId}`,
     data,
+  );
+  return response.data;
+}
+
+export async function submitHomeworkForChild(
+  studentId: string,
+  homeworkId: string,
+  data?: Api['ParentSubmitHomeworkRequest'],
+): Promise<ApiResponse<Submission>> {
+  const response = await apiClient.post<ApiResponse<Submission>>(
+    `/parents/me/children/${studentId}/homework/${homeworkId}/submit`,
+    data || {},
   );
   return response.data;
 }

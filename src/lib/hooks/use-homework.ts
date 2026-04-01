@@ -12,6 +12,7 @@ import {
   deleteHomework,
   getSubmissions,
   gradeSubmission,
+  submitHomeworkForChild,
   type HomeworkListParams,
 } from '@/lib/api/homework';
 import type {
@@ -146,6 +147,23 @@ return useMutation({
     },
     onError: (error) => {
       toast.error(getApiErrorMessage(error, 'Failed to grade submission'));
+    },
+  });
+}
+
+export function useSubmitHomework() {
+  return useMutation({
+    mutationFn: (data: { studentId: string; homeworkId: string; attachmentUrls?: string[]; notes?: string }) =>
+      submitHomeworkForChild(data.studentId, data.homeworkId, {
+        attachmentUrls: data.attachmentUrls,
+        notes: data.notes,
+      }),
+    onSuccess: () => {
+      toast.success('Homework submitted successfully');
+      queryClient.invalidateQueries({ queryKey: homeworkKeys.all });
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to submit homework'));
     },
   });
 }

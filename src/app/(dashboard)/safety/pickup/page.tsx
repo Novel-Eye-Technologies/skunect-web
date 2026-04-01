@@ -34,15 +34,20 @@ import { StatusBadge } from '@/components/shared/status-badge';
 import { EmptyState } from '@/components/shared/empty-state';
 import { ConfirmDialog } from '@/components/shared/confirm-dialog';
 import { CreateAuthorizationDialog } from '@/components/features/safety/create-authorization-dialog';
+import { QrVerifySection } from '@/components/features/safety/qr-verify-section';
 import {
   usePickupAuthorizations,
   useRevokePickupAuthorization,
 } from '@/lib/hooks/use-safety';
+import { useAuthStore } from '@/lib/stores/auth-store';
 import { getParentChildren } from '@/lib/api/students';
 import { formatDateTime } from '@/lib/utils/format-date';
 import type { PickupAuthorization } from '@/lib/types/safety';
 
 export default function PickupAuthorizationPage() {
+  const currentRole = useAuthStore((s) => s.currentRole);
+  const isStaff = currentRole === 'ADMIN' || currentRole === 'TEACHER';
+
   const [createOpen, setCreateOpen] = useState(false);
   const [selectedChildId, setSelectedChildId] = useState<string>('all');
   const [revokeTarget, setRevokeTarget] = useState<PickupAuthorization | null>(
@@ -121,6 +126,19 @@ export default function PickupAuthorizationPage() {
   }
 
   const isLoading = childrenLoading || authLoading;
+
+  // Staff (ADMIN/TEACHER) see QR verification; parents see authorization management
+  if (isStaff) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          title="Pickup Verification"
+          description="Verify pickup QR codes and record student pickups."
+        />
+        <QrVerifySection />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

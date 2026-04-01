@@ -19,8 +19,6 @@ import {
   UserRound,
   HeartPulse,
   Settings2,
-  Smile,
-  Stethoscope,
   HelpCircle,
   Calendar,
   CalendarDays,
@@ -184,10 +182,8 @@ export const navigationConfig: NavItem[] = [
     roles: ['ADMIN', 'TEACHER', 'PARENT'],
     children: [
       { title: 'Emergency Alerts', href: '/safety', icon: Shield, roles: ['ADMIN', 'TEACHER'] },
-      { title: 'Pickup Authorization', href: '/safety/pickup', icon: UserCheck, roles: ['PARENT'] },
-      { title: 'Welfare Logs', href: '/welfare', icon: HeartPulse, roles: ['ADMIN', 'TEACHER'] },
-      { title: 'Mood Tracker', href: '/welfare/mood', icon: Smile, roles: ['ADMIN', 'TEACHER'] },
-      { title: 'Health Records', href: '/welfare/health-records', icon: Stethoscope, roles: ['ADMIN', 'TEACHER'] },
+      { title: 'Pickup Authorization', href: '/safety/pickup', icon: UserCheck, roles: ['ADMIN', 'TEACHER', 'PARENT'] },
+      { title: 'Student Wellness', href: '/welfare', icon: HeartPulse, roles: ['ADMIN', 'TEACHER'] },
     ],
   },
   {
@@ -209,7 +205,7 @@ export const navigationConfig: NavItem[] = [
     title: 'Fees',
     href: '/fees',
     icon: DollarSign,
-    roles: ['ADMIN', 'PARENT'],
+    roles: ['ADMIN', 'TEACHER', 'PARENT'],
   },
   {
     title: 'Subscription',

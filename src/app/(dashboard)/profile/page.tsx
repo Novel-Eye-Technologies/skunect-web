@@ -5,13 +5,23 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import { User, Camera, Loader2 } from 'lucide-react';
+import { User, Camera, Loader2, AlertTriangle } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 import {
   Form,
   FormField,
@@ -25,6 +35,7 @@ import { useAuthStore } from '@/lib/stores/auth-store';
 import { useUpdateProfile } from '@/lib/hooks/use-students';
 import { uploadFile } from '@/lib/api/files';
 import { updateProfile } from '@/lib/api/students';
+import { deleteAccount } from '@/lib/api/auth';
 import { getApiErrorMessage } from '@/lib/utils/get-error-message';
 import { queryClient } from '@/lib/query-client';
 
@@ -37,12 +48,18 @@ const profileSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
 export default function ProfilePage() {
+  const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const setUser = useAuthStore((s) => s.setUser);
+  const logout = useAuthStore((s) => s.logout);
   const currentRole = useAuthStore((s) => s.currentRole);
   const updateProfileMutation = useUpdateProfile();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteReason, setDeleteReason] = useState('');
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
@@ -107,6 +124,19 @@ export default function ProfilePage() {
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
+    }
+  }
+
+  async function handleDeleteAccount() {
+    setIsDeletingAccount(true);
+    try {
+      await deleteAccount(deleteReason ? { reason: deleteReason } : undefined);
+      logout();
+      router.push('/login');
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Failed to delete account'));
+    } finally {
+      setIsDeletingAccount(false);
     }
   }
 
@@ -242,6 +272,99 @@ export default function ProfilePage() {
           </Form>
         </CardContent>
       </Card>
+
+      {/* Danger Zone */}
+      <Card className="border-destructive/50">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-destructive">
+            <AlertTriangle className="h-5 w-5" />
+            Danger Zone
+          </CardTitle>
+          <CardDescription>
+            Permanently delete your account and all associated data.
+          </CardDescription>
+        </CardHeader>
+        <Separator />
+        <CardContent className="pt-6">
+          <p className="text-sm text-muted-foreground">
+            Once your account is deleted, all of your data will be permanently
+            removed. This action cannot be undone.
+          </p>
+          <div className="mt-4">
+            <Button
+              variant="destructive"
+              onClick={() => setDeleteDialogOpen(true)}
+            >
+              Delete Account
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Delete Account Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeleteDialogOpen(false);
+            setDeleteReason('');
+            setDeleteConfirmText('');
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-[450px]">
+          <DialogHeader>
+            <DialogTitle className="text-destructive">Delete Account</DialogTitle>
+            <DialogDescription>
+              This action is permanent and cannot be undone. All your data,
+              including profile information and associated records, will be
+              permanently deleted.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="delete-reason">Reason for leaving (optional)</Label>
+              <Textarea
+                id="delete-reason"
+                placeholder="Tell us why you are deleting your account..."
+                className="min-h-[80px] resize-none"
+                value={deleteReason}
+                onChange={(e) => setDeleteReason(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="delete-confirm">
+                Type <span className="font-bold">DELETE</span> to confirm
+              </Label>
+              <Input
+                id="delete-confirm"
+                placeholder="DELETE"
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setDeleteDialogOpen(false);
+                setDeleteReason('');
+                setDeleteConfirmText('');
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={deleteConfirmText !== 'DELETE' || isDeletingAccount}
+              onClick={handleDeleteAccount}
+            >
+              {isDeletingAccount ? 'Deleting...' : 'Delete My Account'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

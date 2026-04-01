@@ -7,6 +7,8 @@ export type LoginPhoneRequest = Api['LoginPhoneRequest'];
 export type VerifyOtpRequest = Api['VerifyOtpRequest'];
 export type RefreshTokenRequest = Api['RefreshTokenRequest'];
 export type GoogleOAuthRequest = Api['GoogleOAuthRequest'];
+export type AppleOAuthRequest = Api['AppleOAuthRequest'];
+export type DeleteAccountRequest = Api['DeleteAccountRequest'];
 
 // Union types not in generated schema — keep hand-written
 export type Role = 'ADMIN' | 'TEACHER' | 'PARENT' | 'SUPER_ADMIN';
