@@ -117,7 +117,7 @@ test.describe('1 — Dashboard Page Tests', () => {
     const sidebar = new SidebarPage(parentPage);
     await sidebar.expectNavItems([
       'Dashboard',
-      'My Children',
+      'Children Profile',
       'Homework',
       'Communication',
       'Fees',
@@ -465,13 +465,13 @@ test.describe('9 — Students & My Classes Tests', () => {
     await myClasses.expectVisible();
   });
 
-  test('9.6 — Parent: My Children page renders', async ({ parentPage }) => {
-    // For parents, the students page shows "My Children" heading
+  test('9.6 — Parent: Children Profile page renders', async ({ parentPage }) => {
+    // Parents are always redirected to /students/{childId} (child detail page)
     await parentPage.goto('/students');
     await parentPage.waitForLoadState('networkidle').catch(() => {});
-    await expect(
-      parentPage.getByRole('heading', { name: /my children/i }),
-    ).toBeVisible({ timeout: 20_000 });
+    await expect(parentPage).toHaveURL(/\/students\/.+/, { timeout: 20_000 });
+    // Verify the student detail page heading is visible
+    await expect(parentPage.locator('main h1').first()).toBeVisible({ timeout: 20_000 });
   });
 });
 

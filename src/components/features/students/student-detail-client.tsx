@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useParams, useRouter, usePathname } from 'next/navigation';
 import {
   ArrowLeft,
@@ -27,8 +27,6 @@ import { StatusBadge } from '@/components/shared/status-badge';
 import { ConfirmDialog } from '@/components/shared/confirm-dialog';
 import { StudentFormDialog } from '@/components/features/students/student-form-dialog';
 import { LinkParentDialog } from '@/components/features/students/link-parent-dialog';
-import { StudentAcademicTab } from '@/components/features/students/student-academic-tab';
-import { StudentDisciplineTab } from '@/components/features/students/student-discipline-tab';
 import { StudentPaymentsTab } from '@/components/features/students/student-payments-tab';
 import { StudentSiblingsTab } from '@/components/features/students/student-siblings-tab';
 import {
@@ -39,6 +37,8 @@ import {
 } from '@/lib/hooks/use-students';
 import { formatDate } from '@/lib/utils/format-date';
 import type { ParentInfo, StudentDocument } from '@/lib/types/student';
+import { useAuthStore } from '@/lib/stores/auth-store';
+import { useChildStore } from '@/lib/stores/child-store';
 
 export function StudentDetailClient() {
   const params = useParams();
@@ -53,6 +53,16 @@ export function StudentDetailClient() {
       ? pathname.split('/').filter(Boolean)[1] ?? rawParam
       : rawParam;
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const role = useAuthStore((s) => s.currentRole);
+  const isParent = role === 'PARENT';
+  const selectedChildId = useChildStore((s) => s.selectedChildId);
+
+  useEffect(() => {
+    if (isParent && selectedChildId && selectedChildId !== studentId) {
+      router.replace(`/students/${selectedChildId}`);
+    }
+  }, [isParent, selectedChildId, studentId, router]);
 
   // ---------------------------------------------------------------------------
   // Data fetching
@@ -174,8 +184,6 @@ export function StudentDetailClient() {
           <TabsTrigger value="parents">
             Parents ({student.parents?.length ?? 0})
           </TabsTrigger>
-          <TabsTrigger value="academics">Academics</TabsTrigger>
-          <TabsTrigger value="discipline">Welfare</TabsTrigger>
           <TabsTrigger value="payments">Payments</TabsTrigger>
           <TabsTrigger value="siblings">Siblings</TabsTrigger>
           <TabsTrigger value="documents">
@@ -298,16 +306,6 @@ export function StudentDetailClient() {
               </div>
             )}
           </div>
-        </TabsContent>
-
-        {/* ACADEMICS TAB */}
-        <TabsContent value="academics">
-          <StudentAcademicTab studentId={studentId} />
-        </TabsContent>
-
-        {/* WELFARE / DISCIPLINE TAB */}
-        <TabsContent value="discipline">
-          <StudentDisciplineTab studentId={studentId} />
         </TabsContent>
 
         {/* PAYMENTS TAB */}

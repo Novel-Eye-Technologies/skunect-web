@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo, useCallback } from 'react';
+import Image from 'next/image';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import {
@@ -253,7 +254,7 @@ export default function PickupAuthorizationPage() {
                             </span>
                           </div>
                           <div className="flex items-center gap-3">
-                            <img
+                            <Image
                               src={getQrImageUrl(auth.qrCode)}
                               alt={`QR code for ${auth.pickupPersonName}`}
                               width={80}

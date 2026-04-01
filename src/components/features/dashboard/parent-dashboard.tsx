@@ -13,8 +13,6 @@ import {
   CreditCard,
   Calendar,
   Megaphone,
-  AlertTriangle,
-  CheckCircle,
   RefreshCw,
 } from 'lucide-react';
 import {
@@ -127,8 +125,6 @@ function DashboardSkeleton() {
           <Skeleton key={i} className="h-[120px] rounded-lg" />
         ))}
       </div>
-      {/* Subjects needing attention */}
-      <Skeleton className="h-[80px] rounded-lg" />
       {/* Table */}
       <Skeleton className="h-[300px] rounded-lg" />
       {/* Two columns */}
@@ -174,8 +170,6 @@ function AcademicSnapshotCard({
 }: {
   data: ParentAcademicOverview | null;
 }) {
-  const router = useRouter();
-
   if (!data) {
     return (
       <Card>
@@ -189,7 +183,6 @@ function AcademicSnapshotCard({
   }
 
   const hasPosition = data.classPosition != null && data.classSize != null;
-  const attentionCount = data.subjectsNeedingAttention?.length ?? 0;
 
   return (
     <Card>
@@ -224,141 +217,6 @@ function AcademicSnapshotCard({
           ) : (
             <p className="text-lg text-muted-foreground">--</p>
           )}
-        </div>
-
-        <div className="h-10 w-px bg-border" />
-
-        {/* Subjects needing attention */}
-        <div
-          role="button"
-          tabIndex={0}
-          aria-label={`${attentionCount} subject${attentionCount !== 1 ? 's' : ''} needing attention`}
-          className="text-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors rounded-md p-2 -m-2"
-          onClick={() => router.push('/academics/grades')}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              router.push('/academics/grades');
-            }
-          }}
-        >
-          <p className="text-sm text-muted-foreground">Needs Attention</p>
-          <p
-            className={`text-2xl font-bold ${attentionCount > 0 ? 'text-red-600' : 'text-emerald-600'}`}
-          >
-            {attentionCount}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            subject{attentionCount !== 1 ? 's' : ''}
-          </p>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-// ─── Row 3: Subjects Needing Attention ─────────────────────────────
-
-function SubjectsNeedingAttentionSection({
-  academic,
-  subjects,
-}: {
-  academic: ParentAcademicOverview | null;
-  subjects: ParentSubjectItem[] | null;
-}) {
-  const attentionNames = academic?.subjectsNeedingAttention ?? [];
-
-  if (attentionNames.length === 0) {
-    return (
-      <Card className="border-emerald-200 bg-emerald-50/50">
-        <CardContent className="flex items-center gap-3 p-4">
-          <CheckCircle className="h-5 w-5 text-emerald-600" />
-          <p className="text-sm font-medium text-emerald-700">
-            All subjects on track -- no immediate concerns.
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // Try to find matching subject items for richer data
-  const subjectMap = new Map(
-    (subjects ?? []).map((s) => [s.subjectName.toLowerCase(), s]),
-  );
-
-  return (
-    <Card className="border-amber-200 bg-amber-50/30">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-base">
-          <AlertTriangle className="h-5 w-5 text-amber-600" />
-          Subjects Needing Attention
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {attentionNames.map((name) => {
-            const item = subjectMap.get(name.toLowerCase());
-            return (
-              <div
-                key={name}
-                className="rounded-lg border border-amber-200 bg-white p-3"
-              >
-                <p className="font-medium">{name}</p>
-                {item && (
-                  <div className="mt-1 flex items-center gap-3 text-sm">
-                    <span>
-                      Child:{' '}
-                      <span className="font-semibold">
-                        {item.studentAvg != null
-                          ? `${item.studentAvg.toFixed(1)}%`
-                          : '--'}
-                      </span>
-                    </span>
-                    <span className="text-muted-foreground">vs</span>
-                    <span>
-                      Class:{' '}
-                      <span className="font-semibold">
-                        {item.classAvg != null
-                          ? `${item.classAvg.toFixed(1)}%`
-                          : '--'}
-                      </span>
-                    </span>
-                    {item.trend != null && (
-                      <span
-                        className={`flex items-center gap-0.5 ${item.trend >= 0 ? 'text-emerald-600' : 'text-red-600'}`}
-                      >
-                        {item.trend >= 0 ? (
-                          <TrendingUp className="h-3 w-3" aria-hidden="true" />
-                        ) : (
-                          <TrendingDown className="h-3 w-3" aria-hidden="true" />
-                        )}
-                        <span className="sr-only">{item.trend >= 0 ? 'Improving' : 'Declining'}</span>
-                        {Math.abs(item.trend).toFixed(1)}%
-                      </span>
-                    )}
-                  </div>
-                )}
-                <div className="mt-2 flex gap-1.5">
-                  {item?.belowClassAvg && (
-                    <Badge
-                      variant="secondary"
-                      className="bg-red-100 text-red-700 text-[10px]"
-                    >
-                      Below average
-                    </Badge>
-                  )}
-                  {item?.declining && (
-                    <Badge
-                      variant="secondary"
-                      className="bg-amber-100 text-amber-700 text-[10px]"
-                    >
-                      Declining
-                    </Badge>
-                  )}
-                </div>
-              </div>
-            );
-          })}
         </div>
       </CardContent>
     </Card>
@@ -946,12 +804,6 @@ export function ParentDashboard() {
           icon={CreditCard}
         />
       </div>
-
-      {/* ── Row 3: Subjects Needing Attention ── */}
-      <SubjectsNeedingAttentionSection
-        academic={academicPerformance ?? null}
-        subjects={subjectPerformance ?? null}
-      />
 
       {/* ── Deep Dive Section ── */}
 

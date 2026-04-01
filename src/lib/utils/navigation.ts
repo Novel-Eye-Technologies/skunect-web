@@ -121,7 +121,7 @@ export const navigationConfig: NavItem[] = [
     roles: ['TEACHER'],
   },
   {
-    title: 'My Children',
+    title: 'Children Profile',
     href: '/students',
     icon: GraduationCap,
     roles: ['PARENT'],
