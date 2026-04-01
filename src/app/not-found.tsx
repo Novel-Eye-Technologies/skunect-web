@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { GraduationCap, ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function NotFound() {
@@ -33,9 +33,7 @@ export default function NotFound() {
     <div className="flex min-h-screen flex-col items-center justify-center px-4">
       <div className="flex flex-col items-center text-center max-w-md">
         {/* Logo */}
-        <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-navy mb-6">
-          <GraduationCap className="w-9 h-9 text-white" />
-        </div>
+        <img src="/logo.png" alt="Skunect" className="w-16 h-16 rounded-2xl mb-6" />
 
         {/* 404 */}
         <h1 className="text-7xl font-extrabold text-navy tracking-tighter mb-2">

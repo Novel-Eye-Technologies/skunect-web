@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
-  GraduationCap,
   BarChart3,
   Bell,
   CreditCard,
@@ -204,9 +203,7 @@ export default function HomePage() {
       <nav className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-navy">
-              <GraduationCap className="h-5 w-5 text-white" />
-            </div>
+            <img src="/logo.png" alt="Skunect" className="h-9 w-9 rounded-lg" />
             <span className="text-xl font-bold tracking-tight">Skunect</span>
           </div>
 
@@ -667,9 +664,7 @@ export default function HomePage() {
             {/* Brand */}
             <div className="sm:col-span-2 lg:col-span-1">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal/20">
-                  <GraduationCap className="h-5 w-5 text-teal" />
-                </div>
+                <img src="/logo.png" alt="Skunect" className="h-9 w-9 rounded-lg" />
                 <span className="text-xl font-bold text-white">Skunect</span>
               </div>
               <p className="mt-3 max-w-xs text-sm text-white/50 leading-relaxed">
