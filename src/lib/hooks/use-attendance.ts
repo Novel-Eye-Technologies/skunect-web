@@ -8,6 +8,7 @@ import {
   getAttendanceRecords,
   submitBulkAttendance,
   getAttendanceSummary,
+  updateAttendanceRecord,
   type AttendanceListParams,
   type AttendanceSummaryParams,
 } from '@/lib/api/attendance';
@@ -65,6 +66,21 @@ return useMutation({
     },
     onError: (error) => {
       toast.error(getApiErrorMessage(error, 'Failed to submit attendance'));
+    },
+  });
+}
+
+export function useUpdateAttendanceRecord() {
+  const schoolId = useAuthStore((s) => s.currentSchoolId);
+  return useMutation({
+    mutationFn: (data: { recordId: string; status: string; notes?: string }) =>
+      updateAttendanceRecord(schoolId!, data.recordId, { status: data.status, notes: data.notes }),
+    onSuccess: () => {
+      toast.success('Attendance record updated');
+      queryClient.invalidateQueries({ queryKey: attendanceKeys.all });
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to update attendance record'));
     },
   });
 }

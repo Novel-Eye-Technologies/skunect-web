@@ -1,5 +1,6 @@
 import apiClient from '@/lib/api/client';
 import type { ApiResponse } from '@/lib/api/types';
+import type { Api } from '@/lib/api/schema';
 import type {
   AttendanceRecord,
   BulkAttendanceRequest,
@@ -85,6 +86,18 @@ export async function getAttendanceOverview(
   const response = await apiClient.get<ApiResponse<AttendanceOverview>>(
     `/schools/${schoolId}/attendance/overview`,
     { params: { date } },
+  );
+  return response.data;
+}
+
+export async function updateAttendanceRecord(
+  schoolId: string,
+  recordId: string,
+  data: Api['UpdateAttendanceRequest'],
+): Promise<ApiResponse<AttendanceRecord>> {
+  const response = await apiClient.put<ApiResponse<AttendanceRecord>>(
+    `/schools/${schoolId}/attendance/${recordId}`,
+    data,
   );
   return response.data;
 }

@@ -13,6 +13,7 @@ import {
   DollarSign,
   Wallet,
   Search,
+  XCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -30,8 +31,17 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { PageHeader } from '@/components/shared/page-header';
 import { DataTable } from '@/components/shared/data-table';
 import { StatusBadge } from '@/components/shared/status-badge';
@@ -43,6 +53,7 @@ import {
   useFeeStructures,
   useDeleteFeeStructure,
   useInvoices,
+  useCancelInvoice,
 } from '@/lib/hooks/use-fees';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useQuery } from '@tanstack/react-query';
@@ -57,6 +68,7 @@ export default function FeesPage() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
   const currentRole = useAuthStore((s) => s.currentRole);
   const isParent = currentRole === 'PARENT';
+  const isTeacher = currentRole === 'TEACHER';
 
   // ---------------------------------------------------------------------------
   // Fee Structures state
@@ -81,6 +93,8 @@ export default function FeesPage() {
   const [invoiceSearchQuery, setInvoiceSearchQuery] = useState<string>('');
   const [generateDialogOpen, setGenerateDialogOpen] = useState(false);
   const [paymentTarget, setPaymentTarget] = useState<Invoice | null>(null);
+  const [cancelTarget, setCancelTarget] = useState<Invoice | null>(null);
+  const [cancelReason, setCancelReason] = useState('');
 
   // ---------------------------------------------------------------------------
   // Data fetching
@@ -91,6 +105,8 @@ export default function FeesPage() {
       size: structurePagination.pageSize,
     });
   const deleteFeeStructure = useDeleteFeeStructure();
+  const cancelInvoiceMutation = useCancelInvoice();
+  const isAdmin = currentRole === 'ADMIN';
 
   const { data: invoicesResponse, isLoading: invoicesLoading, isError: isInvoicesError, refetch: refetchInvoices } = useInvoices({
     page: invoicePagination.pageIndex,
@@ -140,6 +156,19 @@ export default function FeesPage() {
     });
   }
 
+  function confirmCancelInvoice() {
+    if (!cancelTarget || !cancelReason.trim()) return;
+    cancelInvoiceMutation.mutate(
+      { invoiceId: cancelTarget.id, reason: cancelReason.trim() },
+      {
+        onSuccess: () => {
+          setCancelTarget(null);
+          setCancelReason('');
+        },
+      },
+    );
+  }
+
   // ---------------------------------------------------------------------------
   // Fee Structure columns
   // ---------------------------------------------------------------------------
@@ -168,38 +197,43 @@ export default function FeesPage() {
       header: 'Deadline',
       cell: ({ row }) => row.original.deadline ?? '-',
     },
-    {
-      id: 'actions',
-      cell: ({ row }) => {
-        const structure = row.original;
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onClick={() => setEditStructureTarget(structure)}
-              >
-                <Pencil className="mr-2 h-4 w-4" />
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => setDeleteStructureTarget(structure)}
-                className="text-destructive focus:text-destructive"
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      },
-    },
+    // Only show actions column for admin role
+    ...(isAdmin
+      ? [
+          {
+            id: 'actions',
+            cell: ({ row }: { row: { original: FeeStructure } }) => {
+              const structure = row.original;
+              return (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <span className="sr-only">Open menu</span>
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      onClick={() => setEditStructureTarget(structure)}
+                    >
+                      <Pencil className="mr-2 h-4 w-4" />
+                      Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() => setDeleteStructureTarget(structure)}
+                      className="text-destructive focus:text-destructive"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              );
+            },
+          } as ColumnDef<FeeStructure>,
+        ]
+      : []),
   ];
 
   // ---------------------------------------------------------------------------
@@ -268,32 +302,49 @@ export default function FeesPage() {
       header: 'Status',
       cell: ({ row }) => <StatusBadge status={row.original.status} />,
     },
-    {
-      id: 'actions',
-      cell: ({ row }) => {
-        const invoice = row.original;
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {invoice.balance > 0 && (
-                <DropdownMenuItem
-                  onClick={() => setPaymentTarget(invoice)}
-                >
-                  <CreditCard className="mr-2 h-4 w-4" />
-                  Record Payment
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      },
-    },
+    // Only show actions column for non-teacher roles (admins can manage, parents can view payment options)
+    ...(!isTeacher
+      ? [
+          {
+            id: 'actions',
+            cell: ({ row }: { row: { original: Invoice } }) => {
+              const invoice = row.original;
+              return (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <span className="sr-only">Open menu</span>
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {invoice.balance > 0 && (
+                      <DropdownMenuItem
+                        onClick={() => setPaymentTarget(invoice)}
+                      >
+                        <CreditCard className="mr-2 h-4 w-4" />
+                        Record Payment
+                      </DropdownMenuItem>
+                    )}
+                    {isAdmin && invoice.status !== 'PAID' && invoice.status !== 'CANCELLED' && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => setCancelTarget(invoice)}
+                          className="text-destructive focus:text-destructive"
+                        >
+                          <XCircle className="mr-2 h-4 w-4" />
+                          Cancel Invoice
+                        </DropdownMenuItem>
+                      </>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              );
+            },
+          } as ColumnDef<Invoice>,
+        ]
+      : []),
   ];
 
   // ---------------------------------------------------------------------------
@@ -303,7 +354,7 @@ export default function FeesPage() {
     <div className="space-y-6">
       <PageHeader
         title="Fees Management"
-        description={isParent ? 'View your fee invoices and payment status.' : 'Manage fee structures, invoices, and payments.'}
+        description={isParent ? 'View your fee invoices and payment status.' : isTeacher ? 'View fee structures and invoices.' : 'Manage fee structures, invoices, and payments.'}
       />
 
       {isParent && (
@@ -348,14 +399,16 @@ export default function FeesPage() {
             pageSize={structurePagination.pageSize}
             onPaginationChange={handleStructurePaginationChange}
             toolbarActions={
-              <Button
-                size="sm"
-                className="h-8"
-                onClick={() => setCreateStructureOpen(true)}
-              >
-                <Plus className="mr-2 h-4 w-4" />
-                Create Structure
-              </Button>
+              isAdmin ? (
+                <Button
+                  size="sm"
+                  className="h-8"
+                  onClick={() => setCreateStructureOpen(true)}
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create Structure
+                </Button>
+              ) : undefined
             }
           />
         </TabsContent>
@@ -409,6 +462,7 @@ export default function FeesPage() {
                     <SelectItem value="PARTIAL">Partial</SelectItem>
                     <SelectItem value="PAID">Paid</SelectItem>
                     <SelectItem value="OVERDUE">Overdue</SelectItem>
+                    <SelectItem value="CANCELLED">Cancelled</SelectItem>
                   </SelectContent>
                 </Select>
                 <Select
@@ -434,14 +488,16 @@ export default function FeesPage() {
                     ))}
                   </SelectContent>
                 </Select>
-                <Button
-                  size="sm"
-                  className="h-8"
-                  onClick={() => setGenerateDialogOpen(true)}
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  Generate Invoices
-                </Button>
+                {isAdmin && (
+                  <Button
+                    size="sm"
+                    className="h-8"
+                    onClick={() => setGenerateDialogOpen(true)}
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Generate Invoices
+                  </Button>
+                )}
               </div>
             }
           />
@@ -491,6 +547,56 @@ export default function FeesPage() {
         }}
         invoice={paymentTarget}
       />
+
+      {/* Cancel Invoice Dialog */}
+      <Dialog
+        open={!!cancelTarget}
+        onOpenChange={(open) => {
+          if (!open) {
+            setCancelTarget(null);
+            setCancelReason('');
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-[450px]">
+          <DialogHeader>
+            <DialogTitle>Cancel Invoice</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to cancel invoice{' '}
+              <span className="font-medium">{cancelTarget?.invoiceNumber}</span>?
+              This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label htmlFor="cancel-reason">Reason for cancellation</Label>
+            <Textarea
+              id="cancel-reason"
+              placeholder="Enter the reason for cancelling this invoice..."
+              className="min-h-[80px] resize-none"
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+            />
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setCancelTarget(null);
+                setCancelReason('');
+              }}
+            >
+              Keep Invoice
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={!cancelReason.trim() || cancelInvoiceMutation.isPending}
+              onClick={confirmCancelInvoice}
+            >
+              {cancelInvoiceMutation.isPending ? 'Cancelling...' : 'Cancel Invoice'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

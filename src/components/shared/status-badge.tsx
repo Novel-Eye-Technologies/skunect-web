@@ -28,7 +28,8 @@ type Status =
   | 'HIGH'
   | 'MEDIUM'
   | 'LOW'
-  | 'REVOKED';
+  | 'REVOKED'
+  | 'CANCELLED';
 
 const statusConfig: Record<
   Status,
@@ -158,6 +159,11 @@ const statusConfig: Record<
     label: 'Revoked',
     className:
       'bg-red-100 text-red-800 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-400',
+  },
+  CANCELLED: {
+    label: 'Cancelled',
+    className:
+      'bg-gray-100 text-gray-800 hover:bg-gray-100 dark:bg-gray-900/30 dark:text-gray-400',
   },
 };
 
