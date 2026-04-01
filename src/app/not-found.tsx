@@ -23,39 +23,43 @@ export default function NotFound() {
 
   if (isResolving) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-navy" />
+      <div className="flex min-h-screen items-center justify-center bg-cream">
+        <Loader2 className="w-8 h-8 animate-spin text-teal" />
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center px-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-cream px-4">
       <div className="flex flex-col items-center text-center max-w-md">
-        {/* Logo */}
-        <img src="/logo.png" alt="Skunect" className="w-16 h-16 rounded-2xl mb-6" />
+        <img
+          src="/logo.png"
+          alt="Skunect"
+          className="w-14 h-14 rounded-2xl mb-8"
+        />
 
-        {/* 404 */}
-        <h1 className="text-7xl font-extrabold text-navy tracking-tighter mb-2">
+        <h1 className="font-display text-8xl tracking-tighter bg-gradient-to-br from-navy to-teal bg-clip-text text-transparent sm:text-9xl">
           404
         </h1>
-        <h2 className="text-xl font-semibold text-foreground mb-2">
+        <h2 className="mt-3 text-xl font-semibold text-foreground">
           Page not found
         </h2>
-        <p className="text-muted-foreground mb-8">
-          The page you are looking for does not exist or has been moved.
+        <p className="mt-2 text-muted-foreground">
+          The page you&apos;re looking for doesn&apos;t exist or has been moved.
         </p>
 
-        {/* Actions */}
-        <div className="flex gap-3">
+        <div className="mt-8 flex gap-3">
           <Button asChild variant="outline" className="gap-2">
-            <Link href="/login">
+            <Link href="/">
               <ArrowLeft className="w-4 h-4" />
-              Go to Login
+              Home
             </Link>
           </Button>
-          <Button asChild className="gap-2 bg-navy hover:bg-navy/90 text-white">
-            <Link href="/dashboard">Go to Dashboard</Link>
+          <Button
+            asChild
+            className="gap-2 bg-navy hover:bg-navy/90 text-white"
+          >
+            <Link href="/dashboard">Dashboard</Link>
           </Button>
         </div>
       </div>
