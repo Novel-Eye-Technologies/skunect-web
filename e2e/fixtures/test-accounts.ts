@@ -116,7 +116,7 @@ export const TEST_ACCOUNTS = {
     expectedSchoolName: 'Kings Academy Lagos',
     expectedSchoolId: null,
     storageStatePath: '.auth/parent-single.json',
-    expectedNavItems: ['Dashboard', 'My Children', 'Homework', 'Communication', 'Fees', 'Notification Preferences', 'Help & Support'],
+    expectedNavItems: ['Dashboard', 'Children Profile', 'Homework', 'Communication', 'Fees', 'Notification Preferences', 'Help & Support'],
     blockedRoutes: [
       '/system/schools',
       '/system/seed',
@@ -133,7 +133,7 @@ export const TEST_ACCOUNTS = {
     expectedSchoolName: null, // cross-school — depends on selection
     expectedSchoolId: null,
     storageStatePath: '.auth/parent-cross.json',
-    expectedNavItems: ['Dashboard', 'My Children', 'Homework', 'Communication', 'Fees', 'Notification Preferences', 'Help & Support'],
+    expectedNavItems: ['Dashboard', 'Children Profile', 'Homework', 'Communication', 'Fees', 'Notification Preferences', 'Help & Support'],
     blockedRoutes: [
       '/system/schools',
       '/system/seed',
@@ -150,7 +150,7 @@ export const TEST_ACCOUNTS = {
     expectedSchoolName: 'Greenfield International School',
     expectedSchoolId: null,
     storageStatePath: '.auth/parent-greenfield.json',
-    expectedNavItems: ['Dashboard', 'My Children', 'Homework', 'Communication', 'Fees', 'Notification Preferences', 'Help & Support'],
+    expectedNavItems: ['Dashboard', 'Children Profile', 'Homework', 'Communication', 'Fees', 'Notification Preferences', 'Help & Support'],
     blockedRoutes: [
       '/system/schools',
       '/system/seed',
@@ -218,7 +218,7 @@ export const TEST_ACCOUNTS = {
     expectedSchoolName: 'Skunect Academy',
     expectedSchoolId: null,
     storageStatePath: '.auth/parent-skunect.json',
-    expectedNavItems: ['Dashboard', 'My Children', 'Homework', 'Communication', 'Fees', 'Notification Preferences', 'Help & Support'],
+    expectedNavItems: ['Dashboard', 'Children Profile', 'Homework', 'Communication', 'Fees', 'Notification Preferences', 'Help & Support'],
     blockedRoutes: [
       '/system/schools',
       '/system/seed',

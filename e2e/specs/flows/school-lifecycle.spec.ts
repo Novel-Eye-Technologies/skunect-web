@@ -2786,7 +2786,7 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     // If no switcher is visible, the parent may only have one child visible at a time
   });
 
-  test('4.4 — Parent: Navigate My Children', async ({ page }) => {
+  test('4.4 — Parent: Navigate Children Profile', async ({ page }) => {
     await injectAuth(page, SECOND_PARENT_EMAIL, { schoolId: schoolData.schoolId! });
 
     const studentsPage = new StudentsPage(page);

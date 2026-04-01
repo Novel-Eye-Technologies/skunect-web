@@ -117,7 +117,7 @@ test.describe('1 — Dashboard Page Tests', () => {
     const sidebar = new SidebarPage(parentPage);
     await sidebar.expectNavItems([
       'Dashboard',
-      'My Children',
+      'Children Profile',
       'Homework',
       'Communication',
       'Fees',
@@ -465,12 +465,12 @@ test.describe('9 — Students & My Classes Tests', () => {
     await myClasses.expectVisible();
   });
 
-  test('9.6 — Parent: My Children page renders', async ({ parentPage }) => {
-    // For parents, the students page shows "My Children" heading
+  test('9.6 — Parent: Children Profile page renders', async ({ parentPage }) => {
+    // For parents, the students page shows "Children Profile" heading
     await parentPage.goto('/students');
     await parentPage.waitForLoadState('networkidle').catch(() => {});
     await expect(
-      parentPage.getByRole('heading', { name: /my children/i }),
+      parentPage.getByRole('heading', { name: /children profile/i }),
     ).toBeVisible({ timeout: 20_000 });
   });
 });
