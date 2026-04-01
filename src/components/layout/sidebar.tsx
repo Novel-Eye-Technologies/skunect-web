@@ -68,12 +68,13 @@ export function Sidebar() {
           {collapsed ? (
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-teal text-sm font-bold text-white overflow-hidden">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg overflow-hidden">
                   {schoolSettings?.logo ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={schoolSettings.logo} alt="" className="h-full w-full object-cover" />
                   ) : (
-                    'S'
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src="/logo.png" alt="Skunect" className="h-full w-full object-cover" />
                   )}
                 </div>
               </TooltipTrigger>
@@ -84,12 +85,13 @@ export function Sidebar() {
             </Tooltip>
           ) : (
             <>
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-teal text-sm font-bold text-white overflow-hidden">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg overflow-hidden">
                 {schoolSettings?.logo ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={schoolSettings.logo} alt="" className="h-full w-full object-cover" />
                 ) : (
-                  'S'
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src="/logo.png" alt="Skunect" className="h-full w-full object-cover" />
                 )}
               </div>
               <div className="min-w-0 flex-1">

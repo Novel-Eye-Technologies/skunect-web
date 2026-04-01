@@ -1426,12 +1426,12 @@ test.describe.serial('School Lifecycle E2E Flow', () => {
     await calendarPage.expectLoaded();
 
     await calendarPage.clickCreateEvent();
-    // Use local time format for datetime-local inputs
+    // Use midday UTC to avoid month-boundary timezone issues (e.g., local late
+    // evening on the last day of a month converts to the next month in UTC).
     const pad = (n: number) => String(n).padStart(2, '0');
     const now = new Date();
-    const today = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
-    const nw = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-    const nextWeek = `${nw.getFullYear()}-${pad(nw.getMonth() + 1)}-${pad(nw.getDate())}T${pad(nw.getHours())}:${pad(nw.getMinutes())}`;
+    const today = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T10:00`;
+    const nextWeek = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T16:00`;
     await calendarPage.fillEventForm({
       title: EVENT_TITLE,
       description: 'Annual open day for parents and prospective students',
