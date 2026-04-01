@@ -1,6 +1,6 @@
 "use client";
 
-import { GraduationCap, Users, Shield, BookOpen } from "lucide-react";
+import { Users, Shield, BookOpen } from "lucide-react";
 
 export default function AuthLayout({
   children,
@@ -25,9 +25,7 @@ export default function AuthLayout({
           {/* Logo and tagline */}
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-teal/20 backdrop-blur-sm">
-                <GraduationCap className="w-7 h-7 text-teal" />
-              </div>
+              <img src="/logo.png" alt="Skunect" className="w-12 h-12 rounded-xl" />
               <h1 className="text-3xl font-bold text-white tracking-tight">
                 Skunect
               </h1>
@@ -67,9 +65,7 @@ export default function AuthLayout({
       <div className="flex flex-1 flex-col items-center justify-center px-4 py-10 sm:px-8 lg:px-12 bg-background">
         {/* Mobile logo */}
         <div className="flex items-center gap-2.5 mb-8 lg:hidden">
-          <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-navy">
-            <GraduationCap className="w-6 h-6 text-white" />
-          </div>
+          <img src="/logo.png" alt="Skunect" className="w-10 h-10 rounded-lg" />
           <span className="text-2xl font-bold text-navy">Skunect</span>
         </div>
 

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { GraduationCap, ChevronRight, Menu, X } from 'lucide-react';
+import { ChevronRight, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface NavLink {
@@ -33,9 +33,7 @@ export function SiteNavbar({
     <nav className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-navy">
-            <GraduationCap className="h-5 w-5 text-white" />
-          </div>
+          <img src="/logo.png" alt="Skunect" className="h-9 w-9 rounded-lg" />
           <span className="text-xl font-bold tracking-tight">Skunect</span>
         </Link>
 
