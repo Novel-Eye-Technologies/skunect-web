@@ -127,6 +127,13 @@ const betaSignupSchema = z
   })
   .superRefine((data, ctx) => {
     if (SCHOOL_ROLES.includes(data.role as (typeof SCHOOL_ROLES)[number])) {
+      if (!data.phone?.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Phone number is required for school owners and admins',
+          path: ['phone'],
+        });
+      }
       if (!data.schoolSize) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -339,8 +346,10 @@ export function BetaSignupForm() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      Phone number{' '}
-                      <span className="text-muted-foreground">(optional)</span>
+                      Phone number
+                      {!isSchoolRole && (
+                        <span className="text-muted-foreground"> (optional)</span>
+                      )}
                     </FormLabel>
                     <FormControl>
                       <Input
