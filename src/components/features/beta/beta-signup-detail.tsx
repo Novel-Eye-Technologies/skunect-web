@@ -1,6 +1,6 @@
 'use client';
 
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, usePathname, useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   ArrowLeft,
@@ -50,8 +50,17 @@ const roleLabels: Record<string, string> = {
 };
 
 export function BetaSignupDetail() {
-  const { id } = useParams<{ id: string }>();
+  const params = useParams<{ id: string }>();
+  const pathname = usePathname();
   const router = useRouter();
+
+  // In static export, useParams() may return the placeholder '_' from
+  // generateStaticParams. Extract the real ID from the URL in that case.
+  const rawId = params.id;
+  const id =
+    !rawId || rawId === '_'
+      ? pathname.split('/').filter(Boolean).at(-1) ?? rawId
+      : rawId;
   const queryClient = useQueryClient();
 
   const { data: response, isLoading } = useQuery({
