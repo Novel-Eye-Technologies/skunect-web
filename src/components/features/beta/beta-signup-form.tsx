@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -47,6 +47,7 @@ import {
 } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { lagosSchools } from '@/lib/data/lagos-schools';
+import { TurnstileWidget, type TurnstileWidgetRef } from '@/components/shared/turnstile-widget';
 import { createBetaSignup } from '@/lib/api/beta';
 import { getApiErrorMessage } from '@/lib/utils/get-error-message';
 
@@ -161,6 +162,10 @@ export function BetaSignupForm() {
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileWidgetRef>(null);
+  const handleTurnstileVerify = useCallback((token: string) => setTurnstileToken(token), []);
+  const handleTurnstileExpire = useCallback(() => setTurnstileToken(null), []);
   const [schoolPopoverOpen, setSchoolPopoverOpen] = useState(false);
   const [schoolSearch, setSchoolSearch] = useState('');
 
@@ -204,6 +209,7 @@ export function BetaSignupForm() {
         ...rest,
         city: `${city}, ${state}`,
         hasExistingSystem: hasExistingSystem === 'yes',
+        turnstileToken: turnstileToken!,
       });
       if (response.status === 'SUCCESS') {
         setSubmitted(true);
@@ -212,6 +218,8 @@ export function BetaSignupForm() {
         toast.error(response.message || 'Something went wrong');
       }
     } catch (error: unknown) {
+      turnstileRef.current?.reset();
+      setTurnstileToken(null);
       if (axios.isAxiosError(error) && error.response?.status === 429) {
         toast.error('Too many requests. Please wait a moment and try again.');
       } else {
@@ -624,6 +632,15 @@ export function BetaSignupForm() {
                 />
               </div>
 
+              <div className="mt-4">
+                <TurnstileWidget
+                  ref={turnstileRef}
+                  onVerify={handleTurnstileVerify}
+                  onExpire={handleTurnstileExpire}
+                  onError={handleTurnstileExpire}
+                />
+              </div>
+
               <div className="mt-2 flex gap-3">
                 <Button
                   type="button"
@@ -639,7 +656,7 @@ export function BetaSignupForm() {
                   type="submit"
                   className="flex-1 bg-teal text-white hover:bg-teal/90"
                   size="lg"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !turnstileToken}
                 >
                   {isSubmitting ? (
                     <>
