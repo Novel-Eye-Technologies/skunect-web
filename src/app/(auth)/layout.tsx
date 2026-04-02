@@ -9,15 +9,20 @@ export default function AuthLayout({
 }) {
   return (
     <div className="flex min-h-screen">
+      {/* Skip to content */}
+      <a
+        href="#auth-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-teal focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white focus:outline-none"
+      >
+        Skip to content
+      </a>
+
       {/* Left branding panel - hidden on mobile */}
       <div className="hidden lg:flex lg:w-1/2 xl:w-[55%] relative overflow-hidden bg-navy">
-        {/* Background pattern */}
-        <div className="absolute inset-0 opacity-[0.07]">
-          <div className="absolute top-0 left-0 w-full h-full" style={{
-            backgroundImage: `radial-gradient(circle at 25% 25%, var(--color-teal) 1px, transparent 1px),
-              radial-gradient(circle at 75% 75%, var(--color-teal) 1px, transparent 1px)`,
-            backgroundSize: '48px 48px',
-          }} />
+        {/* Background mesh gradients */}
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_20%_40%,rgba(42,157,143,0.15),transparent)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_80%_60%,rgba(212,168,67,0.06),transparent)]" />
         </div>
 
         {/* Content */}
@@ -26,7 +31,7 @@ export default function AuthLayout({
           <div>
             <div className="flex items-center gap-3 mb-4">
               <img src="/logo.png" alt="Skunect" className="w-12 h-12 rounded-xl" />
-              <h1 className="text-3xl font-bold text-white tracking-tight">
+              <h1 className="font-display text-3xl text-white tracking-tight">
                 Skunect
               </h1>
             </div>
@@ -35,23 +40,42 @@ export default function AuthLayout({
             </p>
           </div>
 
-          {/* Feature highlights */}
+          {/* Feature highlights — staggered entrance */}
           <div className="space-y-8">
-            <FeatureItem
-              icon={<Users className="w-5 h-5" />}
-              title="Connect Parents & Schools"
-              description="Seamless communication between parents, teachers, and administrators"
-            />
-            <FeatureItem
-              icon={<BookOpen className="w-5 h-5" />}
-              title="Track Academic Progress"
-              description="Real-time access to grades, attendance, and performance reports"
-            />
-            <FeatureItem
-              icon={<Shield className="w-5 h-5" />}
-              title="Secure & Reliable"
-              description="Enterprise-grade security to protect student and school data"
-            />
+            {[
+              {
+                icon: <Users className="w-5 h-5" />,
+                title: "Connect Parents & Schools",
+                description: "Seamless communication between parents, teachers, and administrators",
+                delay: "0ms",
+              },
+              {
+                icon: <BookOpen className="w-5 h-5" />,
+                title: "Track Academic Progress",
+                description: "Real-time access to grades, attendance, and performance reports",
+                delay: "100ms",
+              },
+              {
+                icon: <Shield className="w-5 h-5" />,
+                title: "Secure & Reliable",
+                description: "Enterprise-grade security to protect student and school data",
+                delay: "200ms",
+              },
+            ].map((feature) => (
+              <div
+                key={feature.title}
+                className="flex items-start gap-4 animate-fade-in-up"
+                style={{ animationDelay: feature.delay }}
+              >
+                <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-teal/15 text-teal shrink-0 mt-0.5">
+                  {feature.icon}
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white mb-1">{feature.title}</h3>
+                  <p className="text-sm text-white/60 leading-relaxed">{feature.description}</p>
+                </div>
+              </div>
+            ))}
           </div>
 
           {/* Footer */}
@@ -62,36 +86,14 @@ export default function AuthLayout({
       </div>
 
       {/* Right side - form area */}
-      <div className="flex flex-1 flex-col items-center justify-center px-4 py-10 sm:px-8 lg:px-12 bg-background">
+      <div className="flex flex-1 flex-col items-center justify-center px-4 py-10 sm:px-8 lg:px-12 bg-cream">
         {/* Mobile logo */}
         <div className="flex items-center gap-2.5 mb-8 lg:hidden">
           <img src="/logo.png" alt="Skunect" className="w-10 h-10 rounded-lg" />
-          <span className="text-2xl font-bold text-navy">Skunect</span>
+          <span className="font-display text-2xl text-navy">Skunect</span>
         </div>
 
-        <div className="w-full max-w-[440px]">{children}</div>
-      </div>
-    </div>
-  );
-}
-
-function FeatureItem({
-  icon,
-  title,
-  description,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="flex items-start gap-4">
-      <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-teal/15 text-teal shrink-0 mt-0.5">
-        {icon}
-      </div>
-      <div>
-        <h3 className="font-semibold text-white mb-1">{title}</h3>
-        <p className="text-sm text-white/60 leading-relaxed">{description}</p>
+        <div id="auth-content" className="w-full max-w-[440px]">{children}</div>
       </div>
     </div>
   );
