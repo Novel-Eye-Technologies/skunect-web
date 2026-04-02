@@ -21,24 +21,10 @@ import { StudentMoodHistoryDialog } from '@/components/features/welfare/student-
 import { useMoodEntries } from '@/lib/hooks/use-mood';
 import type { MoodEntry } from '@/lib/types/mood';
 import { MOOD_OPTIONS } from '@/lib/types/mood';
-
-const moodColors: Record<string, string> = {
-  HAPPY: 'bg-emerald-100 text-emerald-700',
-  SAD: 'bg-blue-100 text-blue-700',
-  ANGRY: 'bg-red-100 text-red-700',
-  ANXIOUS: 'bg-amber-100 text-amber-700',
-  NEUTRAL: 'bg-gray-100 text-gray-700',
-  EXCITED: 'bg-purple-100 text-purple-700',
-};
-
-const moodEmojis: Record<string, string> = {
-  HAPPY: '\uD83D\uDE0A',
-  SAD: '\uD83D\uDE22',
-  ANGRY: '\uD83D\uDE21',
-  ANXIOUS: '\uD83D\uDE1F',
-  NEUTRAL: '\uD83D\uDE10',
-  EXCITED: '\uD83E\uDD29',
-};
+import {
+  MOOD_COLORS as moodColors,
+  MOOD_EMOJIS as moodEmojis,
+} from '@/lib/constants/wellness';
 
 export default function MoodTrackerPage() {
   const [moodFilter, setMoodFilter] = useState('');

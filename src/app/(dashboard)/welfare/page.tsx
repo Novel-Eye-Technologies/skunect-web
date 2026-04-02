@@ -41,44 +41,12 @@ import type { MoodEntry } from '@/lib/types/mood';
 import { RECORD_TYPES, SEVERITY_OPTIONS } from '@/lib/types/health-record';
 import { MOOD_OPTIONS } from '@/lib/types/mood';
 import { FormDatePicker } from '@/components/shared/form-date-picker';
-
-// ---------------------------------------------------------------------------
-// Constants
-// ---------------------------------------------------------------------------
-
-const severityColors: Record<string, string> = {
-  LOW: 'bg-blue-100 text-blue-700',
-  MEDIUM: 'bg-amber-100 text-amber-700',
-  HIGH: 'bg-orange-100 text-orange-700',
-  CRITICAL: 'bg-red-100 text-red-700',
-};
-
-const recordTypeLabels: Record<string, string> = {
-  ALLERGY: 'Allergy',
-  CONDITION: 'Condition',
-  MEDICATION: 'Medication',
-  VACCINATION: 'Vaccination',
-  INCIDENT: 'Incident',
-  NOTE: 'Note',
-};
-
-const moodColors: Record<string, string> = {
-  HAPPY: 'bg-emerald-100 text-emerald-700',
-  SAD: 'bg-blue-100 text-blue-700',
-  ANGRY: 'bg-red-100 text-red-700',
-  ANXIOUS: 'bg-amber-100 text-amber-700',
-  NEUTRAL: 'bg-gray-100 text-gray-700',
-  EXCITED: 'bg-purple-100 text-purple-700',
-};
-
-const moodEmojis: Record<string, string> = {
-  HAPPY: '\uD83D\uDE0A',
-  SAD: '\uD83D\uDE22',
-  ANGRY: '\uD83D\uDE21',
-  ANXIOUS: '\uD83D\uDE1F',
-  NEUTRAL: '\uD83D\uDE10',
-  EXCITED: '\uD83E\uDD29',
-};
+import {
+  SEVERITY_COLORS as severityColors,
+  RECORD_TYPE_LABELS as recordTypeLabels,
+  MOOD_COLORS as moodColors,
+  MOOD_EMOJIS as moodEmojis,
+} from '@/lib/constants/wellness';
 
 // ---------------------------------------------------------------------------
 // Page Component

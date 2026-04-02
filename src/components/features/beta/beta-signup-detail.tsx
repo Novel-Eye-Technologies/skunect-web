@@ -112,7 +112,7 @@ export function BetaSignupDetail() {
           Back
         </Button>
         <div className="flex-1">
-          <h1 className="text-2xl font-bold">
+          <h1 className="font-display text-2xl">
             {signup.firstName} {signup.lastName}
           </h1>
           <p className="text-sm text-muted-foreground">{signup.email}</p>

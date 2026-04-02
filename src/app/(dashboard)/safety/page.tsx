@@ -36,19 +36,9 @@ import {
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { formatDateTime, formatRelative } from '@/lib/utils/format-date';
 import { cn } from '@/lib/utils';
+import { SEVERITY_BORDER_COLORS as severityBorderColors } from '@/lib/constants/wellness';
 import type { EmergencyAlert } from '@/lib/types/safety';
 import type { PickupLog } from '@/lib/types/safety';
-
-// ---------------------------------------------------------------------------
-// Severity config
-// ---------------------------------------------------------------------------
-
-const severityBorderColors: Record<string, string> = {
-  LOW: 'border-blue-300 dark:border-blue-700',
-  MEDIUM: 'border-yellow-300 dark:border-yellow-700',
-  HIGH: 'border-orange-300 dark:border-orange-700',
-  CRITICAL: 'border-red-500 dark:border-red-600',
-};
 
 
 // ---------------------------------------------------------------------------
@@ -203,7 +193,6 @@ export default function SafetyPage() {
             <div className="flex justify-end">
               <Button
                 onClick={() => setCreateAlertOpen(true)}
-                variant="destructive"
               >
                 <Plus className="mr-2 h-4 w-4" />
                 Create Alert

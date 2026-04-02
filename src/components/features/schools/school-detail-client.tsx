@@ -226,7 +226,7 @@ export function SchoolDetailClient() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-teal border-t-transparent" />
       </div>
     );
   }
