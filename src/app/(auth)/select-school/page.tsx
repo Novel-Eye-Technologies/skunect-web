@@ -45,7 +45,7 @@ export default function SelectSchoolPage() {
   if (!hydrated || !user || user.roles.length <= 1) {
     return (
       <div className="flex items-center justify-center py-16">
-        <Loader2 className="h-8 w-8 animate-spin text-navy" />
+        <Loader2 className="h-8 w-8 animate-spin text-teal" />
       </div>
     );
   }
@@ -54,7 +54,7 @@ export default function SelectSchoolPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="text-center space-y-2">
-        <h2 className="text-2xl font-bold tracking-tight text-foreground">
+        <h2 className="font-display text-2xl tracking-tight text-foreground">
           Select a school
         </h2>
         <p className="text-sm text-muted-foreground">

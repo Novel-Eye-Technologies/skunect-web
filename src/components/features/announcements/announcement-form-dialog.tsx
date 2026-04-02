@@ -372,7 +372,7 @@ export function AnnouncementFormDialog({
                       className="flex items-center gap-2 rounded-md border px-3 py-2 text-sm"
                     >
                       {item.status === 'uploading' ? (
-                        <Loader2 className="h-4 w-4 flex-shrink-0 animate-spin text-muted-foreground" />
+                        <Loader2 className="h-4 w-4 flex-shrink-0 animate-spin text-teal" />
                       ) : (
                         <FileIcon className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
                       )}

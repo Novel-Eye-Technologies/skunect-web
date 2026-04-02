@@ -83,6 +83,12 @@ export const navigationConfig: NavItem[] = [
     roles: ['SUPER_ADMIN'],
   },
   {
+    title: 'Beta Signups',
+    href: '/system/beta',
+    icon: UserCheck,
+    roles: ['SUPER_ADMIN'],
+  },
+  {
     title: 'Seed Data',
     href: '/system/seed',
     icon: Database,

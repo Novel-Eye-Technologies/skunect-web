@@ -80,7 +80,7 @@ export function RegisterForm() {
     <div className="space-y-6">
       {/* Header */}
       <div className="space-y-2 text-center">
-        <h2 className="text-2xl font-bold tracking-tight text-foreground">
+        <h2 className="font-display text-2xl tracking-tight text-foreground">
           Create your account
         </h2>
         <p className="text-sm text-muted-foreground">

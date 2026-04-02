@@ -172,7 +172,7 @@ export function OtpInput({ otpReference, onSuccess }: OtpInputProps) {
     <div className="space-y-6">
       {/* Header */}
       <div className="text-center space-y-2">
-        <h2 className="text-2xl font-bold tracking-tight text-foreground">
+        <h2 className="font-display text-2xl tracking-tight text-foreground">
           Verify your identity
         </h2>
         <p className="text-sm text-muted-foreground">

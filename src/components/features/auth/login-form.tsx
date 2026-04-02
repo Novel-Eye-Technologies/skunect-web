@@ -97,7 +97,7 @@ export function LoginForm() {
     <div className="space-y-6">
       {/* Header */}
       <div className="space-y-2 text-center">
-        <h2 className="text-2xl font-bold tracking-tight text-foreground">
+        <h2 className="font-display text-2xl tracking-tight text-foreground">
           Welcome back
         </h2>
         <p className="text-sm text-muted-foreground">
@@ -165,7 +165,10 @@ export function LoginForm() {
                 disabled={isLoading}
               >
                 {loginEmail.isPending ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Sending OTP...</span>
+                  </>
                 ) : (
                   <>
                     Send OTP
@@ -206,7 +209,10 @@ export function LoginForm() {
                 disabled={isLoading}
               >
                 {loginPhone.isPending ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Sending OTP...</span>
+                  </>
                 ) : (
                   <>
                     Send OTP
