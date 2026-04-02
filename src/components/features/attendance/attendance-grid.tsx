@@ -184,7 +184,7 @@ export function AttendanceGrid() {
         />
       ) : isLoadingStudents ? (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          <Loader2 className="h-8 w-8 animate-spin text-teal" />
         </div>
       ) : rows.length === 0 ? (
         <EmptyState

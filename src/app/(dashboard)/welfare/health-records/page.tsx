@@ -25,22 +25,10 @@ import { HealthRecordFormDialog } from '@/components/features/welfare/health-rec
 import { useHealthRecords } from '@/lib/hooks/use-health-records';
 import type { HealthRecord } from '@/lib/types/health-record';
 import { RECORD_TYPES, SEVERITY_OPTIONS } from '@/lib/types/health-record';
-
-const severityColors: Record<string, string> = {
-  LOW: 'bg-blue-100 text-blue-700',
-  MEDIUM: 'bg-amber-100 text-amber-700',
-  HIGH: 'bg-orange-100 text-orange-700',
-  CRITICAL: 'bg-red-100 text-red-700',
-};
-
-const recordTypeLabels: Record<string, string> = {
-  ALLERGY: 'Allergy',
-  CONDITION: 'Condition',
-  MEDICATION: 'Medication',
-  VACCINATION: 'Vaccination',
-  INCIDENT: 'Incident',
-  NOTE: 'Note',
-};
+import {
+  SEVERITY_COLORS as severityColors,
+  RECORD_TYPE_LABELS as recordTypeLabels,
+} from '@/lib/constants/wellness';
 
 export default function HealthRecordsPage() {
   const [typeFilter, setTypeFilter] = useState('');

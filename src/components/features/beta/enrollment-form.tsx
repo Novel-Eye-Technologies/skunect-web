@@ -150,7 +150,7 @@ export function EnrollmentForm({ token, signup }: EnrollmentFormProps) {
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-teal/10">
           <CheckCircle2 className="h-8 w-8 text-teal" />
         </div>
-        <h2 className="text-2xl font-bold">Welcome to Skunect!</h2>
+        <h2 className="font-display text-2xl">Welcome to Skunect!</h2>
         <p className="mt-3 text-muted-foreground">
           Your school has been set up. You can now log in and start configuring
           your school.

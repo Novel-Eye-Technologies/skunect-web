@@ -157,7 +157,7 @@ export function NewConversationDialog({
                   <ScrollArea className="h-[200px] rounded-md border">
                     {usersLoading ? (
                       <div className="flex items-center justify-center py-8">
-                        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                        <Loader2 className="h-5 w-5 animate-spin text-teal" />
                       </div>
                     ) : filteredUsers.length === 0 ? (
                       <div className="py-8 text-center text-sm text-muted-foreground">

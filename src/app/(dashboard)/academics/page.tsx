@@ -159,9 +159,9 @@ export default function AcademicsPage() {
   function typeBadge(type: Assessment['type']) {
     const colors: Record<Assessment['type'], string> = {
       CA1: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-      CA2: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400',
-      CA3: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
-      EXAM: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
+      CA2: 'bg-teal/10 text-teal dark:bg-teal/20',
+      CA3: 'bg-navy/10 text-navy dark:bg-white/10 dark:text-white/80',
+      EXAM: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400',
     };
     return (
       <Badge variant="secondary" className={colors[type]}>
