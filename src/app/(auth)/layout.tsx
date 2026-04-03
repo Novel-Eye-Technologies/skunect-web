@@ -1,6 +1,7 @@
 "use client";
 
 import { Users, Shield, BookOpen } from "lucide-react";
+import Image from "next/image";
 
 export default function AuthLayout({
   children,
@@ -30,7 +31,14 @@ export default function AuthLayout({
           {/* Logo and tagline */}
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <img src="/logo.png" alt="Skunect" className="w-12 h-12 rounded-xl" />
+              <Image
+                src="/logo.png"
+                alt="Skunect"
+                width={48}
+                height={48}
+                className="rounded-xl"
+                priority
+              />
               <h1 className="font-display text-3xl text-white tracking-tight">
                 Skunect
               </h1>
@@ -89,7 +97,13 @@ export default function AuthLayout({
       <div className="flex flex-1 flex-col items-center justify-center px-4 py-10 sm:px-8 lg:px-12 bg-cream">
         {/* Mobile logo */}
         <div className="flex items-center gap-2.5 mb-8 lg:hidden">
-          <img src="/logo.png" alt="Skunect" className="w-10 h-10 rounded-lg" />
+          <Image
+            src="/logo.png"
+            alt="Skunect"
+            width={40}
+            height={40}
+            className="rounded-lg"
+          />
           <span className="font-display text-2xl text-navy">Skunect</span>
         </div>
 

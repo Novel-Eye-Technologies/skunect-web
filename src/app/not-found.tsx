@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import NextImage from "next/image";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -32,10 +33,13 @@ export default function NotFound() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-cream px-4">
       <div className="flex flex-col items-center text-center max-w-md">
-        <img
+        <NextImage
           src="/logo.png"
           alt="Skunect"
-          className="w-14 h-14 rounded-2xl mb-8"
+          width={56}
+          height={56}
+          className="rounded-2xl mb-8"
+          priority
         />
 
         <h1 className="font-display text-8xl tracking-tighter bg-gradient-to-br from-navy to-teal bg-clip-text text-transparent sm:text-9xl">

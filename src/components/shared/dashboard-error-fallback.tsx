@@ -1,13 +1,20 @@
 'use client';
 
 import { RotateCw } from 'lucide-react';
+import NextImage from 'next/image';
 import { Button } from '@/components/ui/button';
 
 export function DashboardErrorFallback() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-cream px-4">
       <div className="flex flex-col items-center text-center max-w-md">
-        <img src="/logo.png" alt="Skunect" className="w-16 h-16 rounded-2xl mb-6" />
+        <NextImage
+          src="/logo.png"
+          alt="Skunect"
+          width={64}
+          height={64}
+          className="rounded-2xl mb-6"
+        />
 
         <h1 className="text-2xl font-bold text-foreground mb-2">
           Something went wrong

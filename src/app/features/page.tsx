@@ -345,13 +345,14 @@ export default function FeaturesPage() {
               <Reveal key={feature.title} delay={i * 60}>
                 <div className="group h-full overflow-hidden rounded-2xl border bg-white transition-shadow duration-300 hover:shadow-lg">
                   {/* Screenshot */}
-                  <div className="aspect-[16/10] overflow-hidden bg-muted">
+                  <div className="overflow-hidden bg-muted">
                     <Image
                       src={feature.screenshot}
                       alt={feature.screenshotLabel}
                       width={1280}
                       height={800}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      className="h-auto w-full transition-transform duration-500 group-hover:scale-105"
                       placeholder="blur"
                       blurDataURL={BLUR_PLACEHOLDER}
                     />

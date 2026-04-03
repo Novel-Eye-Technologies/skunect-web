@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface FooterLink {
   label: string;
@@ -54,10 +55,12 @@ export function SiteFooter() {
           {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-1">
             <Link href="/" className="flex items-center gap-2.5">
-              <img
+              <Image
                 src="/logo.png"
                 alt="Skunect"
-                className="h-9 w-9 rounded-lg"
+                width={36}
+                height={36}
+                className="rounded-lg"
               />
               <span className="text-xl font-bold text-white">Skunect</span>
             </Link>
