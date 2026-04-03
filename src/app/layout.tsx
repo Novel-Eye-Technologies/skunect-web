@@ -76,6 +76,19 @@ export default function RootLayout({
             }),
           }}
         />
+        {process.env.NEXT_PUBLIC_PLAUSIBLE_ENABLED === 'true' && (
+          <>
+            <script
+              async
+              src="https://plausible.io/js/pa-ZlMC0edwTcNKk_2XBHjml.js"
+            />
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};plausible.init()`,
+              }}
+            />
+          </>
+        )}
       </head>
       <body
         className={`${dmSerif.variable} ${jakarta.variable} ${geistMono.variable} font-sans antialiased`}
