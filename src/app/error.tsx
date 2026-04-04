@@ -2,6 +2,7 @@
 
 import { RotateCw, ArrowLeft, AlertTriangle } from "lucide-react";
 import Link from "next/link";
+import NextImage from "next/image";
 import { Button } from "@/components/ui/button";
 
 interface ErrorPageProps {
@@ -13,10 +14,13 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-cream px-4">
       <div className="flex flex-col items-center text-center max-w-md">
-        <img
+        <NextImage
           src="/logo.png"
           alt="Skunect"
-          className="w-14 h-14 rounded-2xl mb-8"
+          width={56}
+          height={56}
+          className="rounded-2xl mb-8"
+          priority
         />
 
         <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">

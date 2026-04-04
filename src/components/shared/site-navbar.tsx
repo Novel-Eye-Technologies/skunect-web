@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import NextImage from 'next/image';
 import { usePathname } from 'next/navigation';
 import { ChevronRight, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -49,7 +50,13 @@ export function SiteNavbar({
       <nav className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-2.5">
-            <img src="/logo.png" alt="Skunect" className="h-9 w-9 rounded-lg" />
+            <NextImage
+              src="/logo.png"
+              alt="Skunect"
+              width={36}
+              height={36}
+              className="rounded-lg"
+            />
             <span className="text-xl font-bold tracking-tight">Skunect</span>
           </Link>
 
