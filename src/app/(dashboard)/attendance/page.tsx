@@ -20,6 +20,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { QueryErrorBanner } from '@/components/shared/query-error-banner';
 import type { AttendanceRecord } from '@/lib/types/attendance';
 
@@ -130,6 +131,16 @@ export default function AttendancePage() {
   ].filter((stat) => !isParent || stat.label !== 'Total Students');
 
   // ---------------------------------------------------------------------------
+  // Helpers
+  // ---------------------------------------------------------------------------
+  const isWithinEditWindow = (date: string): boolean => {
+    const recordDate = new Date(date + 'T00:00:00');
+    const now = new Date();
+    const diffMs = now.getTime() - recordDate.getTime();
+    return diffMs < 24 * 60 * 60 * 1000; // 24 hours
+  };
+
+  // ---------------------------------------------------------------------------
   // Columns
   // ---------------------------------------------------------------------------
   const columns: ColumnDef<AttendanceRecord>[] = [
@@ -157,7 +168,28 @@ export default function AttendancePage() {
     {
       accessorKey: 'status',
       header: 'Status',
-      cell: ({ row }) => <StatusBadge status={row.original.status} />,
+      cell: ({ row }) => (
+        <div className="flex items-center gap-1.5">
+          <StatusBadge status={row.original.status} />
+          {row.original.modifiedAt && (
+            <Tooltip>
+              <TooltipTrigger>
+                <span className="inline-flex items-center rounded-full bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-950/30 dark:text-amber-400">
+                  Edited
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Edited by {row.original.modifiedByName ?? 'Unknown'}</p>
+                {row.original.previousStatus && (
+                  <p className="text-xs text-muted-foreground">
+                    Previously: {row.original.previousStatus}
+                  </p>
+                )}
+              </TooltipContent>
+            </Tooltip>
+          )}
+        </div>
+      ),
     },
     {
       accessorKey: 'notes',
@@ -177,17 +209,24 @@ export default function AttendancePage() {
       ? [
           {
             id: 'actions',
-            cell: ({ row }: { row: { original: AttendanceRecord } }) => (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => setEditTarget(row.original)}
-              >
-                <Pencil className="h-4 w-4" />
-                <span className="sr-only">Edit</span>
-              </Button>
-            ),
+            cell: ({ row }: { row: { original: AttendanceRecord } }) => {
+              const isEditable =
+                currentRole === 'ADMIN' ||
+                isWithinEditWindow(row.original.date);
+              return (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  disabled={!isEditable}
+                  onClick={() => setEditTarget(row.original)}
+                  title={isEditable ? 'Edit record' : 'Edit window expired (24h)'}
+                >
+                  <Pencil className="h-4 w-4" />
+                  <span className="sr-only">Edit</span>
+                </Button>
+              );
+            },
           } as ColumnDef<AttendanceRecord>,
         ]
       : []),
