@@ -1,9 +1,32 @@
 #!/usr/bin/env sh
 
-if [ "$SKIP_PR_SIMULATION" = "1" ]; then
-  echo "SKIP_PR_SIMULATION=1 set, skipping PR simulation checks."
+# Pre-push hook: Runs lint, typecheck, build, and E2E tests before allowing push.
+# Skip with: SKIP_TESTS=1 git push (use sparingly — CI will still catch basic issues)
+
+if [ "$SKIP_TESTS" = "1" ]; then
+  echo "⚠️  SKIP_TESTS=1 set — skipping pre-push checks."
   exit 0
 fi
 
-echo "Running pre-push checks (lint + typecheck)..."
-npm run ci:pr
+echo "======================================"
+echo "  Pre-push: Full quality gate         "
+echo "======================================"
+
+echo ""
+echo "▶ Step 1/4: Lint..."
+npm run lint || exit 1
+
+echo ""
+echo "▶ Step 2/4: Typecheck..."
+npx tsc --noEmit || exit 1
+
+echo ""
+echo "▶ Step 3/4: Build..."
+npm run clean:next && npm run build || exit 1
+
+echo ""
+echo "▶ Step 4/4: E2E tests (against dev.skunect.com)..."
+E2E_BASE_URL=https://dev.skunect.com E2E_API_URL=https://dev.skunect.com/api/v1 npx playwright test --grep-invert="School Lifecycle" || exit 1
+
+echo ""
+echo "✅ All checks passed. Push proceeding."
