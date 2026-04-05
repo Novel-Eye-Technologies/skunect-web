@@ -3,6 +3,7 @@ import type { ApiResponse } from '@/lib/api/types';
 import type { Api } from '@/lib/api/schema';
 import type {
   AttendanceRecord,
+  AttendanceOverviewResponse,
   BulkAttendanceRequest,
   AttendanceSummaryResponse,
 } from '@/lib/types/attendance';
@@ -63,27 +64,11 @@ export async function getAttendanceSummary(
 // Attendance Overview (Admin)
 // ---------------------------------------------------------------------------
 
-export interface AttendanceOverview {
-  totalStudents: number;
-  presentCount: number;
-  absentCount: number;
-  lateCount: number;
-  attendanceRate: number;
-  classSummaries: {
-    classId: string;
-    className: string;
-    present: number;
-    absent: number;
-    late: number;
-    total: number;
-  }[];
-}
-
 export async function getAttendanceOverview(
   schoolId: string,
   date: string,
-): Promise<ApiResponse<AttendanceOverview>> {
-  const response = await apiClient.get<ApiResponse<AttendanceOverview>>(
+): Promise<ApiResponse<AttendanceOverviewResponse>> {
+  const response = await apiClient.get<ApiResponse<AttendanceOverviewResponse>>(
     `/schools/${schoolId}/attendance/overview`,
     { params: { date } },
   );
