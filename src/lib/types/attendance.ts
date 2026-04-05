@@ -8,17 +8,8 @@ export type RecordAttendanceRequest = Api['RecordAttendanceRequest'];
 export type WelfareResponse = Api['WelfareResponse'];
 export type AttendanceRecord = Api['AttendanceResponse'];
 export type AttendanceOverviewResponse = Api['AttendanceOverviewResponse'];
+export type AttendanceSummaryResponse = Api['AttendanceSummary'];
 
 // Aliases used in hand-written code
 export type BulkAttendanceEntry = AttendanceEntry;
 export type BulkAttendanceRequest = RecordAttendanceRequest;
-
-// No generated schema — keep hand-written
-export interface AttendanceSummaryResponse {
-  totalDays: number;
-  presentCount: number;
-  absentCount: number;
-  lateCount: number;
-  attendanceRate: number;
-  byDate: { date: string; present: number; absent: number; late: number }[];
-}
