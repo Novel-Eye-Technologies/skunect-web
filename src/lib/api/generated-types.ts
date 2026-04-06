@@ -3780,6 +3780,7 @@ export interface components {
             /** Format: int32 */
             maxScore?: number;
             attachmentUrls?: string[];
+            allowResubmission?: boolean;
         };
         ApiResponseHomeworkResponse: {
             status?: string;
@@ -3816,6 +3817,7 @@ export interface components {
             totalSubmissions?: number | null;
             /** Format: int64 */
             totalStudents?: number | null;
+            allowResubmission: boolean;
             createdBy: string;
             /** Format: date-time */
             createdAt: string;
@@ -5546,21 +5548,21 @@ export interface components {
             meta?: components["schemas"]["PageMeta"];
         };
         PageSubscriptionPaymentResponse: {
-            /** Format: int32 */
-            totalPages: number;
             /** Format: int64 */
             totalElements: number;
-            last: boolean;
+            /** Format: int32 */
+            totalPages: number;
             pageable: components["schemas"]["PageableObject"];
+            last: boolean;
             first: boolean;
+            /** Format: int32 */
+            numberOfElements: number;
             /** Format: int32 */
             size: number;
             content: components["schemas"]["SubscriptionPaymentResponse"][];
             /** Format: int32 */
             number: number;
             sort: components["schemas"]["SortObject"][];
-            /** Format: int32 */
-            numberOfElements: number;
             empty: boolean;
         };
         PageableObject: {
@@ -5866,21 +5868,21 @@ export interface components {
             createdAt: string;
         };
         PageAuditLogResponse: {
-            /** Format: int32 */
-            totalPages: number;
             /** Format: int64 */
             totalElements: number;
-            last: boolean;
+            /** Format: int32 */
+            totalPages: number;
             pageable: components["schemas"]["PageableObject"];
+            last: boolean;
             first: boolean;
+            /** Format: int32 */
+            numberOfElements: number;
             /** Format: int32 */
             size: number;
             content: components["schemas"]["AuditLogResponse"][];
             /** Format: int32 */
             number: number;
             sort: components["schemas"]["SortObject"][];
-            /** Format: int32 */
-            numberOfElements: number;
             empty: boolean;
         };
         ApiResponseAttendanceOverviewResponse: {
