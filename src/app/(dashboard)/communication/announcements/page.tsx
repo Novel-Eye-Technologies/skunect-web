@@ -52,6 +52,7 @@ import {
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { formatDate, formatDateTime } from '@/lib/utils/format-date';
 import type { Announcement } from '@/lib/types/announcements';
+import { getFileNameFromUrl, isImageUrl } from '@/lib/utils/file-utils';
 
 // ---------------------------------------------------------------------------
 // Audience label helper
@@ -349,31 +350,39 @@ export default function AnnouncementsPage() {
                 viewTarget.attachmentUrls.length > 0 && (
                   <div className="space-y-2">
                     <p className="text-sm font-medium">Attachments</p>
-                    <ul className="space-y-1.5">
+                    <div className="space-y-2">
                       {viewTarget.attachmentUrls.filter((url): url is string => url !== null).map((url, index) => {
-                        const fileName = (() => {
-                          try {
-                            const pathname = new URL(url).pathname;
-                            return decodeURIComponent(pathname.split('/').pop() || url);
-                          } catch {
-                            return url.split('/').pop() || url;
-                          }
-                        })();
-                        return (
-                          <li key={index}>
-                            <a
-                              href={url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm text-primary hover:underline"
-                            >
-                              <FileIcon className="h-4 w-4 flex-shrink-0" />
-                              {fileName}
-                            </a>
-                          </li>
+                        const fileName = getFileNameFromUrl(url);
+                        const imageMatch = isImageUrl(url);
+                        return imageMatch ? (
+                          <a
+                            key={index}
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block"
+                          >
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={url}
+                              alt={fileName}
+                              className="max-w-full max-h-[300px] rounded-lg object-cover border"
+                            />
+                          </a>
+                        ) : (
+                          <a
+                            key={index}
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm text-primary hover:underline"
+                          >
+                            <FileIcon className="h-4 w-4 flex-shrink-0" />
+                            {fileName}
+                          </a>
                         );
                       })}
-                    </ul>
+                    </div>
                   </div>
                 )}
             </div>

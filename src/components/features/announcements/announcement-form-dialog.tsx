@@ -43,27 +43,29 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 const MAX_FILES = 5;
 
 
-const announcementFormSchema = z.object({
-  title: z.string().min(1, { message: 'Title is required' }),
-  content: z.string().min(1, { message: 'Content is required' }),
-  targetAudience: z.enum(['ALL', 'TEACHERS', 'PARENTS', 'CLASS_SPECIFIC'], {
-    message: 'Please select a target audience',
-  }),
-  targetClassId: z.string().optional(),
-}).superRefine((values, ctx) => {
-  const requiresClass =
-    values.targetAudience === 'CLASS_SPECIFIC' || values.targetAudience === 'PARENTS';
+function createAnnouncementFormSchema(isTeacher: boolean) {
+  return z.object({
+    title: z.string().min(1, { message: 'Title is required' }),
+    content: z.string().min(1, { message: 'Content is required' }),
+    targetAudience: z.enum(['ALL', 'TEACHERS', 'PARENTS', 'CLASS_SPECIFIC'], {
+      message: 'Please select a target audience',
+    }),
+    targetClassId: z.string().optional(),
+  }).superRefine((values, ctx) => {
+    const requiresClass = isTeacher ||
+      values.targetAudience === 'CLASS_SPECIFIC' || values.targetAudience === 'PARENTS';
 
-  if (requiresClass && !values.targetClassId?.trim()) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ['targetClassId'],
-      message: 'Please select a target class',
-    });
-  }
-});
+    if (requiresClass && !values.targetClassId?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['targetClassId'],
+        message: 'Please select a target class',
+      });
+    }
+  });
+}
 
-type AnnouncementFormValues = z.infer<typeof announcementFormSchema>;
+type AnnouncementFormValues = z.infer<ReturnType<typeof createAnnouncementFormSchema>>;
 
 interface AttachmentItem {
   id: string;
@@ -104,6 +106,7 @@ export function AnnouncementFormDialog({
   const [isUploadingFiles, setIsUploadingFiles] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const announcementFormSchema = createAnnouncementFormSchema(isTeacher);
   const form = useForm<AnnouncementFormValues>({
     resolver: zodResolver(announcementFormSchema),
     defaultValues: {
@@ -284,7 +287,7 @@ export function AnnouncementFormDialog({
                       onValueChange={(value) => {
                         field.onChange(value);
 
-                        if (value !== 'CLASS_SPECIFIC' && value !== 'PARENTS') {
+                        if (!isTeacher && value !== 'CLASS_SPECIFIC' && value !== 'PARENTS') {
                           form.setValue('targetClassId', '');
                           form.clearErrors('targetClassId');
                           return;
@@ -301,7 +304,7 @@ export function AnnouncementFormDialog({
                       </FormControl>
                       <SelectContent>
                         {!isTeacher && <SelectItem value="ALL">All</SelectItem>}
-                        <SelectItem value="TEACHERS">Teachers</SelectItem>
+                        {!isTeacher && <SelectItem value="TEACHERS">Teachers</SelectItem>}
                         <SelectItem value="PARENTS">Parents</SelectItem>
                         <SelectItem value="CLASS_SPECIFIC">Class Specific</SelectItem>
                       </SelectContent>
@@ -310,7 +313,7 @@ export function AnnouncementFormDialog({
                   </FormItem>
                 )}
               />
-              {(targetAudience === 'CLASS_SPECIFIC' || targetAudience === 'PARENTS') && (
+              {(isTeacher || targetAudience === 'CLASS_SPECIFIC' || targetAudience === 'PARENTS') && (
                 <FormField
                   control={form.control}
                   name="targetClassId"
