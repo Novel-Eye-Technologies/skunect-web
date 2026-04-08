@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import { useParams, useRouter, usePathname } from 'next/navigation';
 import { type ColumnDef, type PaginationState } from '@tanstack/react-table';
@@ -11,7 +11,11 @@ import {
   FileText,
   ClipboardCheck,
   Send,
+  Paperclip,
+  X,
+  Loader2,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -28,6 +32,7 @@ import { useHomework, useSubmissions, useSubmitHomework } from '@/lib/hooks/use-
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useChildStore } from '@/lib/stores/child-store';
 import { formatDate, formatDateTime } from '@/lib/utils/format-date';
+import { uploadFile } from '@/lib/api/files';
 import type { Submission } from '@/lib/types/homework';
 
 export function HomeworkDetailClient() {
@@ -50,6 +55,30 @@ export function HomeworkDetailClient() {
   const selectedChildId = useChildStore((s) => s.selectedChildId);
   const submitHomework = useSubmitHomework();
   const [submissionNotes, setSubmissionNotes] = useState('');
+  const [uploadedFiles, setUploadedFiles] = useState<{ url: string; name: string }[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    setIsUploading(true);
+    try {
+      for (const file of Array.from(files)) {
+        const url = await uploadFile(file, 'homework');
+        setUploadedFiles((prev) => [...prev, { url, name: file.name }]);
+      }
+    } catch {
+      toast.error('Failed to upload file');
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  }, []);
+
+  const handleRemoveFile = useCallback((index: number) => {
+    setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
+  }, []);
 
   // ---------------------------------------------------------------------------
   // Data fetching
@@ -367,19 +396,75 @@ export function HomeworkDetailClient() {
                       onChange={(e) => setSubmissionNotes(e.target.value)}
                     />
                   </div>
+
+                  {/* File Attachments */}
+                  <div className="space-y-2">
+                    <Label>Attachments (optional)</Label>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      multiple
+                      accept=".jpeg,.jpg,.png,.gif,.webp,.pdf,.doc,.docx,.xls,.xlsx,.csv"
+                      className="hidden"
+                      onChange={handleFileSelect}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={isUploading}
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      {isUploading ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Paperclip className="mr-2 h-4 w-4" />
+                      )}
+                      {isUploading ? 'Uploading...' : 'Attach Files'}
+                    </Button>
+                    {uploadedFiles.length > 0 && (
+                      <div className="space-y-1">
+                        {uploadedFiles.map((file, index) => (
+                          <div
+                            key={file.url}
+                            className="flex items-center justify-between rounded-md border px-3 py-2"
+                          >
+                            <div className="flex items-center gap-2 min-w-0">
+                              <Paperclip className="h-4 w-4 shrink-0 text-muted-foreground" />
+                              <span className="truncate text-sm">{file.name}</span>
+                            </div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 shrink-0"
+                              onClick={() => handleRemoveFile(index)}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
                   <div className="flex justify-end">
                     <Button
-                      disabled={submitHomework.isPending}
+                      disabled={submitHomework.isPending || isUploading}
                       onClick={() => {
                         submitHomework.mutate(
                           {
                             studentId: selectedChildId,
                             homeworkId,
+                            attachmentUrls: uploadedFiles.length > 0
+                              ? uploadedFiles.map((f) => f.url)
+                              : undefined,
                             notes: submissionNotes || undefined,
                           },
                           {
                             onSuccess: () => {
                               setSubmissionNotes('');
+                              setUploadedFiles([]);
                             },
                           },
                         );

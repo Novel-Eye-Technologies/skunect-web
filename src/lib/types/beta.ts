@@ -1,7 +1,9 @@
 import type { Api } from '@/lib/api/schema';
 
 export type BetaSignup = Api['BetaSignupResponse'];
-export type CreateBetaSignupRequest = Api['CreateBetaSignupRequest'];
+export type CreateBetaSignupRequest = Api['CreateBetaSignupRequest'] & {
+  turnstileToken: string;
+};
 export type SendBetaInvitationRequest = Api['SendBetaInvitationRequest'];
 export type AcceptBetaInvitationRequest = Api['AcceptBetaInvitationRequest'];
 export type BetaSignupStats = Api['BetaSignupStatsResponse'];

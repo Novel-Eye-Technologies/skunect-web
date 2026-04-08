@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
+import { isImageUrl } from '@/lib/utils/file-utils';
 import {
   MessageSquare,
   Plus,
@@ -426,7 +427,7 @@ const [activeConversationId, setActiveConversationId] = useState<
                                 <div className="mt-2 space-y-1.5">
                                   {msg.attachmentUrls.map((url, idx) => {
                                     const fileName = url.split('/').pop() ?? 'attachment';
-                                    const isImage = /\.(png|jpe?g|gif|webp)$/i.test(url);
+                                    const isImage = isImageUrl(url);
                                     return isImage ? (
                                       <a
                                         key={idx}
@@ -492,7 +493,7 @@ const [activeConversationId, setActiveConversationId] = useState<
                 {pendingAttachments.length > 0 && (
                   <div className="flex flex-wrap gap-2">
                     {pendingAttachments.map((attachment, idx) => {
-                      const isImage = /\.(png|jpe?g|gif|webp)$/i.test(attachment.url);
+                      const isImage = isImageUrl(attachment.url);
                       return (
                         <div
                           key={idx}

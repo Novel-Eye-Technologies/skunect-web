@@ -22,6 +22,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -48,6 +49,7 @@ const homeworkFormSchema = z.object({
   assignedDate: z.string().min(1, 'Assigned date is required'),
   dueDate: z.string().min(1, 'Due date is required'),
   maxScore: z.number().min(1, 'Max score must be at least 1'),
+  allowResubmission: z.boolean(),
 });
 
 type HomeworkFormValues = z.infer<typeof homeworkFormSchema>;
@@ -103,6 +105,7 @@ export function HomeworkFormDialog({
       assignedDate: '',
       dueDate: '',
       maxScore: 100,
+      allowResubmission: false,
     },
   });
 
@@ -135,6 +138,7 @@ export function HomeworkFormDialog({
         assignedDate: homework.assignedDate,
         dueDate: homework.dueDate,
         maxScore: homework.maxScore ?? 100,
+        allowResubmission: homework.allowResubmission ?? false,
       });
       setFiles([]);
     } else if (!open) {
@@ -339,6 +343,28 @@ export function HomeworkFormDialog({
                     />
                   </FormControl>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Allow Resubmission */}
+            <FormField
+              control={form.control}
+              name="allowResubmission"
+              render={({ field }) => (
+                <FormItem className="flex items-center justify-between rounded-lg border p-3">
+                  <div className="space-y-0.5">
+                    <FormLabel>Allow Resubmission</FormLabel>
+                    <p className="text-xs text-muted-foreground">
+                      Students can resubmit after their initial submission
+                    </p>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
                 </FormItem>
               )}
             />

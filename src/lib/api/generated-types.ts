@@ -3112,6 +3112,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/files/{fileId}/download/{fileName}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Download a file by ID (public — file UUID serves as access control) */
+        get: operations["downloadFile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/files/{fileId}/download": {
         parameters: {
             query?: never;
@@ -3119,8 +3136,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Download a file by ID */
-        get: operations["downloadFile"];
+        /** Download a file by ID (public — file UUID serves as access control) */
+        get: operations["downloadFile_1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3626,10 +3643,10 @@ export interface components {
             relationship: string;
             isEmergencyContact: boolean;
             isApproved: boolean;
+            lastName: string;
             phone: string;
             email: string;
             firstName: string;
-            lastName: string;
         };
         StudentResponse: {
             /** Format: uuid */
@@ -3780,6 +3797,7 @@ export interface components {
             /** Format: int32 */
             maxScore?: number;
             attachmentUrls?: string[];
+            allowResubmission?: boolean;
         };
         ApiResponseHomeworkResponse: {
             status?: string;
@@ -3816,6 +3834,7 @@ export interface components {
             totalSubmissions?: number | null;
             /** Format: int64 */
             totalStudents?: number | null;
+            allowResubmission: boolean;
             createdBy: string;
             /** Format: date-time */
             createdAt: string;
@@ -5135,6 +5154,8 @@ export interface components {
             city?: string;
             /** @example true */
             hasExistingSystem?: boolean;
+            /** @description Cloudflare Turnstile token */
+            turnstileToken: string;
         };
         ApiResponseBetaSignupResponse: {
             status?: string;
@@ -5544,15 +5565,15 @@ export interface components {
             meta?: components["schemas"]["PageMeta"];
         };
         PageSubscriptionPaymentResponse: {
-            /** Format: int64 */
-            totalElements: number;
             /** Format: int32 */
             totalPages: number;
+            /** Format: int64 */
+            totalElements: number;
+            pageable: components["schemas"]["PageableObject"];
+            first: boolean;
+            last: boolean;
             /** Format: int32 */
             numberOfElements: number;
-            first: boolean;
-            pageable: components["schemas"]["PageableObject"];
-            last: boolean;
             /** Format: int32 */
             size: number;
             content: components["schemas"]["SubscriptionPaymentResponse"][];
@@ -5562,12 +5583,12 @@ export interface components {
             empty: boolean;
         };
         PageableObject: {
-            unpaged?: boolean;
+            /** Format: int32 */
+            pageSize?: number;
             paged?: boolean;
             /** Format: int32 */
             pageNumber?: number;
-            /** Format: int32 */
-            pageSize?: number;
+            unpaged?: boolean;
             /** Format: int64 */
             offset?: number;
             sort?: components["schemas"]["SortObject"][];
@@ -5864,15 +5885,15 @@ export interface components {
             createdAt: string;
         };
         PageAuditLogResponse: {
-            /** Format: int64 */
-            totalElements: number;
             /** Format: int32 */
             totalPages: number;
+            /** Format: int64 */
+            totalElements: number;
+            pageable: components["schemas"]["PageableObject"];
+            first: boolean;
+            last: boolean;
             /** Format: int32 */
             numberOfElements: number;
-            first: boolean;
-            pageable: components["schemas"]["PageableObject"];
-            last: boolean;
             /** Format: int32 */
             size: number;
             content: components["schemas"]["AuditLogResponse"][];
@@ -5940,6 +5961,8 @@ export interface components {
             gradeLabel?: string | null;
             remark?: string | null;
             score: number;
+            /** Format: date-time */
+            createdAt: string;
         };
         ApiResponseListAssessmentCommentResponse: {
             status?: string;
@@ -12811,6 +12834,29 @@ export interface operations {
         };
     };
     downloadFile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fileId: string;
+                fileName: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+        };
+    };
+    downloadFile_1: {
         parameters: {
             query?: never;
             header?: never;
