@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore, useAuthHydrated } from '@/lib/stores/auth-store';
 import { getCurrentUser } from '@/lib/api/auth';
 import { ADMIN_ONLY_ROUTES, SUPER_ADMIN_ONLY_ROUTES, TEACHER_BLOCKED_ROUTES } from '@/lib/utils/constants';
+import { SessionExpiryModal } from '@/components/shared/session-expiry-modal';
 
 /** Routes that should be accessible without authentication. */
 const PUBLIC_ROUTES = ['/login', '/register', '/verify-otp', '/forgot-password'];
@@ -22,6 +23,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const schoolActive = useAuthStore((s) => s.schoolActive);
   const setUser = useAuthStore((s) => s.setUser);
   const logout = useAuthStore((s) => s.logout);
+  const setSessionExpired = useAuthStore((s) => s.setSessionExpired);
 
   const hydrated = useAuthHydrated();
   const [isValidating, setIsValidating] = useState(true);
@@ -32,8 +34,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const handleLogout = useCallback(() => {
     logout();
-    router.replace('/login');
-  }, [logout, router]);
+    const searchParams = new URLSearchParams();
+    if (pathname && !PUBLIC_ROUTES.some((route) => pathname === route || pathname.startsWith(`${route}/`))) {
+      searchParams.set('returnUrl', pathname);
+    }
+    const query = searchParams.toString();
+    router.replace(query ? `/login?${query}` : '/login');
+  }, [logout, router, pathname]);
 
   useEffect(() => {
     // Wait for Zustand to finish restoring persisted state from localStorage.
@@ -66,7 +73,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       } catch {
         // Token invalid or expired (refresh also failed)
         if (!cancelled) {
-          handleLogout();
+          setSessionExpired(true);
+          setIsValidating(false);
           return;
         }
       } finally {
@@ -147,5 +155,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     );
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      <SessionExpiryModal />
+    </>
+  );
 }

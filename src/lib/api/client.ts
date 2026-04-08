@@ -129,14 +129,15 @@ apiClient.interceptors.response.use(
 );
 
 /**
- * Clear auth state and redirect to login.
+ * Clear auth state and trigger session expiry modal.
  * Safe to call from any context (server / client).
  */
 function handleAuthFailure() {
-  useAuthStore.getState().logout();
-
   if (typeof window !== 'undefined') {
-    window.location.href = '/login';
+    useAuthStore.getState().setSessionExpired(true);
+  } else {
+    // If we're on the server, we just clear auth state and let it handle naturally.
+    useAuthStore.getState().logout();
   }
 }
 
