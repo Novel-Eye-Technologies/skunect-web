@@ -1,4 +1,5 @@
 import apiClient from '@/lib/api/client';
+import type { Api } from '@/lib/api/schema';
 import type { ApiResponse } from '@/lib/api/types';
 
 /**
@@ -14,7 +15,7 @@ export async function uploadFile(
     formData.append('folder', folder);
   }
 
-  const response = await apiClient.post<ApiResponse<string>>(
+  const response = await apiClient.post<ApiResponse<Api['FileUploadResponse']>>(
     '/files/upload',
     formData,
     {
@@ -22,5 +23,5 @@ export async function uploadFile(
     },
   );
 
-  return response.data.data;
+  return response.data.data.fileUrl;
 }
