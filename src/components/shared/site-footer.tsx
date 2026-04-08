@@ -16,11 +16,13 @@ const productLinks: FooterLink[] = [
 const companyLinks: FooterLink[] = [
   { label: 'About Us', href: '#', disabled: true },
   { label: 'Contact', href: '#', disabled: true },
+  { label: 'Help & Support', href: '/help' },
 ];
 
 const legalLinks: FooterLink[] = [
-  { label: 'Privacy Policy', href: '#', disabled: true },
+  { label: 'Privacy Policy', href: '/privacy-policy' },
   { label: 'Terms of Service', href: '#', disabled: true },
+  { label: 'Delete Account', href: '/delete-account' },
 ];
 
 function FooterLinkItem({ link }: { link: FooterLink }) {
