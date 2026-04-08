@@ -210,6 +210,8 @@ export function AnnouncementFormDialog({
 
       const payload = {
         ...values,
+        // Teachers always target parents of selected class
+        ...(isTeacher && { targetAudience: 'PARENTS' }),
         attachmentUrls: attachmentUrls.length > 0 ? attachmentUrls : undefined,
       };
 
@@ -276,74 +278,106 @@ export function AnnouncementFormDialog({
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
+            {isTeacher ? (
+              /* Teachers only need to select a class — audience is always PARENTS */
               <FormField
                 control={form.control}
-                name="targetAudience"
+                name="targetClassId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Target Audience</FormLabel>
-                    <Select
-                      onValueChange={(value) => {
-                        field.onChange(value);
-
-                        if (!isTeacher && value !== 'CLASS_SPECIFIC' && value !== 'PARENTS') {
-                          form.setValue('targetClassId', '');
-                          form.clearErrors('targetClassId');
-                          return;
-                        }
-
-                        form.trigger('targetClassId');
-                      }}
-                      value={field.value}
-                    >
+                    <FormLabel>Target Class</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value ?? ''}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select audience" />
+                          <SelectValue placeholder="Select class" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {!isTeacher && <SelectItem value="ALL">All</SelectItem>}
-                        {!isTeacher && <SelectItem value="TEACHERS">Teachers</SelectItem>}
-                        <SelectItem value="PARENTS">Parents</SelectItem>
-                        <SelectItem value="CLASS_SPECIFIC">Class Specific</SelectItem>
+                        {classesResponse?.map((classItem: { id: string; name: string }) => (
+                          <SelectItem key={classItem.id} value={classItem.id}>
+                            {classItem.name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
-                    <FormMessage />
+                    {form.formState.errors.targetClassId?.message && (
+                      <p className="text-sm font-medium text-destructive">
+                        {form.formState.errors.targetClassId.message}
+                      </p>
+                    )}
                   </FormItem>
                 )}
               />
-              {(isTeacher || targetAudience === 'CLASS_SPECIFIC' || targetAudience === 'PARENTS') && (
+            ) : (
+              <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name="targetClassId"
+                  name="targetAudience"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Target Class</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value ?? ''}>
+                      <FormLabel>Target Audience</FormLabel>
+                      <Select
+                        onValueChange={(value) => {
+                          field.onChange(value);
+
+                          if (value !== 'CLASS_SPECIFIC' && value !== 'PARENTS') {
+                            form.setValue('targetClassId', '');
+                            form.clearErrors('targetClassId');
+                            return;
+                          }
+
+                          form.trigger('targetClassId');
+                        }}
+                        value={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select class" />
+                            <SelectValue placeholder="Select audience" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {classesResponse?.map((classItem: { id: string; name: string }) => (
-                            <SelectItem key={classItem.id} value={classItem.id}>
-                              {classItem.name}
-                            </SelectItem>
-                          ))}
+                          <SelectItem value="ALL">All</SelectItem>
+                          <SelectItem value="TEACHERS">Teachers</SelectItem>
+                          <SelectItem value="PARENTS">Parents</SelectItem>
+                          <SelectItem value="CLASS_SPECIFIC">Class Specific</SelectItem>
                         </SelectContent>
                       </Select>
-                      {form.formState.errors.targetClassId?.message && (
-                        <p className="text-sm font-medium text-destructive">
-                          {form.formState.errors.targetClassId.message}
-                        </p>
-                      )}
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
-              )}
-            </div>
+                {(targetAudience === 'CLASS_SPECIFIC' || targetAudience === 'PARENTS') && (
+                  <FormField
+                    control={form.control}
+                    name="targetClassId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Target Class</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value ?? ''}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select class" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {classesResponse?.map((classItem: { id: string; name: string }) => (
+                              <SelectItem key={classItem.id} value={classItem.id}>
+                                {classItem.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {form.formState.errors.targetClassId?.message && (
+                          <p className="text-sm font-medium text-destructive">
+                            {form.formState.errors.targetClassId.message}
+                          </p>
+                        )}
+                      </FormItem>
+                    )}
+                  />
+                )}
+              </div>
+            )}
 
 
             <FormField
