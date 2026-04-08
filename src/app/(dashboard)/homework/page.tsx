@@ -87,10 +87,12 @@ function ChildHomeworkList({ classId }: ChildHomeworkListProps) {
       cell: ({ row }) => formatDate(row.original.dueDate),
     },
     {
-      accessorKey: 'status',
+      id: 'submissionStatus',
       header: 'Status',
-      cell: ({ row }) =>
-        row.original.status ? <StatusBadge status={row.original.status} /> : '—',
+      cell: ({ row }) => {
+        const status = row.original.submissionStatus ?? row.original.status;
+        return status ? <StatusBadge status={status} /> : '—';
+      },
     },
     {
       id: 'actions',

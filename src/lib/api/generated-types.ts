@@ -3855,6 +3855,8 @@ export interface components {
             createdBy: string;
             /** Format: date-time */
             createdAt: string;
+            /** @description Child's submission status (only populated for parent endpoints). Values: SUBMITTED, LATE, GRADED, PENDING, OVERDUE */
+            submissionStatus?: string | null;
         };
         UpdateSubmissionRequest: {
             status?: string;

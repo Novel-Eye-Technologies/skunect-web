@@ -267,7 +267,7 @@ export function HomeworkDetailClient() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>Assignment Information</CardTitle>
-                {homework.status ? <StatusBadge status={homework.status} /> : null}
+                <StatusBadge status={homework.submissionStatus ?? homework.status ?? 'ACTIVE'} />
               </div>
             </CardHeader>
             <CardContent>
