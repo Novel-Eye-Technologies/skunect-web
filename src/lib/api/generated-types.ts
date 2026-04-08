@@ -3010,6 +3010,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/parents/me/children/{studentId}/homework/{homeworkId}/submission": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a child's submission for a specific homework */
+        get: operations["getChildSubmission"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/parents/me/children/{studentId}/fees/invoices": {
         parameters: {
             query?: never;
@@ -3643,10 +3660,10 @@ export interface components {
             relationship: string;
             isEmergencyContact: boolean;
             isApproved: boolean;
+            firstName: string;
             lastName: string;
             phone: string;
             email: string;
-            firstName: string;
         };
         StudentResponse: {
             /** Format: uuid */
@@ -5565,30 +5582,30 @@ export interface components {
             meta?: components["schemas"]["PageMeta"];
         };
         PageSubscriptionPaymentResponse: {
-            /** Format: int32 */
-            totalPages: number;
             /** Format: int64 */
             totalElements: number;
-            pageable: components["schemas"]["PageableObject"];
-            first: boolean;
-            last: boolean;
             /** Format: int32 */
-            numberOfElements: number;
+            totalPages: number;
+            pageable: components["schemas"]["PageableObject"];
+            last: boolean;
             /** Format: int32 */
             size: number;
             content: components["schemas"]["SubscriptionPaymentResponse"][];
             /** Format: int32 */
             number: number;
             sort: components["schemas"]["SortObject"][];
+            first: boolean;
+            /** Format: int32 */
+            numberOfElements: number;
             empty: boolean;
         };
         PageableObject: {
-            /** Format: int32 */
-            pageSize?: number;
+            unpaged?: boolean;
             paged?: boolean;
             /** Format: int32 */
             pageNumber?: number;
-            unpaged?: boolean;
+            /** Format: int32 */
+            pageSize?: number;
             /** Format: int64 */
             offset?: number;
             sort?: components["schemas"]["SortObject"][];
@@ -5885,21 +5902,21 @@ export interface components {
             createdAt: string;
         };
         PageAuditLogResponse: {
-            /** Format: int32 */
-            totalPages: number;
             /** Format: int64 */
             totalElements: number;
-            pageable: components["schemas"]["PageableObject"];
-            first: boolean;
-            last: boolean;
             /** Format: int32 */
-            numberOfElements: number;
+            totalPages: number;
+            pageable: components["schemas"]["PageableObject"];
+            last: boolean;
             /** Format: int32 */
             size: number;
             content: components["schemas"]["AuditLogResponse"][];
             /** Format: int32 */
             number: number;
             sort: components["schemas"]["SortObject"][];
+            first: boolean;
+            /** Format: int32 */
+            numberOfElements: number;
             empty: boolean;
         };
         ApiResponseAttendanceOverviewResponse: {
@@ -12698,6 +12715,29 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApiResponseListHomeworkResponse"];
+                };
+            };
+        };
+    };
+    getChildSubmission: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                studentId: string;
+                homeworkId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseSubmissionResponse"];
                 };
             };
         };
