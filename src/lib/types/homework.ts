@@ -9,6 +9,8 @@ export type HomeworkListItem = Api['HomeworkResponse'];
 export type HomeworkDetail = Api['HomeworkResponse'];
 export type Submission = Api['SubmissionResponse'];
 
+export type GradeSubmissionRequest = Api['UpdateSubmissionRequest'];
+
 // No generated schema — keep hand-written
 export interface HomeworkAttachment {
   id: string;
@@ -20,9 +22,4 @@ export interface HomeworkAttachment {
 
 export interface UpdateHomeworkRequest extends Partial<CreateHomeworkRequest> {
   status?: 'ACTIVE' | 'CLOSED' | 'DRAFT';
-}
-
-export interface GradeSubmissionRequest {
-  score: number;
-  feedback?: string;
 }
