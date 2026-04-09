@@ -22,7 +22,7 @@ const companyLinks: FooterLink[] = [
 
 const legalLinks: FooterLink[] = [
   { label: 'Privacy Policy', href: '/privacy-policy' },
-  { label: 'Terms of Service', href: '#', disabled: true },
+  { label: 'Terms of Service', href: '/terms-of-service' },
   { label: 'Delete Account', href: '/delete-account' },
 ];
 
