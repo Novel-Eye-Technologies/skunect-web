@@ -24,7 +24,7 @@ import { DataTable } from '@/components/shared/data-table';
 import { StatusBadge } from '@/components/shared/status-badge';
 import { ConfirmDialog } from '@/components/shared/confirm-dialog';
 import { HomeworkFormDialog } from '@/components/features/homework/homework-form-dialog';
-import { useHomeworkList, useDeleteHomework } from '@/lib/hooks/use-homework';
+import { useHomeworkList, useChildHomework, useDeleteHomework } from '@/lib/hooks/use-homework';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useChildStore } from '@/lib/stores/child-store';
 import { useQuery } from '@tanstack/react-query';
@@ -37,23 +37,17 @@ import { Card } from '@/components/ui/card';
 import type { HomeworkListItem } from '@/lib/types/homework';
 
 interface ChildHomeworkListProps {
-  classId: string;
   childId: string;
 }
 
-function ChildHomeworkList({ classId }: ChildHomeworkListProps) {
+function ChildHomeworkList({ childId }: ChildHomeworkListProps) {
   const router = useRouter();
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
   });
 
-  const { data: response, isLoading, isError, refetch } = useHomeworkList({
-    page: pagination.pageIndex,
-    size: pagination.pageSize,
-    classId,
-    status: 'ACTIVE',
-  });
+  const { data: response, isLoading, isError, refetch } = useChildHomework(childId);
 
   const homeworkList = response?.data ?? [];
   const pageCount = response?.meta?.totalPages ?? 0;
@@ -350,10 +344,7 @@ export default function HomeworkPage() {
                   </p>
                 </div>
               </div>
-              <ChildHomeworkList
-                classId={selectedChild.classId ?? ''}
-                childId={selectedChild.id}
-              />
+              <ChildHomeworkList childId={selectedChild.id} />
             </div>
           )}
         </div>
