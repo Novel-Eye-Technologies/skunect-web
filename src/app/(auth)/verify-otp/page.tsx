@@ -12,11 +12,14 @@ function VerifyOtpContent() {
   const otpReference = searchParams.get("ref");
 
   function handleSuccess() {
+    const returnUrl = searchParams.get("returnUrl");
     const currentUser = useAuthStore.getState().user;
     if (currentUser && currentUser.roles.length > 1) {
-      router.push("/select-school");
+      let url = "/select-school";
+      if (returnUrl) url += `?returnUrl=${encodeURIComponent(returnUrl)}`;
+      router.push(url);
     } else {
-      router.push("/dashboard");
+      router.push(returnUrl || "/dashboard");
     }
   }
 

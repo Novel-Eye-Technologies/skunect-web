@@ -1,15 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowRight, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { SchoolSelectCard } from "@/components/features/auth/school-select-card";
 import { useAuthStore, useAuthHydrated } from "@/lib/stores/auth-store";
 
-export default function SelectSchoolPage() {
+function SelectSchoolContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const hydrated = useAuthHydrated();
   const user = useAuthStore((s) => s.user);
   const setCurrentSchool = useAuthStore((s) => s.setCurrentSchool);
@@ -39,7 +40,9 @@ export default function SelectSchoolPage() {
   function handleContinue() {
     if (!selectedSchoolId) return;
     setCurrentSchool(selectedSchoolId);
-    router.push("/dashboard");
+    
+    const returnUrl = searchParams.get("returnUrl");
+    router.push(returnUrl || "/dashboard");
   }
 
   if (!hydrated || !user || user.roles.length <= 1) {
@@ -84,5 +87,19 @@ export default function SelectSchoolPage() {
         <ArrowRight className="w-4 h-4 ml-1" />
       </Button>
     </div>
+  );
+}
+
+export default function SelectSchoolPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center py-16">
+          <Loader2 className="h-8 w-8 animate-spin text-teal" />
+        </div>
+      }
+    >
+      <SelectSchoolContent />
+    </Suspense>
   );
 }
