@@ -14,7 +14,7 @@ export class LandingPage {
       name: /Stay Connected to Your Child/i,
     });
     this.heroDescription = page.getByText(
-      /bridges the gap between schools and parents/i
+      /Real-time attendance, grades, messaging, and payments/i
     );
     this.getStartedButton = page
       .getByRole('link', { name: 'Get Started', exact: true })
