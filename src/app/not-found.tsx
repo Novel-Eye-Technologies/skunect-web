@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -32,9 +33,12 @@ export default function NotFound() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-cream px-4">
       <div className="flex flex-col items-center text-center max-w-md">
-        <img
+        <Image
           src="/logo.png"
           alt="Skunect"
+          width={56}
+          height={56}
+          unoptimized
           className="w-14 h-14 rounded-2xl mb-8"
         />
 
