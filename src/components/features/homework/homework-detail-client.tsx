@@ -28,7 +28,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { HomeworkFormDialog } from '@/components/features/homework/homework-form-dialog';
 import { GradeSubmissionDialog } from '@/components/features/homework/grade-submission-dialog';
-import { useHomework, useSubmissions, useSubmitHomework } from '@/lib/hooks/use-homework';
+import { useHomework, useSubmissions, useChildSubmission, useSubmitHomework } from '@/lib/hooks/use-homework';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useChildStore } from '@/lib/stores/child-store';
 import { formatDate, formatDateTime } from '@/lib/utils/format-date';
@@ -84,6 +84,13 @@ export function HomeworkDetailClient() {
   // Data fetching
   // ---------------------------------------------------------------------------
   const { data: homework, isLoading } = useHomework(homeworkId);
+  const { data: childSubmission } = useChildSubmission(
+    isParent ? selectedChildId : null,
+    homeworkId,
+  );
+
+  const hasSubmitted = !!childSubmission;
+  const canResubmit = hasSubmitted && homework?.allowResubmission;
 
   const [submissionPagination, setSubmissionPagination] =
     useState<PaginationState>({
@@ -260,7 +267,7 @@ export function HomeworkDetailClient() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>Assignment Information</CardTitle>
-                {homework.status ? <StatusBadge status={homework.status} /> : null}
+                <StatusBadge status={homework.submissionStatus ?? homework.status ?? 'ACTIVE'} />
               </div>
             </CardHeader>
             <CardContent>
@@ -378,11 +385,79 @@ export function HomeworkDetailClient() {
             </CardContent>
           </Card>
 
-          {/* Submit Homework (Parent) */}
-          {selectedChildId && homework.status !== 'CLOSED' && (
+          {/* Submission Status (Parent) */}
+          {selectedChildId && hasSubmitted && (
             <Card>
               <CardHeader>
-                <CardTitle>Submit Homework</CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Your Submission</CardTitle>
+                  <StatusBadge status={childSubmission.status} />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  <InfoRow
+                    label="Submitted At"
+                    value={formatDateTime(childSubmission.submittedAt)}
+                  />
+                  <InfoRow
+                    label="Score"
+                    value={
+                      childSubmission.score != null
+                        ? `${childSubmission.score}/${homework.maxScore ?? '-'}`
+                        : '-'
+                    }
+                  />
+                  <InfoRow label="Feedback" value={childSubmission.feedback ?? null} />
+                </div>
+                {childSubmission.parentNotes && (
+                  <>
+                    <Separator className="my-4" />
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium text-muted-foreground">Notes</p>
+                      <p className="text-sm">{childSubmission.parentNotes}</p>
+                    </div>
+                  </>
+                )}
+                {childSubmission.attachmentUrls && childSubmission.attachmentUrls.filter(Boolean).length > 0 && (
+                  <>
+                    <Separator className="my-4" />
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Submitted Attachments ({childSubmission.attachmentUrls.filter(Boolean).length})
+                      </p>
+                      <div className="space-y-1">
+                        {childSubmission.attachmentUrls.filter((u): u is string => !!u).map((url, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center justify-between rounded-md border px-3 py-2"
+                          >
+                            <div className="flex items-center gap-2 min-w-0">
+                              <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
+                              <span className="truncate text-sm">
+                                {getFileNameFromUrl(url)}
+                              </span>
+                            </div>
+                            <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0" asChild>
+                              <a href={url} target="_blank" rel="noopener noreferrer">
+                                <Download className="h-4 w-4" />
+                              </a>
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Submit Homework (Parent) */}
+          {selectedChildId && homework.status !== 'CLOSED' && (!hasSubmitted || canResubmit) && (
+            <Card>
+              <CardHeader>
+                <CardTitle>{canResubmit ? 'Resubmit Homework' : 'Submit Homework'}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -471,7 +546,7 @@ export function HomeworkDetailClient() {
                       }}
                     >
                       <Send className="mr-2 h-4 w-4" />
-                      {submitHomework.isPending ? 'Submitting...' : 'Submit Homework'}
+                      {submitHomework.isPending ? 'Submitting...' : canResubmit ? 'Resubmit Homework' : 'Submit Homework'}
                     </Button>
                   </div>
                 </div>
