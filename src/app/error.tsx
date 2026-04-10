@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { RotateCw, ArrowLeft, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -13,9 +14,12 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-cream px-4">
       <div className="flex flex-col items-center text-center max-w-md">
-        <img
+        <Image
           src="/logo.png"
           alt="Skunect"
+          width={56}
+          height={56}
+          unoptimized
           className="w-14 h-14 rounded-2xl mb-8"
         />
 

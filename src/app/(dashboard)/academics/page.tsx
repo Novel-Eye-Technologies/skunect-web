@@ -47,6 +47,7 @@ import {
 } from '@/lib/hooks/use-academics';
 import { formatDate } from '@/lib/utils/format-date';
 import { QueryErrorBanner } from '@/components/shared/query-error-banner';
+import { ASSESSMENT_TYPE_COLORS } from '@/lib/constants/wellness';
 import type { Assessment, ReportCard } from '@/lib/types/academics';
 
 export default function AcademicsPage() {
@@ -157,14 +158,8 @@ export default function AcademicsPage() {
   // Assessment Type Badge
   // ---------------------------------------------------------------------------
   function typeBadge(type: Assessment['type']) {
-    const colors: Record<Assessment['type'], string> = {
-      CA1: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-      CA2: 'bg-teal/10 text-teal dark:bg-teal/20',
-      CA3: 'bg-navy/10 text-navy dark:bg-white/10 dark:text-white/80',
-      EXAM: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400',
-    };
     return (
-      <Badge variant="secondary" className={colors[type]}>
+      <Badge variant="secondary" className={ASSESSMENT_TYPE_COLORS[type]}>
         {type}
       </Badge>
     );

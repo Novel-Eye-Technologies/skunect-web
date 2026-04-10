@@ -12,6 +12,8 @@ import {
   deleteHomework,
   getSubmissions,
   gradeSubmission,
+  getChildHomework,
+  getChildSubmission,
   submitHomeworkForChild,
   type HomeworkListParams,
 } from '@/lib/api/homework';
@@ -35,6 +37,10 @@ const homeworkKeys = {
     [...homeworkKeys.all, 'detail', schoolId, homeworkId] as const,
   submissions: (schoolId: string, homeworkId: string, params?: PaginatedParams) =>
     [...homeworkKeys.all, 'submissions', schoolId, homeworkId, params] as const,
+  childHomework: (studentId: string) =>
+    [...homeworkKeys.all, 'childHomework', studentId] as const,
+  childSubmission: (studentId: string, homeworkId: string) =>
+    [...homeworkKeys.all, 'childSubmission', studentId, homeworkId] as const,
 };
 
 // ---------------------------------------------------------------------------
@@ -70,6 +76,23 @@ export function useSubmissions(homeworkId: string, params?: PaginatedParams) {
     queryKey: homeworkKeys.submissions(schoolId ?? '', homeworkId, params),
     queryFn: () => getSubmissions(schoolId!, homeworkId, params),
     enabled: !!schoolId && !!homeworkId && currentRole !== 'PARENT',
+  });
+}
+
+export function useChildHomework(studentId: string | null) {
+  return useQuery({
+    queryKey: homeworkKeys.childHomework(studentId ?? ''),
+    queryFn: () => getChildHomework(studentId!),
+    enabled: !!studentId,
+  });
+}
+
+export function useChildSubmission(studentId: string | null, homeworkId: string) {
+  return useQuery({
+    queryKey: homeworkKeys.childSubmission(studentId ?? '', homeworkId),
+    queryFn: () => getChildSubmission(studentId!, homeworkId),
+    enabled: !!studentId && !!homeworkId,
+    select: (response) => response.data,
   });
 }
 

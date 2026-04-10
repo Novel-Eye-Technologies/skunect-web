@@ -3010,6 +3010,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/parents/me/children/{studentId}/homework/{homeworkId}/submission": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a child's submission for a specific homework */
+        get: operations["getChildSubmission"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/parents/me/children/{studentId}/fees/invoices": {
         parameters: {
             query?: never;
@@ -3112,6 +3129,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/files/{fileId}/download/{fileName}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Download a file by ID (public — file UUID serves as access control) */
+        get: operations["downloadFile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/files/{fileId}/download": {
         parameters: {
             query?: never;
@@ -3119,8 +3153,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Download a file by ID */
-        get: operations["downloadFile"];
+        /** Download a file by ID (public — file UUID serves as access control) */
+        get: operations["downloadFile_1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3626,10 +3660,10 @@ export interface components {
             relationship: string;
             isEmergencyContact: boolean;
             isApproved: boolean;
-            phone: string;
-            email: string;
             firstName: string;
             lastName: string;
+            phone: string;
+            email: string;
         };
         StudentResponse: {
             /** Format: uuid */
@@ -3780,6 +3814,7 @@ export interface components {
             /** Format: int32 */
             maxScore?: number;
             attachmentUrls?: string[];
+            allowResubmission?: boolean;
         };
         ApiResponseHomeworkResponse: {
             status?: string;
@@ -3816,9 +3851,12 @@ export interface components {
             totalSubmissions?: number | null;
             /** Format: int64 */
             totalStudents?: number | null;
+            allowResubmission: boolean;
             createdBy: string;
             /** Format: date-time */
             createdAt: string;
+            /** @description Child's submission status (only populated for parent endpoints). Values: SUBMITTED, LATE, GRADED, PENDING, OVERDUE */
+            submissionStatus?: string | null;
         };
         UpdateSubmissionRequest: {
             status?: string;
@@ -5135,6 +5173,8 @@ export interface components {
             city?: string;
             /** @example true */
             hasExistingSystem?: boolean;
+            /** @description Cloudflare Turnstile token */
+            turnstileToken: string;
         };
         ApiResponseBetaSignupResponse: {
             status?: string;
@@ -5536,48 +5576,12 @@ export interface components {
             newTotalAmount: number;
             breakdown: string;
         };
-        ApiResponsePageSubscriptionPaymentResponse: {
+        ApiResponseListSubscriptionPaymentResponse: {
             status?: string;
             message?: string;
-            data?: components["schemas"]["PageSubscriptionPaymentResponse"];
+            data?: components["schemas"]["SubscriptionPaymentResponse"][];
             errors?: components["schemas"]["ErrorDetail"][];
             meta?: components["schemas"]["PageMeta"];
-        };
-        PageSubscriptionPaymentResponse: {
-            /** Format: int64 */
-            totalElements: number;
-            /** Format: int32 */
-            totalPages: number;
-            /** Format: int32 */
-            numberOfElements: number;
-            first: boolean;
-            pageable: components["schemas"]["PageableObject"];
-            last: boolean;
-            /** Format: int32 */
-            size: number;
-            content: components["schemas"]["SubscriptionPaymentResponse"][];
-            /** Format: int32 */
-            number: number;
-            sort: components["schemas"]["SortObject"][];
-            empty: boolean;
-        };
-        PageableObject: {
-            unpaged?: boolean;
-            paged?: boolean;
-            /** Format: int32 */
-            pageNumber?: number;
-            /** Format: int32 */
-            pageSize?: number;
-            /** Format: int64 */
-            offset?: number;
-            sort?: components["schemas"]["SortObject"][];
-        };
-        SortObject: {
-            direction?: string;
-            nullHandling?: string;
-            ascending?: boolean;
-            property?: string;
-            ignoreCase?: boolean;
         };
         ApiResponseListSubjectResponse: {
             status?: string;
@@ -5840,10 +5844,10 @@ export interface components {
             errors?: components["schemas"]["ErrorDetail"][];
             meta?: components["schemas"]["PageMeta"];
         };
-        ApiResponsePageAuditLogResponse: {
+        ApiResponseListAuditLogResponse: {
             status?: string;
             message?: string;
-            data?: components["schemas"]["PageAuditLogResponse"];
+            data?: components["schemas"]["AuditLogResponse"][];
             errors?: components["schemas"]["ErrorDetail"][];
             meta?: components["schemas"]["PageMeta"];
         };
@@ -5862,24 +5866,6 @@ export interface components {
             details?: string | null;
             /** Format: date-time */
             createdAt: string;
-        };
-        PageAuditLogResponse: {
-            /** Format: int64 */
-            totalElements: number;
-            /** Format: int32 */
-            totalPages: number;
-            /** Format: int32 */
-            numberOfElements: number;
-            first: boolean;
-            pageable: components["schemas"]["PageableObject"];
-            last: boolean;
-            /** Format: int32 */
-            size: number;
-            content: components["schemas"]["AuditLogResponse"][];
-            /** Format: int32 */
-            number: number;
-            sort: components["schemas"]["SortObject"][];
-            empty: boolean;
         };
         ApiResponseAttendanceOverviewResponse: {
             status?: string;
@@ -5940,6 +5926,8 @@ export interface components {
             gradeLabel?: string | null;
             remark?: string | null;
             score: number;
+            /** Format: date-time */
+            createdAt: string;
         };
         ApiResponseListAssessmentCommentResponse: {
             status?: string;
@@ -11274,7 +11262,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ApiResponsePageSubscriptionPaymentResponse"];
+                    "application/json": components["schemas"]["ApiResponseListSubscriptionPaymentResponse"];
                 };
             };
         };
@@ -11760,7 +11748,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ApiResponsePageSubscriptionPaymentResponse"];
+                    "application/json": components["schemas"]["ApiResponseListSubscriptionPaymentResponse"];
                 };
             };
         };
@@ -12372,7 +12360,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ApiResponsePageAuditLogResponse"];
+                    "application/json": components["schemas"]["ApiResponseListAuditLogResponse"];
                 };
             };
         };
@@ -12679,6 +12667,29 @@ export interface operations {
             };
         };
     };
+    getChildSubmission: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                studentId: string;
+                homeworkId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseSubmissionResponse"];
+                };
+            };
+        };
+    };
     getParentChildInvoices: {
         parameters: {
             query?: never;
@@ -12811,6 +12822,29 @@ export interface operations {
         };
     };
     downloadFile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fileId: string;
+                fileName: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+        };
+    };
+    downloadFile_1: {
         parameters: {
             query?: never;
             header?: never;

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ChevronRight, Menu, X } from 'lucide-react';
@@ -49,7 +50,7 @@ export function SiteNavbar({
       <nav className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-2.5">
-            <img src="/logo.png" alt="Skunect" className="h-9 w-9 rounded-lg" />
+            <Image src="/logo.png" alt="Skunect" width={36} height={36} unoptimized className="h-9 w-9 rounded-lg" />
             <span className="text-xl font-bold tracking-tight">Skunect</span>
           </Link>
 

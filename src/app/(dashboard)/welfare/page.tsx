@@ -52,10 +52,6 @@ import {
 // Page Component
 // ---------------------------------------------------------------------------
 
-// ---------------------------------------------------------------------------
-// Page Component
-// ---------------------------------------------------------------------------
-
 export default function WelfarePage() {
   const schoolId = useAuthStore((s) => s.currentSchoolId);
   const [activeTab, setActiveTab] = useState('welfare');

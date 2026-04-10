@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   getCurrentUser,
   loginEmail,
@@ -97,6 +97,8 @@ export function useGoogleOAuth() {
   const setTokens = useAuthStore((s) => s.setTokens);
   const setUser = useAuthStore((s) => s.setUser);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnUrl = searchParams.get('returnUrl');
 
   return useMutation({
     mutationFn: (data: GoogleOAuthRequest) => googleOAuth(data),
@@ -106,7 +108,7 @@ export function useGoogleOAuth() {
         setTokens(data.accessToken!, data.refreshToken!);
         setUser(data.user as UserInfo);
         queryClient.invalidateQueries({ queryKey: authKeys.me() });
-        router.push('/dashboard');
+        router.push(returnUrl || '/dashboard');
       }
     },
   });
@@ -117,6 +119,8 @@ export function useAppleOAuth() {
   const setTokens = useAuthStore((s) => s.setTokens);
   const setUser = useAuthStore((s) => s.setUser);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnUrl = searchParams.get('returnUrl');
 
   return useMutation({
     mutationFn: (data: AppleOAuthRequest) => appleOAuth(data),
@@ -126,7 +130,7 @@ export function useAppleOAuth() {
         setTokens(data.accessToken!, data.refreshToken!);
         setUser(data.user as UserInfo);
         queryClient.invalidateQueries({ queryKey: authKeys.me() });
-        router.push('/dashboard');
+        router.push(returnUrl || '/dashboard');
       }
     },
   });

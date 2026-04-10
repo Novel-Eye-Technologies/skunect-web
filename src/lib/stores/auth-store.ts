@@ -14,12 +14,14 @@ interface AuthState {
   subscriptionStatus: string | null;
   /** Internal flag — true once Zustand persist has restored state from localStorage. */
   _hydrated: boolean;
+  sessionExpired: boolean;
 }
 
 interface AuthActions {
   setTokens: (accessToken: string, refreshToken: string) => void;
   setUser: (user: UserInfo) => void;
   setCurrentSchool: (schoolId: string) => void;
+  setSessionExpired: (expired: boolean) => void;
   logout: () => void;
   isAuthenticated: () => boolean;
   getCurrentSchoolRole: () => Role | null;
@@ -37,6 +39,7 @@ const initialState: AuthState = {
   schoolActive: true,
   subscriptionStatus: null,
   _hydrated: false,
+  sessionExpired: false,
 };
 
 export const useAuthStore = create<AuthStore>()(
@@ -111,6 +114,8 @@ export const useAuthStore = create<AuthStore>()(
           });
         }
       },
+
+      setSessionExpired: (expired: boolean) => set({ sessionExpired: expired }),
 
       logout: () => {
         // Keep _hydrated true — the store is still hydrated, just empty

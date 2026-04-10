@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -42,6 +42,8 @@ type PhoneFormValues = z.infer<typeof phoneSchema>;
 
 export function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnUrl = searchParams.get("returnUrl");
   const [activeTab, setActiveTab] = useState("email");
 
   const loginEmail = useLogin();
@@ -64,7 +66,9 @@ export function LoginForm() {
       const response = await loginEmail.mutateAsync({ email: data.email });
       if (response.status === "SUCCESS") {
         toast.success("OTP sent to your email");
-        router.push(`/verify-otp?ref=${response.data.otpReference}`);
+        let redirectUrl = `/verify-otp?ref=${response.data.otpReference}`;
+        if (returnUrl) redirectUrl += `&returnUrl=${encodeURIComponent(returnUrl)}`;
+        router.push(redirectUrl);
       } else {
         toast.error(response.message || "Failed to send OTP");
       }
@@ -80,7 +84,9 @@ export function LoginForm() {
       const response = await loginPhone.mutateAsync({ phone: data.phone });
       if (response.status === "SUCCESS") {
         toast.success("OTP sent to your phone");
-        router.push(`/verify-otp?ref=${response.data.otpReference}`);
+        let redirectUrl = `/verify-otp?ref=${response.data.otpReference}`;
+        if (returnUrl) redirectUrl += `&returnUrl=${encodeURIComponent(returnUrl)}`;
+        router.push(redirectUrl);
       } else {
         toast.error(response.message || "Failed to send OTP");
       }
