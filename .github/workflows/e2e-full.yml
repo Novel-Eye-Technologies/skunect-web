@@ -1,8 +1,11 @@
 name: E2E Full CRUD Tests
 
+# NOTE: This workflow runs ONLY on push to develop, NOT on pull requests.
+# PR validation is handled by the pre-push hook (.husky/pre-push), which runs
+# the full quality gate (lint + typecheck + build + E2E against dev.skunect.com)
+# against the real dev environment. Do not re-add a `pull_request:` trigger
+# here — it was removed in bf89c30 to slim CI and the pre-push hook replaces it.
 on:
-  pull_request:
-    branches: [develop, main]
   push:
     branches: [develop]
 

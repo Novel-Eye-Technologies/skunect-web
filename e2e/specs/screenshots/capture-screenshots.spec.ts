@@ -1,11 +1,26 @@
 /**
  * Captures screenshots of key pages for use on the marketing features page.
- * Run: npx playwright test e2e/specs/screenshots/capture-screenshots.spec.ts
+ *
+ * ⚠️  GATED — this spec is OPT-IN and does not run by default.
+ *
+ * These tests write to `public/screenshots/` which is a committed marketing
+ * asset directory. Running them incidentally (e.g. as part of the pre-push
+ * hook or a full E2E sweep) dirties the working tree with non-deterministic
+ * binary diffs from font/DPI rendering differences. To regenerate the
+ * marketing screenshots intentionally, run:
+ *
+ *     CAPTURE_SCREENSHOTS=1 npx playwright test e2e/specs/screenshots/
+ *
+ * Then review the diff and commit the regenerated PNGs deliberately.
  *
  * Screenshots are saved to: public/screenshots/
  */
 import { test, expect } from '../../fixtures/auth.fixture';
 import path from 'path';
+
+const CAPTURE_SCREENSHOTS = process.env.CAPTURE_SCREENSHOTS === '1';
+const SKIP_REASON =
+  'Screenshot capture is opt-in. Run `CAPTURE_SCREENSHOTS=1 npx playwright test e2e/specs/screenshots/` to regenerate marketing assets.';
 
 const screenshotDir = path.resolve(
   __dirname,
@@ -27,6 +42,8 @@ async function waitForPageLoad(page: import('@playwright/test').Page) {
 // ─── Admin Screenshots (Skunect Academy) ────────────────────────────
 
 test.describe('Admin screenshots', () => {
+  test.skip(!CAPTURE_SCREENSHOTS, SKIP_REASON);
+
   test('dashboard', async ({ adminSkunectPage: page }) => {
     await page.goto('/dashboard');
     await waitForPageLoad(page);
@@ -97,6 +114,8 @@ test.describe('Admin screenshots', () => {
 // ─── Teacher Screenshots (Skunect Academy) ──────────────────────────
 
 test.describe('Teacher screenshots', () => {
+  test.skip(!CAPTURE_SCREENSHOTS, SKIP_REASON);
+
   test('dashboard', async ({ teacherSkunectPage: page }) => {
     await page.goto('/dashboard');
     await waitForPageLoad(page);
@@ -137,6 +156,8 @@ test.describe('Teacher screenshots', () => {
 // ─── Parent Screenshots (Skunect Academy) ───────────────────────────
 
 test.describe('Parent screenshots', () => {
+  test.skip(!CAPTURE_SCREENSHOTS, SKIP_REASON);
+
   test('dashboard', async ({ parentSkunectPage: page }) => {
     await page.goto('/dashboard');
     await waitForPageLoad(page);
