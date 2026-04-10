@@ -3660,10 +3660,10 @@ export interface components {
             relationship: string;
             isEmergencyContact: boolean;
             isApproved: boolean;
-            phone: string;
-            email: string;
             firstName: string;
             lastName: string;
+            phone: string;
+            email: string;
         };
         StudentResponse: {
             /** Format: uuid */
@@ -5576,48 +5576,12 @@ export interface components {
             newTotalAmount: number;
             breakdown: string;
         };
-        ApiResponsePageSubscriptionPaymentResponse: {
+        ApiResponseListSubscriptionPaymentResponse: {
             status?: string;
             message?: string;
-            data?: components["schemas"]["PageSubscriptionPaymentResponse"];
+            data?: components["schemas"]["SubscriptionPaymentResponse"][];
             errors?: components["schemas"]["ErrorDetail"][];
             meta?: components["schemas"]["PageMeta"];
-        };
-        PageSubscriptionPaymentResponse: {
-            /** Format: int64 */
-            totalElements: number;
-            /** Format: int32 */
-            totalPages: number;
-            last: boolean;
-            /** Format: int32 */
-            numberOfElements: number;
-            pageable: components["schemas"]["PageableObject"];
-            first: boolean;
-            /** Format: int32 */
-            size: number;
-            content: components["schemas"]["SubscriptionPaymentResponse"][];
-            /** Format: int32 */
-            number: number;
-            sort: components["schemas"]["SortObject"][];
-            empty: boolean;
-        };
-        PageableObject: {
-            unpaged?: boolean;
-            paged?: boolean;
-            /** Format: int32 */
-            pageNumber?: number;
-            /** Format: int32 */
-            pageSize?: number;
-            /** Format: int64 */
-            offset?: number;
-            sort?: components["schemas"]["SortObject"][];
-        };
-        SortObject: {
-            direction?: string;
-            nullHandling?: string;
-            ascending?: boolean;
-            property?: string;
-            ignoreCase?: boolean;
         };
         ApiResponseListSubjectResponse: {
             status?: string;
@@ -5880,10 +5844,10 @@ export interface components {
             errors?: components["schemas"]["ErrorDetail"][];
             meta?: components["schemas"]["PageMeta"];
         };
-        ApiResponsePageAuditLogResponse: {
+        ApiResponseListAuditLogResponse: {
             status?: string;
             message?: string;
-            data?: components["schemas"]["PageAuditLogResponse"];
+            data?: components["schemas"]["AuditLogResponse"][];
             errors?: components["schemas"]["ErrorDetail"][];
             meta?: components["schemas"]["PageMeta"];
         };
@@ -5902,24 +5866,6 @@ export interface components {
             details?: string | null;
             /** Format: date-time */
             createdAt: string;
-        };
-        PageAuditLogResponse: {
-            /** Format: int64 */
-            totalElements: number;
-            /** Format: int32 */
-            totalPages: number;
-            last: boolean;
-            /** Format: int32 */
-            numberOfElements: number;
-            pageable: components["schemas"]["PageableObject"];
-            first: boolean;
-            /** Format: int32 */
-            size: number;
-            content: components["schemas"]["AuditLogResponse"][];
-            /** Format: int32 */
-            number: number;
-            sort: components["schemas"]["SortObject"][];
-            empty: boolean;
         };
         ApiResponseAttendanceOverviewResponse: {
             status?: string;
@@ -11316,7 +11262,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ApiResponsePageSubscriptionPaymentResponse"];
+                    "application/json": components["schemas"]["ApiResponseListSubscriptionPaymentResponse"];
                 };
             };
         };
@@ -11802,7 +11748,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ApiResponsePageSubscriptionPaymentResponse"];
+                    "application/json": components["schemas"]["ApiResponseListSubscriptionPaymentResponse"];
                 };
             };
         };
@@ -12414,7 +12360,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ApiResponsePageAuditLogResponse"];
+                    "application/json": components["schemas"]["ApiResponseListAuditLogResponse"];
                 };
             };
         };
