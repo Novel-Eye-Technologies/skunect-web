@@ -176,7 +176,9 @@ export function BetaSignupForm() {
       lastName: '',
       email: '',
       phone: '',
-      role: undefined,
+      // Default to SCHOOL_OWNER — the primary target of our current ad
+      // campaigns. School admins/teachers/parents can still change it.
+      role: 'SCHOOL_OWNER',
       schoolName: '',
       schoolSize: '',
       city: '',
@@ -214,6 +216,33 @@ export function BetaSignupForm() {
       if (response.status === 'SUCCESS') {
         setSubmitted(true);
         toast.success('Application submitted!');
+        // Fire ad-platform conversion events so Meta / LinkedIn / GA4 can
+        // optimize toward real signups instead of raw clicks. These are no-ops
+        // if the respective pixel/tag isn't loaded on the page.
+        if (typeof window !== 'undefined') {
+          type AdWindow = Window & {
+            fbq?: (...args: unknown[]) => void;
+            lintrk?: (action: string, data: Record<string, unknown>) => void;
+            dataLayer?: Array<Record<string, unknown>>;
+          };
+          const w = window as AdWindow;
+          try {
+            w.fbq?.('track', 'Lead', {
+              content_name: 'Beta Signup',
+              content_category: data.role,
+            });
+          } catch {}
+          try {
+            w.lintrk?.('track', { conversion_id: 'beta_signup' });
+          } catch {}
+          try {
+            (w.dataLayer = w.dataLayer || []).push({
+              event: 'beta_signup',
+              role: data.role,
+              school_name: data.schoolName,
+            });
+          } catch {}
+        }
       } else {
         toast.error(response.message || 'Something went wrong');
       }
@@ -233,23 +262,25 @@ export function BetaSignupForm() {
   // ── Success state ──────────────────────────────────────────────
   if (submitted) {
     return (
-      <div className="rounded-2xl border bg-card p-8 text-center sm:p-12">
+      <div className="rounded-2xl border bg-card p-8 text-center sm:p-10">
         <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-teal/20 to-emerald-50">
           <CheckCircle2 className="h-10 w-10 text-teal" />
         </div>
-        <h3 className="font-display text-2xl">Application Received!</h3>
+        <h3 className="font-display text-2xl text-navy">
+          You&rsquo;re on the pilot list.
+        </h3>
         <p className="mt-3 leading-relaxed text-muted-foreground">
-          Thank you for applying to the Skunect beta program. School owners and
-          admins receive priority invitations.
+          Thanks for applying. School owners and admins are reviewed first —
+          we&rsquo;ll be in touch within 24 hours.
         </p>
-        <div className="mt-8 rounded-xl bg-sage/50 p-5 text-left">
-          <p className="text-sm font-semibold">What happens next?</p>
+        <div className="mt-7 rounded-xl bg-sage/50 p-5 text-left">
+          <p className="text-sm font-semibold text-navy">What happens next</p>
           <ol className="mt-3 space-y-2.5 text-sm text-muted-foreground">
             {[
-              "We\u2019ll review your application",
-              "You\u2019ll receive an invitation email",
-              'Complete your school enrollment',
-              'Start using Skunect for free',
+              'We review your application within 24 hours',
+              'Quick intro call to understand your school',
+              'Free data migration and on-site training',
+              'Launch with parents on April 30',
             ].map((text, i) => (
               <li key={i} className="flex items-start gap-3">
                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-teal/10 text-xs font-semibold text-teal">
@@ -260,6 +291,14 @@ export function BetaSignupForm() {
             ))}
           </ol>
         </div>
+        <a
+          href="https://wa.me/2348038011663?text=Hi%20Skunect%2C%20I%20just%20applied%20for%20the%20pilot%20and%20wanted%20to%20say%20hello."
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-teal hover:underline"
+        >
+          Want to skip the queue? Message the founder on WhatsApp →
+        </a>
       </div>
     );
   }
@@ -269,9 +308,11 @@ export function BetaSignupForm() {
     <div className="rounded-2xl border bg-card p-6 sm:p-8">
       {/* Header */}
       <div className="mb-2 text-center">
-        <h3 className="text-xl font-bold">Join the Beta Program</h3>
+        <h3 className="font-display text-2xl text-navy">Claim your pilot slot</h3>
         <p className="mt-1 text-sm text-muted-foreground">
-          {step === 1 ? 'Tell us about yourself' : 'Tell us about your school'}
+          {step === 1
+            ? 'Step 1 of 2 — tell us who you are'
+            : 'Step 2 of 2 — tell us about your school'}
         </p>
       </div>
 
@@ -664,7 +705,7 @@ export function BetaSignupForm() {
                       <span>Submitting...</span>
                     </>
                   ) : (
-                    'Submit Application'
+                    'Claim my pilot slot'
                   )}
                 </Button>
               </div>
