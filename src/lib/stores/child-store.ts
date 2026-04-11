@@ -9,6 +9,8 @@ export interface ChildSummary {
   lastName: string;
   classId: string | null;
   className: string | null;
+  /** SCRUM-63: resolved level name (e.g. 'JSS 1') for display */
+  levelName: string | null;
   photo: string | null;
 }
 

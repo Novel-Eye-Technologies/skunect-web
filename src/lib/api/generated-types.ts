@@ -3713,10 +3713,10 @@ export interface components {
             relationship: string;
             isEmergencyContact: boolean;
             isApproved: boolean;
-            firstName: string;
-            lastName: string;
             phone: string;
             email: string;
+            firstName: string;
+            lastName: string;
         };
         StudentResponse: {
             /** Format: uuid */
@@ -3725,6 +3725,13 @@ export interface components {
             schoolId: string;
             /** Format: uuid */
             classId?: string | null;
+            /**
+             * Format: uuid
+             * @description SCRUM-63: ID of the level the student's class belongs to
+             */
+            levelId?: string | null;
+            /** @description SCRUM-63: Resolved level name (e.g. 'JSS 1') for display */
+            levelName?: string | null;
             admissionNumber: string;
             firstName: string;
             lastName: string;
@@ -3748,8 +3755,8 @@ export interface components {
             status: string;
             parents: components["schemas"]["ParentLinkResponse"][];
             isActive: boolean;
-            photo: string;
             otherName: string;
+            photo: string;
         };
         CreateSessionRequest: {
             name: string;
@@ -5788,10 +5795,17 @@ export interface components {
             schoolId: string;
             /** Format: uuid */
             classId?: string | null;
+            /**
+             * Format: uuid
+             * @description SCRUM-63: ID of the level the child's class belongs to
+             */
+            levelId?: string | null;
             firstName: string;
             lastName: string;
             schoolName: string;
             className?: string | null;
+            /** @description SCRUM-63: Resolved level name (e.g. 'JSS 1') for display */
+            levelName?: string | null;
             admissionNumber: string;
             photoUrl?: string | null;
             status: string;
@@ -6525,6 +6539,8 @@ export interface components {
             studentId: string;
             name: string;
             className: string;
+            /** @description SCRUM-63: Resolved level name (e.g. 'JSS 1') for display */
+            levelName?: string | null;
             attendance?: string | null;
             recentGrade?: string | null;
         };
