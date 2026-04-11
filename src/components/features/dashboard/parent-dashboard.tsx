@@ -148,7 +148,12 @@ function ChildInfoCard({ child }: { child: ParentChildSummary }) {
         </div>
         <div className="min-w-0 flex-1">
           <p className="truncate text-lg font-semibold">{child.name}</p>
-          <p className="text-sm text-muted-foreground">{child.className}</p>
+          <p className="text-sm text-muted-foreground">
+            {/* SCRUM-63: surface level name alongside class */}
+            {child.levelName
+              ? `${child.levelName} • ${child.className}`
+              : child.className}
+          </p>
         </div>
         <Badge
           variant="secondary"

@@ -5,6 +5,7 @@ export class SchoolSettingsPage {
   readonly heading: Locator;
   readonly generalTab: Locator;
   readonly sessionsTab: Locator;
+  readonly levelsTab: Locator;
   readonly classesTab: Locator;
   readonly subjectsTab: Locator;
   readonly gradingTab: Locator;
@@ -14,6 +15,7 @@ export class SchoolSettingsPage {
     this.heading = page.getByRole('heading', { name: 'School Settings' });
     this.generalTab = page.getByRole('tab', { name: 'General' });
     this.sessionsTab = page.getByRole('tab', { name: 'Sessions & Terms' });
+    this.levelsTab = page.getByRole('tab', { name: 'Levels' });
     this.classesTab = page.getByRole('tab', { name: 'Classes' });
     this.subjectsTab = page.getByRole('tab', { name: 'Subjects' });
     this.gradingTab = page.getByRole('tab', { name: 'Grading' });

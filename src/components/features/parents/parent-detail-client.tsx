@@ -196,7 +196,10 @@ export function ParentDetailClient() {
                             {child.admissionNumber ?? '—'}
                           </td>
                           <td className="py-2 pr-4 text-muted-foreground">
-                            {child.className ?? '—'}
+                            {/* SCRUM-63: prefer "Level • Class" when level is known */}
+                            {child.levelName
+                              ? `${child.levelName} • ${child.className ?? ''}`
+                              : (child.className ?? '—')}
                           </td>
                           <td className="py-2">
                             <StatusBadge status={child.status} />

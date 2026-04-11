@@ -235,6 +235,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/schools/{schoolId}/levels/{levelId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update a level's name or ordinal */
+        put: operations["updateLevel"];
+        post?: never;
+        /** Delete a level (blocked when classes still reference it) */
+        delete: operations["deleteLevel"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/schools/{schoolId}/homework/{id}": {
         parameters: {
             query?: never;
@@ -1192,6 +1210,41 @@ export interface paths {
         put?: never;
         /** Upload a migration file */
         post: operations["uploadFile"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/schools/{schoolId}/levels": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List levels for a school, ordered by ordinal */
+        get: operations["getLevels"];
+        put?: never;
+        /** Create a new level for a school */
+        post: operations["createLevel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/schools/{schoolId}/levels/{levelId}/move-classes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Move classes from this level to another level (atomic, used to drain a level before deletion) */
+        post: operations["moveClasses"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3660,10 +3713,10 @@ export interface components {
             relationship: string;
             isEmergencyContact: boolean;
             isApproved: boolean;
-            firstName: string;
-            lastName: string;
             phone: string;
             email: string;
+            firstName: string;
+            lastName: string;
         };
         StudentResponse: {
             /** Format: uuid */
@@ -3672,6 +3725,13 @@ export interface components {
             schoolId: string;
             /** Format: uuid */
             classId?: string | null;
+            /**
+             * Format: uuid
+             * @description SCRUM-63: ID of the level the student's class belongs to
+             */
+            levelId?: string | null;
+            /** @description SCRUM-63: Resolved level name (e.g. 'JSS 1') for display */
+            levelName?: string | null;
             admissionNumber: string;
             firstName: string;
             lastName: string;
@@ -3799,6 +3859,34 @@ export interface components {
             /** Format: date-time */
             createdAt: string;
             isActive: boolean;
+        };
+        UpdateLevelRequest: {
+            name?: string;
+            /** Format: int32 */
+            ordinal?: number;
+        };
+        ApiResponseLevelResponse: {
+            status?: string;
+            message?: string;
+            data?: components["schemas"]["LevelResponse"];
+            errors?: components["schemas"]["ErrorDetail"][];
+            meta?: components["schemas"]["PageMeta"];
+        };
+        LevelResponse: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            schoolId: string;
+            name: string;
+            /** Format: int32 */
+            ordinal: number;
+            /**
+             * Format: int64
+             * @description Number of classes (across all sessions) currently linked to this level
+             */
+            classCount: number;
+            /** Format: date-time */
+            createdAt: string;
         };
         CreateHomeworkRequest: {
             /** Format: uuid */
@@ -3959,14 +4047,24 @@ export interface components {
         CreateFeeStructureRequest: {
             /** Format: uuid */
             termId?: string;
-            /** Format: uuid */
-            classId?: string;
+            targets: components["schemas"]["FeeStructureTargetDto"][];
             name: string;
             amount: number;
             /** Format: date */
             deadline?: string;
             breakdown?: string;
             isMandatory?: boolean;
+        };
+        FeeStructureTargetDto: {
+            /** @enum {string} */
+            type: "SCHOOL" | "LEVEL" | "CLASS";
+            /**
+             * Format: uuid
+             * @description Required for LEVEL/CLASS targets; ignored (and auto-filled) for SCHOOL
+             */
+            targetId?: string;
+            /** @description Resolved name of the target for display (output-only) */
+            targetName?: string;
         };
         ApiResponseFeeStructureResponse: {
             status?: string;
@@ -3981,11 +4079,10 @@ export interface components {
             /** Format: uuid */
             schoolId: string;
             /** Format: uuid */
-            classId?: string | null;
-            /** Format: uuid */
             termId?: string | null;
             name: string;
             amount: number;
+            targets: components["schemas"]["FeeStructureTargetDto"][];
             /** Format: date */
             deadline?: string | null;
             breakdown?: string | null;
@@ -4114,7 +4211,10 @@ export interface components {
         };
         CreateClassRequest: {
             name: string;
+            /** @deprecated */
             gradeLevel?: string;
+            /** Format: uuid */
+            levelId: string;
             /** Format: uuid */
             sessionId: string;
             /** Format: int32 */
@@ -4135,7 +4235,12 @@ export interface components {
             /** Format: uuid */
             schoolId: string;
             name: string;
+            /** @deprecated */
             gradeLevel: string;
+            /** Format: uuid */
+            levelId: string;
+            /** @description Resolved level name (e.g. 'JSS 1') */
+            levelName?: string | null;
             /** Format: uuid */
             sessionId: string;
             /** Format: int32 */
@@ -4909,6 +5014,25 @@ export interface components {
             /** Format: date-time */
             updatedAt: string;
         };
+        CreateLevelRequest: {
+            name: string;
+            /** Format: int32 */
+            ordinal?: number;
+        };
+        MoveClassesRequest: {
+            /** Format: uuid */
+            targetLevelId: string;
+            classIds: string[];
+        };
+        ApiResponseMapStringObject: {
+            status?: string;
+            message?: string;
+            data?: {
+                [key: string]: Record<string, never>;
+            };
+            errors?: components["schemas"]["ErrorDetail"][];
+            meta?: components["schemas"]["PageMeta"];
+        };
         CreateHealthRecordRequest: {
             /** Format: uuid */
             studentId: string;
@@ -5671,10 +5795,17 @@ export interface components {
             schoolId: string;
             /** Format: uuid */
             classId?: string | null;
+            /**
+             * Format: uuid
+             * @description SCRUM-63: ID of the level the child's class belongs to
+             */
+            levelId?: string | null;
             firstName: string;
             lastName: string;
             schoolName: string;
             className?: string | null;
+            /** @description SCRUM-63: Resolved level name (e.g. 'JSS 1') for display */
+            levelName?: string | null;
             admissionNumber: string;
             photoUrl?: string | null;
             status: string;
@@ -5690,6 +5821,13 @@ export interface components {
             status?: string;
             message?: string;
             data?: components["schemas"]["MigrationJobResponse"][];
+            errors?: components["schemas"]["ErrorDetail"][];
+            meta?: components["schemas"]["PageMeta"];
+        };
+        ApiResponseListLevelResponse: {
+            status?: string;
+            message?: string;
+            data?: components["schemas"]["LevelResponse"][];
             errors?: components["schemas"]["ErrorDetail"][];
             meta?: components["schemas"]["PageMeta"];
         };
@@ -6401,6 +6539,8 @@ export interface components {
             studentId: string;
             name: string;
             className: string;
+            /** @description SCRUM-63: Resolved level name (e.g. 'JSS 1') for display */
+            levelName?: string | null;
             attendance?: string | null;
             recentGrade?: string | null;
         };
@@ -7298,6 +7438,56 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApiResponsePickupAuthorizationResponse"];
+                };
+            };
+        };
+    };
+    updateLevel: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                schoolId: string;
+                levelId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateLevelRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseLevelResponse"];
+                };
+            };
+        };
+    };
+    deleteLevel: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                schoolId: string;
+                levelId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseVoid"];
                 };
             };
         };
@@ -9500,6 +9690,81 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApiResponseMigrationJobResponse"];
+                };
+            };
+        };
+    };
+    getLevels: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                schoolId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseListLevelResponse"];
+                };
+            };
+        };
+    };
+    createLevel: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                schoolId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateLevelRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseLevelResponse"];
+                };
+            };
+        };
+    };
+    moveClasses: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                schoolId: string;
+                levelId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MoveClassesRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseMapStringObject"];
                 };
             };
         };

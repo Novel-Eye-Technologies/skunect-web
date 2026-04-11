@@ -531,6 +531,99 @@ test.describe('10 — Fees & Homework Tests', () => {
     // Before deploy: teacher is redirected to /dashboard
     await expect(teacherPage).toHaveURL(/\/(fees|dashboard)\/?/, { timeout: 15_000 });
   });
+
+  // -------------------------------------------------------------------------
+  // SCRUM-63: Levels tab + multi-target fee form + amount spinner removal
+  //
+  // These tests assert UI elements introduced by SCRUM-63 PR 4. CI runs E2E
+  // against dev.skunect.com — until PR 4 is deployed there, the elements do not
+  // exist and the tests are skipped. Unskip in a follow-up commit after deploy.
+  // -------------------------------------------------------------------------
+
+  test.skip('10.8 — SCRUM-63: School settings exposes a Levels tab', async ({ adminPage }) => {
+    const settings = new SchoolSettingsPage(adminPage);
+    await settings.goto();
+    await settings.expectVisible();
+    await expect(settings.levelsTab).toBeVisible();
+  });
+
+  test.skip('10.9 — SCRUM-63: Levels tab shows seeded Nigerian taxonomy', async ({ adminPage }) => {
+    const settings = new SchoolSettingsPage(adminPage);
+    await settings.goto();
+    await settings.expectVisible();
+    await settings.levelsTab.click();
+    await expect(settings.levelsTab).toHaveAttribute('data-state', 'active', {
+      timeout: 5_000,
+    });
+    // Confirm at least one of the standard taxonomy names renders. We don't pin
+    // an exact count because each pilot school may have customised its levels.
+    await expect(
+      adminPage.getByRole('cell', { name: /JSS 1/ }).first(),
+    ).toBeVisible({ timeout: 15_000 });
+  });
+
+  test.skip('10.10 — SCRUM-63: Fee structure form has target picker (school/levels/classes)', async ({
+    adminPage,
+  }) => {
+    await adminPage.goto('/fees');
+    await adminPage.waitForLoadState('networkidle').catch(() => {});
+    const fees = new FeesPage(adminPage);
+    await fees.expectVisible();
+    await fees.switchToFeeStructures();
+    await fees.createStructureButton.click();
+
+    // Dialog opens — assert all three radio options are present
+    await expect(
+      adminPage.getByRole('dialog').getByText('Whole school'),
+    ).toBeVisible({ timeout: 10_000 });
+    await expect(
+      adminPage.getByRole('dialog').getByText('Specific levels'),
+    ).toBeVisible();
+    await expect(
+      adminPage.getByRole('dialog').getByText('Specific classes'),
+    ).toBeVisible();
+  });
+
+  test.skip('10.11 — SCRUM-63 bug fix: Amount input has no spinner arrows', async ({
+    adminPage,
+  }) => {
+    await adminPage.goto('/fees');
+    await adminPage.waitForLoadState('networkidle').catch(() => {});
+    const fees = new FeesPage(adminPage);
+    await fees.expectVisible();
+    await fees.switchToFeeStructures();
+    await fees.createStructureButton.click();
+
+    const amount = adminPage
+      .getByRole('dialog')
+      .getByLabel(/Amount/i);
+    await expect(amount).toBeVisible({ timeout: 10_000 });
+    // The Tailwind class that strips the spinner. We assert on the className so
+    // a future refactor that drops the class fails this test loudly.
+    const className = await amount.getAttribute('class');
+    expect(className).toContain('appearance:textfield');
+  });
+
+  test.skip('10.12 — SCRUM-63: Selecting "Specific levels" reveals the level multi-select', async ({
+    adminPage,
+  }) => {
+    await adminPage.goto('/fees');
+    await adminPage.waitForLoadState('networkidle').catch(() => {});
+    const fees = new FeesPage(adminPage);
+    await fees.expectVisible();
+    await fees.switchToFeeStructures();
+    await fees.createStructureButton.click();
+
+    await adminPage
+      .getByRole('dialog')
+      .getByText('Specific levels')
+      .click();
+
+    // The "Levels" sub-section label appears (not the radio label "Specific levels")
+    await expect(
+      adminPage.getByRole('dialog').getByText(/^Levels$/),
+    ).toBeVisible({ timeout: 5_000 });
+  });
 });
 
 // =========================================================================

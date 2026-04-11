@@ -105,6 +105,8 @@ export interface ParentChildSummary {
   studentId: string;
   name: string;
   className: string;
+  /** SCRUM-63: resolved level name (e.g. 'JSS 1') for display alongside className */
+  levelName: string | null;
   attendance: string;
   recentGrade: string;
 }

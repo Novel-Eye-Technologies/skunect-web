@@ -57,6 +57,7 @@ import {
   useSessions,
   useTerms,
 } from '@/lib/hooks/use-school-settings';
+import { useLevels } from '@/lib/hooks/use-levels';
 import { useTeachers } from '@/lib/hooks/use-teachers';
 import type { SchoolClass } from '@/lib/types/school';
 
@@ -66,7 +67,7 @@ import type { SchoolClass } from '@/lib/types/school';
 
 const classSchema = z.object({
   name: z.string().min(1, 'Class name is required'),
-  section: z.string().optional().or(z.literal('')),
+  levelId: z.string().min(1, 'Level is required'),
   capacity: z.number().min(1, 'Capacity must be at least 1'),
   classTeacherId: z.string().min(1, 'Class teacher is required'),
 });
@@ -80,6 +81,7 @@ type ClassFormValues = z.infer<typeof classSchema>;
 export function ClassesManager() {
   const { data: classes, isLoading } = useClasses();
   const { data: sessions } = useSessions();
+  const { data: levels } = useLevels();
   const { data: teachersResponse } = useTeachers({ size: 200 });
   const teachers = teachersResponse?.data ?? [];
   const createClass = useCreateClass();
@@ -103,7 +105,7 @@ export function ClassesManager() {
     resolver: zodResolver(classSchema),
     defaultValues: {
       name: '',
-      section: '',
+      levelId: '',
       capacity: 30,
       classTeacherId: '',
     },
@@ -111,7 +113,7 @@ export function ClassesManager() {
 
   function openCreate() {
     setEditingClass(null);
-    form.reset({ name: '', section: '', capacity: 30, classTeacherId: '' });
+    form.reset({ name: '', levelId: '', capacity: 30, classTeacherId: '' });
     setDialogOpen(true);
   }
 
@@ -119,7 +121,7 @@ export function ClassesManager() {
     setEditingClass(cls);
     form.reset({
       name: cls.name,
-      section: cls.gradeLevel ?? '',
+      levelId: cls.levelId ?? '',
       capacity: cls.capacity,
       classTeacherId: cls.classTeacherId ?? '',
     });
@@ -130,6 +132,7 @@ export function ClassesManager() {
     if (!currentSessionId) return;
     const payload = {
       name: values.name,
+      levelId: values.levelId,
       sessionId: currentSessionId,
       capacity: values.capacity || undefined,
       classTeacherId: values.classTeacherId || undefined,
@@ -210,7 +213,7 @@ export function ClassesManager() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
-                  <TableHead>Section</TableHead>
+                  <TableHead>Level</TableHead>
                   <TableHead>Capacity</TableHead>
                   <TableHead>Teacher</TableHead>
                   <TableHead>Students</TableHead>
@@ -221,7 +224,7 @@ export function ClassesManager() {
                 {classes.map((cls) => (
                   <TableRow key={cls.id}>
                     <TableCell className="font-medium">{cls.name}</TableCell>
-                    <TableCell>{cls.gradeLevel ?? '—'}</TableCell>
+                    <TableCell>{cls.levelName ?? cls.gradeLevel ?? '—'}</TableCell>
                     <TableCell>{cls.capacity}</TableCell>
                     <TableCell>
                       {cls.classTeacherName ?? '—'}
@@ -303,13 +306,27 @@ export function ClassesManager() {
                 />
                 <FormField
                   control={form.control}
-                  name="section"
+                  name="levelId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Section (Optional)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g. A" {...field} />
-                      </FormControl>
+                      <FormLabel>Level</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a level" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {(levels ?? []).map((level) => (
+                            <SelectItem key={level.id} value={level.id}>
+                              {level.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}

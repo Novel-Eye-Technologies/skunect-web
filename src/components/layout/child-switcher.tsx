@@ -43,6 +43,8 @@ export function ChildSwitcher() {
         lastName: s.lastName,
         classId: s.classId ?? null,
         className: s.className ?? null,
+        // SCRUM-63: pass through levelName so the dropdown can display it alongside class
+        levelName: s.levelName ?? null,
         photo: s.photo ?? null,
       }));
       setChildren(mapped);
@@ -91,7 +93,12 @@ export function ChildSwitcher() {
                 <p className="text-sm font-medium truncate">
                   {child.firstName} {child.lastName}
                 </p>
-                <p className="text-xs text-muted-foreground">{child.className}</p>
+                <p className="text-xs text-muted-foreground">
+                  {/* SCRUM-63: surface level alongside class for clearer identification */}
+                  {child.levelName
+                    ? `${child.levelName} • ${child.className ?? ''}`
+                    : child.className}
+                </p>
               </div>
             </DropdownMenuItem>
           );
