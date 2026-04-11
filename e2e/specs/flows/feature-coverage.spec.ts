@@ -534,20 +534,16 @@ test.describe('10 — Fees & Homework Tests', () => {
 
   // -------------------------------------------------------------------------
   // SCRUM-63: Levels tab + multi-target fee form + amount spinner removal
-  //
-  // These tests assert UI elements introduced by SCRUM-63 PR 4. CI runs E2E
-  // against dev.skunect.com — until PR 4 is deployed there, the elements do not
-  // exist and the tests are skipped. Unskip in a follow-up commit after deploy.
   // -------------------------------------------------------------------------
 
-  test.skip('10.8 — SCRUM-63: School settings exposes a Levels tab', async ({ adminPage }) => {
+  test('10.8 — SCRUM-63: School settings exposes a Levels tab', async ({ adminPage }) => {
     const settings = new SchoolSettingsPage(adminPage);
     await settings.goto();
     await settings.expectVisible();
     await expect(settings.levelsTab).toBeVisible();
   });
 
-  test.skip('10.9 — SCRUM-63: Levels tab shows seeded Nigerian taxonomy', async ({ adminPage }) => {
+  test('10.9 — SCRUM-63: Levels tab shows seeded Nigerian taxonomy', async ({ adminPage }) => {
     const settings = new SchoolSettingsPage(adminPage);
     await settings.goto();
     await settings.expectVisible();
@@ -562,7 +558,7 @@ test.describe('10 — Fees & Homework Tests', () => {
     ).toBeVisible({ timeout: 15_000 });
   });
 
-  test.skip('10.10 — SCRUM-63: Fee structure form has target picker (school/levels/classes)', async ({
+  test('10.10 — SCRUM-63: Fee structure form has target picker (school/levels/classes)', async ({
     adminPage,
   }) => {
     await adminPage.goto('/fees');
@@ -572,19 +568,23 @@ test.describe('10 — Fees & Homework Tests', () => {
     await fees.switchToFeeStructures();
     await fees.createStructureButton.click();
 
-    // Dialog opens — assert all three radio options are present
+    // Dialog opens — assert all three radio options are present.
+    // Use getByRole('radio') so the locator targets the input itself, not the
+    // label OR the auto-rendered badge in the "Selected" preview row (which
+    // shows "Whole school" since SCHOOL is the default target).
+    const dialog = adminPage.getByRole('dialog');
     await expect(
-      adminPage.getByRole('dialog').getByText('Whole school'),
+      dialog.getByRole('radio', { name: 'Whole school' }),
     ).toBeVisible({ timeout: 10_000 });
     await expect(
-      adminPage.getByRole('dialog').getByText('Specific levels'),
+      dialog.getByRole('radio', { name: 'Specific levels' }),
     ).toBeVisible();
     await expect(
-      adminPage.getByRole('dialog').getByText('Specific classes'),
+      dialog.getByRole('radio', { name: 'Specific classes' }),
     ).toBeVisible();
   });
 
-  test.skip('10.11 — SCRUM-63 bug fix: Amount input has no spinner arrows', async ({
+  test('10.11 — SCRUM-63 bug fix: Amount input has no spinner arrows', async ({
     adminPage,
   }) => {
     await adminPage.goto('/fees');
@@ -604,7 +604,7 @@ test.describe('10 — Fees & Homework Tests', () => {
     expect(className).toContain('appearance:textfield');
   });
 
-  test.skip('10.12 — SCRUM-63: Selecting "Specific levels" reveals the level multi-select', async ({
+  test('10.12 — SCRUM-63: Selecting "Specific levels" reveals the level multi-select', async ({
     adminPage,
   }) => {
     await adminPage.goto('/fees');
