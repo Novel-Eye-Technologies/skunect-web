@@ -54,6 +54,8 @@ export function AssignClassDialog({
         classId: selectedClassId,
         data: {
           name: cls.name,
+          // SCRUM-63: levelId is required by the backend; preserve the existing one.
+          levelId: cls.levelId,
           sessionId: currentSessionId,
           capacity: cls.capacity,
           classTeacherId: teacher.id,
