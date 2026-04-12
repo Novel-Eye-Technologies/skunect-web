@@ -1069,8 +1069,25 @@ export interface paths {
         /** Get promotion history */
         get: operations["getPromotionHistory"];
         put?: never;
-        /** Bulk promote students */
+        /** Bulk promote students between two specific classes */
         post: operations["bulkPromote"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/schools/{schoolId}/promotions/level": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** SCRUM-63 PR 6: Bulk promote every active student in a level to the corresponding class in another level. Source classes are mapped to destination classes by suffix (e.g. JSS 1A → JSS 2A by trailing 'A'). Students whose source class has no suffix-matched destination are returned in the response's 'unmatched' list and skipped — admins handle them via the class-to-class endpoint. */
+        post: operations["promoteLevel"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3713,10 +3730,10 @@ export interface components {
             relationship: string;
             isEmergencyContact: boolean;
             isApproved: boolean;
-            phone: string;
-            email: string;
             firstName: string;
             lastName: string;
+            phone: string;
+            email: string;
         };
         StudentResponse: {
             /** Format: uuid */
@@ -3755,8 +3772,8 @@ export interface components {
             status: string;
             parents: components["schemas"]["ParentLinkResponse"][];
             isActive: boolean;
-            otherName: string;
             photo: string;
+            otherName: string;
         };
         CreateSessionRequest: {
             name: string;
@@ -4897,11 +4914,50 @@ export interface components {
             toClassId?: string | null;
             toClassName?: string | null;
             /** Format: uuid */
+            fromLevelId: string;
+            fromLevelName?: string | null;
+            /** Format: uuid */
+            toLevelId: string;
+            toLevelName?: string | null;
+            /** @enum {string} */
+            promotionType: "SIBLING_MOVE" | "LEVEL_ADVANCEMENT" | "REPETITION";
+            /** Format: uuid */
             sessionId: string;
             status: string;
             remarks?: string | null;
             /** Format: date-time */
             createdAt: string;
+        };
+        PromoteLevelRequest: {
+            /** Format: uuid */
+            fromLevelId: string;
+            /** Format: uuid */
+            toLevelId: string;
+            /** Format: uuid */
+            sessionId: string;
+            studentIds?: string[];
+        };
+        ApiResponsePromoteLevelResponse: {
+            status?: string;
+            message?: string;
+            data?: components["schemas"]["PromoteLevelResponse"];
+            errors?: components["schemas"]["ErrorDetail"][];
+            meta?: components["schemas"]["PageMeta"];
+        };
+        PromoteLevelResponse: {
+            promoted: components["schemas"]["PromotionResponse"][];
+            unmatched: components["schemas"]["UnmatchedStudent"][];
+        };
+        UnmatchedStudent: {
+            /** Format: uuid */
+            studentId?: string;
+            studentName?: string;
+            admissionNumber?: string;
+            /** Format: uuid */
+            sourceClassId?: string;
+            sourceClassName?: string;
+            /** @description Why no destination class was matched (e.g. 'No class with suffix A in JSS 2') */
+            reason?: string;
         };
         RecordPickupRequest: {
             /** Format: uuid */
@@ -9424,6 +9480,32 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApiResponseListPromotionResponse"];
+                };
+            };
+        };
+    };
+    promoteLevel: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                schoolId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PromoteLevelRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponsePromoteLevelResponse"];
                 };
             };
         };

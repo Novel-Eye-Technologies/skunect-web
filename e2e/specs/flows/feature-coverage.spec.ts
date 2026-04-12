@@ -624,6 +624,43 @@ test.describe('10 — Fees & Homework Tests', () => {
       adminPage.getByRole('dialog').getByText(/^Levels$/),
     ).toBeVisible({ timeout: 5_000 });
   });
+
+  // -------------------------------------------------------------------------
+  // SCRUM-63 PR 6: Promotions page has "By Class" + "By Level" tabs
+  //
+  // These assert the new tabbed promotions UI introduced in this branch. CI
+  // runs E2E against dev.skunect.com — until this PR deploys the elements
+  // don't exist. Unskip in a follow-up commit after deploy. Same pattern as
+  // 10.8–10.12 in PR 4.
+  // -------------------------------------------------------------------------
+
+  test.skip('10.13 — SCRUM-63: Promotions page exposes By Class and By Level tabs', async ({
+    adminPage,
+  }) => {
+    await adminPage.goto('/promotions');
+    await adminPage.waitForLoadState('networkidle').catch(() => {});
+    await expect(
+      adminPage.getByRole('heading', { name: /student promotions/i }),
+    ).toBeVisible({ timeout: 20_000 });
+    await expect(adminPage.getByRole('tab', { name: 'By Class' })).toBeVisible();
+    await expect(adminPage.getByRole('tab', { name: 'By Level' })).toBeVisible();
+  });
+
+  test.skip('10.14 — SCRUM-63: By Level tab reveals source/target level selectors and Promote button', async ({
+    adminPage,
+  }) => {
+    await adminPage.goto('/promotions');
+    await adminPage.waitForLoadState('networkidle').catch(() => {});
+    await adminPage.getByRole('tab', { name: 'By Level' }).click();
+    await expect(
+      adminPage.getByRole('heading', { name: /promote an entire level/i }),
+    ).toBeVisible({ timeout: 10_000 });
+    await expect(adminPage.getByText('Source Level')).toBeVisible();
+    await expect(adminPage.getByText('Target Level')).toBeVisible();
+    await expect(
+      adminPage.getByRole('button', { name: /promote level/i }),
+    ).toBeVisible();
+  });
 });
 
 // =========================================================================
