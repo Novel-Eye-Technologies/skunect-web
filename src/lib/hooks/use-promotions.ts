@@ -8,8 +8,9 @@ import {
   getEligibleStudents,
   bulkPromote,
   getPromotionHistory,
+  promoteLevel,
 } from '@/lib/api/promotions';
-import type { BulkPromoteRequest } from '@/lib/types/promotion';
+import type { BulkPromoteRequest, PromoteLevelRequest } from '@/lib/types/promotion';
 import { queryClient } from '@/lib/query-client';
 
 const promotionKeys = {
@@ -54,5 +55,40 @@ export function usePromotionHistory(sessionId?: string) {
     queryFn: () => getPromotionHistory(schoolId!, sessionId),
     enabled: !!schoolId,
     select: (response) => response.data,
+  });
+}
+
+/**
+ * SCRUM-63 PR 6: Promote an entire level. Returns the full PromoteLevelResponse
+ * via the mutation's data so callers can render both the promoted list and the
+ * unmatched list (students whose source class had no suffix-matched destination).
+ */
+export function usePromoteLevel() {
+  const schoolId = useAuthStore((s) => s.currentSchoolId);
+  return useMutation({
+    mutationFn: (data: PromoteLevelRequest) => promoteLevel(schoolId!, data),
+    onSuccess: (response) => {
+      const promoted = response.data?.promoted?.length ?? 0;
+      const unmatched = response.data?.unmatched?.length ?? 0;
+      if (promoted > 0 && unmatched === 0) {
+        toast.success(`Promoted ${promoted} student(s) successfully`);
+      } else if (promoted > 0 && unmatched > 0) {
+        toast.success(
+          `Promoted ${promoted} student(s); ${unmatched} need manual handling`,
+        );
+      } else if (promoted === 0 && unmatched > 0) {
+        toast.warning(
+          `${unmatched} student(s) could not be auto-mapped; handle manually`,
+        );
+      } else {
+        toast.success('No students to promote');
+      }
+      queryClient.invalidateQueries({ queryKey: promotionKeys.all });
+      queryClient.invalidateQueries({ queryKey: ['students'] });
+      queryClient.invalidateQueries({ queryKey: ['classes'] });
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Failed to promote level'));
+    },
   });
 }
